@@ -18,13 +18,13 @@
 
   // ---- KONFİGÜRASYON ----
   const APARTIM_CONFIG = {
-    apiKey: "",
-    authDomain: "",
-    databaseURL: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyAAUjKNJGmrRLd7xQN9XZde-n2PlDYprv4",
+    authDomain: "apartim-app.firebaseapp.com",
+    databaseURL: "https://apartim-app-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "apartim-app",
+    storageBucket: "apartim-app.firebasestorage.app",
+    messagingSenderId: "934154332443",
+    appId: "1:934154332443:web:ade10950b1f115d2358bbe"
   };
 
   const cfgDoluMu = APARTIM_CONFIG.apiKey && APARTIM_CONFIG.projectId && APARTIM_CONFIG.databaseURL;
