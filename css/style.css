@@ -342,64 +342,63 @@ html.theme-light {
 .bina-baslik p { margin: 0; color: var(--metin-soluk); font-size: 14px; }
 
 .bina-svg-wrap {
-  width: 100%; max-width: 640px;
-  background: linear-gradient(180deg, #6c91a6 0%, #a8c2c8 60%, #c0d4d0 100%);
+  width: 100%; max-width: 720px;
+  background: transparent;
   border-radius: 22px;
-  padding: 10px;
-  box-shadow: var(--golge);
-  border: 1px solid var(--kenar);
-  overflow: hidden;
-}
-html.theme-light .bina-svg-wrap {
-  background: linear-gradient(180deg, #a8c8d8 0%, #d8e4dc 60%, #e8eee0 100%);
+  padding: 0;
+  box-shadow: none;
+  border: none;
+  overflow: visible;
 }
 .bina-svg { width: 100%; height: auto; display: block; }
+.bina-svg image { transition: filter 200ms ease; }
 .bina-svg .daire {
   cursor: pointer;
-  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 200ms ease;
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
   transform-origin: center;
   transform-box: fill-box;
 }
 .bina-svg .daire-bolge {
-  fill: transparent;
+  fill: rgba(255, 255, 255, 0);
   stroke: transparent;
-  stroke-width: 3;
-  rx: 4;
-  transition: stroke 160ms ease, fill 160ms ease;
+  stroke-width: 4;
+  transition: stroke 180ms ease, fill 180ms ease;
   pointer-events: all;
 }
 .bina-svg .daire-etiket-grup {
   opacity: 0;
-  transition: opacity 180ms ease;
+  transition: opacity 180ms ease, transform 200ms ease;
   pointer-events: none;
 }
 .bina-svg .daire:hover .daire-etiket-grup,
 .bina-svg .daire:focus-visible .daire-etiket-grup { opacity: 1; }
 .bina-svg .daire:hover {
-  filter: brightness(1.08);
+  transform: scale(1.015);
 }
 .bina-svg .daire:hover .daire-bolge,
 .bina-svg .daire:focus-visible .daire-bolge {
   stroke: #fff;
-  stroke-width: 3;
-  fill: rgba(255, 255, 255, 0.10);
+  stroke-width: 4;
+  fill: rgba(255, 255, 255, 0.12);
 }
 .bina-svg .daire:focus { outline: none; }
-.bina-svg:hover .daire:not(:hover) { opacity: 0.78; }
+.bina-svg:hover .daire:not(:hover) .daire-bolge { stroke: rgba(0, 0, 0, 0); }
 
-/* Durum noktaları */
+/* Durum noktaları (büyük, beyaz halka içinde) */
 .bina-svg .durum-nokta { transition: fill 200ms ease; }
 .bina-svg .durum-nokta-bos-temiz { fill: var(--bos-temiz); }
 .bina-svg .durum-nokta-dolu { fill: var(--dolu); }
 .bina-svg .durum-nokta-bos-kirli { fill: var(--bos-kirli); }
 .bina-svg .durum-nokta-temizleniyor { fill: var(--temizleniyor); }
+.bina-svg .durum-grup { transition: transform 200ms ease; transform-origin: center; transform-box: fill-box; }
+.bina-svg .daire:hover .durum-grup { transform: scale(1.15); }
 
 .bina-svg .daire-etiket {
   fill: #fff;
   font-family: "Nunito", sans-serif;
   font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 1px;
+  font-size: 16px;
+  letter-spacing: 2px;
   pointer-events: none;
 }
 

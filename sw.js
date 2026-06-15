@@ -1,5 +1,5 @@
 /* Apartım — basit cache-first service worker */
-const CACHE_VERSION = "apartim-v5-20260615e";
+const CACHE_VERSION = "apartim-v6-20260615f";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -17,7 +17,8 @@ const CORE_ASSETS = [
   "./js/app.js",
   "./icons/icon-192.png",
   "./icons/icon-256.png",
-  "./icons/icon-512.png"
+  "./icons/icon-512.png",
+  "./icons/apart-illustrasyon.png"
 ];
 
 self.addEventListener("install", (event) => {
