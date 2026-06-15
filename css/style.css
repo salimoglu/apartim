@@ -342,25 +342,30 @@ html.theme-light {
 .bina-baslik p { margin: 0; color: var(--metin-soluk); font-size: 14px; }
 
 .bina-svg-wrap {
-  width: 100%; max-width: 540px;
-  background: var(--zemin-2);
-  border-radius: 16px;
-  padding: 22px;
-  box-shadow: var(--golge-sm);
+  width: 100%; max-width: 640px;
+  background: linear-gradient(180deg, #6c91a6 0%, #a8c2c8 60%, #c0d4d0 100%);
+  border-radius: 22px;
+  padding: 10px;
+  box-shadow: var(--golge);
   border: 1px solid var(--kenar);
+  overflow: hidden;
+}
+html.theme-light .bina-svg-wrap {
+  background: linear-gradient(180deg, #a8c8d8 0%, #d8e4dc 60%, #e8eee0 100%);
 }
 .bina-svg { width: 100%; height: auto; display: block; }
 .bina-svg .daire {
   cursor: pointer;
-  transition: opacity 180ms ease, transform 180ms ease;
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), filter 200ms ease;
   transform-origin: center;
   transform-box: fill-box;
 }
 .bina-svg .daire-bolge {
   fill: transparent;
   stroke: transparent;
-  stroke-width: 1.5;
-  transition: stroke 160ms ease;
+  stroke-width: 3;
+  rx: 4;
+  transition: stroke 160ms ease, fill 160ms ease;
   pointer-events: all;
 }
 .bina-svg .daire-etiket-grup {
@@ -371,40 +376,29 @@ html.theme-light {
 .bina-svg .daire:hover .daire-etiket-grup,
 .bina-svg .daire:focus-visible .daire-etiket-grup { opacity: 1; }
 .bina-svg .daire:hover {
-  transform: translateY(-1px);
+  filter: brightness(1.08);
 }
 .bina-svg .daire:hover .daire-bolge,
 .bina-svg .daire:focus-visible .daire-bolge {
-  stroke: var(--vurgu);
-  stroke-width: 1.5;
+  stroke: #fff;
+  stroke-width: 3;
+  fill: rgba(255, 255, 255, 0.10);
 }
 .bina-svg .daire:focus { outline: none; }
-
-/* Sadece aktif daire (hover hariç) odakta diğerleri biraz solar */
-.bina-svg:hover .daire:not(:hover) { opacity: 0.55; }
+.bina-svg:hover .daire:not(:hover) { opacity: 0.78; }
 
 /* Durum noktaları */
-.bina-svg .durum-nokta { transition: fill 200ms ease; stroke: var(--zemin-2); stroke-width: 1.5; }
+.bina-svg .durum-nokta { transition: fill 200ms ease; }
 .bina-svg .durum-nokta-bos-temiz { fill: var(--bos-temiz); }
 .bina-svg .durum-nokta-dolu { fill: var(--dolu); }
 .bina-svg .durum-nokta-bos-kirli { fill: var(--bos-kirli); }
 .bina-svg .durum-nokta-temizleniyor { fill: var(--temizleniyor); }
 
-/* Daire genel durum — sadece pencere camı rengi yumuşak değişir */
-.bina-svg .daire .pencere rect,
-.bina-svg .daire .pencere-tek { transition: fill 220ms ease; }
-.bina-svg .daire-dolu .pencere rect,
-.bina-svg .daire-dolu .pencere-tek { fill: var(--bina-cam-dolu); }
-.bina-svg .daire-bos-kirli .pencere rect,
-.bina-svg .daire-bos-kirli .pencere-tek { fill: var(--bina-cam-kirli); }
-.bina-svg .daire-temizleniyor .pencere rect,
-.bina-svg .daire-temizleniyor .pencere-tek { fill: var(--bina-cam-temizleniyor); }
-
 .bina-svg .daire-etiket {
-  fill: var(--zemin-2);
+  fill: #fff;
   font-family: "Nunito", sans-serif;
-  font-weight: 700;
-  font-size: 10px;
+  font-weight: 800;
+  font-size: 11px;
   letter-spacing: 1px;
   pointer-events: none;
 }
