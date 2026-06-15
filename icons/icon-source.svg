@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1b2a3a"/>
+      <stop offset="100%" stop-color="#0d1721"/>
+    </linearGradient>
+    <linearGradient id="ahsap" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a76936"/>
+      <stop offset="100%" stop-color="#7a4621"/>
+    </linearGradient>
+    <linearGradient id="cati" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5b2a17"/>
+      <stop offset="100%" stop-color="#3a1a0c"/>
+    </linearGradient>
+    <linearGradient id="cam" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#bfe4ff"/>
+      <stop offset="100%" stop-color="#5e9bd0"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="96" ry="96" fill="url(#bg)"/>
+
+  <!-- Cat1 -->
+  <path d="M 88 200 L 256 110 L 424 200 L 412 218 L 256 132 L 100 218 Z" fill="url(#cati)"/>
+
+  <!-- Ust kat (tek daire) -->
+  <rect x="166" y="200" width="180" height="80" fill="url(#ahsap)"/>
+  <rect x="180" y="216" width="64" height="48" fill="url(#cam)" stroke="#3a1a0c" stroke-width="3"/>
+  <rect x="268" y="216" width="64" height="48" fill="url(#cam)" stroke="#3a1a0c" stroke-width="3"/>
+
+  <!-- Orta kat (2 daire) -->
+  <rect x="120" y="280" width="272" height="86" fill="url(#ahsap)"/>
+  <line x1="256" y1="280" x2="256" y2="366" stroke="#3a1a0c" stroke-width="4"/>
+  <rect x="138" y="296" width="44" height="54" fill="url(#cam)" stroke="#3a1a0c" stroke-width="3"/>
+  <rect x="194" y="296" width="44" height="54" fill="url(#cam)" stroke="#3a1a0c" stroke-width="3"/>
+  <rect x="274" y="296" width="44" height="54" fill="url(#cam)" stroke="#3a1a0c" stroke-width="3"/>
+  <rect x="330" y="296" width="44" height="54" fill="url(#cam)" stroke="#3a1a0c" stroke-width="3"/>
+
+  <!-- Alt kat (ta_ cephe, 2 daire) -->
+  <rect x="120" y="366" width="272" height="80" fill="#cbb89c"/>
+  <g opacity="0.5">
+    <rect x="128" y="370" width="24" height="14" fill="#a99977"/>
+    <rect x="158" y="378" width="28" height="14" fill="#a99977"/>
+    <rect x="192" y="370" width="26" height="14" fill="#a99977"/>
+    <rect x="224" y="378" width="28" height="14" fill="#a99977"/>
+    <rect x="258" y="370" width="22" height="14" fill="#a99977"/>
+    <rect x="284" y="378" width="28" height="14" fill="#a99977"/>
+    <rect x="318" y="370" width="26" height="14" fill="#a99977"/>
+    <rect x="350" y="378" width="34" height="14" fill="#a99977"/>
+    <rect x="130" y="398" width="30" height="14" fill="#a99977"/>
+    <rect x="166" y="406" width="26" height="14" fill="#a99977"/>
+    <rect x="200" y="398" width="32" height="14" fill="#a99977"/>
+    <rect x="238" y="406" width="24" height="14" fill="#a99977"/>
+    <rect x="268" y="398" width="30" height="14" fill="#a99977"/>
+    <rect x="302" y="406" width="28" height="14" fill="#a99977"/>
+    <rect x="334" y="398" width="32" height="14" fill="#a99977"/>
+    <rect x="370" y="406" width="20" height="14" fill="#a99977"/>
+  </g>
+  <line x1="256" y1="366" x2="256" y2="446" stroke="#7a6a4d" stroke-width="4"/>
+  <!-- Kapilar -->
+  <rect x="158" y="392" width="28" height="54" fill="#5e3a1c"/>
+  <rect x="326" y="392" width="28" height="54" fill="#5e3a1c"/>
+  <!-- Pencereler -->
+  <rect x="208" y="398" width="34" height="34" fill="url(#cam)" stroke="#3a1a0c" stroke-width="2"/>
+  <rect x="270" y="398" width="34" height="34" fill="url(#cam)" stroke="#3a1a0c" stroke-width="2"/>
+
+  <!-- Zemin -->
+  <rect x="80" y="446" width="352" height="14" fill="#2a1a0c"/>
+</svg>

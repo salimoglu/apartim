@@ -1,0 +1,18 @@
+name: Deploy Firebase DB rules
+
+# GitHub repo → Settings → Secrets and variables → Actions → New repository secret
+# FIREBASE_TOKEN değerini almak için bir kez şunu çalıştırın:
+#   npx firebase-tools@latest login:ci
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy Realtime Database rules
+        run: npx firebase-tools@latest deploy --only database --non-interactive
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

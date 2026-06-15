@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#15202b" />
+  <meta name="apple-mobile-web-app-title" content="Apartım" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="msapplication-TileColor" content="#15202b" />
+  <meta name="msapplication-TileImage" content="icons/icon-192.png?v=20260615" />
+  <title>Apartım — Apart-otel takip</title>
+  <link rel="icon" href="icons/favicon.ico?v=20260615" sizes="48x48" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
+  <link rel="manifest" href="manifest.json?v=20260615" />
+  <link rel="stylesheet" href="css/style.css?v=20260615" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <script>
+    /* Tema önyükleme — flash önleme */
+    (function () {
+      try {
+        if (localStorage.getItem("apartim-tema") === "light") {
+          document.documentElement.classList.add("theme-light");
+        }
+      } catch (e) {}
+    })();
+  </script>
+
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+  <!-- KİLİT EKRANI / GİRİŞ -->
+  <div id="lock-screen" class="lock-screen">
+    <div class="lock-inner">
+      <div class="lock-logo">
+        <img class="lock-app-icon" src="icons/icon-256.png?v=20260615" alt="" width="96" height="96" decoding="async" />
+        <h1 class="lock-title">APARTIM</h1>
+        <p class="lock-sub">Apart-otel takip uygulaması</p>
+      </div>
+      <div class="lock-auth-panel">
+        <p class="lock-auth-baslik" id="lock-auth-baslik">Giriş</p>
+        <p class="lock-auth-aciklama" id="lock-auth-aciklama">Google ile tek tık veya e-posta ile kayıt olun. Verileriniz yalnızca size aittir.</p>
+        <button type="button" class="lock-auth-btn google" id="lock-btn-google" aria-label="Google ile giriş">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Google ile devam et
+        </button>
+        <p class="lock-auth-veya">veya e-posta</p>
+        <div class="lock-auth-fields">
+          <input type="email" id="lock-email" class="lock-input" placeholder="E-posta" autocomplete="email" inputmode="email" />
+          <input type="password" id="lock-sifre" class="lock-input" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password" />
+        </div>
+        <button type="button" class="lock-auth-btn primary" id="lock-btn-giris">Giriş yap</button>
+        <button type="button" class="lock-auth-btn secondary hidden" id="lock-btn-kayit">Hesap oluştur</button>
+        <p class="lock-auth-toggle">
+          <button type="button" class="lock-auth-link" id="lock-toggle-kayit">Hesabım yok, kayıt ol</button>
+          <button type="button" class="lock-auth-link hidden" id="lock-toggle-giris">Zaten hesabım var</button>
+        </p>
+        <p class="lock-fb-error" id="fb-auth-error"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- UYGULAMA -->
+  <div id="app" class="app hidden">
+    <header class="topbar">
+      <div class="topbar-left" id="topbar-home" title="Ana ekran">
+        <span><img class="app-logo-img" src="icons/icon-256.png?v=20260615" alt="" width="36" height="36" decoding="async" /></span>
+        <span class="app-name">APARTIM</span>
+      </div>
+      <div class="topbar-right">
+        <span id="sync-durum" class="sync-durum" title="Bulut senkron"></span>
+        <button class="icon-btn hidden" id="install-btn" title="Uygulamayı yükle">&#11015;</button>
+        <div class="ayar-wrap" id="ayar-wrap">
+          <button type="button" class="ayar-trigger" id="ayar-trigger" aria-label="Ayarlar" aria-haspopup="true" title="Ayarlar">
+            <img class="ayar-avatar" id="ayar-avatar" src="icons/icon-256.png?v=20260615" alt="" width="32" height="32" decoding="async" referrerpolicy="no-referrer" />
+          </button>
+          <div class="ayar-menu hidden" id="ayar-menu" role="menu">
+            <div class="ayar-user">
+              <span class="ayar-email" id="ayar-email"></span>
+            </div>
+            <div class="ayar-divider"></div>
+            <button type="button" class="ayar-item" id="ayar-tema" role="menuitem">
+              <span class="ayar-item-ikon" aria-hidden="true">
+                <svg id="ayar-theme-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
+                <svg id="ayar-theme-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="4" fill="currentColor"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/><line x1="4.93" y1="4.93" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.07" y2="19.07"/><line x1="2" y1="12" x2="4" y2="12"/><line x1="20" y1="12" x2="22" y2="12"/><line x1="4.93" y1="19.07" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.07" y2="4.93"/></svg>
+              </span>
+              <span id="ayar-tema-metin">Açık tema</span>
+            </button>
+            <button type="button" class="ayar-item" id="ayar-yenile" role="menuitem">
+              <span class="ayar-item-ikon" aria-hidden="true">&#8635;</span>
+              <span>Yenile</span>
+            </button>
+            <div class="ayar-divider"></div>
+            <button type="button" class="ayar-item ayar-cikis" id="ayar-cikis" role="menuitem">
+              <span class="ayar-item-ikon" aria-hidden="true">&#10140;</span>
+              <span>Çıkış yap</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="bina"><span class="tab-icon">&#127968;</span><span class="tab-label">Apart</span></button>
+      <button class="tab-btn" data-tab="rezervasyonlar"><span class="tab-icon">&#128197;</span><span class="tab-label">Rezervasyonlar</span></button>
+      <button class="tab-btn" data-tab="temizlik"><span class="tab-icon">&#129529;</span><span class="tab-label">Temizlik</span></button>
+      <button class="tab-btn" data-tab="rapor"><span class="tab-icon">&#128202;</span><span class="tab-label">Rapor</span></button>
+    </nav>
+
+    <main class="content">
+      <!-- BİNA / DAİRE SEÇİMİ -->
+      <section id="tab-bina" class="tab-panel active">
+        <div class="bina-wrap" id="bina-wrap">
+          <div class="bina-baslik">
+            <h2>Apartım</h2>
+            <p>Bir daireye tıklayın</p>
+          </div>
+          <div class="bina-svg-wrap" id="bina-svg-wrap">
+            <!-- bina.js inline SVG'yi buraya yerleştirir -->
+          </div>
+          <div class="bina-legend">
+            <div class="bina-legend-item"><span class="bina-legend-dot" style="background:#2ecc71"></span> Boş & temiz</div>
+            <div class="bina-legend-item"><span class="bina-legend-dot" style="background:#e74c3c"></span> Dolu</div>
+            <div class="bina-legend-item"><span class="bina-legend-dot" style="background:#f39c12"></span> Boş & kirli</div>
+            <div class="bina-legend-item"><span class="bina-legend-dot" style="background:#3498db"></span> Temizleniyor</div>
+          </div>
+          <div class="bina-ozet" id="bina-ozet">
+            <div class="bina-ozet-kart">
+              <span class="label">Toplam daire</span>
+              <span class="val" id="ozet-toplam">5</span>
+            </div>
+            <div class="bina-ozet-kart dolu">
+              <span class="label">Bugün dolu</span>
+              <span class="val" id="ozet-dolu">0</span>
+            </div>
+            <div class="bina-ozet-kart bos">
+              <span class="label">Bugün boş</span>
+              <span class="val" id="ozet-bos">5</span>
+            </div>
+            <div class="bina-ozet-kart kirli">
+              <span class="label">Temizlenecek</span>
+              <span class="val" id="ozet-kirli">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- DAİRE DETAYI (bina ekranıyla aynı sekme içinde değiştirilir) -->
+        <div class="daire-wrap hidden" id="daire-wrap">
+          <div class="daire-header">
+            <button type="button" class="daire-back" id="daire-back">&#9664; Geri</button>
+            <div class="daire-title">
+              <h2 id="daire-baslik">Daire</h2>
+              <span class="alt" id="daire-altbaslik">Kat ve konum</span>
+            </div>
+            <div class="daire-ucret">
+              <label for="daire-ucret-inp">Günlük</label>
+              <input type="number" id="daire-ucret-inp" min="0" step="50" />
+              <span class="tl">TL</span>
+            </div>
+            <button type="button" class="daire-temizlik" id="daire-temizlik" data-durum="temiz">
+              <span class="daire-temizlik-dot"></span>
+              <span id="daire-temizlik-metin">Temiz</span>
+            </button>
+          </div>
+
+          <div class="daire-subnav">
+            <button class="daire-subnav-btn active" data-panel="takvim">Takvim</button>
+            <button class="daire-subnav-btn" data-panel="rez">Rezervasyonlar</button>
+            <button class="daire-subnav-btn" data-panel="temizlik">Temizlik</button>
+          </div>
+
+          <div class="daire-panel active" id="daire-panel-takvim">
+            <div class="takvim-wrap">
+              <div class="takvim-nav">
+                <button type="button" class="takvim-ay-btn" id="takvim-prev">&#9664;</button>
+                <div class="takvim-ay-baslik" id="takvim-ay-baslik">—</div>
+                <button type="button" class="takvim-bugun-btn" id="takvim-bugun">Bugün</button>
+                <button type="button" class="takvim-ay-btn" id="takvim-next">&#9654;</button>
+              </div>
+              <div class="takvim-grid" id="takvim-grid"></div>
+            </div>
+          </div>
+
+          <div class="daire-panel" id="daire-panel-rez">
+            <div class="rez-liste">
+              <button type="button" class="rez-yeni-btn" id="rez-yeni-btn">+ Yeni rezervasyon</button>
+              <div id="rez-liste-icerik"></div>
+            </div>
+          </div>
+
+          <div class="daire-panel" id="daire-panel-temizlik">
+            <div class="temizlik-liste" id="temizlik-liste-icerik"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TÜM REZERVASYONLAR -->
+      <section id="tab-rezervasyonlar" class="tab-panel">
+        <div class="rez-liste" id="tum-rez-liste">
+          <div class="rez-bos">Yükleniyor...</div>
+        </div>
+      </section>
+
+      <!-- TEMİZLİK GENEL -->
+      <section id="tab-temizlik" class="tab-panel">
+        <div class="temizlik-liste" id="tum-temizlik-liste">
+          <div class="rez-bos">Yükleniyor...</div>
+        </div>
+      </section>
+
+      <!-- RAPOR -->
+      <section id="tab-rapor" class="tab-panel">
+        <div class="rapor-wrap">
+          <div class="rapor-ay-nav">
+            <button type="button" class="takvim-ay-btn" id="rapor-prev">&#9664;</button>
+            <div class="rapor-ay-baslik" id="rapor-ay-baslik">—</div>
+            <button type="button" class="takvim-ay-btn" id="rapor-next">&#9654;</button>
+          </div>
+          <div class="rapor-grid">
+            <div class="rapor-kart gelir">
+              <span class="label">Aylık gelir</span>
+              <div class="val" id="rapor-gelir">0 TL</div>
+            </div>
+            <div class="rapor-kart">
+              <span class="label">Toplam gece</span>
+              <div class="val" id="rapor-gece">0</div>
+            </div>
+            <div class="rapor-kart doluluk">
+              <span class="label">Doluluk</span>
+              <div class="val" id="rapor-doluluk">%0</div>
+            </div>
+            <div class="rapor-kart">
+              <span class="label">Rezervasyon</span>
+              <div class="val" id="rapor-rez">0</div>
+            </div>
+          </div>
+          <div class="rapor-daire-tablo" id="rapor-daire-tablo">
+            <div class="rapor-daire-satir header">
+              <span>Daire</span>
+              <span class="gece-val">Gece</span>
+              <span class="gelir-val">Gelir</span>
+              <span class="doluluk-val">Doluluk</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: REZERVASYON -->
+  <div id="modal-rez" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title" id="rez-modal-title">Yeni rezervasyon</h2>
+        <button type="button" class="modal-close" id="rez-modal-close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <div id="rez-modal-uyari" class="modal-uyari hidden"></div>
+        <div class="field-group">
+          <label class="field-label" for="rez-misafir">Misafir adı *</label>
+          <input type="text" id="rez-misafir" class="field-input" placeholder="Ad Soyad" maxlength="80" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="rez-telefon">Telefon</label>
+          <input type="tel" id="rez-telefon" class="field-input" placeholder="05XX XXX XX XX" maxlength="30" />
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="rez-giris">Giriş *</label>
+            <input type="date" id="rez-giris" class="field-input" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="rez-cikis">Çıkış *</label>
+            <input type="date" id="rez-cikis" class="field-input" />
+          </div>
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="rez-ucret">Günlük ücret (TL) *</label>
+          <input type="number" id="rez-ucret" class="field-input" min="0" step="50" placeholder="1500" />
+        </div>
+        <div class="field-group">
+          <label class="field-label" for="rez-notlar">Notlar</label>
+          <input type="text" id="rez-notlar" class="field-input" placeholder="İsteğe bağlı..." maxlength="200" />
+        </div>
+        <div class="rez-toplam-bar">
+          <span class="gece" id="rez-toplam-gece">0 gece</span>
+          <span class="tutar" id="rez-toplam-tutar">0 TL</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-danger hidden" id="rez-modal-sil">Sil</button>
+        <button type="button" class="btn-secondary" id="rez-modal-iptal">İptal</button>
+        <button type="button" class="btn-primary" id="rez-modal-kaydet">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ÇIKIŞ ONAYI -->
+  <div id="modal-cikis" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title">Çıkış yap</h2>
+        <button type="button" class="modal-close" id="cikis-close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <p>Misafirin çıkışı yapıldı mı? Daire otomatik olarak <strong>Kirli</strong> durumuna getirilecek.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="cikis-iptal">İptal</button>
+        <button type="button" class="btn-primary" id="cikis-onayla">Çıkış yapıldı</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SİL ONAYI -->
+  <div id="modal-onay" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title" id="onay-title">Onay</h2>
+        <button type="button" class="modal-close" id="onay-close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <p id="onay-metin">Devam etmek istiyor musunuz?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="onay-iptal">İptal</button>
+        <button type="button" class="btn-danger" id="onay-onayla">Evet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BİLDİRİMLER -->
+  <div class="toast-wrap" id="toast-wrap"></div>
+
+  <script src="js/firebase.js?v=20260615"></script>
+  <script src="js/auth.js?v=20260615"></script>
+  <script src="js/db.js?v=20260615"></script>
+  <script src="js/bina.js?v=20260615"></script>
+  <script src="js/takvim.js?v=20260615"></script>
+  <script src="js/rezervasyon.js?v=20260615"></script>
+  <script src="js/temizlik.js?v=20260615"></script>
+  <script src="js/daire.js?v=20260615"></script>
+  <script src="js/tema.js?v=20260615"></script>
+  <script src="js/app.js?v=20260615"></script>
+</body>
+</html>
