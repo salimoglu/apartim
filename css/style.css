@@ -54,6 +54,20 @@ img { max-width: 100%; display: block; }
   --radius-lg: 22px;
 
   --gecis: 180ms ease;
+
+  /* Bina (Material You pastel paleti — dark tema) */
+  --bina-cati: #c97365;
+  --bina-cati-koyu: #a85549;
+  --bina-ust: #f4d4b8;
+  --bina-orta: #e8c39a;
+  --bina-alt: #f5ead7;
+  --bina-cam: #b8d5e8;
+  --bina-cam-dolu: #ffd17a;
+  --bina-cam-kirli: #e6b8a8;
+  --bina-cam-temizleniyor: #b9e0d8;
+  --bina-kapi: #6b4a3a;
+  --bina-kapi-kol: #e8c87a;
+  --bina-kenar: #2a1a1a;
 }
 
 html.theme-light {
@@ -70,6 +84,20 @@ html.theme-light {
   --vurgu-soluk: rgba(31, 111, 92, 0.12);
   --golge: 0 8px 30px rgba(0, 0, 0, 0.12);
   --golge-sm: 0 2px 10px rgba(0, 0, 0, 0.08);
+
+  /* Bina light tema — daha doygun pastel */
+  --bina-cati: #d97757;
+  --bina-cati-koyu: #b85a3e;
+  --bina-ust: #fce0c4;
+  --bina-orta: #f0caa3;
+  --bina-alt: #faf0db;
+  --bina-cam: #c7e1f0;
+  --bina-cam-dolu: #ffd47a;
+  --bina-cam-kirli: #f0c8b8;
+  --bina-cam-temizleniyor: #c8eae2;
+  --bina-kapi: #7a5640;
+  --bina-kapi-kol: #d9b369;
+  --bina-kenar: #3a2418;
 }
 
 /* -------------------- 3. Kilit ekranı (auth) -------------------- */
@@ -313,18 +341,16 @@ html.theme-light {
 
 .bina-svg-wrap {
   width: 100%; max-width: 560px;
-  background:
-    radial-gradient(ellipse at center top, rgba(31,111,92,0.10) 0%, transparent 60%),
-    linear-gradient(180deg, var(--zemin-2) 0%, var(--zemin) 100%);
-  border-radius: var(--radius-lg);
-  padding: 14px;
-  box-shadow: var(--golge);
+  background: var(--zemin-2);
+  border-radius: 28px;
+  padding: 18px;
+  box-shadow: var(--golge-sm);
   border: 1px solid var(--kenar);
 }
 .bina-svg { width: 100%; height: auto; display: block; }
 .bina-svg .daire {
   cursor: pointer;
-  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), filter var(--gecis);
+  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1);
   transform-origin: center;
   transform-box: fill-box;
 }
@@ -332,8 +358,8 @@ html.theme-light {
   fill: transparent;
   stroke: transparent;
   stroke-width: 3;
-  rx: 6;
-  transition: stroke var(--gecis), fill var(--gecis);
+  transition: stroke 160ms ease;
+  pointer-events: all;
 }
 .bina-svg .daire-etiket-grup {
   opacity: 0;
@@ -343,29 +369,37 @@ html.theme-light {
 .bina-svg .daire:hover .daire-etiket-grup,
 .bina-svg .daire:focus .daire-etiket-grup { opacity: 1; }
 .bina-svg .daire:hover {
-  transform: translateY(-3px) scale(1.02);
-  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+  transform: translateY(-2px) scale(1.015);
 }
 .bina-svg .daire:hover .daire-bolge {
   stroke: var(--vurgu);
-  fill: rgba(255, 255, 255, 0.05);
+  stroke-width: 3;
 }
-.bina-svg .daire:hover .pencere rect {
-  filter: brightness(1.15);
-}
-.bina-svg .durum-nokta {
-  transition: fill var(--gecis), filter var(--gecis);
-  filter: drop-shadow(0 0 4px currentColor);
-}
-.bina-svg .durum-nokta-bos-temiz { fill: var(--bos-temiz); color: var(--bos-temiz); }
-.bina-svg .durum-nokta-dolu { fill: var(--dolu); color: var(--dolu); }
-.bina-svg .durum-nokta-bos-kirli { fill: var(--bos-kirli); color: var(--bos-kirli); }
-.bina-svg .durum-nokta-temizleniyor { fill: var(--temizleniyor); color: var(--temizleniyor); }
+.bina-svg .daire:focus { outline: none; }
+.bina-svg .daire:focus-visible .daire-bolge { stroke: var(--vurgu); stroke-width: 3; }
+
+/* Durum noktaları (sağ üst köşe göstergesi) */
+.bina-svg .durum-nokta { transition: fill 200ms ease; }
+.bina-svg .durum-nokta-bos-temiz { fill: var(--bos-temiz); }
+.bina-svg .durum-nokta-dolu { fill: var(--dolu); }
+.bina-svg .durum-nokta-bos-kirli { fill: var(--bos-kirli); }
+.bina-svg .durum-nokta-temizleniyor { fill: var(--temizleniyor); }
+
+/* Daire genel durum — cam rengi değişir (flat) */
+.bina-svg .daire .pencere rect,
+.bina-svg .daire .pencere-tek { transition: fill 220ms ease; }
+.bina-svg .daire-dolu .pencere rect,
+.bina-svg .daire-dolu .pencere-tek { fill: var(--bina-cam-dolu); }
+.bina-svg .daire-bos-kirli .pencere rect,
+.bina-svg .daire-bos-kirli .pencere-tek { fill: var(--bina-cam-kirli); }
+.bina-svg .daire-temizleniyor .pencere rect,
+.bina-svg .daire-temizleniyor .pencere-tek { fill: var(--bina-cam-temizleniyor); }
+
 .bina-svg .daire-etiket {
   fill: #fff;
   font-family: "Nunito", sans-serif;
   font-weight: 800;
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 1px;
   pointer-events: none;
 }
