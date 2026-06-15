@@ -1,222 +1,234 @@
 /* =========================================================
    APARTIM — Bina (ana ekran SVG)
-   3 katlı, 5 daireli (üst tek, orta 2, alt 2) inline SVG.
-   Her daire tıklanabilir bölge + durum noktası içerir.
+   3 katlı, 5 daireli (üst tek, orta 2, alt 2) sade & şık tasarım.
+   Düz renkler, yumuşak gradient, yuvarlatılmış köşeler.
    ========================================================= */
 
 (function () {
   "use strict";
 
-  const NS = "http://www.w3.org/2000/svg";
   const wrap = () => document.getElementById("bina-svg-wrap");
 
-  // ---- SVG iskelet ----
-  // ViewBox: 600 x 700 (orijinal foto oranına yakın)
-  // Koordinatlar fotoğraf temelli sadeleştirilmiş çerçeve.
+  // ViewBox 600 x 680, ortalanmış bina
   const SVG = `
-<svg class="bina-svg" viewBox="0 0 600 720" xmlns="http://www.w3.org/2000/svg" aria-label="Apartım binası">
+<svg class="bina-svg" viewBox="0 0 600 680" xmlns="http://www.w3.org/2000/svg" aria-label="Apartım binası">
   <defs>
-    <linearGradient id="gokyuzu" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#1a2d3e"/>
-      <stop offset="100%" stop-color="#0e1924"/>
+    <linearGradient id="gokGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2a3f55" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#15202b" stop-opacity="0"/>
     </linearGradient>
-    <linearGradient id="ahsap1" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#a76936"/>
-      <stop offset="100%" stop-color="#7a4621"/>
+
+    <linearGradient id="catiGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b04a32"/>
+      <stop offset="100%" stop-color="#7d2f1c"/>
     </linearGradient>
-    <linearGradient id="ahsap2" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#8b552a"/>
-      <stop offset="100%" stop-color="#5e3a1c"/>
+
+    <linearGradient id="ustGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e3b87a"/>
+      <stop offset="100%" stop-color="#c8965a"/>
     </linearGradient>
-    <linearGradient id="cati" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5b2a17"/>
-      <stop offset="100%" stop-color="#3a1a0c"/>
+
+    <linearGradient id="ortaGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dba76a"/>
+      <stop offset="100%" stop-color="#b8884a"/>
     </linearGradient>
-    <linearGradient id="cam" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#bfe4ff"/>
-      <stop offset="50%" stop-color="#7fb5dc"/>
-      <stop offset="100%" stop-color="#4e85ad"/>
+
+    <linearGradient id="altGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f5e8d3"/>
+      <stop offset="100%" stop-color="#e1cfb0"/>
     </linearGradient>
+
+    <linearGradient id="camGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#cfeaff"/>
+      <stop offset="60%" stop-color="#8cc6e8"/>
+      <stop offset="100%" stop-color="#5b9bc4"/>
+    </linearGradient>
+
     <linearGradient id="camDolu" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffd28a"/>
-      <stop offset="100%" stop-color="#c87b2e"/>
+      <stop offset="0%" stop-color="#ffe2a0"/>
+      <stop offset="100%" stop-color="#e8a347"/>
     </linearGradient>
-    <pattern id="tasDoku" width="40" height="22" patternUnits="userSpaceOnUse">
-      <rect width="40" height="22" fill="#cbb89c"/>
-      <rect x="0" y="0" width="22" height="10" fill="#b9a585" opacity="0.85"/>
-      <rect x="24" y="0" width="14" height="10" fill="#a99977" opacity="0.85"/>
-      <rect x="0" y="12" width="12" height="10" fill="#a99977" opacity="0.85"/>
-      <rect x="14" y="12" width="24" height="10" fill="#b9a585" opacity="0.85"/>
-    </pattern>
-    <filter id="bina-golge" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-opacity="0.45"/>
+
+    <linearGradient id="kapiGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b3f23"/>
+      <stop offset="100%" stop-color="#4a2a15"/>
+    </linearGradient>
+
+    <filter id="ySolda" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity="0.35"/>
     </filter>
   </defs>
 
-  <!-- Arka plan -->
-  <rect width="600" height="720" fill="url(#gokyuzu)"/>
-  <!-- Dağ silüeti -->
-  <path d="M 0 360 L 60 280 L 130 320 L 200 260 L 280 310 L 360 240 L 440 290 L 520 250 L 600 300 L 600 720 L 0 720 Z"
-        fill="#0a1118" opacity="0.65"/>
+  <!-- Arkaplan ışıltı -->
+  <ellipse cx="300" cy="340" rx="320" ry="240" fill="url(#gokGrad)"/>
 
-  <!-- Zemin / taş duvar -->
-  <rect x="40" y="600" width="520" height="80" fill="#1a1a1a" opacity="0.4"/>
-  <rect x="30" y="660" width="540" height="14" fill="#000" opacity="0.6"/>
+  <!-- ÇATI -->
+  <g filter="url(#ySolda)">
+    <path d="M 130 175 L 300 70 L 470 175 L 470 195 L 300 90 L 130 195 Z" fill="url(#catiGrad)"/>
+    <!-- Çatı kenar şeridi -->
+    <rect x="120" y="186" width="360" height="14" rx="3" fill="#5b2419"/>
+  </g>
 
   <!-- =============== ÜST KAT (tek daire) =============== -->
-  <g class="daire daire-ust" data-daire-id="ust" tabindex="0" role="button" aria-label="Üst Kat dairesi">
-    <!-- Çatı -->
-    <path d="M 140 175 L 300 95 L 460 175 L 446 195 L 300 122 L 154 195 Z" fill="url(#cati)" filter="url(#bina-golge)"/>
-    <!-- Baca -->
-    <rect x="400" y="115" width="22" height="40" fill="#3a1a0c"/>
-    <rect x="397" y="110" width="28" height="10" fill="#2a1308"/>
+  <g class="daire" data-daire-id="ust" tabindex="0" role="button" aria-label="Üst Kat dairesi">
+    <!-- Cephe -->
+    <rect x="170" y="200" width="260" height="125" fill="url(#ustGrad)" rx="6"/>
+    <!-- Üst-alt kenar şerit -->
+    <rect x="170" y="200" width="260" height="5" fill="#8a5f2e" opacity="0.5"/>
+    <rect x="170" y="320" width="260" height="5" fill="#8a5f2e" opacity="0.5"/>
 
-    <!-- Ahşap cephe -->
-    <rect x="170" y="195" width="260" height="115" fill="url(#ahsap1)"/>
-    <!-- Ahşap dikey çizgiler -->
-    <g stroke="#3a1a0c" stroke-width="1" opacity="0.7">
-      <line x1="200" y1="195" x2="200" y2="310"/>
-      <line x1="240" y1="195" x2="240" y2="310"/>
-      <line x1="280" y1="195" x2="280" y2="310"/>
-      <line x1="320" y1="195" x2="320" y2="310"/>
-      <line x1="360" y1="195" x2="360" y2="310"/>
-      <line x1="400" y1="195" x2="400" y2="310"/>
-    </g>
-    <!-- Üst kenarlık -->
-    <rect x="170" y="195" width="260" height="6" fill="#3a1a0c"/>
-    <rect x="170" y="304" width="260" height="6" fill="#3a1a0c"/>
-
-    <!-- Geniş pencereler (3'lü grup) -->
+    <!-- Pencereler (3'lü, geniş) -->
     <g class="pencere">
-      <rect x="184" y="210" width="74" height="86" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-      <rect x="262" y="210" width="74" height="86" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-      <rect x="340" y="210" width="74" height="86" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-      <line x1="221" y1="210" x2="221" y2="296" stroke="#2a1308" stroke-width="1.5"/>
-      <line x1="299" y1="210" x2="299" y2="296" stroke="#2a1308" stroke-width="1.5"/>
-      <line x1="377" y1="210" x2="377" y2="296" stroke="#2a1308" stroke-width="1.5"/>
+      <rect x="194" y="222" width="64" height="80" rx="6" fill="url(#camGrad)" stroke="#2a1a0c" stroke-width="2"/>
+      <rect x="268" y="222" width="64" height="80" rx="6" fill="url(#camGrad)" stroke="#2a1a0c" stroke-width="2"/>
+      <rect x="342" y="222" width="64" height="80" rx="6" fill="url(#camGrad)" stroke="#2a1a0c" stroke-width="2"/>
+      <!-- Pencere ortası -->
+      <line x1="226" y1="222" x2="226" y2="302" stroke="#2a1a0c" stroke-width="1.5"/>
+      <line x1="300" y1="222" x2="300" y2="302" stroke="#2a1a0c" stroke-width="1.5"/>
+      <line x1="374" y1="222" x2="374" y2="302" stroke="#2a1a0c" stroke-width="1.5"/>
     </g>
 
-    <!-- Tıklanabilir bölge -->
-    <rect class="daire-bolge" x="170" y="180" width="260" height="135" rx="4"/>
-    <!-- Etiket + durum noktası -->
-    <g class="daire-etiket-grup" transform="translate(300, 280)">
-      <rect class="daire-etiket-bg" x="-44" y="-12" width="88" height="20" rx="10" fill="rgba(0,0,0,0.55)"/>
-      <text class="daire-etiket" y="3">ÜST KAT</text>
+    <!-- Tıklama bölgesi -->
+    <rect class="daire-bolge" x="170" y="200" width="260" height="125" rx="6"/>
+
+    <!-- Etiket (sol üst) -->
+    <g transform="translate(186, 218)" class="daire-etiket-grup">
+      <rect x="-4" y="-12" width="60" height="18" rx="9" fill="rgba(0,0,0,0.55)"/>
+      <text class="daire-etiket" x="26" y="1" text-anchor="middle">ÜST</text>
     </g>
-    <circle class="durum-nokta durum-nokta-bos-temiz" cx="418" cy="200" r="7" stroke="#000" stroke-opacity="0.4" stroke-width="1"/>
+    <!-- Durum noktası (sağ üst) -->
+    <circle class="durum-nokta durum-nokta-bos-temiz" cx="416" cy="216" r="6.5" stroke="#fff" stroke-opacity="0.85" stroke-width="1.5"/>
   </g>
+
+  <!-- Kat arası şerit -->
+  <rect x="120" y="325" width="360" height="10" rx="2" fill="#5b2419"/>
 
   <!-- =============== ORTA KAT (2 daire) =============== -->
-  <!-- Üst kenar çıkıntı -->
-  <rect x="80" y="310" width="440" height="10" fill="#3a1a0c"/>
-
   <!-- Orta-Sol -->
-  <g class="daire daire-orta-sol" data-daire-id="orta-sol" tabindex="0" role="button" aria-label="Orta Sol daire">
-    <rect x="80" y="320" width="220" height="135" fill="url(#ahsap1)"/>
-    <g stroke="#3a1a0c" stroke-width="1" opacity="0.7">
-      <line x1="120" y1="320" x2="120" y2="455"/>
-      <line x1="160" y1="320" x2="160" y2="455"/>
-      <line x1="200" y1="320" x2="200" y2="455"/>
-      <line x1="240" y1="320" x2="240" y2="455"/>
-      <line x1="280" y1="320" x2="280" y2="455"/>
-    </g>
+  <g class="daire" data-daire-id="orta-sol" tabindex="0" role="button" aria-label="Orta Kat - Sol dairesi">
+    <rect x="120" y="335" width="178" height="125" fill="url(#ortaGrad)" rx="6"/>
+    <rect x="120" y="335" width="178" height="5" fill="#7e562a" opacity="0.55"/>
+    <rect x="120" y="455" width="178" height="5" fill="#7e562a" opacity="0.55"/>
+
     <g class="pencere">
-      <rect x="100" y="340" width="80" height="98" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-      <rect x="200" y="340" width="80" height="98" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-      <line x1="140" y1="340" x2="140" y2="438" stroke="#2a1308" stroke-width="1.5"/>
-      <line x1="240" y1="340" x2="240" y2="438" stroke="#2a1308" stroke-width="1.5"/>
-      <line x1="100" y1="385" x2="180" y2="385" stroke="#2a1308" stroke-width="1.2"/>
-      <line x1="200" y1="385" x2="280" y2="385" stroke="#2a1308" stroke-width="1.2"/>
+      <rect x="138" y="358" width="58" height="78" rx="6" fill="url(#camGrad)" stroke="#2a1a0c" stroke-width="2"/>
+      <rect x="222" y="358" width="58" height="78" rx="6" fill="url(#camGrad)" stroke="#2a1a0c" stroke-width="2"/>
+      <line x1="167" y1="358" x2="167" y2="436" stroke="#2a1a0c" stroke-width="1.5"/>
+      <line x1="251" y1="358" x2="251" y2="436" stroke="#2a1a0c" stroke-width="1.5"/>
+      <line x1="138" y1="397" x2="196" y2="397" stroke="#2a1a0c" stroke-width="1.2"/>
+      <line x1="222" y1="397" x2="280" y2="397" stroke="#2a1a0c" stroke-width="1.2"/>
     </g>
-    <rect class="daire-bolge" x="80" y="320" width="220" height="135" rx="3"/>
-    <g class="daire-etiket-grup" transform="translate(190, 420)">
-      <rect x="-46" y="-12" width="92" height="20" rx="10" fill="rgba(0,0,0,0.55)"/>
-      <text class="daire-etiket" y="3">ORTA - SOL</text>
+
+    <rect class="daire-bolge" x="120" y="335" width="178" height="125" rx="6"/>
+
+    <g transform="translate(132, 351)" class="daire-etiket-grup">
+      <rect x="-4" y="-12" width="56" height="18" rx="9" fill="rgba(0,0,0,0.55)"/>
+      <text class="daire-etiket" x="24" y="1" text-anchor="middle">2A</text>
     </g>
-    <circle class="durum-nokta durum-nokta-bos-temiz" cx="290" cy="335" r="7" stroke="#000" stroke-opacity="0.4" stroke-width="1"/>
+    <circle class="durum-nokta durum-nokta-bos-temiz" cx="286" cy="350" r="6.5" stroke="#fff" stroke-opacity="0.85" stroke-width="1.5"/>
   </g>
 
-  <!-- Orta dikey kolon -->
-  <rect x="298" y="320" width="6" height="135" fill="#2a1308"/>
+  <!-- Orta dikey ayraç -->
+  <rect x="298" y="335" width="4" height="125" fill="#5b2419"/>
 
   <!-- Orta-Sağ -->
-  <g class="daire daire-orta-sag" data-daire-id="orta-sag" tabindex="0" role="button" aria-label="Orta Sağ daire">
-    <rect x="302" y="320" width="220" height="135" fill="url(#ahsap1)"/>
-    <g stroke="#3a1a0c" stroke-width="1" opacity="0.7">
-      <line x1="340" y1="320" x2="340" y2="455"/>
-      <line x1="380" y1="320" x2="380" y2="455"/>
-      <line x1="420" y1="320" x2="420" y2="455"/>
-      <line x1="460" y1="320" x2="460" y2="455"/>
-      <line x1="500" y1="320" x2="500" y2="455"/>
-    </g>
+  <g class="daire" data-daire-id="orta-sag" tabindex="0" role="button" aria-label="Orta Kat - Sağ dairesi">
+    <rect x="302" y="335" width="178" height="125" fill="url(#ortaGrad)" rx="6"/>
+    <rect x="302" y="335" width="178" height="5" fill="#7e562a" opacity="0.55"/>
+    <rect x="302" y="455" width="178" height="5" fill="#7e562a" opacity="0.55"/>
+
     <g class="pencere">
-      <rect x="320" y="340" width="80" height="98" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-      <rect x="420" y="340" width="80" height="98" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-      <line x1="360" y1="340" x2="360" y2="438" stroke="#2a1308" stroke-width="1.5"/>
-      <line x1="460" y1="340" x2="460" y2="438" stroke="#2a1308" stroke-width="1.5"/>
-      <line x1="320" y1="385" x2="400" y2="385" stroke="#2a1308" stroke-width="1.2"/>
-      <line x1="420" y1="385" x2="500" y2="385" stroke="#2a1308" stroke-width="1.2"/>
+      <rect x="320" y="358" width="58" height="78" rx="6" fill="url(#camGrad)" stroke="#2a1a0c" stroke-width="2"/>
+      <rect x="404" y="358" width="58" height="78" rx="6" fill="url(#camGrad)" stroke="#2a1a0c" stroke-width="2"/>
+      <line x1="349" y1="358" x2="349" y2="436" stroke="#2a1a0c" stroke-width="1.5"/>
+      <line x1="433" y1="358" x2="433" y2="436" stroke="#2a1a0c" stroke-width="1.5"/>
+      <line x1="320" y1="397" x2="378" y2="397" stroke="#2a1a0c" stroke-width="1.2"/>
+      <line x1="404" y1="397" x2="462" y2="397" stroke="#2a1a0c" stroke-width="1.2"/>
     </g>
-    <rect class="daire-bolge" x="302" y="320" width="220" height="135" rx="3"/>
-    <g class="daire-etiket-grup" transform="translate(412, 420)">
-      <rect x="-46" y="-12" width="92" height="20" rx="10" fill="rgba(0,0,0,0.55)"/>
-      <text class="daire-etiket" y="3">ORTA - SAĞ</text>
+
+    <rect class="daire-bolge" x="302" y="335" width="178" height="125" rx="6"/>
+
+    <g transform="translate(450, 351)" class="daire-etiket-grup">
+      <rect x="-26" y="-12" width="56" height="18" rx="9" fill="rgba(0,0,0,0.55)"/>
+      <text class="daire-etiket" x="2" y="1" text-anchor="middle">2B</text>
     </g>
-    <circle class="durum-nokta durum-nokta-bos-temiz" cx="510" cy="335" r="7" stroke="#000" stroke-opacity="0.4" stroke-width="1"/>
+    <circle class="durum-nokta durum-nokta-bos-temiz" cx="466" cy="350" r="6.5" stroke="#fff" stroke-opacity="0.85" stroke-width="1.5"/>
   </g>
 
-  <!-- Alt kat ahşap-taş geçiş kenarı -->
-  <rect x="80" y="455" width="440" height="8" fill="#3a1a0c"/>
+  <!-- Kat arası şerit -->
+  <rect x="110" y="460" width="380" height="10" rx="2" fill="#5b2419"/>
 
-  <!-- =============== ALT KAT (2 daire — taş cephe) =============== -->
+  <!-- =============== ALT KAT (2 daire) =============== -->
   <!-- Alt-Sol -->
-  <g class="daire daire-alt-sol" data-daire-id="alt-sol" tabindex="0" role="button" aria-label="Alt Sol daire">
-    <rect x="80" y="463" width="220" height="140" fill="url(#tasDoku)"/>
+  <g class="daire" data-daire-id="alt-sol" tabindex="0" role="button" aria-label="Alt Kat - Sol dairesi">
+    <rect x="110" y="470" width="188" height="135" fill="url(#altGrad)" rx="6"/>
+
     <!-- Kapı -->
-    <rect x="98" y="498" width="42" height="100" fill="#5e3a1c" stroke="#2a1308" stroke-width="2"/>
-    <circle cx="132" cy="552" r="2.5" fill="#d4a35e"/>
-    <!-- Yan pencere -->
-    <rect x="160" y="490" width="58" height="60" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-    <line x1="189" y1="490" x2="189" y2="550" stroke="#2a1308" stroke-width="1.5"/>
-    <line x1="160" y1="520" x2="218" y2="520" stroke="#2a1308" stroke-width="1.2"/>
-    <!-- İkinci pencere -->
-    <rect x="234" y="490" width="58" height="60" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-    <line x1="263" y1="490" x2="263" y2="550" stroke="#2a1308" stroke-width="1.5"/>
-    <line x1="234" y1="520" x2="292" y2="520" stroke="#2a1308" stroke-width="1.2"/>
-    <rect class="daire-bolge" x="80" y="463" width="220" height="140" rx="3"/>
-    <g class="daire-etiket-grup" transform="translate(190, 580)">
-      <rect x="-44" y="-12" width="88" height="20" rx="10" fill="rgba(0,0,0,0.65)"/>
-      <text class="daire-etiket" y="3">ALT - SOL</text>
+    <rect x="128" y="510" width="40" height="92" rx="3" fill="url(#kapiGrad)"/>
+    <circle cx="160" cy="557" r="2.5" fill="#e8c87a"/>
+    <!-- Kapı üst yay (yumuşak detay) -->
+    <path d="M 128 514 Q 148 506 168 514" fill="none" stroke="#3a210f" stroke-width="2" opacity="0.6"/>
+
+    <!-- Pencere -->
+    <rect x="186" y="505" width="100" height="62" rx="5" fill="url(#camGrad)" stroke="#2a1a0c" stroke-width="2"/>
+    <line x1="236" y1="505" x2="236" y2="567" stroke="#2a1a0c" stroke-width="1.5"/>
+    <line x1="186" y1="536" x2="286" y2="536" stroke="#2a1a0c" stroke-width="1.2"/>
+
+    <rect class="daire-bolge" x="110" y="470" width="188" height="135" rx="6"/>
+
+    <g transform="translate(122, 488)" class="daire-etiket-grup">
+      <rect x="-4" y="-12" width="56" height="18" rx="9" fill="rgba(0,0,0,0.55)"/>
+      <text class="daire-etiket" x="24" y="1" text-anchor="middle">1A</text>
     </g>
-    <circle class="durum-nokta durum-nokta-bos-temiz" cx="290" cy="478" r="7" stroke="#000" stroke-opacity="0.4" stroke-width="1"/>
+    <circle class="durum-nokta durum-nokta-bos-temiz" cx="286" cy="486" r="6.5" stroke="#fff" stroke-opacity="0.85" stroke-width="1.5"/>
   </g>
 
-  <!-- Alt orta kolon -->
-  <rect x="298" y="463" width="6" height="140" fill="#2a1308"/>
+  <!-- Alt dikey ayraç -->
+  <rect x="298" y="470" width="4" height="135" fill="#5b2419"/>
 
   <!-- Alt-Sağ -->
-  <g class="daire daire-alt-sag" data-daire-id="alt-sag" tabindex="0" role="button" aria-label="Alt Sağ daire">
-    <rect x="302" y="463" width="220" height="140" fill="url(#tasDoku)"/>
-    <!-- Pencereler -->
-    <rect x="316" y="490" width="58" height="60" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-    <line x1="345" y1="490" x2="345" y2="550" stroke="#2a1308" stroke-width="1.5"/>
-    <line x1="316" y1="520" x2="374" y2="520" stroke="#2a1308" stroke-width="1.2"/>
-    <rect x="390" y="490" width="58" height="60" fill="url(#cam)" stroke="#2a1308" stroke-width="2"/>
-    <line x1="419" y1="490" x2="419" y2="550" stroke="#2a1308" stroke-width="1.5"/>
-    <line x1="390" y1="520" x2="448" y2="520" stroke="#2a1308" stroke-width="1.2"/>
+  <g class="daire" data-daire-id="alt-sag" tabindex="0" role="button" aria-label="Alt Kat - Sağ dairesi">
+    <rect x="302" y="470" width="188" height="135" fill="url(#altGrad)" rx="6"/>
+
+    <!-- Pencere -->
+    <rect x="314" y="505" width="100" height="62" rx="5" fill="url(#camGrad)" stroke="#2a1a0c" stroke-width="2"/>
+    <line x1="364" y1="505" x2="364" y2="567" stroke="#2a1a0c" stroke-width="1.5"/>
+    <line x1="314" y1="536" x2="414" y2="536" stroke="#2a1a0c" stroke-width="1.2"/>
+
     <!-- Kapı -->
-    <rect x="464" y="498" width="42" height="100" fill="#5e3a1c" stroke="#2a1308" stroke-width="2"/>
-    <circle cx="472" cy="552" r="2.5" fill="#d4a35e"/>
-    <rect class="daire-bolge" x="302" y="463" width="220" height="140" rx="3"/>
-    <g class="daire-etiket-grup" transform="translate(412, 580)">
-      <rect x="-44" y="-12" width="88" height="20" rx="10" fill="rgba(0,0,0,0.65)"/>
-      <text class="daire-etiket" y="3">ALT - SAĞ</text>
+    <rect x="432" y="510" width="40" height="92" rx="3" fill="url(#kapiGrad)"/>
+    <circle cx="440" cy="557" r="2.5" fill="#e8c87a"/>
+    <path d="M 432 514 Q 452 506 472 514" fill="none" stroke="#3a210f" stroke-width="2" opacity="0.6"/>
+
+    <rect class="daire-bolge" x="302" y="470" width="188" height="135" rx="6"/>
+
+    <g transform="translate(450, 488)" class="daire-etiket-grup">
+      <rect x="-26" y="-12" width="56" height="18" rx="9" fill="rgba(0,0,0,0.55)"/>
+      <text class="daire-etiket" x="2" y="1" text-anchor="middle">1B</text>
     </g>
-    <circle class="durum-nokta durum-nokta-bos-temiz" cx="510" cy="478" r="7" stroke="#000" stroke-opacity="0.4" stroke-width="1"/>
+    <circle class="durum-nokta durum-nokta-bos-temiz" cx="478" cy="486" r="6.5" stroke="#fff" stroke-opacity="0.85" stroke-width="1.5"/>
   </g>
 
-  <!-- Zemin gölgesi -->
-  <ellipse cx="300" cy="660" rx="240" ry="14" fill="#000" opacity="0.6"/>
+  <!-- Zemin -->
+  <rect x="90" y="605" width="420" height="6" rx="3" fill="#3a210f"/>
+  <ellipse cx="300" cy="630" rx="240" ry="10" fill="#000" opacity="0.35"/>
+
+  <!-- Sevimli detaylar: küçük saksılar -->
+  <g opacity="0.95">
+    <!-- Sol saksı -->
+    <ellipse cx="98" cy="612" rx="14" ry="4" fill="#3a210f" opacity="0.6"/>
+    <path d="M 90 600 L 92 612 L 104 612 L 106 600 Z" fill="#a85a3a"/>
+    <circle cx="94" cy="596" r="5" fill="#3d8a5a"/>
+    <circle cx="100" cy="594" r="6" fill="#4ca06b"/>
+    <circle cx="104" cy="598" r="4" fill="#3d8a5a"/>
+
+    <!-- Sağ saksı -->
+    <ellipse cx="502" cy="612" rx="14" ry="4" fill="#3a210f" opacity="0.6"/>
+    <path d="M 494 600 L 496 612 L 508 612 L 510 600 Z" fill="#a85a3a"/>
+    <circle cx="498" cy="596" r="5" fill="#3d8a5a"/>
+    <circle cx="504" cy="594" r="6" fill="#4ca06b"/>
+    <circle cx="508" cy="598" r="4" fill="#3d8a5a"/>
+  </g>
 </svg>`;
 
   // ---- Render & güncelleme ----
@@ -262,12 +274,12 @@
         );
         nokta.classList.add("durum-nokta-" + dr.durum);
       }
-      // Camları dolu rezervasyonda altın renge çevir
+      // Dolu rezervasyon → camlar altın sarısı (ışık yanıyor efekti)
       g.querySelectorAll(".pencere rect").forEach((r) => {
         if (dr.durum === "dolu") {
           r.setAttribute("fill", "url(#camDolu)");
         } else {
-          r.setAttribute("fill", "url(#cam)");
+          r.setAttribute("fill", "url(#camGrad)");
         }
       });
 

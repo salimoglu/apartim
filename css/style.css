@@ -312,44 +312,62 @@ html.theme-light {
 .bina-baslik p { margin: 0; color: var(--metin-soluk); font-size: 14px; }
 
 .bina-svg-wrap {
-  width: 100%; max-width: 640px;
-  background: linear-gradient(180deg, transparent 0%, var(--zemin-2) 100%);
+  width: 100%; max-width: 560px;
+  background:
+    radial-gradient(ellipse at center top, rgba(31,111,92,0.10) 0%, transparent 60%),
+    linear-gradient(180deg, var(--zemin-2) 0%, var(--zemin) 100%);
   border-radius: var(--radius-lg);
-  padding: 8px;
+  padding: 14px;
   box-shadow: var(--golge);
   border: 1px solid var(--kenar);
 }
 .bina-svg { width: 100%; height: auto; display: block; }
 .bina-svg .daire {
   cursor: pointer;
-  transition: filter var(--gecis), opacity var(--gecis);
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1), filter var(--gecis);
+  transform-origin: center;
+  transform-box: fill-box;
 }
 .bina-svg .daire-bolge {
   fill: transparent;
   stroke: transparent;
-  stroke-width: 2;
-  transition: fill var(--gecis), stroke var(--gecis);
+  stroke-width: 3;
+  rx: 6;
+  transition: stroke var(--gecis), fill var(--gecis);
+}
+.bina-svg .daire-etiket-grup {
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+.bina-svg .daire:hover .daire-etiket-grup,
+.bina-svg .daire:focus .daire-etiket-grup { opacity: 1; }
+.bina-svg .daire:hover {
+  transform: translateY(-3px) scale(1.02);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
 }
 .bina-svg .daire:hover .daire-bolge {
-  fill: rgba(255, 255, 255, 0.04);
   stroke: var(--vurgu);
+  fill: rgba(255, 255, 255, 0.05);
 }
-.bina-svg .daire:hover .pencere { filter: brightness(1.4) drop-shadow(0 0 6px rgba(255,255,255,0.4)); }
-.bina-svg .durum-nokta { transition: fill var(--gecis); }
-.bina-svg .durum-nokta-bos-temiz { fill: var(--bos-temiz); }
-.bina-svg .durum-nokta-dolu { fill: var(--dolu); }
-.bina-svg .durum-nokta-bos-kirli { fill: var(--bos-kirli); }
-.bina-svg .durum-nokta-temizleniyor { fill: var(--temizleniyor); }
+.bina-svg .daire:hover .pencere rect {
+  filter: brightness(1.15);
+}
+.bina-svg .durum-nokta {
+  transition: fill var(--gecis), filter var(--gecis);
+  filter: drop-shadow(0 0 4px currentColor);
+}
+.bina-svg .durum-nokta-bos-temiz { fill: var(--bos-temiz); color: var(--bos-temiz); }
+.bina-svg .durum-nokta-dolu { fill: var(--dolu); color: var(--dolu); }
+.bina-svg .durum-nokta-bos-kirli { fill: var(--bos-kirli); color: var(--bos-kirli); }
+.bina-svg .durum-nokta-temizleniyor { fill: var(--temizleniyor); color: var(--temizleniyor); }
 .bina-svg .daire-etiket {
   fill: #fff;
   font-family: "Nunito", sans-serif;
-  font-weight: 700;
-  font-size: 14px;
-  text-anchor: middle;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 1px;
   pointer-events: none;
-  paint-order: stroke;
-  stroke: rgba(0,0,0,0.6);
-  stroke-width: 3px;
 }
 
 /* Bina özet kartlar */
