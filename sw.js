@@ -1,5 +1,5 @@
 /* Apartım — basit cache-first service worker */
-const CACHE_VERSION = "apartim-v7-20260615g";
+const CACHE_VERSION = "apartim-v8-20260616";
 const CORE_ASSETS = [
   "./",
   "./index.html",

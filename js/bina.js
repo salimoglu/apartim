@@ -1,6 +1,7 @@
 /* =========================================================
    APARTIM — Bina (ana ekran)
-   Gercek illustrasyon arka plan + tiklanabilir 5 daire hotspot.
+   Seffaf illustrasyon arka plan + 5 daire hotspot.
+   Ust kat: cati hattini takip eden polygon (dikdortgen degil).
    ========================================================= */
 
 (function () {
@@ -8,90 +9,84 @@
 
   const wrap = () => document.getElementById("bina-svg-wrap");
 
-  // ViewBox illustrasyonun gercek piksel boyutuyla aynı (1024 x 792).
-  // Hotspot koordinatlari binanın gercek daire konumlarina hizali:
-  //   UST KAT     : x=80-940,  y=100-360  (ucgen + buyuk ortadakiler + yan kucukler)
-  //   ORTA SOL    : x=80-510,  y=365-545  (sol 2 buyuk pencere)
-  //   ORTA SAG    : x=514-940, y=365-545  (sag 2 buyuk pencere)
-  //   ALT SOL     : x=50-510,  y=550-735  (tas cephe sol, 2 kapi + pencereler)
-  //   ALT SAG     : x=514-985, y=550-735  (tas cephe sag, 2 kapi + pencereler)
+  // Koordinatlar 1024x792 illustrasyona gore (merkez x=512).
+  // Bina dis cerceve: ~x=96-928
   const SVG = `
 <svg class="bina-svg" viewBox="0 0 1024 792" xmlns="http://www.w3.org/2000/svg" aria-label="Apartım binası" preserveAspectRatio="xMidYMid meet">
   <defs>
-    <filter id="binaSg" x="-5%" y="-5%" width="110%" height="110%">
-      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-opacity="0.55"/>
+    <filter id="binaSg" x="-8%" y="-8%" width="116%" height="116%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-opacity="0.28"/>
     </filter>
     <filter id="noktaSg" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-opacity="0.45"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-opacity="0.4"/>
     </filter>
   </defs>
 
-  <!-- ILLUSTRASYON ARKA PLAN -->
-  <image href="icons/apart-illustrasyon.png" x="0" y="0" width="1024" height="792" filter="url(#binaSg)"/>
+  <image href="icons/apart-illustrasyon.png?v=20260616" x="0" y="0" width="1024" height="792" filter="url(#binaSg)"/>
 
-  <!-- =============== HOTSPOTLAR =============== -->
-  <!-- UST KAT (tek daire) -->
+  <!-- UST KAT — tek daire, cati ucgeni + alttaki ahşap bolum -->
   <g class="daire" data-daire-id="ust" tabindex="0" role="button" aria-label="Üst Kat dairesi">
-    <rect class="daire-bolge" x="80" y="100" width="860" height="260" rx="16"/>
-    <g class="daire-etiket-grup" transform="translate(512, 235)">
-      <rect x="-58" y="-22" width="116" height="40" rx="20" fill="rgba(20,15,10,0.85)"/>
+    <polygon class="daire-bolge"
+      points="512,54 928,172 928,346 96,346 96,172"/>
+    <g class="daire-etiket-grup" transform="translate(512, 228)">
+      <rect x="-58" y="-22" width="116" height="40" rx="20" fill="rgba(20,15,10,0.88)"/>
       <text class="daire-etiket" x="0" y="7" text-anchor="middle">ÜST KAT</text>
     </g>
     <g class="durum-grup" filter="url(#noktaSg)">
-      <circle cx="895" cy="138" r="22" fill="#fff" opacity="0.95"/>
-      <circle class="durum-nokta durum-nokta-bos-temiz" cx="895" cy="138" r="14"/>
+      <circle cx="892" cy="118" r="20" fill="#fff" opacity="0.96"/>
+      <circle class="durum-nokta durum-nokta-bos-temiz" cx="892" cy="118" r="13"/>
     </g>
   </g>
 
   <!-- ORTA SOL -->
   <g class="daire" data-daire-id="orta-sol" tabindex="0" role="button" aria-label="Orta Kat - Sol dairesi">
-    <rect class="daire-bolge" x="80" y="365" width="432" height="180" rx="16"/>
-    <g class="daire-etiket-grup" transform="translate(296, 458)">
-      <rect x="-62" y="-22" width="124" height="40" rx="20" fill="rgba(20,15,10,0.85)"/>
+    <rect class="daire-bolge" x="96" y="358" width="408" height="168" rx="4"/>
+    <g class="daire-etiket-grup" transform="translate(300, 442)">
+      <rect x="-62" y="-22" width="124" height="40" rx="20" fill="rgba(20,15,10,0.88)"/>
       <text class="daire-etiket" x="0" y="7" text-anchor="middle">ORTA SOL</text>
     </g>
     <g class="durum-grup" filter="url(#noktaSg)">
-      <circle cx="490" cy="395" r="22" fill="#fff" opacity="0.95"/>
-      <circle class="durum-nokta durum-nokta-bos-temiz" cx="490" cy="395" r="14"/>
+      <circle cx="488" cy="378" r="20" fill="#fff" opacity="0.96"/>
+      <circle class="durum-nokta durum-nokta-bos-temiz" cx="488" cy="378" r="13"/>
     </g>
   </g>
 
   <!-- ORTA SAG -->
   <g class="daire" data-daire-id="orta-sag" tabindex="0" role="button" aria-label="Orta Kat - Sağ dairesi">
-    <rect class="daire-bolge" x="514" y="365" width="426" height="180" rx="16"/>
-    <g class="daire-etiket-grup" transform="translate(727, 458)">
-      <rect x="-62" y="-22" width="124" height="40" rx="20" fill="rgba(20,15,10,0.85)"/>
+    <rect class="daire-bolge" x="520" y="358" width="408" height="168" rx="4"/>
+    <g class="daire-etiket-grup" transform="translate(724, 442)">
+      <rect x="-62" y="-22" width="124" height="40" rx="20" fill="rgba(20,15,10,0.88)"/>
       <text class="daire-etiket" x="0" y="7" text-anchor="middle">ORTA SAĞ</text>
     </g>
     <g class="durum-grup" filter="url(#noktaSg)">
-      <circle cx="918" cy="395" r="22" fill="#fff" opacity="0.95"/>
-      <circle class="durum-nokta durum-nokta-bos-temiz" cx="918" cy="395" r="14"/>
+      <circle cx="912" cy="378" r="20" fill="#fff" opacity="0.96"/>
+      <circle class="durum-nokta durum-nokta-bos-temiz" cx="912" cy="378" r="13"/>
     </g>
   </g>
 
-  <!-- ALT SOL (tas cephe) -->
+  <!-- ALT SOL -->
   <g class="daire" data-daire-id="alt-sol" tabindex="0" role="button" aria-label="Alt Kat - Sol dairesi">
-    <rect class="daire-bolge" x="50" y="550" width="462" height="185" rx="16"/>
-    <g class="daire-etiket-grup" transform="translate(281, 645)">
-      <rect x="-58" y="-22" width="116" height="40" rx="20" fill="rgba(20,15,10,0.85)"/>
+    <rect class="daire-bolge" x="96" y="536" width="408" height="168" rx="4"/>
+    <g class="daire-etiket-grup" transform="translate(300, 620)">
+      <rect x="-58" y="-22" width="116" height="40" rx="20" fill="rgba(20,15,10,0.88)"/>
       <text class="daire-etiket" x="0" y="7" text-anchor="middle">ALT SOL</text>
     </g>
     <g class="durum-grup" filter="url(#noktaSg)">
-      <circle cx="490" cy="580" r="22" fill="#fff" opacity="0.95"/>
-      <circle class="durum-nokta durum-nokta-bos-temiz" cx="490" cy="580" r="14"/>
+      <circle cx="488" cy="556" r="20" fill="#fff" opacity="0.96"/>
+      <circle class="durum-nokta durum-nokta-bos-temiz" cx="488" cy="556" r="13"/>
     </g>
   </g>
 
-  <!-- ALT SAG (tas cephe) -->
+  <!-- ALT SAG -->
   <g class="daire" data-daire-id="alt-sag" tabindex="0" role="button" aria-label="Alt Kat - Sağ dairesi">
-    <rect class="daire-bolge" x="514" y="550" width="470" height="185" rx="16"/>
-    <g class="daire-etiket-grup" transform="translate(748, 645)">
-      <rect x="-58" y="-22" width="116" height="40" rx="20" fill="rgba(20,15,10,0.85)"/>
+    <rect class="daire-bolge" x="520" y="536" width="408" height="168" rx="4"/>
+    <g class="daire-etiket-grup" transform="translate(724, 620)">
+      <rect x="-58" y="-22" width="116" height="40" rx="20" fill="rgba(20,15,10,0.88)"/>
       <text class="daire-etiket" x="0" y="7" text-anchor="middle">ALT SAĞ</text>
     </g>
     <g class="durum-grup" filter="url(#noktaSg)">
-      <circle cx="960" cy="580" r="22" fill="#fff" opacity="0.95"/>
-      <circle class="durum-nokta durum-nokta-bos-temiz" cx="960" cy="580" r="14"/>
+      <circle cx="912" cy="556" r="20" fill="#fff" opacity="0.96"/>
+      <circle class="durum-nokta durum-nokta-bos-temiz" cx="912" cy="556" r="13"/>
     </g>
   </g>
 </svg>`;

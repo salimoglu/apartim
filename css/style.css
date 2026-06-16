@@ -361,7 +361,8 @@ html.theme-light {
 .bina-svg .daire-bolge {
   fill: rgba(255, 255, 255, 0);
   stroke: transparent;
-  stroke-width: 4;
+  stroke-width: 3;
+  stroke-linejoin: round;
   transition: stroke 180ms ease, fill 180ms ease;
   pointer-events: all;
 }
