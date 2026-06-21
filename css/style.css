@@ -1330,54 +1330,77 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 
 /* Özet tablo — telefon yatay (landscape) */
-@media (orientation: landscape) and (max-height: 520px) {
-  #tab-rezervasyonlar.active {
+@media (orientation: landscape) and (max-width: 960px) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+  body.rez-yatay-mod .app {
+    height: 100dvh;
+    height: 100svh;
+    max-height: 100dvh;
+    overflow: hidden;
+  }
+  body.rez-yatay-mod .content {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  body.rez-yatay-mod #tab-rezervasyonlar.active {
+    flex: 1;
+    min-height: 0;
     padding: 6px 8px;
-    height: calc(100dvh - 112px);
-    height: calc(100svh - 112px);
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
     overflow: hidden;
   }
-  #tab-rezervasyonlar .rez-ozet-wrap {
+  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-wrap {
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 6px;
   }
-  #tab-rezervasyonlar .rez-ozet-ay-nav {
+  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-nav {
     flex-shrink: 0;
     padding: 4px 8px;
   }
-  #tab-rezervasyonlar .rez-ozet-ay-baslik {
+  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-baslik {
     font-size: 17px;
   }
-  #tab-rezervasyonlar .rez-ozet-scroll {
+  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-scroll {
     flex: 1;
     min-height: 0;
     overflow: auto;
+    -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-  #tab-rezervasyonlar .rez-ozet-table {
+  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-table {
     font-size: 10px;
   }
-  #tab-rezervasyonlar .rez-ozet-tarih-kose,
-  #tab-rezervasyonlar .rez-ozet-tarih {
+  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih-kose,
+  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
     min-width: 76px;
   }
-  #tab-rezervasyonlar .rez-ozet-daire-baslik {
+  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-daire-baslik {
     font-size: 10px;
     padding: 4px 2px !important;
   }
+  body.rez-yatay-mod .topbar {
+    padding: 6px 12px;
+    flex-shrink: 0;
+  }
+  body.rez-yatay-mod .tab-nav {
+    padding: 6px 10px;
+    flex-shrink: 0;
+  }
 }
 
-@media (orientation: landscape) and (max-height: 400px) {
-  .topbar { padding: 6px 12px; }
-  .tab-nav { padding: 6px 10px; }
-  #tab-rezervasyonlar.active {
-    height: calc(100dvh - 96px);
-    height: calc(100svh - 96px);
-  }
+@media (orientation: landscape) and (max-width: 960px) and (max-height: 400px) {
+  body.rez-yatay-mod .topbar { padding: 4px 10px; }
+  body.rez-yatay-mod .tab-nav { padding: 4px 8px; }
+  body.rez-yatay-mod .tab-btn { padding: 6px 10px; }
 }

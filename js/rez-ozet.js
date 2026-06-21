@@ -357,15 +357,28 @@
     tabloCiz();
   }
 
+  function yatayModMu() {
+    return window.innerWidth > window.innerHeight && window.innerWidth <= 960;
+  }
+
+  function yatayModGuncelle() {
+    document.body.classList.toggle("rez-yatay-mod", yatayModMu());
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("rez-ozet-prev")?.addEventListener("click", () => git(-1));
     document.getElementById("rez-ozet-next")?.addEventListener("click", () => git(1));
     document.getElementById("rez-ozet-bugun")?.addEventListener("click", buguneGit);
+    yatayModGuncelle();
+    window.addEventListener("resize", yatayModGuncelle);
+    window.addEventListener("orientationchange", () => {
+      setTimeout(yatayModGuncelle, 150);
+    });
   });
 
   document.addEventListener("apartim:veri-degisti", tabloCiz);
 
   document.addEventListener("apartim:gun-degisti", tabloCiz);
 
-  window.APARTIM.rezOzet = { tabloCiz, git, buguneGit };
+  window.APARTIM.rezOzet = { tabloCiz, git, buguneGit, yatayModGuncelle };
 })();

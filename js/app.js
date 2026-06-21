@@ -13,7 +13,10 @@
     document.querySelectorAll(".tab-panel").forEach((p) =>
       p.classList.toggle("active", p.id === "tab-" + ad));
     if (ad === "rapor") raporCiz();
-    if (ad === "rezervasyonlar") window.APARTIM.rezOzet?.tabloCiz();
+    if (ad === "rezervasyonlar") {
+      window.APARTIM.rezOzet?.tabloCiz();
+      window.APARTIM.rezOzet?.yatayModGuncelle();
+    }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
