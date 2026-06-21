@@ -3,11 +3,10 @@
   "name": "Apartım",
   "short_name": "Apartım",
   "description": "Apart-otel takip uygulaması: daire takvimleri, rezervasyon ve temizlik durumu",
-  "start_url": "./",
+  "start_url": "./?source=pwa",
   "scope": "./",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
-  "orientation": "any",
   "background_color": "#15202b",
   "theme_color": "#15202b",
   "icons": [

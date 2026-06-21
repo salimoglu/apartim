@@ -14,6 +14,7 @@
       p.classList.toggle("active", p.id === "tab-" + ad));
     if (ad === "rapor") raporCiz();
     if (ad === "rezervasyonlar") {
+      window.APARTIM.rezOzet?.yonKilidiAc();
       window.APARTIM.rezOzet?.tabloCiz();
       window.APARTIM.rezOzet?.yatayModGuncelle();
     }

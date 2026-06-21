@@ -1,5 +1,5 @@
 /* Apartım — basit cache-first service worker */
-const CACHE_VERSION = "apartim-v18-20260627";
+const CACHE_VERSION = "apartim-v19-20260627";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -23,6 +23,41 @@ const CORE_ASSETS = [
   "./icons/apart-illustrasyon.png"
 ];
 
+function networkFirstThenCache(request) {
+  return fetch(request)
+    .then((resp) => {
+      if (resp && resp.status === 200 && resp.type === "basic") {
+        const copy = resp.clone();
+        caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
+      }
+      return resp;
+    })
+    .catch(() => caches.match(request));
+}
+
+function cacheFirstThenNetwork(request) {
+  return caches.match(request).then((cached) => {
+    const fetchPromise = fetch(request)
+      .then((resp) => {
+        if (resp && resp.status === 200 && resp.type === "basic") {
+          const copy = resp.clone();
+          caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
+        }
+        return resp;
+      })
+      .catch(() => cached);
+    return cached || fetchPromise;
+  });
+}
+
+function kritikDosyaMi(url) {
+  const p = url.pathname;
+  return p.endsWith("/manifest.json") ||
+    p.endsWith("/index.html") ||
+    p.endsWith("/sw.js") ||
+    p.endsWith("/");
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_VERSION).then((cache) =>
@@ -40,9 +75,8 @@ self.addEventListener("activate", (event) => {
           .filter((k) => k !== CACHE_VERSION)
           .map((k) => caches.delete(k))
       )
-    )
+    ).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
@@ -50,21 +84,12 @@ self.addEventListener("fetch", (event) => {
   if (req.method !== "GET") return;
 
   const url = new URL(req.url);
-  // Firebase ve harici istekleri cache'leme
   if (url.origin !== self.location.origin) return;
 
-  event.respondWith(
-    caches.match(req).then((cached) => {
-      const fetchPromise = fetch(req)
-        .then((resp) => {
-          if (resp && resp.status === 200 && resp.type === "basic") {
-            const copy = resp.clone();
-            caches.open(CACHE_VERSION).then((cache) => cache.put(req, copy));
-          }
-          return resp;
-        })
-        .catch(() => cached);
-      return cached || fetchPromise;
-    })
-  );
+  if (kritikDosyaMi(url)) {
+    event.respondWith(networkFirstThenCache(req));
+    return;
+  }
+
+  event.respondWith(cacheFirstThenNetwork(req));
 });

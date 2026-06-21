@@ -358,27 +358,79 @@
   }
 
   function yatayModMu() {
-    return window.innerWidth > window.innerHeight && window.innerWidth <= 960;
+    const mq = window.matchMedia("(orientation: landscape)");
+    const kisaKenar = Math.min(
+      window.screen.width || 0,
+      window.screen.height || 0,
+      window.visualViewport?.width || window.innerWidth,
+      window.visualViewport?.height || window.innerHeight
+    );
+    return mq.matches && kisaKenar > 0 && kisaKenar <= 520;
   }
 
   function yatayModGuncelle() {
-    document.body.classList.toggle("rez-yatay-mod", yatayModMu());
+    const yatay = yatayModMu() || !!document.fullscreenElement;
+    document.body.classList.toggle("rez-yatay-mod", yatay);
+  }
+
+  async function yonKilidiAc() {
+    try {
+      if (screen.orientation && typeof screen.orientation.unlock === "function") {
+        screen.orientation.unlock();
+      }
+    } catch (e) { /* tarayıcı izin vermeyebilir */ }
+  }
+
+  async function tamEkranYatay() {
+    const wrap = document.querySelector("#tab-rezervasyonlar .rez-ozet-wrap");
+    if (!wrap) return;
+
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        yatayModGuncelle();
+        return;
+      }
+
+      await yonKilidiAc();
+
+      if (wrap.requestFullscreen) {
+        await wrap.requestFullscreen();
+      } else if (wrap.webkitRequestFullscreen) {
+        await wrap.webkitRequestFullscreen();
+      }
+
+      try {
+        if (screen.orientation && typeof screen.orientation.lock === "function") {
+          await screen.orientation.lock("landscape");
+        }
+      } catch (e) { /* iOS / bazı PWA'larda desteklenmez */ }
+
+      yatayModGuncelle();
+      window.APARTIM.toast?.("Tam ekran — çıkmak için Yatay'a tekrar dokunun", "bilgi");
+    } catch (err) {
+      window.APARTIM.toast?.("Tam ekran açılamadı; telefonu yan çevirin", "uyari");
+    }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("rez-ozet-prev")?.addEventListener("click", () => git(-1));
     document.getElementById("rez-ozet-next")?.addEventListener("click", () => git(1));
     document.getElementById("rez-ozet-bugun")?.addEventListener("click", buguneGit);
+    document.getElementById("rez-ozet-tam")?.addEventListener("click", tamEkranYatay);
     yatayModGuncelle();
+    yonKilidiAc();
     window.addEventListener("resize", yatayModGuncelle);
+    window.visualViewport?.addEventListener("resize", yatayModGuncelle);
     window.addEventListener("orientationchange", () => {
-      setTimeout(yatayModGuncelle, 150);
+      setTimeout(yatayModGuncelle, 200);
     });
+    document.addEventListener("fullscreenchange", yatayModGuncelle);
   });
 
   document.addEventListener("apartim:veri-degisti", tabloCiz);
 
   document.addEventListener("apartim:gun-degisti", tabloCiz);
 
-  window.APARTIM.rezOzet = { tabloCiz, git, buguneGit, yatayModGuncelle };
+  window.APARTIM.rezOzet = { tabloCiz, git, buguneGit, yatayModGuncelle, tamEkranYatay, yonKilidiAc };
 })();
