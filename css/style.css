@@ -585,6 +585,15 @@ html.theme-light {
   transition: transform var(--gecis), box-shadow var(--gecis), background var(--gecis);
   font-size: 12px;
   overflow: hidden;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.takvim-hucre * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 .takvim-hucre:hover {
   transform: translateY(-1px);
@@ -708,6 +717,106 @@ html:not(.theme-light) .takvim-turnover-ad {
   border-color: rgba(243, 156, 18, 0.4);
 }
 .takvim-hucre.bos-kirli .takvim-gun-no { color: var(--bos-kirli); }
+
+.takvim-detay-pop {
+  position: fixed;
+  inset: 0;
+  z-index: 5100;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+.takvim-detay-pop.hidden { display: none; }
+.takvim-detay-kutu {
+  background: var(--zemin);
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 420px;
+  max-height: min(70vh, 520px);
+  overflow-y: auto;
+  box-shadow: var(--golge-lg);
+}
+.takvim-detay-baslik {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--kenar);
+}
+.takvim-detay-tarih {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--metin);
+}
+.takvim-detay-kapat {
+  border: none;
+  background: var(--kart-2);
+  color: var(--metin);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.takvim-detay-icerik {
+  padding: 12px 16px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.takvim-detay-blok {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed var(--kenar);
+}
+.takvim-detay-blok:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.takvim-detay-etiket {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--uyari);
+}
+.takvim-detay-ad {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--metin);
+  line-height: 1.25;
+}
+.takvim-detay-satir {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  font-size: 13px;
+}
+.takvim-detay-satir span {
+  color: var(--metin-soluk);
+  flex-shrink: 0;
+}
+.takvim-detay-satir strong {
+  color: var(--metin);
+  text-align: right;
+}
+.takvim-detay-ipucu {
+  margin: 0;
+  padding: 10px 16px 14px;
+  font-size: 11px;
+  color: var(--metin-soluk);
+  text-align: center;
+  border-top: 1px solid var(--kenar);
+}
 
 /* -------------------- 9. Rezervasyon listesi -------------------- */
 .rez-liste {
