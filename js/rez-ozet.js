@@ -19,7 +19,11 @@
   };
   const DAIRE_RENK_YEDEK = ["#ffcdd2", "#c8e6c9", "#bbdefb", "#fff9c4", "#e1bee7", "#ffe0b2", "#b2dfdb"];
 
-  const durum = { yil: new Date().getFullYear(), ay: new Date().getMonth() };
+  const durum = {
+    yil: new Date().getFullYear(),
+    ay: new Date().getMonth(),
+    seciliTarih: null
+  };
 
   function pad(n) { return String(n).padStart(2, "0"); }
   function iso(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
@@ -198,6 +202,9 @@
         (tarih === bugun ? " rez-ozet-bugun" : "") +
         (haftaSonu === 0 || haftaSonu === 6 ? " rez-ozet-haftasonu" : "");
       tr.dataset.tarih = tarih;
+      if (durum.seciliTarih === tarih) {
+        tr.classList.add("rez-ozet-satir-secili");
+      }
 
       const tdTarih = document.createElement("td");
       tdTarih.className = "rez-ozet-tarih";
@@ -285,16 +292,51 @@
   function satirVurguBagla(table) {
     const tbody = table.querySelector("tbody");
     if (!tbody) return;
-    tbody.addEventListener("mouseover", (e) => {
+
+    function satirBul(e) {
       const tr = e.target.closest("tr");
-      if (!tr || tr.parentElement !== tbody) return;
+      if (!tr || tr.parentElement !== tbody) return null;
+      return tr;
+    }
+
+    function hoverKaldir() {
       tbody.querySelectorAll(".rez-ozet-satir-hover").forEach((r) =>
         r.classList.remove("rez-ozet-satir-hover"));
+    }
+
+    function satirSec(tr) {
+      if (!tr) return;
+      durum.seciliTarih = tr.dataset.tarih || null;
+      tbody.querySelectorAll(".rez-ozet-satir-secili").forEach((r) =>
+        r.classList.remove("rez-ozet-satir-secili"));
+      tr.classList.add("rez-ozet-satir-secili");
+    }
+
+    tbody.addEventListener("mouseover", (e) => {
+      const tr = satirBul(e);
+      if (!tr) return;
+      hoverKaldir();
       tr.classList.add("rez-ozet-satir-hover");
     });
-    tbody.addEventListener("mouseleave", () => {
-      tbody.querySelectorAll(".rez-ozet-satir-hover").forEach((r) =>
-        r.classList.remove("rez-ozet-satir-hover"));
+
+    tbody.addEventListener("mouseleave", hoverKaldir);
+
+    tbody.addEventListener("pointerdown", (e) => {
+      const tr = satirBul(e);
+      if (!tr || e.pointerType === "mouse") return;
+      satirSec(tr);
+    });
+
+    tbody.addEventListener("click", (e) => {
+      const tr = satirBul(e);
+      if (!tr) return;
+      if (e.target.closest(".rez-ozet-tik") && tr.dataset.tarih) {
+        satirSec(tr);
+        return;
+      }
+      if (e.target.closest(".rez-ozet-tarih") || !e.target.closest(".rez-ozet-tik")) {
+        satirSec(tr);
+      }
     });
   }
 
