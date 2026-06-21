@@ -316,11 +316,23 @@
   }
 
   // path örnek: "daireler/ust", "rezervasyonlar/abc"
+  function nesneTemizle(obj) {
+    if (obj == null || typeof obj !== "object") return obj;
+    if (Array.isArray(obj)) return obj.map(nesneTemizle);
+    const out = {};
+    Object.keys(obj).forEach((k) => {
+      if (obj[k] !== undefined) out[k] = nesneTemizle(obj[k]);
+    });
+    return out;
+  }
+
   function kaydet(yol, deger) {
     if (window.APARTIM.firebaseAktif && fbRef) {
-      return fbRef.child(yol).set(deger).catch((err) => {
+      const temiz = deger == null ? null : nesneTemizle(deger);
+      return fbRef.child(yol).set(temiz).catch((err) => {
         console.warn("Firebase yazma hatası:", yol, err);
         window.APARTIM.toast("Sunucuya kaydedilemedi", "hata");
+        throw err;
       });
     } else {
       // yerel
@@ -448,6 +460,9 @@
     const mevcut = durum.rezervasyonlar[id];
     if (!mevcut) throw new Error("Rezervasyon bulunamadı");
     const yeni = Object.assign({}, mevcut, partial);
+    if (Object.prototype.hasOwnProperty.call(partial, "ucretKademeleri") && partial.ucretKademeleri == null) {
+      delete yeni.ucretKademeleri;
+    }
     if (partial.kaynakId != null) {
       rezervasyonKaynakDogrula(yeni);
       yeni.kaynakAd = musteriKaynagiAd(yeni.kaynakId);
@@ -458,9 +473,8 @@
     }
     yeni.toplamGece = geceSayisi(yeni.giris, yeni.cikis);
     const hazir = rezervasyonKayitHazirla(yeni);
-    Object.assign(yeni, hazir);
-    durum.rezervasyonlar[id] = yeni;
-    return kaydet("rezervasyonlar/" + id, yeni).then(() => yeni);
+    durum.rezervasyonlar[id] = hazir;
+    return kaydet("rezervasyonlar/" + id, hazir).then(() => hazir);
   }
   function rezervasyonSil(id) {
     delete durum.rezervasyonlar[id];

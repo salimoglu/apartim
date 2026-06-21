@@ -38,7 +38,16 @@
   }
   function bugunISO() { return window.APARTIM.db.bugunISO(); }
   function gunEkle(isoStr, ekle) {
-    return window.APARTIM.db.gunEkleISO(isoStr, ekle);
+    const db = window.APARTIM.db;
+    if (db && typeof db.gunEkleISO === "function") {
+      return db.gunEkleISO(isoStr, ekle);
+    }
+    const d = new Date(isoStr + "T00:00:00");
+    d.setDate(d.getDate() + ekle);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const g = String(d.getDate()).padStart(2, "0");
+    return y + "-" + m + "-" + g;
   }
 
   function modalAc() {
@@ -81,9 +90,17 @@
     if (!wrap) return;
     wrap.innerHTML = "";
     const db = window.APARTIM.db;
-    const liste = db.ucretKademeleriNormalize(kademeler, varsayilanUcret);
+    const u = Number(varsayilanUcret) || 1000;
+    let liste;
+    if (db && typeof db.ucretKademeleriNormalize === "function") {
+      liste = db.ucretKademeleriNormalize(kademeler, u);
+    } else if (Array.isArray(kademeler) && kademeler.length) {
+      liste = kademeler;
+    } else {
+      liste = [{ basGece: 1, bitGece: null, ucret: u }];
+    }
     if (!liste.length) {
-      wrap.appendChild(kademeSatirOlustur({ basGece: 1, bitGece: null, ucret: varsayilanUcret || 1000 }));
+      wrap.appendChild(kademeSatirOlustur({ basGece: 1, bitGece: null, ucret: u }));
       return;
     }
     liste.forEach((k) => wrap.appendChild(kademeSatirOlustur(k)));
@@ -249,6 +266,16 @@
     modalAc();
   }
 
+  function kademeleriKaydaHazirla(kademeler, gece) {
+    const k = kademeler.map((x) => Object.assign({}, x));
+    if (!k.length || gece <= 0) return k;
+    const son = k[k.length - 1];
+    if (son.bitGece != null && son.bitGece < gece) {
+      son.bitGece = null;
+    }
+    return k;
+  }
+
   function kademeDogrula(kademeler, gece) {
     if (!kademeler.length) return "En az bir fiyat kademesi girin.";
     for (const k of kademeler) {
@@ -279,17 +306,21 @@
     const misafir = e.misafir.value.trim();
     const giris = e.giris.value;
     const cikis = e.cikis.value;
-    const kademeler = kademeleriOku();
     if (!misafir) { uyariGoster("Misafir adı zorunlu."); return; }
     if (!giris || !cikis) { uyariGoster("Tarihler zorunlu."); return; }
     if (cikis <= giris) { uyariGoster("Çıkış tarihi girişten sonra olmalı."); return; }
 
     const gece = window.APARTIM.db.geceSayisi(giris, cikis);
+    const kademeler = kademeleriKaydaHazirla(kademeleriOku(), gece);
     const kademeHata = kademeDogrula(kademeler, gece);
     if (kademeHata) { uyariGoster(kademeHata); return; }
 
     const kaynakId = e.kaynak?.value || "";
     if (!kaynakId) { uyariGoster("Müşteri kaynağı seçin."); return; }
+
+    const tekKademe = kademeler.length === 1 &&
+      kademeler[0].basGece === 1 &&
+      kademeler[0].bitGece == null;
 
     const veri = {
       daireId: mevcutDaireId,
@@ -299,11 +330,10 @@
       giris,
       cikis,
       gunlukUcret: kademeler[0].ucret,
-      ucretKademeleri: kademeler.length > 1 || kademeler[0].basGece !== 1 || kademeler[0].bitGece != null
-        ? kademeler
-        : undefined,
       notlar: e.notlar.value.trim()
     };
+    if (!tekKademe) veri.ucretKademeleri = kademeler;
+    else veri.ucretKademeleri = null;
 
     try {
       if (mevcutRezId) {
