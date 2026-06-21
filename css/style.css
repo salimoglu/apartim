@@ -682,6 +682,205 @@ html.theme-light {
   border-radius: var(--radius);
 }
 
+/* -------------------- 9b. Rezervasyon özet tablosu -------------------- */
+.rez-sekme-ust {
+  margin-bottom: 10px;
+}
+.rez-alt-nav {
+  display: flex;
+  gap: 6px;
+  background: var(--kart);
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius);
+  padding: 4px;
+}
+.rez-alt-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--metin-soluk);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.rez-alt-btn.active {
+  background: var(--vurgu);
+  color: #fff;
+}
+.rez-alt-btn:hover:not(.active) {
+  background: var(--kart-2);
+}
+.rez-ozet-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rez-ozet-ay-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--kart);
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius);
+  padding: 8px;
+}
+.rez-ozet-ay-baslik {
+  font-family: "Bebas Neue", "Nunito", sans-serif;
+  font-size: 20px;
+  letter-spacing: 2px;
+  flex: 1;
+  text-align: center;
+}
+.rez-ozet-bugun-btn {
+  padding: 6px 10px;
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius-sm);
+  background: var(--kart-2);
+  color: var(--metin);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.rez-ozet-bugun-btn:hover { background: var(--vurgu-soluk); }
+.rez-ozet-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius);
+  background: var(--kart);
+}
+.rez-ozet-table {
+  border-collapse: collapse;
+  font-size: 11px;
+  min-width: 100%;
+  white-space: nowrap;
+}
+.rez-ozet-table th,
+.rez-ozet-table td {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 3px 5px;
+  vertical-align: middle;
+}
+html:not(.theme-light) .rez-ozet-table th,
+html:not(.theme-light) .rez-ozet-table td {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+.rez-ozet-tarih-kose {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  background: var(--kart-2) !important;
+  min-width: 88px;
+  font-weight: 800;
+}
+.rez-ozet-tarih {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--kart) !important;
+  min-width: 88px;
+}
+.rez-ozet-tarih-gun {
+  display: block;
+  font-weight: 800;
+  font-size: 11px;
+}
+.rez-ozet-gun-ad {
+  display: block;
+  font-size: 9px;
+  color: var(--metin-soluk);
+  letter-spacing: 0.5px;
+}
+.rez-ozet-daire-baslik {
+  text-align: center;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  padding: 6px 4px !important;
+}
+.rez-ozet-mini {
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.55);
+  padding: 2px !important;
+}
+.rez-ozet-misafir-baslik {
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 72px;
+}
+.rez-ozet-tr-bugun .rez-ozet-tarih,
+.rez-ozet-bugun .rez-ozet-tarih {
+  box-shadow: inset 3px 0 0 var(--vurgu);
+}
+.rez-ozet-haftasonu .rez-ozet-tarih {
+  background: var(--kart-2) !important;
+}
+.rez-ozet-sayi {
+  text-align: center;
+  font-weight: 700;
+  min-width: 28px;
+}
+.rez-ozet-ad {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  min-width: 72px;
+}
+.rez-ozet-bos {
+  min-width: 28px;
+  height: 22px;
+}
+.rez-ozet-tik {
+  cursor: pointer;
+}
+.rez-ozet-tik:hover {
+  filter: brightness(0.95);
+}
+.rez-ozet-check {
+  text-align: center;
+  font-weight: 800;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+.rez-ozet-check.checkin,
+.rez-ozet-check.checkout {
+  background: #ffeb3b;
+  color: #1a1a1a;
+}
+.rez-ozet-detay {
+  display: grid;
+  grid-template-columns: 24px 20px 44px 52px 1fr;
+  gap: 4px;
+  align-items: center;
+  margin-top: 2px;
+  font-size: 10px;
+}
+.rez-ozet-ad-alt {
+  text-align: center;
+  font-weight: 600;
+  font-size: 10px;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rez-ozet-turnover {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+.rez-ozet-turnover .rez-ozet-check {
+  flex: 1;
+}
+
 /* -------------------- 10. Temizlik geçmişi -------------------- */
 .temizlik-liste { display: flex; flex-direction: column; gap: 8px; }
 .temizlik-kart {

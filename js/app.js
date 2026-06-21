@@ -13,6 +13,7 @@
     document.querySelectorAll(".tab-panel").forEach((p) =>
       p.classList.toggle("active", p.id === "tab-" + ad));
     if (ad === "rapor") raporCiz();
+    if (ad === "rezervasyonlar") window.APARTIM.rezOzet?.tabloCiz();
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -62,6 +63,7 @@
   document.addEventListener("apartim:veri-degisti", () => {
     window.APARTIM.bina?.guncelle();
     window.APARTIM.rezervasyon?.tumRezListele();
+    window.APARTIM.rezOzet?.tabloCiz();
     window.APARTIM.temizlik?.tumTemizlikListele();
     const aktifRapor = document.getElementById("tab-rapor")?.classList.contains("active");
     if (aktifRapor) raporCiz();

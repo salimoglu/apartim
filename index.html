@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260615" />
-  <link rel="stylesheet" href="css/style.css?v=20260615f" />
+  <link rel="stylesheet" href="css/style.css?v=20260624" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -206,8 +206,29 @@
 
       <!-- TÜM REZERVASYONLAR -->
       <section id="tab-rezervasyonlar" class="tab-panel">
-        <div class="rez-liste" id="tum-rez-liste">
-          <div class="rez-bos">Yükleniyor...</div>
+        <div class="rez-sekme-ust">
+          <div class="rez-alt-nav">
+            <button type="button" class="rez-alt-btn active" data-rez-view="ozet">Özet tablo</button>
+            <button type="button" class="rez-alt-btn" data-rez-view="liste">Liste</button>
+          </div>
+        </div>
+        <div id="rez-view-ozet" class="rez-ozet-wrap">
+          <div class="rez-ozet-ay-nav">
+            <button type="button" class="takvim-ay-btn" id="rez-ozet-prev" aria-label="Önceki ay">&#9664;</button>
+            <div class="rez-ozet-ay-baslik" id="rez-ozet-ay-baslik">—</div>
+            <button type="button" class="takvim-ay-btn" id="rez-ozet-next" aria-label="Sonraki ay">&#9654;</button>
+            <button type="button" class="rez-ozet-bugun-btn" id="rez-ozet-bugun">Bugün</button>
+          </div>
+          <div class="rez-ozet-scroll">
+            <div id="rez-ozet-tablo">
+              <div class="rez-bos">Yükleniyor...</div>
+            </div>
+          </div>
+        </div>
+        <div id="rez-view-liste" class="hidden">
+          <div class="rez-liste" id="tum-rez-liste">
+            <div class="rez-bos">Yükleniyor...</div>
+          </div>
         </div>
       </section>
 
@@ -374,6 +395,7 @@
   <script src="js/bina.js?v=20260621b"></script>
   <script src="js/takvim.js?v=20260615"></script>
   <script src="js/rezervasyon.js?v=20260624"></script>
+  <script src="js/rez-ozet.js?v=20260624"></script>
   <script src="js/temizlik.js?v=20260615"></script>
   <script src="js/daire.js?v=20260615"></script>
   <script src="js/tema.js?v=20260615"></script>
