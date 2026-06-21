@@ -76,7 +76,30 @@
     return liste;
   }
 
-  /** Firebase diziyi nesne olarak döndürebilir */
+  function tarihFiyatlariToObject(fiyatlar) {
+    if (!fiyatlar) return null;
+    if (typeof fiyatlar === "object" && !Array.isArray(fiyatlar)) {
+      const out = {};
+      Object.keys(fiyatlar).forEach((k) => {
+        const u = Number(fiyatlar[k]);
+        if (u > 0) out[k] = u;
+      });
+      return Object.keys(out).length ? out : null;
+    }
+    return null;
+  }
+
+  /** Tüm geceler aynı fiyatsa true (tek fiyat modu) */
+  function tarihFiyatlariTekMi(giris, cikis, fiyatlar, varsayilanUcret) {
+    const tf = tarihFiyatlariToObject(fiyatlar);
+    if (!tf) return true;
+    const tarihler = geceTarihleri(giris, cikis);
+    if (!tarihler.length) return true;
+    const u = Number(varsayilanUcret) || 0;
+    return tarihler.every((t) => (Number(tf[t]) || u) === u);
+  }
+
+  /** Kademeleri nesne olarak döndürebilir */
   function ucretKademeleriToArray(kademeler) {
     if (!kademeler) return null;
     if (Array.isArray(kademeler)) return kademeler.slice();
@@ -133,6 +156,9 @@
 
   function rezervasyonGeceUcreti(rez, geceNo) {
     const fallback = Number(rez.gunlukUcret) || 0;
+    const tarih = gunEkleISO(rez.giris, geceNo - 1);
+    const tf = tarihFiyatlariToObject(rez.tarihFiyatlari);
+    if (tf && tf[tarih] != null) return Number(tf[tarih]) || fallback;
     const kademeler = ucretKademeleriToArray(rez.ucretKademeleri);
     if (kademeler && kademeler.length) {
       return geceUcretiBul(kademeler, geceNo, fallback);
@@ -140,13 +166,21 @@
     return fallback;
   }
 
+  function rezervasyonTarihUcreti(rez, tarihISO) {
+    const geceNo = geceSayisi(rez.giris, tarihISO) + 1;
+    const toplamGece = geceSayisi(rez.giris, rez.cikis);
+    if (geceNo < 1 || geceNo > toplamGece) return Number(rez.gunlukUcret) || 0;
+    return rezervasyonGeceUcreti(rez, geceNo);
+  }
+
   function rezervasyonTutarHesapla(rez) {
     const gece = geceSayisi(rez.giris, rez.cikis);
     const gecelik = [];
     let toplam = 0;
     for (let i = 1; i <= gece; i++) {
+      const tarih = gunEkleISO(rez.giris, i - 1);
       const ucret = rezervasyonGeceUcreti(rez, i);
-      gecelik.push({ gece: i, ucret });
+      gecelik.push({ gece: i, tarih, ucret });
       toplam += ucret;
     }
     return { gece, toplam, gecelik };
@@ -164,6 +198,9 @@
 
   function rezervasyonOzeti(rez) {
     const { gece, toplam, gecelik } = rezervasyonTutarHesapla(rez);
+    const gunluk = Number(rez.gunlukUcret) || 0;
+    const tf = tarihFiyatlariToObject(rez.tarihFiyatlari);
+    const tarihliFiyat = tf && !tarihFiyatlariTekMi(rez.giris, rez.cikis, tf, gunluk);
     const kademeler = ucretKademeleriNormalize(
       rez.ucretKademeleri,
       rez.gunlukUcret
@@ -174,8 +211,9 @@
       toplamGece: gece,
       toplamTutar: toplam,
       gecelik,
-      kademeler: tekKademe ? null : kademeler,
-      gunlukUcret: kademeler[0]?.ucret ?? (Number(rez.gunlukUcret) || 0)
+      tarihFiyatlari: tarihliFiyat ? tf : null,
+      kademeler: !tarihliFiyat && !tekKademe ? kademeler : null,
+      gunlukUcret: gunluk || kademeler[0]?.ucret || 0
     };
   }
 
@@ -186,8 +224,14 @@
       toplamTutar: ozet.toplamTutar,
       gunlukUcret: ozet.gunlukUcret
     });
-    if (ozet.kademeler) kayit.ucretKademeleri = ozet.kademeler;
-    else delete kayit.ucretKademeleri;
+    if (ozet.tarihFiyatlari) {
+      kayit.tarihFiyatlari = ozet.tarihFiyatlari;
+      delete kayit.ucretKademeleri;
+    } else {
+      delete kayit.tarihFiyatlari;
+      if (ozet.kademeler) kayit.ucretKademeleri = ozet.kademeler;
+      else delete kayit.ucretKademeleri;
+    }
     return kayit;
   }
 
@@ -498,6 +542,9 @@
     if (Object.prototype.hasOwnProperty.call(partial, "ucretKademeleri") && partial.ucretKademeleri == null) {
       delete yeni.ucretKademeleri;
     }
+    if (Object.prototype.hasOwnProperty.call(partial, "tarihFiyatlari") && partial.tarihFiyatlari == null) {
+      delete yeni.tarihFiyatlari;
+    }
     if (partial.kaynakId != null) {
       rezervasyonKaynakDogrula(yeni);
       yeni.kaynakAd = musteriKaynagiAd(yeni.kaynakId);
@@ -590,10 +637,13 @@
     geceSayisi,
     gunEkleISO,
     geceTarihleri,
+    tarihFiyatlariToObject,
+    tarihFiyatlariTekMi,
     ucretKademeleriNormalize,
     ucretKademeleriToArray,
     geceUcretiBul,
     rezervasyonGeceUcreti,
+    rezervasyonTarihUcreti,
     rezervasyonTutarHesapla,
     rezervasyonKalanTutar,
     rezervasyonOzeti,

@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260627b" />
-  <link rel="stylesheet" href="css/style.css?v=20260705" />
+  <link rel="stylesheet" href="css/style.css?v=20260706" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -311,22 +311,17 @@
             </div>
           </div>
         </div>
-        <div class="field-group">
+        <label class="rez-tek-fiyat-toggle">
+          <input type="checkbox" id="rez-tek-fiyat" checked />
+          <span>Tüm geceler aynı fiyat</span>
+        </label>
+        <div class="field-group rez-ucret-grup" id="rez-ucret-grup">
           <label class="field-label" for="rez-ucret">Gecelik ücret (TL) *</label>
           <input type="number" id="rez-ucret" class="field-input" min="0" step="50" placeholder="1500" />
         </div>
-        <label class="rez-indirim-toggle">
-          <input type="checkbox" id="rez-indirim-toggle" />
-          <span>Belirli geceden sonra farklı fiyat</span>
-        </label>
-        <div class="field-group rez-indirim-grup hidden" id="rez-indirim-grup">
-          <div class="rez-indirim-satir">
-            <input type="number" id="rez-indirim-geceden" class="field-input rez-indirim-gece" min="2" step="1" value="4" aria-label="Hangi geceden" />
-            <span class="rez-indirim-ek">. geceden itibaren</span>
-            <input type="number" id="rez-indirim-ucret" class="field-input rez-indirim-ucret" min="0" step="50" placeholder="1800" aria-label="Yeni gecelik ücret" />
-            <span class="rez-indirim-ek">TL</span>
-          </div>
-          <p class="rez-fiyat-ipucu" id="rez-indirim-ornek"></p>
+        <div class="field-group rez-tarih-fiyat-grup hidden" id="rez-tarih-fiyat-grup">
+          <label class="field-label">Gece başına fiyat</label>
+          <div id="rez-tarih-fiyat-liste" class="rez-tarih-fiyat-liste"></div>
         </div>
         <div id="rez-fiyat-ozet" class="rez-fiyat-ozet"></div>
         <div class="field-group">
@@ -443,10 +438,10 @@
   <script src="js/firebase.js?v=20260615"></script>
   <script src="js/pwa-install.js?v=20260628"></script>
   <script src="js/auth.js?v=20260615"></script>
-  <script src="js/db.js?v=20260702"></script>
+  <script src="js/db.js?v=20260706"></script>
   <script src="js/bina.js?v=20260621b"></script>
   <script src="js/takvim.js?v=20260704"></script>
-  <script src="js/rezervasyon.js?v=20260705"></script>
+  <script src="js/rezervasyon.js?v=20260706"></script>
   <script src="js/rez-ozet.js?v=20260701b"></script>
   <script src="js/temizlik.js?v=20260615"></script>
   <script src="js/daire.js?v=20260615"></script>

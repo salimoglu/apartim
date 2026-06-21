@@ -1,7 +1,7 @@
 /* =========================================================
    APARTIM — Rezervasyon yönetimi
    Yeni / düzenle / sil modalı, çakışma kontrolü, çıkış işlemi.
-   Gecelik fiyat farkı (basit) + konak uzatma desteği.
+   Tarih bazlı gecelik fiyat + konak uzatma desteği.
    ========================================================= */
 
 (function () {
@@ -20,11 +20,10 @@
     giris: document.getElementById("rez-giris"),
     cikis: document.getElementById("rez-cikis"),
     ucret: document.getElementById("rez-ucret"),
-    indirimToggle: document.getElementById("rez-indirim-toggle"),
-    indirimGrup: document.getElementById("rez-indirim-grup"),
-    indirimGeceden: document.getElementById("rez-indirim-geceden"),
-    indirimUcret: document.getElementById("rez-indirim-ucret"),
-    indirimOrnek: document.getElementById("rez-indirim-ornek"),
+    ucretGrup: document.getElementById("rez-ucret-grup"),
+    tekFiyatToggle: document.getElementById("rez-tek-fiyat"),
+    tarihFiyatGrup: document.getElementById("rez-tarih-fiyat-grup"),
+    tarihFiyatListe: document.getElementById("rez-tarih-fiyat-liste"),
     fiyatOzet: document.getElementById("rez-fiyat-ozet"),
     tGece: document.getElementById("rez-toplam-gece"),
     tTutar: document.getElementById("rez-toplam-tutar"),
@@ -37,77 +36,131 @@
   let mevcutRezId = null;
   let mevcutDaireId = null;
   let cikisRezId = null;
-  let fiyatFarkiModu = false;
+  let tekFiyatModu = true;
+
+  const TARIH_AYLAR = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+  const TARIH_GUNLER = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
 
   function varsayilanUcret() {
     const daire = mevcutDaireId ? window.APARTIM.db?.daireGetir(mevcutDaireId) : null;
     return Number(daire?.gunlukUcret) || 1000;
   }
 
-  function fiyatFarkiGoster(acik) {
-    fiyatFarkiModu = !!acik;
+  function tarihGoster(iso) {
+    const d = new Date(iso + "T00:00:00");
+    return d.getDate() + " " + TARIH_AYLAR[d.getMonth()] + " " + TARIH_GUNLER[d.getDay()];
+  }
+
+  function geceTarihleriAl() {
     const e = ay();
-    e.indirimGrup?.classList.toggle("hidden", !fiyatFarkiModu);
-    if (e.indirimToggle) e.indirimToggle.checked = fiyatFarkiModu;
-    if (fiyatFarkiModu) {
-      if (!Number(e.indirimGeceden?.value)) alanYaz(e.indirimGeceden, 4);
-      if (!Number(e.indirimUcret?.value)) {
-        alanYaz(e.indirimUcret, Number(e.ucret?.value) || varsayilanUcret());
-      }
+    const db = window.APARTIM.db;
+    if (!db || !e.giris?.value || !e.cikis?.value) return [];
+    if (e.cikis.value <= e.giris.value) return [];
+    return db.geceTarihleri(e.giris.value, e.cikis.value);
+  }
+
+  function tekFiyatModuGoster(tek) {
+    tekFiyatModu = !!tek;
+    const e = ay();
+    if (e.tekFiyatToggle) e.tekFiyatToggle.checked = tekFiyatModu;
+    e.ucretGrup?.classList.toggle("hidden", !tekFiyatModu);
+    e.tarihFiyatGrup?.classList.toggle("hidden", tekFiyatModu);
+    if (!tekFiyatModu) {
+      const u = Number(e.ucret?.value) || varsayilanUcret();
+      const mevcut = {};
+      geceTarihleriAl().forEach((t) => { mevcut[t] = u; });
+      tarihFiyatListeCiz(mevcut);
+    } else {
+      const tf = tarihFiyatlariOku();
+      const vals = Object.values(tf);
+      if (vals.length) alanYaz(e.ucret, vals[0]);
     }
-    indirimOrnekGuncelle();
     toplamHesapla();
   }
 
-  function indirimOrnekGuncelle() {
-    const e = ay();
-    if (!e.indirimOrnek) return;
-    if (!fiyatFarkiModu) {
-      e.indirimOrnek.textContent = "";
-      return;
+  function tarihFiyatlariOku() {
+    const u = Number(ay().ucret?.value) || varsayilanUcret();
+    const tarihler = geceTarihleriAl();
+    const out = {};
+    if (tekFiyatModu) {
+      tarihler.forEach((t) => { out[t] = u; });
+      return out;
     }
-    const u = Number(e.ucret?.value) || 0;
-    const g = Number(e.indirimGeceden?.value) || 2;
-    const s = Number(e.indirimUcret?.value) || 0;
-    const ilkBit = Math.max(1, g - 1);
-    const ilkAralik = ilkBit === 1 ? "1. gece" : "1–" + ilkBit + ". gece";
-    e.indirimOrnek.textContent =
-      "Örn: " + ilkAralik + " " + aralikFormatla(u) + " TL, " +
-      g + ". geceden " + aralikFormatla(s) + " TL";
+    const wrap = ay().tarihFiyatListe;
+    if (!wrap) {
+      tarihler.forEach((t) => { out[t] = u; });
+      return out;
+    }
+    wrap.querySelectorAll(".rez-tarih-satir").forEach((satir) => {
+      const t = satir.dataset.tarih;
+      const inp = satir.querySelector(".rez-tarih-ucret");
+      out[t] = Number(inp?.value) || u;
+    });
+    tarihler.forEach((t) => {
+      if (out[t] == null) out[t] = u;
+    });
+    return out;
   }
 
-  function indirimFormYukle(kademeler, varsayilan) {
-    const db = window.APARTIM.db;
-    const u = Number(varsayilan) || varsayilanUcret();
-    const liste = db && typeof db.ucretKademeleriNormalize === "function"
-      ? db.ucretKademeleriNormalize(kademeler, u)
-      : [{ basGece: 1, bitGece: null, ucret: u }];
-
-    const tek = liste.length === 1 &&
-      liste[0].basGece === 1 &&
-      liste[0].bitGece == null;
-    if (tek) {
-      fiyatFarkiGoster(false);
+  function tarihFiyatListeCiz(fiyatlar) {
+    const e = ay();
+    const wrap = e.tarihFiyatListe;
+    if (!wrap) return;
+    const tarihler = geceTarihleriAl();
+    const u = Number(e.ucret?.value) || varsayilanUcret();
+    const mevcut = fiyatlar || tarihFiyatlariOku();
+    wrap.innerHTML = "";
+    if (!tarihler.length) {
+      wrap.innerHTML = '<p class="rez-fiyat-ipucu">Önce giriş ve çıkış tarihi seçin.</p>';
       return;
     }
+    tarihler.forEach((t) => {
+      const satir = document.createElement("div");
+      satir.className = "rez-tarih-satir";
+      satir.dataset.tarih = t;
+      satir.innerHTML =
+        '<span class="rez-tarih-etiket">' + esc(tarihGoster(t)) + "</span>" +
+        '<input type="number" class="field-input rez-tarih-ucret" min="0" step="50" value="' +
+        (mevcut[t] != null ? mevcut[t] : u) + '" aria-label="' + esc(tarihGoster(t)) + ' fiyat" />' +
+        '<span class="rez-tarih-tl">TL</span>';
+      satir.querySelector("input").addEventListener("input", toplamHesapla);
+      wrap.appendChild(satir);
+    });
+  }
 
-    const e = ay();
-    let ilkUcret = liste[0]?.ucret ?? u;
-    let geceden = 2;
-    let sonrakiUcret = ilkUcret;
+  function fiyatFormYukle(rez) {
+    const db = window.APARTIM.db;
+    const u = Number(rez.gunlukUcret) || varsayilanUcret();
+    alanYaz(ay().ucret, u);
 
-    if (liste.length >= 2) {
-      geceden = liste[1].basGece;
-      sonrakiUcret = liste[liste.length - 1].ucret;
-    } else if (liste[0].bitGece != null) {
-      geceden = liste[0].bitGece + 1;
-      sonrakiUcret = ilkUcret;
+    let tf = db?.tarihFiyatlariToObject?.(rez.tarihFiyatlari);
+    if (!tf && rez.ucretKademeleri) {
+      tf = {};
+      const tarihler = db.geceTarihleri(rez.giris, rez.cikis);
+      tarihler.forEach((t, i) => {
+        tf[t] = db.rezervasyonGeceUcreti(rez, i + 1);
+      });
     }
 
-    alanYaz(e.ucret, ilkUcret);
-    alanYaz(e.indirimGeceden, geceden);
-    alanYaz(e.indirimUcret, sonrakiUcret);
-    fiyatFarkiGoster(true);
+    const hepsiAyni = !tf || db.tarihFiyatlariTekMi(rez.giris, rez.cikis, tf, u);
+    tekFiyatModu = hepsiAyni;
+    const e = ay();
+    if (e.tekFiyatToggle) e.tekFiyatToggle.checked = tekFiyatModu;
+    e.ucretGrup?.classList.toggle("hidden", !tekFiyatModu);
+    e.tarihFiyatGrup?.classList.toggle("hidden", tekFiyatModu);
+    if (!hepsiAyni) tarihFiyatListeCiz(tf);
+    else if (e.tarihFiyatListe) e.tarihFiyatListe.innerHTML = "";
+  }
+
+  function tarihDegisti() {
+    const e = ay();
+    if (!e.cikis?.value || e.cikis.value <= e.giris.value) {
+      e.cikis.value = gunEkle(e.giris.value, 1);
+    }
+    if (!tekFiyatModu) {
+      tarihFiyatListeCiz(tarihFiyatlariOku());
+    }
+    toplamHesapla();
   }
 
   function tutarHesapla(rez) {
@@ -174,19 +227,6 @@
     if (e.uyari) { e.uyari.classList.add("hidden"); e.uyari.textContent = ""; }
   }
 
-  function kademeleriOku() {
-    const u = Number(ay().ucret?.value) || varsayilanUcret();
-    if (!fiyatFarkiModu) {
-      return [{ basGece: 1, bitGece: null, ucret: u }];
-    }
-    const geceden = Number(ay().indirimGeceden?.value) || 2;
-    const sonraki = Number(ay().indirimUcret?.value) || 0;
-    return [
-      { basGece: 1, bitGece: geceden - 1, ucret: u },
-      { basGece: geceden, bitGece: null, ucret: sonraki }
-    ];
-  }
-
   function fiyatOzetMetni(rez) {
     const { gece, gecelik } = tutarHesapla(rez);
     if (!gece || !gecelik.length) return "";
@@ -194,17 +234,16 @@
     let i = 0;
     while (i < gecelik.length) {
       const u = gecelik[i].ucret;
-      const bas = gecelik[i].gece;
-      let bit = bas;
+      const basTarih = gecelik[i].tarih;
+      let bitTarih = basTarih;
       while (i + 1 < gecelik.length && gecelik[i + 1].ucret === u) {
         i++;
-        bit = gecelik[i].gece;
+        bitTarih = gecelik[i].tarih;
       }
-      const adet = bit - bas + 1;
-      const aralik = bas === bit
-        ? bas + ". gece"
-        : (bit === gece ? bas + "+. gece" : bas + "–" + bit + ". gece");
-      parcalar.push(adet + "×" + aralikFormatla(u) + " TL");
+      const aralik = basTarih === bitTarih
+        ? tarihGoster(basTarih)
+        : tarihGoster(basTarih) + "–" + tarihGoster(bitTarih);
+      parcalar.push(aralik + " " + aralikFormatla(u) + " TL");
       i++;
     }
     return parcalar.join(" · ");
@@ -216,20 +255,19 @@
       const g = e.giris?.value;
       const c = e.cikis?.value;
       const u = Number(e.ucret?.value) || varsayilanUcret();
-      const kademeler = kademeleriOku();
+      const tf = tarihFiyatlariOku();
       const rez = {
         giris: g,
         cikis: c,
         gunlukUcret: u,
-        ucretKademeleri: fiyatFarkiModu ? kademeler : null
+        tarihFiyatlari: tekFiyatModu ? null : tf
       };
       const { gece, toplam } = tutarHesapla(rez);
       if (e.tGece) e.tGece.textContent = gece + " gece";
       if (e.tTutar) e.tTutar.textContent = aralikFormatla(toplam) + " TL";
       if (e.fiyatOzet) {
-        e.fiyatOzet.textContent = fiyatFarkiModu && gece > 0 ? fiyatOzetMetni(rez) : "";
+        e.fiyatOzet.textContent = !tekFiyatModu && gece > 0 ? fiyatOzetMetni(rez) : "";
       }
-      indirimOrnekGuncelle();
     } catch (err) {
       console.warn("toplamHesapla:", err);
     }
@@ -238,7 +276,9 @@
   function cikisUzat(gun) {
     const e = ay();
     if (!e.cikis.value) return;
+    const mevcut = tekFiyatModu ? null : tarihFiyatlariOku();
     e.cikis.value = gunEkle(e.cikis.value, gun);
+    if (!tekFiyatModu) tarihFiyatListeCiz(mevcut);
     toplamHesapla();
   }
 
@@ -306,9 +346,7 @@
       alanYaz(e.cikis, gunEkle(gIso, 1));
       const u = daire ? daire.gunlukUcret : 1000;
       alanYaz(e.ucret, u);
-      fiyatFarkiGoster(false);
-      alanYaz(e.indirimGeceden, 4);
-      alanYaz(e.indirimUcret, "");
+      tekFiyatModuGoster(true);
       alanYaz(e.notlar, "");
       e.btnSil?.classList.add("hidden");
       uyariGoster("");
@@ -343,7 +381,7 @@
       alanYaz(e.giris, rez.giris);
       alanYaz(e.cikis, rez.cikis);
       alanYaz(e.ucret, rez.gunlukUcret || varsayilanUcret());
-      indirimFormYukle(rez.ucretKademeleri, rez.gunlukUcret);
+      fiyatFormYukle(rez);
       alanYaz(e.notlar, rez.notlar || "");
       e.btnSil?.classList.remove("hidden");
       uyariGoster("");
@@ -355,25 +393,14 @@
     }
   }
 
-  function kademeleriKaydaHazirla(kademeler, gece) {
-    const k = kademeler.map((x) => Object.assign({}, x));
-    if (!k.length || gece <= 0) return k;
-    const son = k[k.length - 1];
-    if (son.bitGece != null && son.bitGece < gece) {
-      son.bitGece = null;
+  function tarihFiyatDogrula(tf) {
+    if (tekFiyatModu) return "";
+    const tarihler = geceTarihleriAl();
+    if (!tarihler.length) return "Geçerli tarih aralığı seçin.";
+    for (const t of tarihler) {
+      const f = Number(tf[t]) || 0;
+      if (f <= 0) return tarihGoster(t) + " için fiyat 0'dan büyük olmalı.";
     }
-    return k;
-  }
-
-  function kademeDogrula(kademeler, gece) {
-    if (!fiyatFarkiModu) return "";
-    const geceden = kademeler[1]?.basGece || 0;
-    const sonraki = kademeler[1]?.ucret || 0;
-    if (geceden < 2) return "Farklı fiyat en erken 2. geceden başlayabilir.";
-    if (geceden > gece) {
-      return "Farklı fiyat gecesi (" + geceden + ") toplam gece sayısından (" + gece + ") büyük olamaz.";
-    }
-    if (sonraki <= 0) return "Yeni gecelik ücret 0'dan büyük olmalı.";
     return "";
   }
 
@@ -393,31 +420,24 @@
       const misafir = (e.misafir?.value || "").trim();
       const giris = e.giris?.value || "";
       const cikis = e.cikis?.value || "";
-      const ucretDeger = Number(e.ucret?.value) || varsayilanUcret() || 1000;
+      const ucretDeger = tekFiyatModu
+        ? Number(e.ucret?.value) || varsayilanUcret() || 1000
+        : (Object.values(tarihFiyatlariOku())[0] || varsayilanUcret());
 
       if (!misafir) { kaydetHata("Misafir adı zorunlu."); return; }
       if (!giris || !cikis) { kaydetHata("Tarihler zorunlu."); return; }
       if (cikis <= giris) { kaydetHata("Çıkış tarihi girişten sonra olmalı."); return; }
-      if (ucretDeger <= 0) { kaydetHata("Günlük ücret 0'dan büyük olmalı."); return; }
+      if (tekFiyatModu && ucretDeger <= 0) { kaydetHata("Gecelik ücret 0'dan büyük olmalı."); return; }
 
-      const gece = window.APARTIM.db.geceSayisi(giris, cikis);
-      let kademeler = fiyatFarkiModu
-        ? kademeleriKaydaHazirla(kademeleriOku(), gece)
-        : [{ basGece: 1, bitGece: null, ucret: ucretDeger }];
-      const kademeHata = kademeDogrula(kademeler, gece);
-      if (kademeHata) { kaydetHata(kademeHata); return; }
+      const tf = tekFiyatModu ? null : tarihFiyatlariOku();
+      const fiyatHata = tarihFiyatDogrula(tf || {});
+      if (fiyatHata) { kaydetHata(fiyatHata); return; }
 
       kaynakSelectDoldur(e.kaynak?.value || null);
       const kaynakId = e.kaynak?.value || "";
       if (!kaynakId) { kaydetHata("Müşteri kaynağı seçin."); return; }
 
       if (!mevcutDaireId) { kaydetHata("Daire seçilemedi. Modalı kapatıp tekrar deneyin."); return; }
-
-      const tekKademe = !fiyatFarkiModu || (
-        kademeler.length === 1 &&
-        kademeler[0].basGece === 1 &&
-        kademeler[0].bitGece == null
-      );
 
       const veri = {
         daireId: mevcutDaireId,
@@ -426,11 +446,11 @@
         telefon: (e.telefon?.value || "").trim(),
         giris,
         cikis,
-        gunlukUcret: kademeler[0].ucret || ucretDeger,
-        notlar: (e.notlar?.value || "").trim()
+        gunlukUcret: ucretDeger,
+        notlar: (e.notlar?.value || "").trim(),
+        tarihFiyatlari: tekFiyatModu ? null : tf,
+        ucretKademeleri: null
       };
-      if (!tekKademe) veri.ucretKademeleri = kademeler;
-      else veri.ucretKademeleri = null;
 
       kaydediliyor = true;
       if (e.btnKaydet) {
@@ -529,9 +549,11 @@
     const durumEt = aktif ? "Aktif" : (gelecek ? "Yaklaşan" : "Tamamlandı");
     const kaynakAd = rez.kaynakAd || window.APARTIM.db.musteriKaynagiAd(rez.kaynakId) || "—";
     const kaynakSimge = window.APARTIM.db.musteriKaynagiSimge(rez.kaynakId);
-    const kademeNot = rez.ucretKademeleri && rez.ucretKademeleri.length > 1
-      ? " · Kademeli fiyat"
-      : "";
+    const db = window.APARTIM.db;
+    const fiyatNot = db?.tarihFiyatlariToObject?.(rez.tarihFiyatlari) &&
+      !db.tarihFiyatlariTekMi(rez.giris, rez.cikis, rez.tarihFiyatlari, rez.gunlukUcret)
+      ? " · Tarihli fiyat"
+      : (rez.ucretKademeleri ? " · Kademeli fiyat" : "");
 
     div.innerHTML =
       '<div class="rez-kart-ust">' +
@@ -544,7 +566,7 @@
         '<span class="ok">•</span>' +
         '<span>' + rez.giris + ' <span class="ok">→</span> ' + rez.cikis + '</span>' +
         '<span class="ok">•</span>' +
-        '<span>' + (rez.toplamGece || 0) + ' gece' + kademeNot + '</span>' +
+        '<span>' + (rez.toplamGece || 0) + ' gece' + fiyatNot + '</span>' +
         '<span class="ok">•</span>' +
         '<span>' + durumEt + '</span>' +
       '</div>' +
@@ -608,18 +630,11 @@
     e.btnClose?.addEventListener("click", modalKapat);
     e.btnKaydet?.addEventListener("click", kaydet);
     e.btnSil?.addEventListener("click", silOnay);
-    e.giris?.addEventListener("input", toplamHesapla);
-    e.cikis?.addEventListener("input", toplamHesapla);
+    e.giris?.addEventListener("input", tarihDegisti);
+    e.cikis?.addEventListener("input", tarihDegisti);
     e.ucret?.addEventListener("input", toplamHesapla);
-    e.indirimGeceden?.addEventListener("input", toplamHesapla);
-    e.indirimUcret?.addEventListener("input", toplamHesapla);
-    e.indirimToggle?.addEventListener("change", () => fiyatFarkiGoster(e.indirimToggle.checked));
-    e.giris?.addEventListener("change", () => {
-      if (!e.cikis?.value || e.cikis.value <= e.giris.value) {
-        e.cikis.value = gunEkle(e.giris.value, 1);
-        toplamHesapla();
-      }
-    });
+    e.tekFiyatToggle?.addEventListener("change", () => tekFiyatModuGoster(e.tekFiyatToggle.checked));
+    e.giris?.addEventListener("change", tarihDegisti);
     document.querySelectorAll("[data-uzat]").forEach((btn) => {
       btn.addEventListener("click", () => cikisUzat(Number(btn.dataset.uzat) || 1));
     });

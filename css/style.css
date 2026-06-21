@@ -1472,7 +1472,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   cursor: pointer;
 }
 .btn-chip:hover { background: var(--vurgu-soluk); border-color: var(--vurgu); }
-.rez-indirim-toggle {
+.rez-tek-fiyat-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1483,33 +1483,40 @@ html:not(.theme-light) .rez-kaynak-badge {
   cursor: pointer;
   user-select: none;
 }
-.rez-indirim-toggle input {
+.rez-tek-fiyat-toggle input {
   width: 16px;
   height: 16px;
   accent-color: var(--vurgu);
   flex-shrink: 0;
 }
-.rez-indirim-grup.hidden { display: none; }
-.rez-indirim-satir {
+.rez-tarih-fiyat-grup.hidden { display: none; }
+.rez-tarih-fiyat-liste {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.rez-tarih-satir {
+  display: grid;
+  grid-template-columns: 1fr minmax(88px, 110px) auto;
   gap: 8px;
+  align-items: center;
 }
-.rez-indirim-gece {
-  width: 64px;
-  text-align: center;
-  padding: 8px 6px;
-}
-.rez-indirim-ucret {
-  flex: 1;
-  min-width: 100px;
-  max-width: 140px;
-}
-.rez-indirim-ek {
+.rez-tarih-etiket {
   font-size: 13px;
+  font-weight: 600;
+  color: var(--metin);
+}
+.rez-tarih-ucret {
+  padding: 8px 10px;
+  min-width: 0;
+  text-align: right;
+}
+.rez-tarih-tl {
+  font-size: 12px;
   color: var(--metin-soluk);
-  white-space: nowrap;
 }
 .rez-fiyat-ipucu {
   font-size: 11px;
