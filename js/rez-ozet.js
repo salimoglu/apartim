@@ -82,20 +82,49 @@
     return window.APARTIM.db.daireGunDurumu(daireId, tarih);
   }
 
+  function kisaAd(ad, maxLen) {
+    const s = String(ad || "");
+    const m = maxLen || 9;
+    return s.length > m ? s.slice(0, m - 1) + "…" : s;
+  }
+
+  function ioBadge(tip, rezId) {
+    const lbl = tip === "in" ? "IN" : "OUT";
+    return '<span class="rez-ozet-io ' + tip + ' rez-ozet-tik" data-rez-id="' + esc(rezId) + '">' + lbl + '</span>';
+  }
+
   function turnoverHtml(cikis, giris, tarih) {
     const det = konakDetay(giris, tarih);
     return (
-      '<div class="rez-ozet-turnover-stack">' +
-      '<div class="rez-ozet-turnover-bolum">' +
-      '<div class="rez-ozet-check checkout rez-ozet-tik" data-rez-id="' + esc(cikis.id) + '">CHECK OUT</div>' +
-      '<div class="rez-ozet-ad-alt">' + esc(cikis.misafirAdi) + '</div></div>' +
-      '<div class="rez-ozet-turnover-ayrac" aria-hidden="true"></div>' +
-      '<div class="rez-ozet-turnover-bolum">' +
-      '<div class="rez-ozet-check checkin rez-ozet-tik" data-rez-id="' + esc(giris.id) + '">CHECK IN</div>' +
-      '<div class="rez-ozet-detay">' +
-      '<span>' + det.g + '</span><span>' + det.kategoriHtml + '</span><span>' + fmt(det.prc) + '</span>' +
-      '<span>' + fmt(det.toplam) + '</span><span class="rez-ozet-ad">' + esc(det.misafir) + '</span></div></div></div>'
+      '<div class="rez-ozet-turnover-kompakt">' +
+      ioBadge("out", cikis.id) +
+      '<span class="rez-ozet-io-ad" title="' + esc(cikis.misafirAdi) + '">' + esc(kisaAd(cikis.misafirAdi)) + '</span>' +
+      '<span class="rez-ozet-io-sep">·</span>' +
+      ioBadge("in", giris.id) +
+      det.kategoriHtml +
+      '<span class="rez-ozet-io-ad" title="' + esc(det.misafir) + '">' + esc(kisaAd(det.misafir)) + '</span>' +
+      '</div>'
     );
+  }
+
+  function checkoutHtml(rez) {
+    return (
+      '<div class="rez-ozet-io-satir">' +
+      ioBadge("out", rez.id) +
+      '<span class="rez-ozet-io-ad" title="' + esc(rez.misafirAdi) + '">' + esc(kisaAd(rez.misafirAdi, 12)) + '</span>' +
+      '</div>'
+    );
+  }
+
+  function checkinHucreler(rez, tarih) {
+    const det = konakDetay(rez, tarih);
+    return [
+      { cls: "rez-ozet-sayi rez-ozet-giris-hucre", html: ioBadge("in", rez.id) + '<span>' + det.g + '</span>' },
+      { cls: "rez-ozet-kategori", html: det.kategoriHtml },
+      { cls: "rez-ozet-sayi", txt: fmt(det.prc) },
+      { cls: "rez-ozet-sayi", txt: fmt(det.rmnd) },
+      { cls: "rez-ozet-ad", txt: kisaAd(det.misafir, 11) }
+    ];
   }
 
   function konakDetay(rez, tarih) {
@@ -176,11 +205,11 @@
     tr2.className = "rez-ozet-tr-alt";
     daireler.forEach((d, i) => {
       const renk = daireRenk(d, i);
-      ["G", "Kategori", "PRC", "RMND", "Misafir"].forEach((lbl) => {
+      ["G", "Kt", "₺", "Kln", "Ad"].forEach((lbl) => {
         const th = document.createElement("th");
-        th.className = lbl === "Misafir"
+        th.className = lbl === "Ad"
           ? "rez-ozet-misafir-baslik"
-          : (lbl === "Kategori" ? "rez-ozet-kategori-baslik" : "rez-ozet-mini");
+          : (lbl === "Kt" ? "rez-ozet-kategori-baslik" : "rez-ozet-mini");
         th.style.background = renk;
         th.textContent = lbl;
         tr2.appendChild(th);
@@ -221,27 +250,25 @@
           td.innerHTML = turnoverHtml(h.cikis, h.giris, tarih);
           tr.appendChild(td);
         } else if (h.tip === "checkin") {
-          const det = konakDetay(h.rez, tarih);
-          const td = document.createElement("td");
-          td.colSpan = 5;
-          td.style.background = renk;
-          td.className = "rez-ozet-hucre-dolu rez-ozet-tik";
-          td.dataset.rezId = h.rez.id;
-          td.innerHTML =
-            '<div class="rez-ozet-check checkin">CHECK IN</div>' +
-            '<div class="rez-ozet-detay">' +
-            '<span>' + det.g + '</span><span>' + det.kategoriHtml + '</span><span>' + fmt(det.prc) + '</span>' +
-            '<span>' + fmt(det.toplam) + '</span><span class="rez-ozet-ad">' + esc(det.misafir) + '</span></div>';
-          tr.appendChild(td);
+          checkinHucreler(h.rez, tarih).forEach((c, ci) => {
+            const td = document.createElement("td");
+            td.className = c.cls + " rez-ozet-tik";
+            td.style.background = renk;
+            td.dataset.rezId = h.rez.id;
+            if (c.html) td.innerHTML = c.html;
+            else {
+              td.textContent = c.txt;
+              if (ci === 4) td.title = h.rez.misafirAdi || "";
+            }
+            tr.appendChild(td);
+          });
         } else if (h.tip === "checkout") {
           const td = document.createElement("td");
           td.colSpan = 5;
           td.style.background = renk;
           td.className = "rez-ozet-hucre-dolu rez-ozet-tik";
           td.dataset.rezId = h.rez.id;
-          td.innerHTML =
-            '<div class="rez-ozet-check checkout">CHECK OUT</div>' +
-            '<div class="rez-ozet-ad-alt">' + esc(h.rez.misafirAdi) + '</div>';
+          td.innerHTML = checkoutHtml(h.rez);
           tr.appendChild(td);
         } else if (h.tip === "konak") {
           const det = konakDetay(h.rez, tarih);
@@ -250,15 +277,18 @@
             { cls: "rez-ozet-kategori", html: det.kategoriHtml },
             { cls: "rez-ozet-sayi", txt: fmt(det.prc) },
             { cls: "rez-ozet-sayi", txt: fmt(det.rmnd) },
-            { cls: "rez-ozet-ad", txt: det.misafir }
+            { cls: "rez-ozet-ad", txt: kisaAd(det.misafir, 11) }
           ];
-          hucreler.forEach((c) => {
+          hucreler.forEach((c, ci) => {
             const td = document.createElement("td");
             td.className = c.cls + " rez-ozet-tik";
             td.style.background = renk;
             td.dataset.rezId = h.rez.id;
             if (c.html) td.innerHTML = c.html;
-            else td.textContent = c.txt;
+            else {
+              td.textContent = c.txt;
+              if (ci === 4) td.title = det.misafir || "";
+            }
             tr.appendChild(td);
           });
         } else {

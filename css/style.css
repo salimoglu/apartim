@@ -730,7 +730,7 @@ html.theme-light {
 }
 .rez-ozet-table {
   border-collapse: collapse;
-  font-size: 11px;
+  font-size: 10px;
   min-width: 100%;
   white-space: nowrap;
   --rez-cizgi: #6b7280;
@@ -742,7 +742,7 @@ html:not(.theme-light) .rez-ozet-table {
 .rez-ozet-table th,
 .rez-ozet-table td {
   border: 1px solid var(--rez-cizgi) !important;
-  padding: 3px 5px;
+  padding: 1px 3px;
   vertical-align: middle;
   color: #111827 !important;
 }
@@ -867,83 +867,86 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
   position: sticky;
   left: 0;
   z-index: 3;
-  min-width: 88px;
+  min-width: 68px;
   font-weight: 800;
 }
 .rez-ozet-tarih {
   position: sticky;
   left: 0;
   z-index: 2;
-  min-width: 88px;
+  min-width: 68px;
 }
 .rez-ozet-tarih-gun {
   display: block;
   font-weight: 800;
-  font-size: 11px;
+  font-size: 10px;
 }
 .rez-ozet-gun-ad {
   display: block;
-  font-size: 9px;
-  letter-spacing: 0.5px;
+  font-size: 8px;
+  letter-spacing: 0.3px;
 }
 .rez-ozet-daire-baslik {
   text-align: center;
   font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  padding: 6px 4px !important;
+  font-size: 10px;
+  letter-spacing: 0.3px;
+  padding: 4px 2px !important;
 }
 .rez-ozet-mini {
   text-align: center;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
   color: #111827 !important;
-  padding: 2px !important;
+  padding: 1px !important;
+  min-width: 20px;
 }
 .rez-ozet-kategori-baslik {
   text-align: center;
-  font-size: 7px;
+  font-size: 8px;
   font-weight: 700;
   color: #111827 !important;
-  min-width: 34px;
-  padding: 2px !important;
+  min-width: 24px;
+  padding: 1px !important;
   letter-spacing: 0;
 }
 .rez-ozet-kategori {
   text-align: center;
-  min-width: 32px;
+  min-width: 24px;
   vertical-align: middle;
+  padding: 1px 2px !important;
 }
 .rez-ozet-kategori-simge {
   display: inline-block;
-  font-size: 15px;
+  font-size: 12px;
   line-height: 1;
 }
 .rez-ozet-misafir-baslik {
   text-align: center;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 700;
-  min-width: 72px;
-}
-.rez-ozet-tr-bugun .rez-ozet-tarih,
-.rez-ozet-bugun .rez-ozet-tarih {
-  box-shadow: inset 3px 0 0 var(--vurgu);
+  min-width: 52px;
 }
 .rez-ozet-sayi {
   text-align: center;
   font-weight: 700;
-  min-width: 28px;
+  min-width: 22px;
+  font-size: 9px;
+  padding: 1px 2px !important;
 }
 .rez-ozet-ad {
-  max-width: 100px;
+  max-width: 68px;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
-  min-width: 72px;
+  min-width: 52px;
+  font-size: 9px;
+  padding: 1px 2px !important;
 }
 .rez-ozet-bos {
-  min-width: 28px;
-  height: 22px;
+  min-width: 20px;
+  height: 18px;
+  padding: 1px !important;
 }
 .rez-ozet-tik {
   cursor: pointer;
@@ -951,61 +954,70 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
 .rez-ozet-tik:hover {
   filter: brightness(0.95);
 }
-.rez-ozet-check {
-  text-align: center;
-  font-weight: 800;
-  font-size: 10px;
-  letter-spacing: 0.5px;
-  padding: 2px 4px;
-  border-radius: 2px;
+.rez-ozet-tr-bugun .rez-ozet-tarih,
+.rez-ozet-bugun .rez-ozet-tarih {
+  box-shadow: inset 3px 0 0 var(--vurgu);
 }
-.rez-ozet-check.checkin,
-.rez-ozet-check.checkout {
+.rez-ozet-io {
+  display: inline-block;
+  font-weight: 800;
+  font-size: 7px;
+  letter-spacing: 0;
+  padding: 0 3px;
+  border-radius: 2px;
+  line-height: 1.35;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.rez-ozet-io.in,
+.rez-ozet-io.out {
   background: #ffeb3b;
   color: #1a1a1a;
 }
-.rez-ozet-detay {
-  display: grid;
-  grid-template-columns: 24px 32px 44px 52px 1fr;
-  gap: 4px;
-  align-items: center;
-  margin-top: 2px;
-  font-size: 10px;
-}
-.rez-ozet-ad-alt {
-  text-align: center;
+.rez-ozet-io-ad {
   font-weight: 600;
-  font-size: 10px;
-  margin-top: 2px;
+  font-size: 9px;
+  max-width: 56px;
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: middle;
+  white-space: nowrap;
 }
-.rez-ozet-turnover-stack {
+.rez-ozet-io-sep {
+  color: #6b7280;
+  font-size: 9px;
+  padding: 0 1px;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.rez-ozet-turnover-kompakt,
+.rez-ozet-io-satir {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.rez-ozet-turnover-bolum {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.rez-ozet-turnover-ayrac {
-  height: 2px;
-  background: var(--rez-cizgi, #6b7280);
-  margin: 2px 4px;
-  border-radius: 1px;
-}
-.rez-ozet-turnover-hucre .rez-ozet-detay {
-  grid-template-columns: 24px 32px 44px 52px 1fr;
-}
-.rez-ozet-turnover {
-  display: flex;
-  gap: 4px;
+  align-items: center;
   justify-content: center;
+  gap: 3px;
+  flex-wrap: nowrap;
+  min-height: 18px;
+  padding: 1px 2px;
 }
-.rez-ozet-turnover .rez-ozet-check {
-  flex: 1;
+.rez-ozet-turnover-hucre {
+  padding: 1px 2px !important;
+}
+.rez-ozet-giris-hucre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  line-height: 1.1;
+  padding: 1px !important;
+}
+.rez-ozet-giris-hucre .rez-ozet-io {
+  font-size: 6px;
+  padding: 0 2px;
+}
+.rez-ozet-giris-hucre span:last-child {
+  font-size: 9px;
+  font-weight: 700;
 }
 
 /* -------------------- 10. Temizlik geçmişi -------------------- */
