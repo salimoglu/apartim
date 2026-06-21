@@ -85,7 +85,7 @@
     liste.forEach((k) => {
       const opt = document.createElement("option");
       opt.value = k.id;
-      opt.textContent = k.ad;
+      opt.textContent = (k.simge ? k.simge + " " : "") + k.ad;
       sel.appendChild(opt);
     });
     if (seciliId && liste.some((k) => k.id === seciliId)) {
@@ -254,11 +254,12 @@
 
     const durumEt = aktif ? "Aktif" : (gelecek ? "Yaklaşan" : "Tamamlandı");
     const kaynakAd = rez.kaynakAd || window.APARTIM.db.musteriKaynagiAd(rez.kaynakId) || "—";
+    const kaynakSimge = window.APARTIM.db.musteriKaynagiSimge(rez.kaynakId);
 
     div.innerHTML =
       '<div class="rez-kart-ust">' +
         '<span class="rez-kart-misafir">' + esc(rez.misafirAdi || "Misafir") + '</span>' +
-        '<span class="rez-kaynak-badge">' + esc(kaynakAd) + '</span>' +
+        '<span class="rez-kaynak-badge" title="' + esc(kaynakAd) + '">' + esc(kaynakSimge) + ' ' + esc(kaynakAd) + '</span>' +
         '<span class="rez-kart-tutar">' + aralikFormatla(rez.toplamTutar || 0) + ' TL</span>' +
       '</div>' +
       '<div class="rez-kart-orta">' +

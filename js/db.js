@@ -9,11 +9,16 @@
   "use strict";
 
   const VARSAYILAN_MUSTERI_KAYNAKLARI = [
-    { id: "booking",       ad: "Booking",         sira: 1, sistem: true },
-    { id: "eski-musteri",  ad: "Eski müşteri",    sira: 2, sistem: true },
-    { id: "kapi",          ad: "Kapıdan gelen",   sira: 3, sistem: true },
-    { id: "misafir",       ad: "Misafir",         sira: 4, sistem: true },
-    { id: "albatros",      ad: "Albatros",        sira: 5, sistem: true }
+    { id: "booking",       ad: "Booking",         simge: "🌐", sira: 1, sistem: true },
+    { id: "eski-musteri",  ad: "Eski müşteri",    simge: "⭐", sira: 2, sistem: true },
+    { id: "kapi",          ad: "Kapıdan gelen",   simge: "🚪", sira: 3, sistem: true },
+    { id: "misafir",       ad: "Misafir",         simge: "👋", sira: 4, sistem: true },
+    { id: "albatros",      ad: "Albatros",        simge: "🦅", sira: 5, sistem: true }
+  ];
+
+  const KATEGORI_SIMGELER = [
+    "🌐", "⭐", "🚪", "👋", "🦅", "📞", "✈️", "🏠", "💼", "❤️",
+    "📱", "🧳", "🏖️", "🎯", "💰", "🔵", "🟢", "🟡", "🏷️", "👤"
   ];
 
   const SABIT_DAIRELER = [
@@ -28,7 +33,7 @@
     daireler: {},      // { id: {ad, gunlukUcret, temizlik, ...} }
     rezervasyonlar: {},// { rezId: {...} }
     temizlikKayit: {}, // { kayitId: {...} }
-    musteriKaynaklari: {}, // { id: { id, ad, sira, sistem } }
+    musteriKaynaklari: {}, // { id: { id, ad, simge, sira, sistem } }
     yuklendi: false
   };
   const dinleyiciler = [];
@@ -99,6 +104,13 @@
         if (k.ad == null) { k.ad = t.ad; degisti = true; }
         if (k.sira == null) { k.sira = t.sira; degisti = true; }
         if (k.sistem == null) { k.sistem = true; degisti = true; }
+        if (!k.simge) { k.simge = t.simge || "🏷️"; degisti = true; }
+      }
+    });
+    Object.values(durum.musteriKaynaklari).forEach((k) => {
+      if (!k.simge) {
+        k.simge = "🏷️";
+        degisti = true;
       }
     });
     if (degisti) {
@@ -278,9 +290,14 @@
     const k = musteriKaynagiGetir(id);
     return k ? k.ad : "";
   }
-  function musteriKaynagiEkle(ad) {
+  function musteriKaynagiSimge(id) {
+    const k = musteriKaynagiGetir(id);
+    return k?.simge || "🏷️";
+  }
+  function musteriKaynagiEkle(ad, simge) {
     const metin = String(ad || "").trim();
     if (!metin) throw new Error("Kategori adı boş olamaz.");
+    const simgeMetin = String(simge || "🏷️").trim() || "🏷️";
     const mevcut = musteriKaynaklariListele().find((k) =>
       (k.ad || "").toLocaleLowerCase("tr") === metin.toLocaleLowerCase("tr")
     );
@@ -292,7 +309,7 @@
       n++;
     }
     const sira = musteriKaynaklariListele().reduce((m, k) => Math.max(m, k.sira || 0), 0) + 1;
-    const kayit = { id, ad: metin, sira, sistem: false };
+    const kayit = { id, ad: metin, simge: simgeMetin, sira, sistem: false };
     durum.musteriKaynaklari[id] = kayit;
     return kaydet("musteri-kaynaklari/" + id, kayit).then(() => kayit);
   }
@@ -410,9 +427,11 @@
     musteriKaynaklariListele,
     musteriKaynagiGetir,
     musteriKaynagiAd,
+    musteriKaynagiSimge,
     musteriKaynagiEkle,
     musteriKaynagiSil,
     VARSAYILAN_MUSTERI_KAYNAKLARI,
+    KATEGORI_SIMGELER,
     SABIT_DAIRELER
   };
 })();

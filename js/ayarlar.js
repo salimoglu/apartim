@@ -26,6 +26,27 @@
   }
 
   // ---- Müşteri kaynakları ----
+  let seciliKaynakSimge = "🏷️";
+
+  function simgePaletiRender() {
+    const wrap = document.getElementById("kaynak-simge-sec");
+    if (!wrap) return;
+    const simgeler = window.APARTIM.db.KATEGORI_SIMGELER || ["🏷️"];
+    wrap.innerHTML = "";
+    simgeler.forEach((s) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "kaynak-simge-btn" + (s === seciliKaynakSimge ? " active" : "");
+      btn.textContent = s;
+      btn.title = "Simge seç";
+      btn.addEventListener("click", () => {
+        seciliKaynakSimge = s;
+        simgePaletiRender();
+      });
+      wrap.appendChild(btn);
+    });
+  }
+
   function kaynakListeRender() {
     const ul = document.getElementById("kaynak-liste");
     if (!ul) return;
@@ -35,6 +56,7 @@
       const li = document.createElement("li");
       li.className = "kaynak-item" + (k.sistem ? " kaynak-item-sistem" : "");
       li.innerHTML =
+        '<span class="kaynak-simge">' + esc(k.simge || "🏷️") + '</span>' +
         '<span class="kaynak-ad">' + esc(k.ad) + '</span>' +
         (k.sistem ? '<span class="kaynak-etiket">Varsayılan</span>' : "") +
         (k.sistem ? "" : '<button type="button" class="kaynak-sil-btn" data-id="' + esc(k.id) + '">Sil</button>');
@@ -47,6 +69,8 @@
 
   function kaynakAc() {
     uyari("kaynak-uyari", "");
+    seciliKaynakSimge = "🏷️";
+    simgePaletiRender();
     kaynakListeRender();
     modalKaynak()?.classList.remove("hidden");
     document.getElementById("kaynak-yeni-ad")?.focus();
@@ -67,7 +91,7 @@
       return;
     }
     try {
-      await window.APARTIM.db.musteriKaynagiEkle(ad);
+      await window.APARTIM.db.musteriKaynagiEkle(ad, seciliKaynakSimge);
       if (inp) inp.value = "";
       uyari("kaynak-uyari", "");
       kaynakListeRender();

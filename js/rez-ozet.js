@@ -19,14 +19,6 @@
   };
   const DAIRE_RENK_YEDEK = ["#ffcdd2", "#c8e6c9", "#bbdefb", "#fff9c4", "#e1bee7", "#ffe0b2", "#b2dfdb"];
 
-  const KAYNAK_HARF = {
-    "booking": "B",
-    "eski-musteri": "E",
-    "kapi": "K",
-    "misafir": "M",
-    "albatros": "A"
-  };
-
   const durum = { yil: new Date().getFullYear(), ay: new Date().getMonth() };
 
   function pad(n) { return String(n).padStart(2, "0"); }
@@ -44,11 +36,20 @@
     return GUN_KISA[d.getDay()];
   }
 
-  function kaynakHarfi(rez) {
+  function kaynakSimge(rez) {
+    if (!rez || !rez.kaynakId) return "—";
+    return window.APARTIM.db.musteriKaynagiSimge(rez.kaynakId);
+  }
+
+  function kaynakBaslik(rez) {
     if (!rez) return "";
-    if (rez.kaynakId && KAYNAK_HARF[rez.kaynakId]) return KAYNAK_HARF[rez.kaynakId];
-    const ad = rez.kaynakAd || window.APARTIM.db.musteriKaynagiAd(rez.kaynakId) || "";
-    return ad ? ad.charAt(0).toLocaleUpperCase("tr") : "—";
+    return rez.kaynakAd || window.APARTIM.db.musteriKaynagiAd(rez.kaynakId) || "";
+  }
+
+  function kaynakSimgeHtml(rez) {
+    const baslik = kaynakBaslik(rez);
+    return '<span class="rez-ozet-kategori-simge" title="' + esc(baslik) + '">' +
+      esc(kaynakSimge(rez)) + '</span>';
   }
 
   function daireBaslik(d) {
@@ -106,7 +107,8 @@
       : db.geceSayisi(rez.giris, rez.cikis) * (Number(rez.gunlukUcret) || 0);
     return {
       g,
-      f: kaynakHarfi(rez),
+      kategori: kaynakSimge(rez),
+      kategoriHtml: kaynakSimgeHtml(rez),
       prc: rez.gunlukUcret,
       rmnd: kalanGece * (Number(rez.gunlukUcret) || 0),
       toplam,
@@ -174,9 +176,11 @@
     tr2.className = "rez-ozet-tr-alt";
     daireler.forEach((d, i) => {
       const renk = daireRenk(d, i);
-      ["G", "F", "PRC", "RMND", "Misafir"].forEach((lbl) => {
+      ["G", "Kategori", "PRC", "RMND", "Misafir"].forEach((lbl) => {
         const th = document.createElement("th");
-        th.className = lbl === "Misafir" ? "rez-ozet-misafir-baslik" : "rez-ozet-mini";
+        th.className = lbl === "Misafir"
+          ? "rez-ozet-misafir-baslik"
+          : (lbl === "Kategori" ? "rez-ozet-kategori-baslik" : "rez-ozet-mini");
         th.style.background = renk;
         th.textContent = lbl;
         tr2.appendChild(th);
@@ -229,7 +233,7 @@
           td.innerHTML =
             '<div class="rez-ozet-check checkin">CHECK IN</div>' +
             '<div class="rez-ozet-detay">' +
-            '<span>' + det.g + '</span><span>' + esc(det.f) + '</span><span>' + fmt(det.prc) + '</span>' +
+            '<span>' + det.g + '</span><span>' + det.kategoriHtml + '</span><span>' + fmt(det.prc) + '</span>' +
             '<span>' + fmt(det.toplam) + '</span><span class="rez-ozet-ad">' + esc(det.misafir) + '</span></div>';
           tr.appendChild(td);
         } else if (h.tip === "checkout") {
@@ -246,7 +250,7 @@
           const det = konakDetay(h.rez, tarih);
           const hucreler = [
             { cls: "rez-ozet-sayi", txt: String(det.g) },
-            { cls: "rez-ozet-sayi", txt: det.f },
+            { cls: "rez-ozet-kategori", html: det.kategoriHtml },
             { cls: "rez-ozet-sayi", txt: fmt(det.prc) },
             { cls: "rez-ozet-sayi", txt: fmt(det.rmnd) },
             { cls: "rez-ozet-ad", txt: det.misafir }
@@ -256,7 +260,8 @@
             td.className = c.cls + " rez-ozet-tik";
             td.style.background = renk;
             td.dataset.rezId = h.rez.id;
-            td.textContent = c.txt;
+            if (c.html) td.innerHTML = c.html;
+            else td.textContent = c.txt;
             tr.appendChild(td);
           });
         } else {
