@@ -19,6 +19,9 @@
     telefon: document.getElementById("rez-telefon"),
     giris: document.getElementById("rez-giris"),
     cikis: document.getElementById("rez-cikis"),
+    ucret: document.getElementById("rez-ucret"),
+    kademeGrup: document.getElementById("rez-kademe-grup"),
+    kademeToggle: document.getElementById("rez-kademe-toggle"),
     kademeler: document.getElementById("rez-kademeler"),
     fiyatOzet: document.getElementById("rez-fiyat-ozet"),
     tGece: document.getElementById("rez-toplam-gece"),
@@ -32,6 +35,37 @@
   let mevcutRezId = null;
   let mevcutDaireId = null;
   let cikisRezId = null;
+  let kademeModu = false;
+
+  function varsayilanUcret() {
+    const daire = mevcutDaireId ? window.APARTIM.db?.daireGetir(mevcutDaireId) : null;
+    return Number(daire?.gunlukUcret) || 1000;
+  }
+
+  function kademeModuGoster(acik) {
+    kademeModu = !!acik;
+    const e = ay();
+    e.kademeGrup?.classList.toggle("hidden", !kademeModu);
+    if (e.kademeToggle) {
+      e.kademeToggle.textContent = kademeModu
+        ? "Basit günlük ücrete dön"
+        : "Gecelik farklı fiyat kullan";
+    }
+    if (kademeModu && e.kademeler && !e.kademeler.querySelector(".rez-kademe-satir")) {
+      kademeleriYukle(null, Number(e.ucret?.value) || varsayilanUcret());
+    }
+    toplamHesapla();
+  }
+
+  function tutarHesapla(rez) {
+    const db = window.APARTIM.db;
+    if (db && typeof db.rezervasyonTutarHesapla === "function") {
+      return db.rezervasyonTutarHesapla(rez);
+    }
+    const gece = db ? db.geceSayisi(rez.giris, rez.cikis) : 0;
+    const u = Number(rez.gunlukUcret) || 0;
+    return { gece, toplam: gece * u, gecelik: [] };
+  }
 
   function aralikFormatla(n) {
     return Number(n || 0).toLocaleString("tr-TR");
@@ -107,9 +141,21 @@
   }
 
   function kademeleriOku() {
+    if (!kademeModu) {
+      const u = Number(ay().ucret?.value) || varsayilanUcret();
+      return [{ basGece: 1, bitGece: null, ucret: u }];
+    }
     const wrap = ay().kademeler;
-    if (!wrap) return [];
-    return Array.from(wrap.querySelectorAll(".rez-kademe-satir")).map((satir) => {
+    if (!wrap) {
+      const u = Number(ay().ucret?.value) || varsayilanUcret();
+      return [{ basGece: 1, bitGece: null, ucret: u }];
+    }
+    const satirlar = Array.from(wrap.querySelectorAll(".rez-kademe-satir"));
+    if (!satirlar.length) {
+      const u = Number(ay().ucret?.value) || varsayilanUcret();
+      return [{ basGece: 1, bitGece: null, ucret: u }];
+    }
+    return satirlar.map((satir) => {
       const bitVal = satir.querySelector(".rez-k-bit").value.trim();
       return {
         basGece: Number(satir.querySelector(".rez-k-bas").value) || 1,
@@ -120,9 +166,8 @@
   }
 
   function fiyatOzetMetni(rez) {
-    const db = window.APARTIM.db;
-    const { gece, toplam, gecelik } = db.rezervasyonTutarHesapla(rez);
-    if (!gece) return "";
+    const { gece, gecelik } = tutarHesapla(rez);
+    if (!gece || !gecelik.length) return "";
     const parcalar = [];
     let i = 0;
     while (i < gecelik.length) {
@@ -144,18 +189,24 @@
   }
 
   function toplamHesapla() {
-    const e = ay();
-    const g = e.giris.value;
-    const c = e.cikis.value;
-    const kademeler = kademeleriOku();
-    const ilkUcret = kademeler[0]?.ucret || 0;
-    const rez = { giris: g, cikis: c, gunlukUcret: ilkUcret, ucretKademeleri: kademeler };
-    const db = window.APARTIM.db;
-    const { gece, toplam } = db.rezervasyonTutarHesapla(rez);
-    e.tGece.textContent = gece + " gece";
-    e.tTutar.textContent = aralikFormatla(toplam) + " TL";
-    if (e.fiyatOzet) {
-      e.fiyatOzet.textContent = gece > 0 ? fiyatOzetMetni(rez) : "";
+    try {
+      const e = ay();
+      const g = e.giris?.value;
+      const c = e.cikis?.value;
+      const kademeler = kademeleriOku();
+      const ilkUcret = kademeler[0]?.ucret || Number(e.ucret?.value) || varsayilanUcret();
+      if (!kademeModu && e.ucret && Number(e.ucret.value) !== ilkUcret) {
+        e.ucret.value = ilkUcret;
+      }
+      const rez = { giris: g, cikis: c, gunlukUcret: ilkUcret, ucretKademeleri: kademeModu ? kademeler : null };
+      const { gece, toplam } = tutarHesapla(rez);
+      if (e.tGece) e.tGece.textContent = gece + " gece";
+      if (e.tTutar) e.tTutar.textContent = aralikFormatla(toplam) + " TL";
+      if (e.fiyatOzet) {
+        e.fiyatOzet.textContent = kademeModu && gece > 0 ? fiyatOzetMetni(rez) : "";
+      }
+    } catch (err) {
+      console.warn("toplamHesapla:", err);
     }
   }
 
@@ -237,7 +288,10 @@
     const gIso = secimler.girisOnseci || bugunISO();
     e.giris.value = gIso;
     e.cikis.value = gunEkle(gIso, 1);
-    kademeleriYukle(null, daire ? daire.gunlukUcret : 1000);
+    const u = daire ? daire.gunlukUcret : 1000;
+    if (e.ucret) e.ucret.value = u;
+    kademeModuGoster(false);
+    kademeleriYukle(null, u);
     e.notlar.value = "";
     e.btnSil.classList.add("hidden");
     uyariGoster("");
@@ -258,7 +312,12 @@
     e.telefon.value = rez.telefon || "";
     e.giris.value = rez.giris;
     e.cikis.value = rez.cikis;
+    const liste = window.APARTIM.db.ucretKademeleriNormalize(rez.ucretKademeleri, rez.gunlukUcret);
+    const coklu = liste.length > 1 ||
+      (liste[0] && (liste[0].bitGece != null || liste[0].basGece !== 1));
+    if (e.ucret) e.ucret.value = rez.gunlukUcret || varsayilanUcret();
     kademeleriYukle(rez.ucretKademeleri, rez.gunlukUcret);
+    kademeModuGoster(coklu);
     e.notlar.value = rez.notlar || "";
     e.btnSil.classList.remove("hidden");
     uyariGoster("");
@@ -277,6 +336,10 @@
   }
 
   function kademeDogrula(kademeler, gece) {
+    if (!kademeModu) {
+      const u = Number(ay().ucret?.value) || 0;
+      return u > 0 ? "" : "Günlük ücret 0'dan büyük olmalı.";
+    }
     if (!kademeler.length) return "En az bir fiyat kademesi girin.";
     for (const k of kademeler) {
       if (k.ucret <= 0) return "Tüm kademelerde ücret 0'dan büyük olmalı.";
@@ -311,16 +374,20 @@
     if (cikis <= giris) { uyariGoster("Çıkış tarihi girişten sonra olmalı."); return; }
 
     const gece = window.APARTIM.db.geceSayisi(giris, cikis);
-    const kademeler = kademeleriKaydaHazirla(kademeleriOku(), gece);
+    let kademeler = kademeModu
+      ? kademeleriKaydaHazirla(kademeleriOku(), gece)
+      : [{ basGece: 1, bitGece: null, ucret: Number(e.ucret?.value) || 0 }];
     const kademeHata = kademeDogrula(kademeler, gece);
     if (kademeHata) { uyariGoster(kademeHata); return; }
 
     const kaynakId = e.kaynak?.value || "";
     if (!kaynakId) { uyariGoster("Müşteri kaynağı seçin."); return; }
 
-    const tekKademe = kademeler.length === 1 &&
+    const tekKademe = !kademeModu || (
+      kademeler.length === 1 &&
       kademeler[0].basGece === 1 &&
-      kademeler[0].bitGece == null;
+      kademeler[0].bitGece == null
+    );
 
     const veri = {
       daireId: mevcutDaireId,
@@ -334,6 +401,8 @@
     };
     if (!tekKademe) veri.ucretKademeleri = kademeler;
     else veri.ucretKademeleri = null;
+
+    if (!mevcutDaireId) { uyariGoster("Daire seçilemedi. Modalı kapatıp tekrar deneyin."); return; }
 
     try {
       if (mevcutRezId) {
@@ -492,30 +561,42 @@
   function tumRezListele() { listeRender("tum-rez-liste"); }
   function daireRezListele(daireId) { listeRender("rez-liste-icerik", daireId); }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  function bagla() {
     const e = ay();
-    e.btnIptal.addEventListener("click", modalKapat);
-    e.btnClose.addEventListener("click", modalKapat);
-    e.btnKaydet.addEventListener("click", kaydet);
-    e.btnSil.addEventListener("click", silOnay);
-    [e.giris, e.cikis].forEach((inp) => inp.addEventListener("input", toplamHesapla));
-    e.giris.addEventListener("change", () => {
-      if (!e.cikis.value || e.cikis.value <= e.giris.value) {
+    e.btnIptal?.addEventListener("click", modalKapat);
+    e.btnClose?.addEventListener("click", modalKapat);
+    e.btnKaydet?.addEventListener("click", kaydet);
+    e.btnSil?.addEventListener("click", silOnay);
+    e.giris?.addEventListener("input", toplamHesapla);
+    e.cikis?.addEventListener("input", toplamHesapla);
+    e.ucret?.addEventListener("input", toplamHesapla);
+    e.giris?.addEventListener("change", () => {
+      if (!e.cikis?.value || e.cikis.value <= e.giris.value) {
         e.cikis.value = gunEkle(e.giris.value, 1);
         toplamHesapla();
       }
     });
     document.getElementById("rez-kademe-ekle")?.addEventListener("click", kademeEkle);
+    document.getElementById("rez-kademe-toggle")?.addEventListener("click", () => {
+      kademeModuGoster(!kademeModu);
+      if (kademeModu) {
+        kademeleriYukle(null, Number(e.ucret?.value) || varsayilanUcret());
+      }
+    });
     document.querySelectorAll("[data-uzat]").forEach((btn) => {
       btn.addEventListener("click", () => cikisUzat(Number(btn.dataset.uzat) || 1));
     });
-
     document.getElementById("rez-yeni-btn")?.addEventListener("click", () => yeni({}));
-
     document.getElementById("cikis-close")?.addEventListener("click", cikisKapat);
     document.getElementById("cikis-iptal")?.addEventListener("click", cikisKapat);
     document.getElementById("cikis-onayla")?.addEventListener("click", cikisOnayla);
-  });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bagla);
+  } else {
+    bagla();
+  }
 
   document.addEventListener("apartim:veri-degisti", () => {
     if (window.APARTIM.daire?.aktifId()) {

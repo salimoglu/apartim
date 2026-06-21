@@ -76,13 +76,27 @@
     return liste;
   }
 
+  /** Firebase diziyi nesne olarak döndürebilir */
+  function ucretKademeleriToArray(kademeler) {
+    if (!kademeler) return null;
+    if (Array.isArray(kademeler)) return kademeler.slice();
+    if (typeof kademeler === "object") {
+      return Object.keys(kademeler)
+        .sort((a, b) => Number(a) - Number(b))
+        .map((k) => kademeler[k])
+        .filter(Boolean);
+    }
+    return null;
+  }
+
   /** Kademeleri sırala / normalize et */
   function ucretKademeleriNormalize(kademeler, varsayilanUcret) {
-    if (!Array.isArray(kademeler) || !kademeler.length) {
+    const dizi = ucretKademeleriToArray(kademeler);
+    if (!dizi || !dizi.length) {
       const u = Number(varsayilanUcret) || 0;
       return u > 0 ? [{ basGece: 1, bitGece: null, ucret: u }] : [];
     }
-    return kademeler
+    return dizi
       .map((k) => ({
         basGece: Math.max(1, Number(k.basGece) || 1),
         bitGece: k.bitGece != null && k.bitGece !== "" ? Number(k.bitGece) : null,
@@ -90,6 +104,18 @@
       }))
       .filter((k) => k.ucret > 0)
       .sort((a, b) => a.basGece - b.basGece);
+  }
+
+  function rezervasyonlariNormalize(obj) {
+    if (!obj || typeof obj !== "object") return {};
+    const out = {};
+    Object.keys(obj).forEach((key) => {
+      const r = obj[key];
+      if (r && typeof r === "object") {
+        out[key] = Object.assign({}, r, { id: r.id || key });
+      }
+    });
+    return out;
   }
 
   /** Konak gecesi (1 tabanlı) için ücret */
@@ -107,8 +133,9 @@
 
   function rezervasyonGeceUcreti(rez, geceNo) {
     const fallback = Number(rez.gunlukUcret) || 0;
-    if (rez.ucretKademeleri && rez.ucretKademeleri.length) {
-      return geceUcretiBul(rez.ucretKademeleri, geceNo, fallback);
+    const kademeler = ucretKademeleriToArray(rez.ucretKademeleri);
+    if (kademeler && kademeler.length) {
+      return geceUcretiBul(kademeler, geceNo, fallback);
     }
     return fallback;
   }
@@ -276,7 +303,7 @@
 
       // Rezervasyonlar
       fbRef.child("rezervasyonlar").on("value", (snap) => {
-        durum.rezervasyonlar = snap.val() || {};
+        durum.rezervasyonlar = rezervasyonlariNormalize(snap.val() || {});
         bildir("veri-degisti", { sebep: "rezervasyonlar" });
       });
 
@@ -294,7 +321,7 @@
     } else {
       const v = window.APARTIM.yerelOku();
       durum.daireler = v.daireler || {};
-      durum.rezervasyonlar = v.rezervasyonlar || {};
+      durum.rezervasyonlar = rezervasyonlariNormalize(v.rezervasyonlar || {});
       durum.temizlikKayit = v.temizlikKayit || {};
       durum.musteriKaynaklari = v.musteriKaynaklari || {};
       musteriKaynaklariSeedEt();
@@ -556,6 +583,7 @@
     gunEkleISO,
     geceTarihleri,
     ucretKademeleriNormalize,
+    ucretKademeleriToArray,
     geceUcretiBul,
     rezervasyonGeceUcreti,
     rezervasyonTutarHesapla,

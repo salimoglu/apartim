@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260627b" />
-  <link rel="stylesheet" href="css/style.css?v=20260630" />
+  <link rel="stylesheet" href="css/style.css?v=20260701" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -312,6 +312,10 @@
           </div>
         </div>
         <div class="field-group">
+          <label class="field-label" for="rez-ucret">Günlük ücret (TL) *</label>
+          <input type="number" id="rez-ucret" class="field-input" min="0" step="50" placeholder="1500" />
+        </div>
+        <div class="field-group rez-kademe-grup hidden" id="rez-kademe-grup">
           <div class="rez-fiyat-baslik">
             <label class="field-label">Gecelik fiyat kademeleri</label>
             <button type="button" class="btn-link" id="rez-kademe-ekle">+ Kademe</button>
@@ -319,6 +323,7 @@
           <p class="rez-fiyat-ipucu">Örn: 1–3. gece 2000 TL, 4+. gece 1800 TL. Bitiş boş = son geceye kadar.</p>
           <div id="rez-kademeler" class="rez-kademeler"></div>
         </div>
+        <button type="button" class="btn-link rez-kademe-toggle" id="rez-kademe-toggle">Gecelik farklı fiyat kullan</button>
         <div id="rez-fiyat-ozet" class="rez-fiyat-ozet"></div>
         <div class="field-group">
           <label class="field-label" for="rez-notlar">Notlar</label>
@@ -434,10 +439,10 @@
   <script src="js/firebase.js?v=20260615"></script>
   <script src="js/pwa-install.js?v=20260628"></script>
   <script src="js/auth.js?v=20260615"></script>
-  <script src="js/db.js?v=20260630b"></script>
+  <script src="js/db.js?v=20260701"></script>
   <script src="js/bina.js?v=20260621b"></script>
   <script src="js/takvim.js?v=20260628"></script>
-  <script src="js/rezervasyon.js?v=20260630b"></script>
+  <script src="js/rezervasyon.js?v=20260701"></script>
   <script src="js/rez-ozet.js?v=20260630"></script>
   <script src="js/temizlik.js?v=20260615"></script>
   <script src="js/daire.js?v=20260615"></script>

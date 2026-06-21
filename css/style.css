@@ -1272,7 +1272,14 @@ html:not(.theme-light) .rez-kaynak-badge {
   cursor: pointer;
 }
 .btn-chip:hover { background: var(--vurgu-soluk); border-color: var(--vurgu); }
-.rez-fiyat-baslik {
+.rez-kademe-toggle {
+  display: block;
+  width: 100%;
+  text-align: left;
+  margin: 2px 0 8px;
+}
+.rez-kademe-grup.hidden { display: none; }
+
   display: flex;
   justify-content: space-between;
   align-items: center;
