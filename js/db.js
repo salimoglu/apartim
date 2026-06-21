@@ -386,6 +386,36 @@
     const liste = rezervasyonlarListele(daireId);
     return liste.find((r) => r.giris <= isoTarih && isoTarih < r.cikis) || null;
   }
+
+  /** Özet/takvim: [giris,cikis) + aynı gün çıkış+giriş (turnover) */
+  function daireGunDurumu(daireId, isoTarih) {
+    const liste = rezervasyonlarListele(daireId);
+    const cikisList = liste.filter((r) => r.cikis === isoTarih);
+    const girisList = liste.filter((r) => r.giris === isoTarih);
+
+    for (const cikis of cikisList) {
+      for (const giris of girisList) {
+        if (cikis.id !== giris.id) {
+          return { tip: "turnover", cikis, giris, rez: giris };
+        }
+      }
+    }
+
+    if (cikisList.length) {
+      return { tip: "checkout", rez: cikisList[0] };
+    }
+
+    if (girisList.length) {
+      return { tip: "checkin", rez: girisList[0] };
+    }
+
+    const konak = liste.find((r) => r.giris <= isoTarih && isoTarih < r.cikis);
+    if (konak) {
+      return { tip: "konak", rez: konak };
+    }
+
+    return { tip: "bos", rez: null };
+  }
   function daireDurumuBugun(daireId) {
     const daire = daireGetir(daireId);
     if (!daire) return { durum: "yok", rez: null };
@@ -420,6 +450,7 @@
     rezervasyonGuncelle,
     rezervasyonSil,
     dairedeBuTariheRez,
+    daireGunDurumu,
     dairedeCakisanRez,
     daireDurumuBugun,
     temizlikLogEkle,

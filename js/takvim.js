@@ -50,17 +50,28 @@
   }
 
   function gunSinifi(isoTarih, daire) {
-    const rez = window.APARTIM.db.dairedeBuTariheRez(durum.daireId, isoTarih);
+    const gd = window.APARTIM.db.daireGunDurumu(durum.daireId, isoTarih);
     const sinif = [];
-    if (rez) {
-      sinif.push("dolu");
-      if (rez.giris === isoTarih) sinif.push("giris");
-      if (rez.cikis === isoTarih) sinif.push("cikis");
-    } else {
-      // Çıkış günü, başka rezervasyon yoksa "boş" sayılır
-      if (daire && daire.temizlik === "kirli") sinif.push("bos-kirli");
+
+    if (gd.tip === "turnover") {
+      sinif.push("dolu", "turnover", "cikis", "giris");
+      return { sinif: sinif.join(" "), gd, rez: gd.giris };
     }
-    return { sinif: sinif.join(" "), rez };
+    if (gd.tip === "checkin") {
+      sinif.push("dolu", "giris");
+      return { sinif: sinif.join(" "), gd, rez: gd.rez };
+    }
+    if (gd.tip === "checkout") {
+      sinif.push("cikis");
+      if (daire && daire.temizlik === "kirli") sinif.push("bos-kirli");
+      return { sinif: sinif.join(" "), gd, rez: gd.rez };
+    }
+    if (gd.tip === "konak") {
+      sinif.push("dolu");
+      return { sinif: sinif.join(" "), gd, rez: gd.rez };
+    }
+    if (daire && daire.temizlik === "kirli") sinif.push("bos-kirli");
+    return { sinif: sinif.join(" "), gd, rez: null };
   }
 
   function ciz() {
@@ -101,7 +112,7 @@
 
     for (let d = 1; d <= sonGun; d++) {
       const isoT = iso(durum.yil, durum.ay, d);
-      const { sinif, rez } = gunSinifi(isoT, daire);
+      const { sinif, gd, rez } = gunSinifi(isoT, daire);
       const h = document.createElement("div");
       h.className = "takvim-hucre " + sinif;
       if (isoT === bg) h.classList.add("bugun");
@@ -112,7 +123,13 @@
       no.textContent = d;
       h.appendChild(no);
 
-      if (rez) {
+      if (gd.tip === "turnover") {
+        const info = document.createElement("span");
+        info.className = "takvim-gun-bilgi";
+        info.textContent = "↗ " + (gd.cikis.misafirAdi || "Çıkış") + " · ↘ " + (gd.giris.misafirAdi || "Giriş");
+        info.title = "CHECK OUT: " + gd.cikis.misafirAdi + " → CHECK IN: " + gd.giris.misafirAdi;
+        h.appendChild(info);
+      } else if (rez) {
         const info = document.createElement("span");
         info.className = "takvim-gun-bilgi";
         info.textContent = rez.misafirAdi || "Misafir";
@@ -126,6 +143,15 @@
       }
 
       h.addEventListener("click", () => {
+        if (gd.tip === "turnover") {
+          const sec = confirm(
+            "CHECK OUT: " + (gd.cikis.misafirAdi || "—") + "\nCHECK IN: " + (gd.giris.misafirAdi || "—") +
+            "\n\nGiriş rezervasyonunu düzenlemek için Tamam, çıkış için İptal'e basın."
+          );
+          const id = sec ? gd.giris.id : gd.cikis.id;
+          if (window.APARTIM.rezervasyon) window.APARTIM.rezervasyon.duzenle(id);
+          return;
+        }
         if (rez) {
           if (window.APARTIM.rezervasyon) window.APARTIM.rezervasyon.duzenle(rez.id);
         } else {

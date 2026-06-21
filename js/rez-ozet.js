@@ -77,29 +77,25 @@
     return DAIRE_RENK[d.id] || DAIRE_RENK_YEDEK[i % DAIRE_RENK_YEDEK.length];
   }
 
-  /** [giris, cikis) konak + çıkış/giriş günü satırları */
+  /** Gün durumu — db.daireGunDurumu kullanır */
   function gunDurumu(daireId, tarih) {
-    const liste = window.APARTIM.db.rezervasyonlarListele(daireId);
-    const konakRez = liste.find((r) => r.giris <= tarih && tarih < r.cikis) || null;
-    const cikisRez = liste.find((r) => r.cikis === tarih) || null;
-    const girisRez = liste.find((r) => r.giris === tarih) || null;
+    return window.APARTIM.db.daireGunDurumu(daireId, tarih);
+  }
 
-    if (cikisRez && girisRez && cikisRez.id !== girisRez.id) {
-      return { tip: "turnover", cikis: cikisRez, giris: girisRez };
-    }
-    if (konakRez && konakRez.giris === tarih) {
-      return { tip: "checkin", rez: konakRez };
-    }
-    if (cikisRez && !konakRez) {
-      return { tip: "checkout", rez: cikisRez };
-    }
-    if (konakRez) {
-      return { tip: "konak", rez: konakRez };
-    }
-    if (cikisRez) {
-      return { tip: "checkout", rez: cikisRez };
-    }
-    return { tip: "bos" };
+  function turnoverHtml(cikis, giris, tarih) {
+    const det = konakDetay(giris, tarih);
+    return (
+      '<div class="rez-ozet-turnover-stack">' +
+      '<div class="rez-ozet-turnover-bolum">' +
+      '<div class="rez-ozet-check checkout rez-ozet-tik" data-rez-id="' + esc(cikis.id) + '">CHECK OUT</div>' +
+      '<div class="rez-ozet-ad-alt">' + esc(cikis.misafirAdi) + '</div></div>' +
+      '<div class="rez-ozet-turnover-ayrac" aria-hidden="true"></div>' +
+      '<div class="rez-ozet-turnover-bolum">' +
+      '<div class="rez-ozet-check checkin rez-ozet-tik" data-rez-id="' + esc(giris.id) + '">CHECK IN</div>' +
+      '<div class="rez-ozet-detay">' +
+      '<span>' + det.g + '</span><span>' + det.kategoriHtml + '</span><span>' + fmt(det.prc) + '</span>' +
+      '<span>' + fmt(det.toplam) + '</span><span class="rez-ozet-ad">' + esc(det.misafir) + '</span></div></div></div>'
+    );
   }
 
   function konakDetay(rez, tarih) {
@@ -129,7 +125,7 @@
     wrap.querySelectorAll(".rez-ozet-tik").forEach((el) => {
       el.addEventListener("click", (ev) => {
         ev.stopPropagation();
-        const id = el.dataset.rezId;
+        const id = el.dataset.rezId || el.getAttribute("data-rez-id");
         if (id && window.APARTIM.rezervasyon) window.APARTIM.rezervasyon.duzenle(id);
       });
     });
@@ -221,14 +217,8 @@
           const td = document.createElement("td");
           td.colSpan = 5;
           td.style.background = renk;
-          td.className = "rez-ozet-hucre-dolu";
-          const cin = konakDetay(h.giris, tarih);
-          td.innerHTML =
-            '<div class="rez-ozet-turnover">' +
-            '<div class="rez-ozet-check checkout rez-ozet-tik" data-rez-id="' + esc(h.cikis.id) + '">CHECK OUT</div>' +
-            '<div class="rez-ozet-check checkin rez-ozet-tik" data-rez-id="' + esc(h.giris.id) + '">CHECK IN</div>' +
-            '</div>' +
-            '<div class="rez-ozet-ad-alt">' + esc(h.cikis.misafirAdi) + ' → ' + esc(h.giris.misafirAdi) + '</div>';
+          td.className = "rez-ozet-hucre-dolu rez-ozet-turnover-hucre";
+          td.innerHTML = turnoverHtml(h.cikis, h.giris, tarih);
           tr.appendChild(td);
         } else if (h.tip === "checkin") {
           const det = konakDetay(h.rez, tarih);

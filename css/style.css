@@ -616,6 +616,11 @@ html.theme-light {
 .takvim-hucre.cikis {
   background: linear-gradient(135deg, rgba(231,76,60,0.18) 0%, rgba(46,204,113,0.18) 50%);
 }
+.takvim-hucre.turnover {
+  background: linear-gradient(180deg, rgba(231,76,60,0.2) 0%, rgba(231,76,60,0.2) 45%, rgba(46,204,113,0.22) 55%, rgba(46,204,113,0.22) 100%);
+  border-color: rgba(243, 156, 18, 0.55);
+}
+.takvim-hucre.turnover .takvim-gun-no { color: var(--uyari); }
 .takvim-hucre.bos-kirli {
   background: rgba(243, 156, 18, 0.12);
   border-color: rgba(243, 156, 18, 0.4);
@@ -974,6 +979,25 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
   margin-top: 2px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.rez-ozet-turnover-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rez-ozet-turnover-bolum {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rez-ozet-turnover-ayrac {
+  height: 2px;
+  background: var(--rez-cizgi, #6b7280);
+  margin: 2px 4px;
+  border-radius: 1px;
+}
+.rez-ozet-turnover-hucre .rez-ozet-detay {
+  grid-template-columns: 24px 32px 44px 52px 1fr;
 }
 .rez-ozet-turnover {
   display: flex;
