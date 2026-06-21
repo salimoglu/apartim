@@ -143,24 +143,28 @@
       }
 
       h.addEventListener("click", () => {
+        const rezervasyon = window.APARTIM.rezervasyon;
+        if (!rezervasyon) {
+          window.APARTIM.toast("Rezervasyon modülü yüklenemedi", "hata");
+          return;
+        }
         if (gd.tip === "turnover") {
           const sec = confirm(
             "CHECK OUT: " + (gd.cikis.misafirAdi || "—") + "\nCHECK IN: " + (gd.giris.misafirAdi || "—") +
             "\n\nGiriş rezervasyonunu düzenlemek için Tamam, çıkış için İptal'e basın."
           );
-          const id = sec ? gd.giris.id : gd.cikis.id;
-          if (window.APARTIM.rezervasyon) window.APARTIM.rezervasyon.duzenle(id);
+          const id = rezervasyon.rezIdAl(sec ? gd.giris : gd.cikis);
+          if (id) rezervasyon.duzenle(id);
           return;
         }
         if (rez) {
-          if (window.APARTIM.rezervasyon) window.APARTIM.rezervasyon.duzenle(rez.id);
+          const id = rezervasyon.rezIdAl(rez);
+          if (id) rezervasyon.duzenle(id);
         } else {
-          if (window.APARTIM.rezervasyon) {
-            window.APARTIM.rezervasyon.yeni({
-              daireId: durum.daireId,
-              girisOnseci: isoT
-            });
-          }
+          rezervasyon.yeni({
+            daireId: durum.daireId,
+            girisOnseci: isoT
+          });
         }
       });
       grid.appendChild(h);

@@ -948,6 +948,15 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
   height: 18px;
   padding: 1px !important;
 }
+.rez-ozet-hucre-tik {
+  cursor: pointer;
+}
+.rez-ozet-hucre-tik:hover {
+  filter: brightness(0.95);
+}
+.rez-ozet-tarih.rez-ozet-hucre-tik:hover {
+  background: var(--vurgu-soluk) !important;
+}
 .rez-ozet-tik {
   cursor: pointer;
 }

@@ -151,12 +151,60 @@
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]));
   }
 
+  function rezIdAl(rez) {
+    if (window.APARTIM.rezervasyon?.rezIdAl) {
+      return window.APARTIM.rezervasyon.rezIdAl(rez);
+    }
+    return rez?.id || "";
+  }
+
+  function rezAcYeni(daireId, tarih) {
+    if (!window.APARTIM.rezervasyon) {
+      window.APARTIM.toast("Rezervasyon modülü yüklenemedi", "hata");
+      return;
+    }
+    window.APARTIM.rezervasyon.yeni({ daireId, girisOnseci: tarih });
+  }
+
+  function ilkBosDaire(tarih, daireler) {
+    for (let i = 0; i < daireler.length; i++) {
+      if (gunDurumu(daireler[i].id, tarih).tip === "bos") return daireler[i].id;
+    }
+    return null;
+  }
+
   function tikBagla(wrap) {
     wrap.querySelectorAll(".rez-ozet-tik").forEach((el) => {
       el.addEventListener("click", (ev) => {
         ev.stopPropagation();
         const id = el.dataset.rezId || el.getAttribute("data-rez-id");
         if (id && window.APARTIM.rezervasyon) window.APARTIM.rezervasyon.duzenle(id);
+      });
+    });
+  }
+
+  function bosHucreTikBagla(wrap, daireler) {
+    wrap.querySelectorAll(".rez-ozet-bos").forEach((td) => {
+      td.classList.add("rez-ozet-hucre-tik");
+      td.title = "Yeni rezervasyon";
+      td.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const daireId = td.dataset.daireId;
+        const tarih = td.dataset.tarih;
+        if (daireId && tarih) rezAcYeni(daireId, tarih);
+      });
+    });
+
+    wrap.querySelectorAll(".rez-ozet-tarih").forEach((td) => {
+      td.classList.add("rez-ozet-hucre-tik");
+      td.title = "Boş daireye yeni rezervasyon";
+      td.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const tarih = td.closest("tr")?.dataset.tarih;
+        if (!tarih) return;
+        const daireId = ilkBosDaire(tarih, daireler);
+        if (daireId) rezAcYeni(daireId, tarih);
+        else window.APARTIM.toast("Bu gün tüm daireler dolu", "uyari");
       });
     });
   }
@@ -234,6 +282,7 @@
 
       const tdTarih = document.createElement("td");
       tdTarih.className = "rez-ozet-tarih";
+      tdTarih.dataset.tarih = tarih;
       tdTarih.innerHTML =
         '<span class="rez-ozet-tarih-gun">' + tarihGoster(tarih) + '</span>' +
         '<span class="rez-ozet-gun-ad">' + gunAdi(tarih) + '</span>';
@@ -251,11 +300,12 @@
           td.innerHTML = turnoverHtml(h.cikis, h.giris, tarih);
           tr.appendChild(td);
         } else if (h.tip === "checkin") {
+          const rid = rezIdAl(h.rez);
           checkinHucreler(h.rez, tarih).forEach((c, ci) => {
             const td = document.createElement("td");
             td.className = c.cls + " rez-ozet-tik";
             td.style.background = renk;
-            td.dataset.rezId = h.rez.id;
+            if (rid) td.dataset.rezId = rid;
             if (c.html) td.innerHTML = c.html;
             else {
               td.textContent = c.txt;
@@ -264,15 +314,17 @@
             tr.appendChild(td);
           });
         } else if (h.tip === "checkout") {
+          const rid = rezIdAl(h.rez);
           const td = document.createElement("td");
           td.colSpan = 5;
           td.style.background = renk;
           td.className = "rez-ozet-hucre-dolu rez-ozet-tik";
-          td.dataset.rezId = h.rez.id;
+          if (rid) td.dataset.rezId = rid;
           td.innerHTML = checkoutHtml(h.rez);
           tr.appendChild(td);
         } else if (h.tip === "konak") {
           const det = konakDetay(h.rez, tarih);
+          const rid = rezIdAl(h.rez);
           const hucreler = [
             { cls: "rez-ozet-sayi", txt: String(det.g) },
             { cls: "rez-ozet-kategori", html: det.kategoriHtml },
@@ -284,7 +336,7 @@
             const td = document.createElement("td");
             td.className = c.cls + " rez-ozet-tik";
             td.style.background = renk;
-            td.dataset.rezId = h.rez.id;
+            if (rid) td.dataset.rezId = rid;
             if (c.html) td.innerHTML = c.html;
             else {
               td.textContent = c.txt;
@@ -297,6 +349,8 @@
             const td = document.createElement("td");
             td.className = "rez-ozet-bos";
             td.style.background = renk;
+            td.dataset.daireId = d.id;
+            td.dataset.tarih = tarih;
             tr.appendChild(td);
           }
         }
@@ -308,6 +362,7 @@
     wrap.appendChild(table);
     satirVurguBagla(table);
     tikBagla(wrap);
+    bosHucreTikBagla(wrap, daireler);
   }
 
   function satirVurguBagla(table) {

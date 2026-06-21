@@ -70,7 +70,32 @@
   function aralikFormatla(n) {
     return Number(n || 0).toLocaleString("tr-TR");
   }
-  function bugunISO() { return window.APARTIM.db.bugunISO(); }
+  function bugunISO() {
+    const db = window.APARTIM.db;
+    if (db && typeof db.bugunISO === "function") return db.bugunISO();
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  function alanYaz(inp, val) { if (inp) inp.value = val; }
+
+  function rezBul(rezId) {
+    const db = window.APARTIM.db;
+    if (!db?.durum?.rezervasyonlar) return null;
+    if (rezId && db.durum.rezervasyonlar[rezId]) return db.durum.rezervasyonlar[rezId];
+    return null;
+  }
+
+  function rezIdAl(rez) {
+    if (!rez) return "";
+    if (rez.id) return rez.id;
+    const db = window.APARTIM.db;
+    if (!db?.durum?.rezervasyonlar) return "";
+    for (const [id, r] of Object.entries(db.durum.rezervasyonlar)) {
+      if (r === rez) return id;
+    }
+    return "";
+  }
+
   function gunEkle(isoStr, ekle) {
     const db = window.APARTIM.db;
     if (db && typeof db.gunEkleISO === "function") {
@@ -272,57 +297,80 @@
   }
 
   function yeni(secimler) {
-    secimler = secimler || {};
-    mevcutRezId = null;
-    mevcutDaireId = secimler.daireId || window.APARTIM.daire?.aktifId() || null;
-    if (!mevcutDaireId) {
-      window.APARTIM.toast("Önce bir daire seçin", "uyari");
-      return;
+    try {
+      secimler = secimler || {};
+      mevcutRezId = null;
+      mevcutDaireId = secimler.daireId || window.APARTIM.daire?.aktifId() || null;
+      if (!mevcutDaireId) {
+        window.APARTIM.toast("Önce bir daire seçin", "uyari");
+        return;
+      }
+      const db = window.APARTIM.db;
+      if (!db) {
+        window.APARTIM.toast("Veri henüz yüklenmedi", "uyari");
+        return;
+      }
+      const daire = db.daireGetir(mevcutDaireId);
+      const e = ay();
+      if (e.title) e.title.textContent = "Yeni rezervasyon — " + (daire ? daire.ad : "");
+      kaynakSelectDoldur(secimler.kaynakId || null);
+      alanYaz(e.misafir, "");
+      alanYaz(e.telefon, "");
+      const gIso = secimler.girisOnseci || bugunISO();
+      alanYaz(e.giris, gIso);
+      alanYaz(e.cikis, gunEkle(gIso, 1));
+      const u = daire ? daire.gunlukUcret : 1000;
+      alanYaz(e.ucret, u);
+      kademeModuGoster(false);
+      kademeleriYukle(null, u);
+      alanYaz(e.notlar, "");
+      e.btnSil?.classList.add("hidden");
+      uyariGoster("");
+      toplamHesapla();
+      modalAc();
+    } catch (err) {
+      console.error("rezervasyon.yeni", err);
+      window.APARTIM.toast("Kayıt formu açılamadı", "hata");
     }
-    const daire = window.APARTIM.db.daireGetir(mevcutDaireId);
-    const e = ay();
-    e.title.textContent = "Yeni rezervasyon — " + (daire ? daire.ad : "");
-    kaynakSelectDoldur(secimler.kaynakId || null);
-    e.misafir.value = "";
-    e.telefon.value = "";
-    const gIso = secimler.girisOnseci || bugunISO();
-    e.giris.value = gIso;
-    e.cikis.value = gunEkle(gIso, 1);
-    const u = daire ? daire.gunlukUcret : 1000;
-    if (e.ucret) e.ucret.value = u;
-    kademeModuGoster(false);
-    kademeleriYukle(null, u);
-    e.notlar.value = "";
-    e.btnSil.classList.add("hidden");
-    uyariGoster("");
-    toplamHesapla();
-    modalAc();
   }
 
   function duzenle(rezId) {
-    const rez = window.APARTIM.db.durum.rezervasyonlar[rezId];
-    if (!rez) return;
-    mevcutRezId = rezId;
-    mevcutDaireId = rez.daireId;
-    const daire = window.APARTIM.db.daireGetir(rez.daireId);
-    const e = ay();
-    e.title.textContent = "Rezervasyon — " + (daire ? daire.ad : "");
-    kaynakSelectDoldur(rez.kaynakId || null);
-    e.misafir.value = rez.misafirAdi || "";
-    e.telefon.value = rez.telefon || "";
-    e.giris.value = rez.giris;
-    e.cikis.value = rez.cikis;
-    const liste = window.APARTIM.db.ucretKademeleriNormalize(rez.ucretKademeleri, rez.gunlukUcret);
-    const coklu = liste.length > 1 ||
-      (liste[0] && (liste[0].bitGece != null || liste[0].basGece !== 1));
-    if (e.ucret) e.ucret.value = rez.gunlukUcret || varsayilanUcret();
-    kademeleriYukle(rez.ucretKademeleri, rez.gunlukUcret);
-    kademeModuGoster(coklu);
-    e.notlar.value = rez.notlar || "";
-    e.btnSil.classList.remove("hidden");
-    uyariGoster("");
-    toplamHesapla();
-    modalAc();
+    try {
+      let rez = rezBul(rezId);
+      if (!rez && rezId) {
+        const db = window.APARTIM.db;
+        rez = Object.values(db?.durum?.rezervasyonlar || {}).find((r) => r && r.id === rezId) || null;
+      }
+      if (!rez) {
+        window.APARTIM.toast("Rezervasyon bulunamadı", "uyari");
+        return;
+      }
+      rezId = rez.id || rezIdAl(rez) || rezId;
+      mevcutRezId = rezId;
+      mevcutDaireId = rez.daireId;
+      const daire = window.APARTIM.db.daireGetir(rez.daireId);
+      const e = ay();
+      if (e.title) e.title.textContent = "Rezervasyon — " + (daire ? daire.ad : "");
+      kaynakSelectDoldur(rez.kaynakId || null);
+      alanYaz(e.misafir, rez.misafirAdi || "");
+      alanYaz(e.telefon, rez.telefon || "");
+      alanYaz(e.giris, rez.giris);
+      alanYaz(e.cikis, rez.cikis);
+      const liste = window.APARTIM.db.ucretKademeleriNormalize(rez.ucretKademeleri, rez.gunlukUcret);
+      const coklu = liste.length > 1 ||
+        (liste[0] && (liste[0].bitGece != null || liste[0].basGece !== 1));
+      alanYaz(e.ucret, rez.gunlukUcret || varsayilanUcret());
+      kademeleriYukle(rez.ucretKademeleri, rez.gunlukUcret);
+      kademeModuGoster(coklu);
+      alanYaz(e.notlar, rez.notlar || "");
+      e.btnSil?.classList.remove("hidden");
+      uyariGoster("");
+      toplamHesapla();
+      modalAc();
+    } catch (err) {
+      console.error("rezervasyon.duzenle", err);
+      window.APARTIM.toast("Rezervasyon açılamadı", "hata");
+    }
   }
 
   function kademeleriKaydaHazirla(kademeler, gece) {
@@ -612,6 +660,7 @@
   window.APARTIM.rezervasyon = {
     yeni,
     duzenle,
+    rezIdAl,
     cikisAc,
     listeRender,
     tumRezListele,
