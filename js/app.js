@@ -62,7 +62,6 @@
 
   document.addEventListener("apartim:veri-degisti", () => {
     window.APARTIM.bina?.guncelle();
-    window.APARTIM.rezervasyon?.tumRezListele();
     window.APARTIM.rezOzet?.tabloCiz();
     window.APARTIM.temizlik?.tumTemizlikListele();
     const aktifRapor = document.getElementById("tab-rapor")?.classList.contains("active");

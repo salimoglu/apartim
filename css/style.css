@@ -683,35 +683,6 @@ html.theme-light {
 }
 
 /* -------------------- 9b. Rezervasyon özet tablosu -------------------- */
-.rez-sekme-ust {
-  margin-bottom: 10px;
-}
-.rez-alt-nav {
-  display: flex;
-  gap: 6px;
-  background: var(--kart);
-  border: 1px solid var(--kenar);
-  border-radius: var(--radius);
-  padding: 4px;
-}
-.rez-alt-btn {
-  flex: 1;
-  padding: 8px 12px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: transparent;
-  color: var(--metin-soluk);
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-}
-.rez-alt-btn.active {
-  background: var(--vurgu);
-  color: #fff;
-}
-.rez-alt-btn:hover:not(.active) {
-  background: var(--kart-2);
-}
 .rez-ozet-wrap {
   display: flex;
   flex-direction: column;
@@ -760,13 +731,27 @@ html.theme-light {
 }
 .rez-ozet-table th,
 .rez-ozet-table td {
-  border: 1px solid rgba(0, 0, 0, 0.12);
+  border: 1px solid var(--rez-cizgi, rgba(0, 0, 0, 0.32));
   padding: 3px 5px;
   vertical-align: middle;
 }
-html:not(.theme-light) .rez-ozet-table th,
-html:not(.theme-light) .rez-ozet-table td {
-  border-color: rgba(255, 255, 255, 0.08);
+html:not(.theme-light) {
+  --rez-cizgi: rgba(255, 255, 255, 0.22);
+}
+html.theme-light {
+  --rez-cizgi: rgba(0, 0, 0, 0.28);
+}
+.rez-ozet-table tbody tr.rez-ozet-satir-hover td {
+  box-shadow: inset 0 0 0 9999px rgba(127, 127, 127, 0.14);
+}
+html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-hover td {
+  box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.1);
+}
+.rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-tarih {
+  box-shadow: inset 3px 0 0 var(--vurgu), inset 0 0 0 9999px rgba(127, 127, 127, 0.14);
+}
+html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-tarih {
+  box-shadow: inset 3px 0 0 var(--vurgu), inset 0 0 0 9999px rgba(255, 255, 255, 0.1);
 }
 .rez-ozet-tarih-kose {
   position: sticky;
@@ -1011,6 +996,31 @@ html:not(.theme-light) .rez-ozet-table td {
   align-items: stretch;
 }
 .kaynak-ekle-row .field-input { flex: 1; }
+
+.daire-ayar-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.daire-ayar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: var(--kart-2);
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius-sm);
+}
+.daire-ayar-kat {
+  font-size: 12px;
+  color: var(--metin-soluk);
+  font-weight: 600;
+}
+.daire-ayar-ad { width: 100%; }
+
 .rez-kaynak-badge {
   font-size: 11px;
   font-weight: 700;

@@ -51,16 +51,21 @@
     return ad ? ad.charAt(0).toLocaleUpperCase("tr") : "—";
   }
 
-  function daireKisaAd(d) {
-    if (!d) return "—";
-    const harita = {
-      "ust": "ÜST",
-      "orta-sol": "ORTA-SOL",
-      "orta-sag": "ORTA-SAĞ",
-      "alt-sol": "ALT-SOL",
-      "alt-sag": "ALT-SAĞ"
-    };
-    return harita[d.id] || d.ad.split(" ")[0].toLocaleUpperCase("tr");
+  function daireBaslik(d) {
+    return d.ad || d.id;
+  }
+
+  /** Özet tablo: alt kattan üste (kat 1 → 3) */
+  function dairelerOzetSirasi(db) {
+    const konumSira = { sol: 0, sag: 1, tek: 2 };
+    return db.dairelerListele().slice().sort((a, b) => {
+      const ka = a.kat || 0;
+      const kb = b.kat || 0;
+      if (ka !== kb) return ka - kb;
+      const diff = (konumSira[a.konum] ?? 9) - (konumSira[b.konum] ?? 9);
+      if (diff) return diff;
+      return (a.sira || 0) - (b.sira || 0);
+    });
   }
 
   function daireRenk(d, i) {
@@ -139,7 +144,7 @@
     const m = durum.ay;
     if (baslik) baslik.textContent = AY_ADLARI[m] + " " + y;
 
-    const daireler = db.dairelerListele();
+    const daireler = dairelerOzetSirasi(db);
     const gunSay = ayinGunSayisi(y, m);
     const bugun = db.bugunISO();
 
@@ -160,7 +165,7 @@
       th.className = "rez-ozet-daire-baslik";
       th.colSpan = 5;
       th.style.background = daireRenk(d, i);
-      th.textContent = daireKisaAd(d);
+      th.textContent = daireBaslik(d);
       tr1.appendChild(th);
     });
     thead.appendChild(tr1);
@@ -188,6 +193,7 @@
       tr.className = "rez-ozet-tr" +
         (tarih === bugun ? " rez-ozet-bugun" : "") +
         (haftaSonu === 0 || haftaSonu === 6 ? " rez-ozet-haftasonu" : "");
+      tr.dataset.tarih = tarih;
 
       const tdTarih = document.createElement("td");
       tdTarih.className = "rez-ozet-tarih";
@@ -267,7 +273,24 @@
     table.appendChild(tbody);
     wrap.innerHTML = "";
     wrap.appendChild(table);
+    satirVurguBagla(table);
     tikBagla(wrap);
+  }
+
+  function satirVurguBagla(table) {
+    const tbody = table.querySelector("tbody");
+    if (!tbody) return;
+    tbody.addEventListener("mouseover", (e) => {
+      const tr = e.target.closest("tr");
+      if (!tr || tr.parentElement !== tbody) return;
+      tbody.querySelectorAll(".rez-ozet-satir-hover").forEach((r) =>
+        r.classList.remove("rez-ozet-satir-hover"));
+      tr.classList.add("rez-ozet-satir-hover");
+    });
+    tbody.addEventListener("mouseleave", () => {
+      tbody.querySelectorAll(".rez-ozet-satir-hover").forEach((r) =>
+        r.classList.remove("rez-ozet-satir-hover"));
+    });
   }
 
   function git(yon) {
@@ -287,36 +310,15 @@
     tabloCiz();
   }
 
-  function ozetGorunurMu() {
-    const panel = document.getElementById("rez-view-ozet");
-    return panel && !panel.classList.contains("hidden");
-  }
-
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("rez-ozet-prev")?.addEventListener("click", () => git(-1));
     document.getElementById("rez-ozet-next")?.addEventListener("click", () => git(1));
     document.getElementById("rez-ozet-bugun")?.addEventListener("click", buguneGit);
-
-    document.querySelectorAll(".rez-alt-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const view = btn.dataset.rezView;
-        document.querySelectorAll(".rez-alt-btn").forEach((b) =>
-          b.classList.toggle("active", b.dataset.rezView === view));
-        document.getElementById("rez-view-ozet")?.classList.toggle("hidden", view !== "ozet");
-        document.getElementById("rez-view-liste")?.classList.toggle("hidden", view !== "liste");
-        if (view === "ozet") tabloCiz();
-        if (view === "liste") window.APARTIM.rezervasyon?.tumRezListele();
-      });
-    });
   });
 
-  document.addEventListener("apartim:veri-degisti", () => {
-    if (ozetGorunurMu()) tabloCiz();
-  });
+  document.addEventListener("apartim:veri-degisti", tabloCiz);
 
-  document.addEventListener("apartim:gun-degisti", () => {
-    if (ozetGorunurMu()) tabloCiz();
-  });
+  document.addEventListener("apartim:gun-degisti", tabloCiz);
 
   window.APARTIM.rezOzet = { tabloCiz, git, buguneGit };
 })();

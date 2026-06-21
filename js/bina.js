@@ -137,6 +137,12 @@
         nokta.classList.add("durum-nokta-" + dr.durum);
       }
 
+      const etiket = g.querySelector(".daire-etiket");
+      if (etiket && d.ad) {
+        etiket.textContent = d.ad.toLocaleUpperCase("tr");
+      }
+      g.setAttribute("aria-label", (d.ad || d.id) + " dairesi");
+
       if (dr.durum === "dolu") dolu++;
       else if (dr.durum === "bos-temiz") bosTemiz++;
       else if (dr.durum === "bos-kirli") bosKirli++;
