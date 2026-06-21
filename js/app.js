@@ -82,11 +82,25 @@
     return window.APARTIM.db.geceSayisi(a, b);
   }
 
+  function rezGeceGelirKesisim(rez, ayBas, ayBit) {
+    const db = window.APARTIM.db;
+    const tarihler = db.geceTarihleri(rez.giris, rez.cikis);
+    let gece = 0;
+    let gelir = 0;
+    tarihler.forEach((t, idx) => {
+      if (t >= ayBas && t < ayBit) {
+        gece++;
+        gelir += db.rezervasyonGeceUcreti(rez, idx + 1);
+      }
+    });
+    return { gece, gelir };
+  }
+
   function raporHesapla() {
     const db = window.APARTIM.db;
     const y = raporDurum.yil, m = raporDurum.ay;
     const ayBas = iso(y, m, 1);
-    const ayBit = iso(y, m, ayinGunSayisi(y, m) + 1); // ay sonunun ertesi
+    const ayBit = iso(y, m, ayinGunSayisi(y, m) + 1);
     const tumRez = Object.values(db.durum.rezervasyonlar);
     const daireler = db.dairelerListele();
     const ayGun = ayinGunSayisi(y, m);
@@ -97,15 +111,14 @@
     daireler.forEach((d) => { daireOzet[d.id] = { gece: 0, gelir: 0 }; });
 
     tumRez.forEach((r) => {
-      const g = rezGeceKesisim(r, ayBas, ayBit);
-      if (g <= 0) return;
-      const tutar = g * (Number(r.gunlukUcret) || 0);
-      toplamGece += g;
-      toplamGelir += tutar;
+      const { gece, gelir } = rezGeceGelirKesisim(r, ayBas, ayBit);
+      if (gece <= 0) return;
+      toplamGece += gece;
+      toplamGelir += gelir;
       rezSayisi++;
       if (daireOzet[r.daireId]) {
-        daireOzet[r.daireId].gece += g;
-        daireOzet[r.daireId].gelir += tutar;
+        daireOzet[r.daireId].gece += gece;
+        daireOzet[r.daireId].gelir += gelir;
       }
     });
 

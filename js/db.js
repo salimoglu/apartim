@@ -64,6 +64,105 @@
     const fark = Math.round((b - a) / 86400000);
     return Math.max(0, fark);
   }
+  function gunEkleISO(iso, ekle) {
+    const d = new Date(iso + "T00:00:00");
+    d.setDate(d.getDate() + ekle);
+    return tarihNormal(d);
+  }
+  function geceTarihleri(giris, cikis) {
+    const n = geceSayisi(giris, cikis);
+    const liste = [];
+    for (let i = 0; i < n; i++) liste.push(gunEkleISO(giris, i));
+    return liste;
+  }
+
+  /** Kademeleri sırala / normalize et */
+  function ucretKademeleriNormalize(kademeler, varsayilanUcret) {
+    if (!Array.isArray(kademeler) || !kademeler.length) {
+      const u = Number(varsayilanUcret) || 0;
+      return u > 0 ? [{ basGece: 1, bitGece: null, ucret: u }] : [];
+    }
+    return kademeler
+      .map((k) => ({
+        basGece: Math.max(1, Number(k.basGece) || 1),
+        bitGece: k.bitGece != null && k.bitGece !== "" ? Number(k.bitGece) : null,
+        ucret: Number(k.ucret) || 0
+      }))
+      .filter((k) => k.ucret > 0)
+      .sort((a, b) => a.basGece - b.basGece);
+  }
+
+  /** Konak gecesi (1 tabanlı) için ücret */
+  function geceUcretiBul(kademeler, geceNo, varsayilanUcret) {
+    const liste = ucretKademeleriNormalize(kademeler, varsayilanUcret);
+    if (!liste.length) return Number(varsayilanUcret) || 0;
+    for (let i = liste.length - 1; i >= 0; i--) {
+      const k = liste[i];
+      if (geceNo >= k.basGece && (k.bitGece == null || geceNo <= k.bitGece)) {
+        return k.ucret;
+      }
+    }
+    return liste[0].ucret;
+  }
+
+  function rezervasyonGeceUcreti(rez, geceNo) {
+    const fallback = Number(rez.gunlukUcret) || 0;
+    if (rez.ucretKademeleri && rez.ucretKademeleri.length) {
+      return geceUcretiBul(rez.ucretKademeleri, geceNo, fallback);
+    }
+    return fallback;
+  }
+
+  function rezervasyonTutarHesapla(rez) {
+    const gece = geceSayisi(rez.giris, rez.cikis);
+    const gecelik = [];
+    let toplam = 0;
+    for (let i = 1; i <= gece; i++) {
+      const ucret = rezervasyonGeceUcreti(rez, i);
+      gecelik.push({ gece: i, ucret });
+      toplam += ucret;
+    }
+    return { gece, toplam, gecelik };
+  }
+
+  function rezervasyonKalanTutar(rez, tarih) {
+    const geceNo = geceSayisi(rez.giris, tarih) + 1;
+    const toplamGece = geceSayisi(rez.giris, rez.cikis);
+    let kalan = 0;
+    for (let i = geceNo + 1; i <= toplamGece; i++) {
+      kalan += rezervasyonGeceUcreti(rez, i);
+    }
+    return kalan;
+  }
+
+  function rezervasyonOzeti(rez) {
+    const { gece, toplam, gecelik } = rezervasyonTutarHesapla(rez);
+    const kademeler = ucretKademeleriNormalize(
+      rez.ucretKademeleri,
+      rez.gunlukUcret
+    );
+    const tekKademe = kademeler.length <= 1 &&
+      kademeler[0] && kademeler[0].basGece === 1 && kademeler[0].bitGece == null;
+    return {
+      toplamGece: gece,
+      toplamTutar: toplam,
+      gecelik,
+      kademeler: tekKademe ? null : kademeler,
+      gunlukUcret: kademeler[0]?.ucret ?? (Number(rez.gunlukUcret) || 0)
+    };
+  }
+
+  function rezervasyonKayitHazirla(rez) {
+    const ozet = rezervasyonOzeti(rez);
+    const kayit = Object.assign({}, rez, {
+      toplamGece: ozet.toplamGece,
+      toplamTutar: ozet.toplamTutar,
+      gunlukUcret: ozet.gunlukUcret
+    });
+    if (ozet.kademeler) kayit.ucretKademeleri = ozet.kademeler;
+    else delete kayit.ucretKademeleri;
+    return kayit;
+  }
 
   // ---------- Çakışma kontrolü ----------
   // Yarı açık aralık [giris, cikis) — çıkış günü dolu sayılmaz
@@ -337,13 +436,11 @@
       throw new Error("Bu tarih aralığı " + cakis.misafirAdi + " ile çakışıyor (" + cakis.giris + " → " + cakis.cikis + ")");
     }
     const id = rez.id || yeniId();
-    const tam = Object.assign({}, rez, {
+    const tam = rezervasyonKayitHazirla(Object.assign({}, rez, {
       id,
       kaynakAd: musteriKaynagiAd(rez.kaynakId),
-      olusturulma: Date.now(),
-      toplamGece: geceSayisi(rez.giris, rez.cikis),
-      toplamTutar: geceSayisi(rez.giris, rez.cikis) * (Number(rez.gunlukUcret) || 0)
-    });
+      olusturulma: Date.now()
+    }));
     durum.rezervasyonlar[id] = tam;
     return kaydet("rezervasyonlar/" + id, tam).then(() => tam);
   }
@@ -360,7 +457,8 @@
       throw new Error("Bu tarih aralığı " + cakis.misafirAdi + " ile çakışıyor (" + cakis.giris + " → " + cakis.cikis + ")");
     }
     yeni.toplamGece = geceSayisi(yeni.giris, yeni.cikis);
-    yeni.toplamTutar = yeni.toplamGece * (Number(yeni.gunlukUcret) || 0);
+    const hazir = rezervasyonKayitHazirla(yeni);
+    Object.assign(yeni, hazir);
     durum.rezervasyonlar[id] = yeni;
     return kaydet("rezervasyonlar/" + id, yeni).then(() => yeni);
   }
@@ -441,6 +539,14 @@
     dinle,
     bugunISO,
     geceSayisi,
+    gunEkleISO,
+    geceTarihleri,
+    ucretKademeleriNormalize,
+    geceUcretiBul,
+    rezervasyonGeceUcreti,
+    rezervasyonTutarHesapla,
+    rezervasyonKalanTutar,
+    rezervasyonOzeti,
     tarihNormal,
     dairelerListele,
     daireGetir,

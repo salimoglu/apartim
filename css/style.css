@@ -1257,6 +1257,75 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rez-toplam-bar .gece { color: var(--metin-soluk); font-size: 12px; }
 .rez-toplam-bar .tutar { color: var(--vurgu); font-size: 20px; }
 
+.rez-tarih-satir { align-items: flex-end; flex-wrap: wrap; }
+.rez-uzat-grup { display: flex; flex-direction: column; gap: 4px; }
+.rez-uzat-etiket { font-size: 11px; margin-bottom: 0; }
+.rez-uzat-btns { display: flex; gap: 4px; }
+.btn-chip {
+  border: 1px solid var(--kenar);
+  background: var(--kart);
+  color: var(--metin);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-chip:hover { background: var(--vurgu-soluk); border-color: var(--vurgu); }
+.rez-fiyat-baslik {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.rez-fiyat-baslik .field-label { margin-bottom: 0; }
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--vurgu);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+.btn-link:hover { text-decoration: underline; }
+.rez-fiyat-ipucu {
+  font-size: 11px;
+  color: var(--metin-soluk);
+  margin: 0 0 8px;
+  line-height: 1.35;
+}
+.rez-kademeler { display: flex; flex-direction: column; gap: 6px; }
+.rez-kademe-satir {
+  display: grid;
+  grid-template-columns: 52px 12px 52px auto 1fr auto 28px;
+  gap: 6px;
+  align-items: center;
+}
+.rez-kademe-satir .field-input {
+  padding: 6px 8px;
+  min-width: 0;
+}
+.rez-k-bit { text-align: center; }
+.rez-k-etiket, .rez-k-tl { font-size: 11px; color: var(--metin-soluk); white-space: nowrap; }
+.rez-k-ayrac { text-align: center; color: var(--metin-soluk); }
+.rez-k-sil {
+  border: none;
+  background: transparent;
+  color: var(--tehlike);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+.rez-fiyat-ozet {
+  font-size: 12px;
+  color: var(--metin-soluk);
+  margin-top: 4px;
+  line-height: 1.4;
+  min-height: 1.2em;
+}
+
 .modal-uyari {
   background: rgba(231, 76, 60, 0.12);
   border: 1px solid rgba(231, 76, 60, 0.35);

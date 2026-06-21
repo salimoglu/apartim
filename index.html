@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260627b" />
-  <link rel="stylesheet" href="css/style.css?v=20260629" />
+  <link rel="stylesheet" href="css/style.css?v=20260630" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -293,7 +293,7 @@
           <label class="field-label" for="rez-telefon">Telefon</label>
           <input type="tel" id="rez-telefon" class="field-input" placeholder="05XX XXX XX XX" maxlength="30" />
         </div>
-        <div class="field-row">
+        <div class="field-row rez-tarih-satir">
           <div class="field-group">
             <label class="field-label" for="rez-giris">Giriş *</label>
             <input type="date" id="rez-giris" class="field-input" />
@@ -302,11 +302,24 @@
             <label class="field-label" for="rez-cikis">Çıkış *</label>
             <input type="date" id="rez-cikis" class="field-input" />
           </div>
+          <div class="rez-uzat-grup">
+            <span class="field-label rez-uzat-etiket">Uzat</span>
+            <div class="rez-uzat-btns">
+              <button type="button" class="btn-chip" data-uzat="1">+1</button>
+              <button type="button" class="btn-chip" data-uzat="2">+2</button>
+              <button type="button" class="btn-chip" data-uzat="3">+3</button>
+            </div>
+          </div>
         </div>
         <div class="field-group">
-          <label class="field-label" for="rez-ucret">Günlük ücret (TL) *</label>
-          <input type="number" id="rez-ucret" class="field-input" min="0" step="50" placeholder="1500" />
+          <div class="rez-fiyat-baslik">
+            <label class="field-label">Gecelik fiyat kademeleri</label>
+            <button type="button" class="btn-link" id="rez-kademe-ekle">+ Kademe</button>
+          </div>
+          <p class="rez-fiyat-ipucu">Örn: 1–3. gece 2000 TL, 4+. gece 1800 TL. Bitiş boş = son geceye kadar.</p>
+          <div id="rez-kademeler" class="rez-kademeler"></div>
         </div>
+        <div id="rez-fiyat-ozet" class="rez-fiyat-ozet"></div>
         <div class="field-group">
           <label class="field-label" for="rez-notlar">Notlar</label>
           <input type="text" id="rez-notlar" class="field-input" placeholder="İsteğe bağlı..." maxlength="200" />
@@ -421,15 +434,15 @@
   <script src="js/firebase.js?v=20260615"></script>
   <script src="js/pwa-install.js?v=20260628"></script>
   <script src="js/auth.js?v=20260615"></script>
-  <script src="js/db.js?v=20260628"></script>
+  <script src="js/db.js?v=20260630"></script>
   <script src="js/bina.js?v=20260621b"></script>
   <script src="js/takvim.js?v=20260628"></script>
-  <script src="js/rezervasyon.js?v=20260628"></script>
-  <script src="js/rez-ozet.js?v=20260629"></script>
+  <script src="js/rezervasyon.js?v=20260630"></script>
+  <script src="js/rez-ozet.js?v=20260630"></script>
   <script src="js/temizlik.js?v=20260615"></script>
   <script src="js/daire.js?v=20260615"></script>
   <script src="js/tema.js?v=20260615"></script>
   <script src="js/ayarlar.js?v=20260626"></script>
-  <script src="js/app.js?v=20260628"></script>
+  <script src="js/app.js?v=20260630"></script>
 </body>
 </html>

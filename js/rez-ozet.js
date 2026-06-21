@@ -130,16 +130,17 @@
   function konakDetay(rez, tarih) {
     const db = window.APARTIM.db;
     const g = db.geceSayisi(rez.giris, tarih) + 1;
-    const kalanGece = db.geceSayisi(tarih, rez.cikis);
+    const prc = db.rezervasyonGeceUcreti(rez, g);
+    const rmnd = db.rezervasyonKalanTutar(rez, tarih);
     const toplam = rez.toplamTutar != null
       ? rez.toplamTutar
-      : db.geceSayisi(rez.giris, rez.cikis) * (Number(rez.gunlukUcret) || 0);
+      : db.rezervasyonTutarHesapla(rez).toplam;
     return {
       g,
       kategori: kaynakSimge(rez),
       kategoriHtml: kaynakSimgeHtml(rez),
-      prc: rez.gunlukUcret,
-      rmnd: kalanGece * (Number(rez.gunlukUcret) || 0),
+      prc,
+      rmnd,
       toplam,
       misafir: rez.misafirAdi
     };
