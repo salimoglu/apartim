@@ -603,6 +603,88 @@ html.theme-light {
 .takvim-gun-bilgi {
   font-size: 10px; color: var(--metin-soluk);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  flex: 1; min-height: 0;
+}
+.takvim-gun-bilgi-dolu {
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: clip;
+  margin-top: 1px;
+}
+.takvim-rez {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.takvim-rez-ad {
+  font-size: 9px;
+  font-weight: 700;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.15;
+}
+.takvim-rez-meta {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 8px;
+  line-height: 1.2;
+  min-width: 0;
+}
+.takvim-rez-gece {
+  font-weight: 700;
+  color: var(--metin-soluk);
+  flex-shrink: 0;
+}
+.takvim-rez-kat {
+  flex-shrink: 0;
+  font-size: 10px;
+  line-height: 1;
+}
+.takvim-rez-ucret {
+  font-weight: 700;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.takvim-turnover-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.takvim-turnover-satir {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  font-size: 7px;
+  line-height: 1.15;
+}
+.takvim-turnover-ad {
+  font-weight: 700;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 42px;
+}
+.takvim-io {
+  font-weight: 800;
+  font-size: 6px;
+  padding: 0 2px;
+  border-radius: 2px;
+  background: #ffeb3b;
+  color: #1a1a1a;
+  flex-shrink: 0;
+}
+html:not(.theme-light) .takvim-rez-ad,
+html:not(.theme-light) .takvim-rez-ucret,
+html:not(.theme-light) .takvim-turnover-ad {
+  color: var(--metin);
 }
 
 .takvim-hucre.dolu {

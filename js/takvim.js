@@ -44,9 +44,100 @@
     ciz();
   }
 
-  function rezerveListesi() {
+  function fmt(n) { return Number(n || 0).toLocaleString("tr-TR"); }
+
+  function esc(s) {
+    return String(s || "").replace(/[&<>"]/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]));
+  }
+
+  function kisaAd(ad, maxLen) {
+    const s = String(ad || "");
+    const m = maxLen || 10;
+    return s.length > m ? s.slice(0, m - 1) + "…" : s;
+  }
+
+  /** Özet tablo ile uyumlu: gece no, kategori, o gecenin ücreti */
+  function konakBilgi(rez, tarih, hucreTip) {
     const db = window.APARTIM.db;
-    return db ? db.rezervasyonlarListele(durum.daireId) : [];
+    if (!db || !rez) return null;
+    const toplamGece = db.geceSayisi(rez.giris, rez.cikis);
+    let geceNo = db.geceSayisi(rez.giris, tarih) + 1;
+    let geceEtiket = "";
+
+    if (hucreTip === "checkout") {
+      geceNo = Math.max(1, toplamGece);
+      geceEtiket = toplamGece + " gece";
+    } else if (hucreTip === "checkin") {
+      geceNo = 1;
+      geceEtiket = "1/" + toplamGece;
+    } else {
+      geceNo = Math.min(Math.max(1, geceNo), Math.max(1, toplamGece));
+      geceEtiket = geceNo + "/" + toplamGece;
+    }
+
+    return {
+      ad: kisaAd(rez.misafirAdi || "Misafir", 12),
+      geceEtiket,
+      simge: db.musteriKaynagiSimge(rez.kaynakId),
+      ucret: db.rezervasyonGeceUcreti(rez, geceNo),
+      title: (rez.misafirAdi || "Misafir") + " • " + rez.giris + " → " + rez.cikis +
+        " • " + geceEtiket + " • " + fmt(db.rezervasyonGeceUcreti(rez, geceNo)) + " TL"
+    };
+  }
+
+  function rezBilgiHtml(bilgi) {
+    if (!bilgi) return "";
+    return (
+      '<div class="takvim-rez">' +
+        '<div class="takvim-rez-ad">' + esc(bilgi.ad) + '</div>' +
+        '<div class="takvim-rez-meta">' +
+          '<span class="takvim-rez-gece">' + esc(bilgi.geceEtiket) + '</span>' +
+          '<span class="takvim-rez-kat" title="Kaynak">' + esc(bilgi.simge) + '</span>' +
+          '<span class="takvim-rez-ucret">' + fmt(bilgi.ucret) + '</span>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function turnoverBilgiHtml(isoT, cikis, giris) {
+    const bOut = konakBilgi(cikis, isoT, "checkout");
+    const bIn = konakBilgi(giris, isoT, "checkin");
+    const satir = (etiket, b) => b ? (
+      '<div class="takvim-turnover-satir">' +
+        '<span class="takvim-io ' + etiket + '">' + (etiket === "out" ? "OUT" : "IN") + '</span>' +
+        '<span class="takvim-turnover-ad">' + esc(b.ad) + '</span>' +
+        '<span class="takvim-rez-gece">' + esc(b.geceEtiket) + '</span>' +
+        '<span class="takvim-rez-kat">' + esc(b.simge) + '</span>' +
+        '<span class="takvim-rez-ucret">' + fmt(b.ucret) + '</span>' +
+      '</div>'
+    ) : "";
+    return '<div class="takvim-turnover-stack">' + satir("out", bOut) + satir("in", bIn) + '</div>';
+  }
+
+  function hucreBilgiEkle(h, gd, rez, isoT) {
+    if (gd.tip === "turnover") {
+      const info = document.createElement("div");
+      info.className = "takvim-gun-bilgi takvim-gun-bilgi-dolu";
+      info.innerHTML = turnoverBilgiHtml(isoT, gd.cikis, gd.giris);
+      info.title = "OUT: " + (gd.cikis.misafirAdi || "—") + " → IN: " + (gd.giris.misafirAdi || "—");
+      h.appendChild(info);
+      return;
+    }
+    if (!rez) return;
+
+    let hucreTip = "konak";
+    if (gd.tip === "checkin") hucreTip = "checkin";
+    else if (gd.tip === "checkout") hucreTip = "checkout";
+
+    const bilgi = konakBilgi(rez, isoT, hucreTip);
+    if (!bilgi) return;
+
+    const info = document.createElement("div");
+    info.className = "takvim-gun-bilgi takvim-gun-bilgi-dolu";
+    info.innerHTML = rezBilgiHtml(bilgi);
+    info.title = bilgi.title;
+    h.appendChild(info);
   }
 
   function gunSinifi(isoTarih, daire) {
@@ -124,17 +215,9 @@
       h.appendChild(no);
 
       if (gd.tip === "turnover") {
-        const info = document.createElement("span");
-        info.className = "takvim-gun-bilgi";
-        info.textContent = "↗ " + (gd.cikis.misafirAdi || "Çıkış") + " · ↘ " + (gd.giris.misafirAdi || "Giriş");
-        info.title = "CHECK OUT: " + gd.cikis.misafirAdi + " → CHECK IN: " + gd.giris.misafirAdi;
-        h.appendChild(info);
+        hucreBilgiEkle(h, gd, rez, isoT);
       } else if (rez) {
-        const info = document.createElement("span");
-        info.className = "takvim-gun-bilgi";
-        info.textContent = rez.misafirAdi || "Misafir";
-        info.title = (rez.misafirAdi || "Misafir") + " • " + rez.giris + " → " + rez.cikis;
-        h.appendChild(info);
+        hucreBilgiEkle(h, gd, rez, isoT);
       } else if (daire && daire.temizlik === "kirli") {
         const info = document.createElement("span");
         info.className = "takvim-gun-bilgi";
