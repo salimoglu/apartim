@@ -30,29 +30,7 @@
       sekmeSec("bina");
     });
 
-    // PWA install
-    let installEvent = null;
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      installEvent = e;
-      document.getElementById("install-btn")?.classList.remove("hidden");
-    });
-    document.getElementById("install-btn")?.addEventListener("click", async () => {
-      if (!installEvent) return;
-      installEvent.prompt();
-      try { await installEvent.userChoice; } catch (e) {}
-      installEvent = null;
-      document.getElementById("install-btn")?.classList.add("hidden");
-    });
-
-    // Service worker kayıt
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("./sw.js")
-          .catch((err) => console.warn("SW kayıt hatası:", err));
-      });
-    }
+    // PWA — pwa-install.js banner ve yükleme akışını yönetir
 
     // Rapor butonları
     document.getElementById("rapor-prev")?.addEventListener("click", () => raporGit(-1));

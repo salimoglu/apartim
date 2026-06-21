@@ -1231,6 +1231,81 @@ html:not(.theme-light) .rez-kaynak-badge {
   margin-bottom: 10px;
 }
 
+/* -------------------- 11b. PWA yükleme banner -------------------- */
+.pwa-install-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4500;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), transparent);
+  pointer-events: none;
+  animation: pwaBarIn 280ms ease;
+}
+.pwa-install-bar.hidden { display: none; }
+@keyframes pwaBarIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.pwa-install-inner {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 12px 14px;
+  background: var(--kart);
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius);
+  box-shadow: var(--golge);
+}
+.pwa-install-ikon {
+  border-radius: 10px;
+  flex-shrink: 0;
+  box-shadow: var(--golge-sm);
+}
+.pwa-install-metin {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.pwa-install-baslik {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--metin);
+}
+.pwa-install-aciklama {
+  font-size: 11px;
+  color: var(--metin-soluk);
+  line-height: 1.35;
+}
+.pwa-install-btn {
+  flex-shrink: 0;
+  padding: 8px 14px;
+  font-size: 13px;
+  white-space: nowrap;
+}
+.pwa-install-kapat {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--metin-soluk);
+  font-size: 16px;
+  cursor: pointer;
+  line-height: 1;
+}
+.pwa-install-kapat:hover {
+  background: var(--kart-2);
+  color: var(--metin);
+}
+
 /* -------------------- 12. Bildirim (toast) -------------------- */
 .toast-wrap {
   position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
@@ -1252,6 +1327,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 .toast.basari { border-color: var(--basari); }
 .toast.uyari { border-color: var(--uyari); }
 .toast.hata { border-color: var(--tehlike); }
+.toast.bilgi { border-color: var(--bilgi); }
 
 /* -------------------- 13. Genel rapor sekmesi -------------------- */
 .rapor-wrap { display: flex; flex-direction: column; gap: 14px; }

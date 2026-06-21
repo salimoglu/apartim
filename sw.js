@@ -1,11 +1,12 @@
 /* Apartım — basit cache-first service worker */
-const CACHE_VERSION = "apartim-v19-20260627";
+const CACHE_VERSION = "apartim-v20-20260628";
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
   "./css/style.css",
   "./js/firebase.js",
+  "./js/pwa-install.js",
   "./js/auth.js",
   "./js/db.js",
   "./js/bina.js",

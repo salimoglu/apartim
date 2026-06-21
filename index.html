@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260627b" />
-  <link rel="stylesheet" href="css/style.css?v=20260627c" />
+  <link rel="stylesheet" href="css/style.css?v=20260628" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -402,10 +402,24 @@
     </div>
   </div>
 
+  <!-- PWA YÜKLEME BANNER -->
+  <div id="pwa-install-bar" class="pwa-install-bar hidden" role="dialog" aria-label="Uygulamayı yükle">
+    <div class="pwa-install-inner">
+      <img class="pwa-install-ikon" src="icons/icon-192.png?v=20260615" alt="" width="44" height="44" decoding="async" />
+      <div class="pwa-install-metin">
+        <strong class="pwa-install-baslik">Apartım'ı telefona yükle</strong>
+        <span class="pwa-install-aciklama" id="pwa-install-aciklama">Ana ekrana ekleyin, hızlı erişim</span>
+      </div>
+      <button type="button" class="btn-primary pwa-install-btn" id="pwa-install-yukle">Yükle</button>
+      <button type="button" class="pwa-install-kapat" id="pwa-install-kapat" aria-label="Kapat">&#10005;</button>
+    </div>
+  </div>
+
   <!-- BİLDİRİMLER -->
   <div class="toast-wrap" id="toast-wrap"></div>
 
   <script src="js/firebase.js?v=20260615"></script>
+  <script src="js/pwa-install.js?v=20260628"></script>
   <script src="js/auth.js?v=20260615"></script>
   <script src="js/db.js?v=20260626"></script>
   <script src="js/bina.js?v=20260621b"></script>
@@ -416,6 +430,6 @@
   <script src="js/daire.js?v=20260615"></script>
   <script src="js/tema.js?v=20260615"></script>
   <script src="js/ayarlar.js?v=20260626"></script>
-  <script src="js/app.js?v=20260627b"></script>
+  <script src="js/app.js?v=20260628"></script>
 </body>
 </html>
