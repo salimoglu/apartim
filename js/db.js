@@ -8,6 +8,14 @@
 (function () {
   "use strict";
 
+  const VARSAYILAN_MUSTERI_KAYNAKLARI = [
+    { id: "booking",       ad: "Booking",         sira: 1, sistem: true },
+    { id: "eski-musteri",  ad: "Eski müşteri",    sira: 2, sistem: true },
+    { id: "kapi",          ad: "Kapıdan gelen",   sira: 3, sistem: true },
+    { id: "misafir",       ad: "Misafir",         sira: 4, sistem: true },
+    { id: "albatros",      ad: "Albatros",        sira: 5, sistem: true }
+  ];
+
   const SABIT_DAIRELER = [
     { id: "ust",       ad: "Üst Kat",         kat: 3, konum: "tek",       gunlukUcret: 1500, sira: 1 },
     { id: "orta-sol",  ad: "Orta Kat - Sol",  kat: 2, konum: "sol",       gunlukUcret: 1200, sira: 2 },
@@ -20,6 +28,7 @@
     daireler: {},      // { id: {ad, gunlukUcret, temizlik, ...} }
     rezervasyonlar: {},// { rezId: {...} }
     temizlikKayit: {}, // { kayitId: {...} }
+    musteriKaynaklari: {}, // { id: { id, ad, sira, sistem } }
     yuklendi: false
   };
   const dinleyiciler = [];
@@ -69,6 +78,36 @@
   }
 
   // ---------- Daire varsayılan seed ----------
+  function slugId(ad) {
+    const temel = String(ad || "")
+      .toLowerCase()
+      .replace(/ğ/g, "g").replace(/ü/g, "u").replace(/ş/g, "s")
+      .replace(/ı/g, "i").replace(/ö/g, "o").replace(/ç/g, "c")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    return temel || "kaynak";
+  }
+
+  function musteriKaynaklariSeedEt() {
+    let degisti = false;
+    VARSAYILAN_MUSTERI_KAYNAKLARI.forEach((t) => {
+      if (!durum.musteriKaynaklari[t.id]) {
+        durum.musteriKaynaklari[t.id] = Object.assign({}, t);
+        degisti = true;
+      } else {
+        const k = durum.musteriKaynaklari[t.id];
+        if (k.ad == null) { k.ad = t.ad; degisti = true; }
+        if (k.sira == null) { k.sira = t.sira; degisti = true; }
+        if (k.sistem == null) { k.sistem = true; degisti = true; }
+      }
+    });
+    if (degisti) {
+      Object.values(durum.musteriKaynaklari).forEach((k) =>
+        kaydet("musteri-kaynaklari/" + k.id, k)
+      );
+    }
+  }
+
   function dairelerSeedEt() {
     let degisti = false;
     SABIT_DAIRELER.forEach((tanim) => {
@@ -135,11 +174,19 @@
         durum.temizlikKayit = snap.val() || {};
         bildir("veri-degisti", { sebep: "temizlik-kayit" });
       });
+
+      fbRef.child("musteri-kaynaklari").on("value", (snap) => {
+        durum.musteriKaynaklari = snap.val() || {};
+        musteriKaynaklariSeedEt();
+        bildir("veri-degisti", { sebep: "musteri-kaynaklari" });
+      });
     } else {
       const v = window.APARTIM.yerelOku();
       durum.daireler = v.daireler || {};
       durum.rezervasyonlar = v.rezervasyonlar || {};
       durum.temizlikKayit = v.temizlikKayit || {};
+      durum.musteriKaynaklari = v.musteriKaynaklari || {};
+      musteriKaynaklariSeedEt();
       dairelerSeedEt();
       durum.yuklendi = true;
       bildir("veri-degisti", { sebep: "yerel-yuklendi" });
@@ -152,7 +199,8 @@
     window.APARTIM.yerelYaz({
       daireler: durum.daireler,
       rezervasyonlar: durum.rezervasyonlar,
-      temizlikKayit: durum.temizlikKayit
+      temizlikKayit: durum.temizlikKayit,
+      musteriKaynaklari: durum.musteriKaynaklari
     });
   }
 
@@ -197,6 +245,7 @@
     if (tip === "daireler") return durum.daireler;
     if (tip === "rezervasyonlar") return durum.rezervasyonlar;
     if (tip === "temizlik-kayit") return durum.temizlikKayit;
+    if (tip === "musteri-kaynaklari") return durum.musteriKaynaklari;
     return null;
   }
 
@@ -219,7 +268,53 @@
     const filtreli = daireId ? liste.filter((r) => r.daireId === daireId) : liste;
     return filtreli.sort((a, b) => (a.giris || "").localeCompare(b.giris || ""));
   }
+  function musteriKaynaklariListele() {
+    return Object.values(durum.musteriKaynaklari).sort((a, b) =>
+      (a.sira || 0) - (b.sira || 0) || (a.ad || "").localeCompare(b.ad || "", "tr")
+    );
+  }
+  function musteriKaynagiGetir(id) { return durum.musteriKaynaklari[id] || null; }
+  function musteriKaynagiAd(id) {
+    const k = musteriKaynagiGetir(id);
+    return k ? k.ad : "";
+  }
+  function musteriKaynagiEkle(ad) {
+    const metin = String(ad || "").trim();
+    if (!metin) throw new Error("Kategori adı boş olamaz.");
+    const mevcut = musteriKaynaklariListele().find((k) =>
+      (k.ad || "").toLocaleLowerCase("tr") === metin.toLocaleLowerCase("tr")
+    );
+    if (mevcut) throw new Error("Bu isimde kategori zaten var.");
+    let id = slugId(metin);
+    let n = 2;
+    while (durum.musteriKaynaklari[id]) {
+      id = slugId(metin) + "-" + n;
+      n++;
+    }
+    const sira = musteriKaynaklariListele().reduce((m, k) => Math.max(m, k.sira || 0), 0) + 1;
+    const kayit = { id, ad: metin, sira, sistem: false };
+    durum.musteriKaynaklari[id] = kayit;
+    return kaydet("musteri-kaynaklari/" + id, kayit).then(() => kayit);
+  }
+  function musteriKaynagiSil(id) {
+    const k = durum.musteriKaynaklari[id];
+    if (!k) throw new Error("Kategori bulunamadı.");
+    if (k.sistem) throw new Error("Varsayılan kategoriler silinemez.");
+    const kullanan = Object.values(durum.rezervasyonlar).filter((r) => r && r.kaynakId === id);
+    if (kullanan.length) {
+      throw new Error("Bu kategoride " + kullanan.length + " rezervasyon var; önce onları değiştirin.");
+    }
+    delete durum.musteriKaynaklari[id];
+    return sil("musteri-kaynaklari/" + id);
+  }
+
+  function rezervasyonKaynakDogrula(rez) {
+    if (!rez.kaynakId) throw new Error("Müşteri kaynağı seçin.");
+    if (!musteriKaynagiGetir(rez.kaynakId)) throw new Error("Geçersiz müşteri kaynağı.");
+  }
+
   function rezervasyonEkle(rez) {
+    rezervasyonKaynakDogrula(rez);
     const cakis = dairedeCakisanRez(rez.daireId, rez.giris, rez.cikis);
     if (cakis) {
       throw new Error("Bu tarih aralığı " + cakis.misafirAdi + " ile çakışıyor (" + cakis.giris + " → " + cakis.cikis + ")");
@@ -227,6 +322,7 @@
     const id = rez.id || yeniId();
     const tam = Object.assign({}, rez, {
       id,
+      kaynakAd: musteriKaynagiAd(rez.kaynakId),
       olusturulma: Date.now(),
       toplamGece: geceSayisi(rez.giris, rez.cikis),
       toplamTutar: geceSayisi(rez.giris, rez.cikis) * (Number(rez.gunlukUcret) || 0)
@@ -238,6 +334,10 @@
     const mevcut = durum.rezervasyonlar[id];
     if (!mevcut) throw new Error("Rezervasyon bulunamadı");
     const yeni = Object.assign({}, mevcut, partial);
+    if (partial.kaynakId != null) {
+      rezervasyonKaynakDogrula(yeni);
+      yeni.kaynakAd = musteriKaynagiAd(yeni.kaynakId);
+    }
     const cakis = dairedeCakisanRez(yeni.daireId, yeni.giris, yeni.cikis, id);
     if (cakis) {
       throw new Error("Bu tarih aralığı " + cakis.misafirAdi + " ile çakışıyor (" + cakis.giris + " → " + cakis.cikis + ")");
@@ -307,6 +407,12 @@
     daireDurumuBugun,
     temizlikLogEkle,
     temizlikLogListele,
+    musteriKaynaklariListele,
+    musteriKaynagiGetir,
+    musteriKaynagiAd,
+    musteriKaynagiEkle,
+    musteriKaynagiSil,
+    VARSAYILAN_MUSTERI_KAYNAKLARI,
     SABIT_DAIRELER
   };
 })();

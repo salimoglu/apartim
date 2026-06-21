@@ -15,6 +15,7 @@
     title: document.getElementById("rez-modal-title"),
     uyari: document.getElementById("rez-modal-uyari"),
     misafir: document.getElementById("rez-misafir"),
+    kaynak: document.getElementById("rez-kaynak"),
     telefon: document.getElementById("rez-telefon"),
     giris: document.getElementById("rez-giris"),
     cikis: document.getElementById("rez-cikis"),
@@ -76,6 +77,24 @@
     e.uyari.textContent = msg;
   }
 
+  function kaynakSelectDoldur(seciliId) {
+    const sel = ay().kaynak;
+    if (!sel) return;
+    const liste = window.APARTIM.db.musteriKaynaklariListele();
+    sel.innerHTML = '<option value="">— Seçin —</option>';
+    liste.forEach((k) => {
+      const opt = document.createElement("option");
+      opt.value = k.id;
+      opt.textContent = k.ad;
+      sel.appendChild(opt);
+    });
+    if (seciliId && liste.some((k) => k.id === seciliId)) {
+      sel.value = seciliId;
+    } else if (liste.length) {
+      sel.value = liste[0].id;
+    }
+  }
+
   function yeni(secimler) {
     secimler = secimler || {};
     mevcutRezId = null;
@@ -87,6 +106,7 @@
     const daire = window.APARTIM.db.daireGetir(mevcutDaireId);
     const e = ay();
     e.title.textContent = "Yeni rezervasyon — " + (daire ? daire.ad : "");
+    kaynakSelectDoldur(secimler.kaynakId || null);
     e.misafir.value = "";
     e.telefon.value = "";
     const gIso = secimler.girisOnseci || bugunISO();
@@ -108,6 +128,7 @@
     const daire = window.APARTIM.db.daireGetir(rez.daireId);
     const e = ay();
     e.title.textContent = "Rezervasyon — " + (daire ? daire.ad : "");
+    kaynakSelectDoldur(rez.kaynakId || null);
     e.misafir.value = rez.misafirAdi || "";
     e.telefon.value = rez.telefon || "";
     e.giris.value = rez.giris;
@@ -131,8 +152,12 @@
     if (cikis <= giris) { uyariGoster("Çıkış tarihi girişten sonra olmalı."); return; }
     if (ucret <= 0) { uyariGoster("Günlük ücret 0'dan büyük olmalı."); return; }
 
+    const kaynakId = e.kaynak?.value || "";
+    if (!kaynakId) { uyariGoster("Müşteri kaynağı seçin."); return; }
+
     const veri = {
       daireId: mevcutDaireId,
+      kaynakId,
       misafirAdi: misafir,
       telefon: e.telefon.value.trim(),
       giris,
@@ -228,10 +253,12 @@
     const gelecek = rez.giris > bg;
 
     const durumEt = aktif ? "Aktif" : (gelecek ? "Yaklaşan" : "Tamamlandı");
+    const kaynakAd = rez.kaynakAd || window.APARTIM.db.musteriKaynagiAd(rez.kaynakId) || "—";
 
     div.innerHTML =
       '<div class="rez-kart-ust">' +
         '<span class="rez-kart-misafir">' + esc(rez.misafirAdi || "Misafir") + '</span>' +
+        '<span class="rez-kaynak-badge">' + esc(kaynakAd) + '</span>' +
         '<span class="rez-kart-tutar">' + aralikFormatla(rez.toplamTutar || 0) + ' TL</span>' +
       '</div>' +
       '<div class="rez-kart-orta">' +
@@ -327,6 +354,10 @@
       daireRezListele(window.APARTIM.daire.aktifId());
     }
     tumRezListele();
+    if (modal() && !modal().classList.contains("hidden") && ay().kaynak) {
+      const secili = ay().kaynak.value;
+      kaynakSelectDoldur(secili || null);
+    }
   });
 
   window.APARTIM.rezervasyon = {

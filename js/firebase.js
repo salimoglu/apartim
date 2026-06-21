@@ -57,9 +57,9 @@
   function yerelOku() {
     try {
       const raw = localStorage.getItem(YEREL_KEY);
-      return raw ? JSON.parse(raw) : { daireler: {}, rezervasyonlar: {}, temizlikKayit: {} };
+      return raw ? JSON.parse(raw) : { daireler: {}, rezervasyonlar: {}, temizlikKayit: {}, musteriKaynaklari: {} };
     } catch (e) {
-      return { daireler: {}, rezervasyonlar: {}, temizlikKayit: {} };
+      return { daireler: {}, rezervasyonlar: {}, temizlikKayit: {}, musteriKaynaklari: {} };
     }
   }
   function yerelYaz(veri) {

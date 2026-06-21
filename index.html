@@ -92,6 +92,10 @@
               </span>
               <span id="ayar-tema-metin">Açık tema</span>
             </button>
+            <button type="button" class="ayar-item" id="ayar-kaynaklar" role="menuitem">
+              <span class="ayar-item-ikon" aria-hidden="true">&#127991;</span>
+              Müşteri kaynakları
+            </button>
             <button type="button" class="ayar-item" id="ayar-yenile" role="menuitem">
               <span class="ayar-item-ikon" aria-hidden="true">&#8635;</span>
               <span>Yenile</span>
@@ -263,6 +267,10 @@
       <div class="modal-body">
         <div id="rez-modal-uyari" class="modal-uyari hidden"></div>
         <div class="field-group">
+          <label class="field-label" for="rez-kaynak">Müşteri kaynağı *</label>
+          <select id="rez-kaynak" class="field-select"></select>
+        </div>
+        <div class="field-group">
           <label class="field-label" for="rez-misafir">Misafir adı *</label>
           <input type="text" id="rez-misafir" class="field-input" placeholder="Ad Soyad" maxlength="80" />
         </div>
@@ -318,6 +326,28 @@
     </div>
   </div>
 
+  <!-- MODAL: MÜŞTERİ KAYNAKLARI -->
+  <div id="modal-kaynaklar" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title">Müşteri kaynakları</h2>
+        <button type="button" class="modal-close" id="kaynaklar-close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-aciklama">Rezervasyon eklerken seçeceğiniz kategoriler. Varsayılanlar silinemez; yeni kategori ekleyebilirsiniz.</p>
+        <ul class="kaynak-liste" id="kaynak-liste"></ul>
+        <div class="kaynak-ekle-row">
+          <input type="text" id="kaynak-yeni-ad" class="field-input" placeholder="Yeni kategori adı" maxlength="40" />
+          <button type="button" class="btn-primary" id="kaynak-ekle-btn">Ekle</button>
+        </div>
+        <div id="kaynak-uyari" class="modal-uyari hidden"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="kaynaklar-kapat">Kapat</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: SİL ONAYI -->
   <div id="modal-onay" class="modal-overlay hidden">
     <div class="modal-box">
@@ -340,13 +370,14 @@
 
   <script src="js/firebase.js?v=20260615"></script>
   <script src="js/auth.js?v=20260615"></script>
-  <script src="js/db.js?v=20260615"></script>
-  <script src="js/bina.js?v=20260616"></script>
+  <script src="js/db.js?v=20260624"></script>
+  <script src="js/bina.js?v=20260621b"></script>
   <script src="js/takvim.js?v=20260615"></script>
-  <script src="js/rezervasyon.js?v=20260615"></script>
+  <script src="js/rezervasyon.js?v=20260624"></script>
   <script src="js/temizlik.js?v=20260615"></script>
   <script src="js/daire.js?v=20260615"></script>
   <script src="js/tema.js?v=20260615"></script>
+  <script src="js/ayarlar.js?v=20260624"></script>
   <script src="js/app.js?v=20260615"></script>
 </body>
 </html>

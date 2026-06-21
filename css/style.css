@@ -350,9 +350,10 @@ html.theme-light {
   border: none;
   overflow: visible;
 }
-.bina-svg { width: 100%; height: auto; display: block; }
-.bina-svg image { transition: filter 200ms ease; }
+.bina-svg { width: 100%; height: auto; display: block; pointer-events: none; }
+.bina-svg image { pointer-events: none; }
 .bina-svg .daire {
+  pointer-events: all;
   cursor: pointer;
   transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
   transform-origin: center;
@@ -644,11 +645,13 @@ html.theme-light {
   display: flex; flex-direction: column; gap: 6px;
 }
 .rez-kart-ust {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
 }
-.rez-kart-misafir { font-weight: 800; font-size: 16px; color: var(--metin); }
-.rez-kart-tutar { font-weight: 800; color: var(--vurgu); }
+.rez-kart-misafir { font-weight: 800; font-size: 16px; color: var(--metin); flex: 1; min-width: 120px; }
+.rez-kart-tutar { font-weight: 800; color: var(--vurgu); margin-left: auto; }
 .rez-kart-orta {
   display: flex; align-items: center; gap: 12px;
   font-size: 13px; color: var(--metin-soluk);
@@ -761,6 +764,66 @@ html.theme-light {
 }
 .field-row { display: flex; gap: 10px; }
 .field-row .field-group { flex: 1; margin-bottom: 0; }
+
+.modal-aciklama {
+  margin: 0 0 14px;
+  font-size: 13px;
+  color: var(--metin-soluk);
+  line-height: 1.45;
+}
+.kaynak-liste {
+  list-style: none;
+  margin: 0 0 14px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.kaynak-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius-sm);
+  background: var(--zemin-2);
+}
+.kaynak-ad { flex: 1; font-weight: 600; }
+.kaynak-etiket {
+  font-size: 11px;
+  color: var(--metin-soluk);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--kart-2);
+}
+.kaynak-sil-btn {
+  border: none;
+  background: transparent;
+  color: var(--tehlike);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.kaynak-sil-btn:hover { text-decoration: underline; }
+.kaynak-ekle-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.kaynak-ekle-row .field-input { flex: 1; }
+.rez-kaynak-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--vurgu-soluk);
+  color: var(--vurgu-2);
+  white-space: nowrap;
+}
+html:not(.theme-light) .rez-kaynak-badge {
+  color: var(--bilgi);
+}
 
 .btn-primary {
   background: var(--vurgu); color: #fff;
