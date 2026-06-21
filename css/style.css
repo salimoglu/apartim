@@ -746,10 +746,18 @@ html:not(.theme-light) .rez-ozet-table {
 }
 .rez-ozet-table .rez-ozet-tarih,
 .rez-ozet-table .rez-ozet-tarih-kose {
-  color: #111827 !important;
+  background: #1e2d3d !important;
+  color: #ffffff !important;
+}
+.rez-ozet-table .rez-ozet-tarih-gun {
+  color: #ffffff !important;
 }
 .rez-ozet-table .rez-ozet-gun-ad {
-  color: #374151 !important;
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+html.theme-light .rez-ozet-table .rez-ozet-tarih,
+html.theme-light .rez-ozet-table .rez-ozet-tarih-kose {
+  background: #243446 !important;
 }
 .rez-ozet-table .rez-ozet-ad,
 .rez-ozet-table .rez-ozet-ad-alt,
@@ -782,7 +790,6 @@ html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-t
   position: sticky;
   left: 0;
   z-index: 3;
-  background: var(--kart-2) !important;
   min-width: 88px;
   font-weight: 800;
 }
@@ -790,7 +797,6 @@ html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-t
   position: sticky;
   left: 0;
   z-index: 2;
-  background: var(--kart) !important;
   min-width: 88px;
 }
 .rez-ozet-tarih-gun {
@@ -801,7 +807,6 @@ html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-t
 .rez-ozet-gun-ad {
   display: block;
   font-size: 9px;
-  color: var(--metin-soluk);
   letter-spacing: 0.5px;
 }
 .rez-ozet-daire-baslik {
@@ -848,7 +853,10 @@ html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-t
   box-shadow: inset 3px 0 0 var(--vurgu);
 }
 .rez-ozet-haftasonu .rez-ozet-tarih {
-  background: var(--kart-2) !important;
+  background: #243446 !important;
+}
+html.theme-light .rez-ozet-haftasonu .rez-ozet-tarih {
+  background: #1e2d3d !important;
 }
 .rez-ozet-sayi {
   text-align: center;
