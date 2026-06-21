@@ -1457,21 +1457,19 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rez-toplam-bar .gece { color: var(--metin-soluk); font-size: 12px; }
 .rez-toplam-bar .tutar { color: var(--vurgu); font-size: 20px; }
 
-.rez-tarih-satir { align-items: flex-end; flex-wrap: wrap; }
-.rez-uzat-grup { display: flex; flex-direction: column; gap: 4px; }
-.rez-uzat-etiket { font-size: 11px; margin-bottom: 0; }
-.rez-uzat-btns { display: flex; gap: 4px; }
-.btn-chip {
-  border: 1px solid var(--kenar);
-  background: var(--kart);
-  color: var(--metin);
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
+.rez-giris-cikis-satir {
+  align-items: flex-end;
+  margin-bottom: 12px;
 }
-.btn-chip:hover { background: var(--vurgu-soluk); border-color: var(--vurgu); }
+.rez-giris-cikis-satir .field-group {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+.rez-giris-cikis-satir .field-input {
+  width: 100%;
+  min-width: 0;
+}
 .rez-tek-fiyat-toggle {
   display: flex;
   align-items: center;
@@ -1498,7 +1496,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   overflow-y: auto;
   padding-right: 2px;
 }
-.rez-tarih-satir {
+.rez-gece-fiyat-satir {
   display: grid;
   grid-template-columns: 1fr minmax(88px, 110px) auto;
   gap: 8px;

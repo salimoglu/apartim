@@ -95,8 +95,9 @@
     if (!tf) return true;
     const tarihler = geceTarihleri(giris, cikis);
     if (!tarihler.length) return true;
-    const u = Number(varsayilanUcret) || 0;
-    return tarihler.every((t) => (Number(tf[t]) || u) === u);
+    const fallback = Number(varsayilanUcret) || 0;
+    const vals = tarihler.map((t) => Number(tf[t]) || fallback);
+    return vals.every((v) => v === vals[0]);
   }
 
   /** Kademeleri nesne olarak döndürebilir */

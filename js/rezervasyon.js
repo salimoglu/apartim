@@ -1,7 +1,7 @@
 /* =========================================================
    APARTIM — Rezervasyon yönetimi
    Yeni / düzenle / sil modalı, çakışma kontrolü, çıkış işlemi.
-   Tarih bazlı gecelik fiyat + konak uzatma desteği.
+   Tarih bazlı gecelik fiyat.
    ========================================================= */
 
 (function () {
@@ -91,7 +91,7 @@
       tarihler.forEach((t) => { out[t] = u; });
       return out;
     }
-    wrap.querySelectorAll(".rez-tarih-satir").forEach((satir) => {
+    wrap.querySelectorAll(".rez-gece-fiyat-satir").forEach((satir) => {
       const t = satir.dataset.tarih;
       const inp = satir.querySelector(".rez-tarih-ucret");
       out[t] = Number(inp?.value) || u;
@@ -116,7 +116,7 @@
     }
     tarihler.forEach((t) => {
       const satir = document.createElement("div");
-      satir.className = "rez-tarih-satir";
+      satir.className = "rez-gece-fiyat-satir";
       satir.dataset.tarih = t;
       satir.innerHTML =
         '<span class="rez-tarih-etiket">' + esc(tarihGoster(t)) + "</span>" +
@@ -130,8 +130,7 @@
 
   function fiyatFormYukle(rez) {
     const db = window.APARTIM.db;
-    const u = Number(rez.gunlukUcret) || varsayilanUcret();
-    alanYaz(ay().ucret, u);
+    const varsayilan = Number(rez.gunlukUcret) || varsayilanUcret();
 
     let tf = db?.tarihFiyatlariToObject?.(rez.tarihFiyatlari);
     if (!tf && rez.ucretKademeleri) {
@@ -142,7 +141,16 @@
       });
     }
 
-    const hepsiAyni = !tf || db.tarihFiyatlariTekMi(rez.giris, rez.cikis, tf, u);
+    const hepsiAyni = !tf || db.tarihFiyatlariTekMi(rez.giris, rez.cikis, tf, varsayilan);
+    let u = varsayilan;
+    if (hepsiAyni && tf) {
+      const tarihler = db.geceTarihleri(rez.giris, rez.cikis);
+      if (tarihler.length && tf[tarihler[0]] != null) {
+        u = Number(tf[tarihler[0]]) || varsayilan;
+      }
+    }
+
+    alanYaz(ay().ucret, u);
     tekFiyatModu = hepsiAyni;
     const e = ay();
     if (e.tekFiyatToggle) e.tekFiyatToggle.checked = tekFiyatModu;
@@ -273,15 +281,6 @@
     }
   }
 
-  function cikisUzat(gun) {
-    const e = ay();
-    if (!e.cikis.value) return;
-    const mevcut = tekFiyatModu ? null : tarihFiyatlariOku();
-    e.cikis.value = gunEkle(e.cikis.value, gun);
-    if (!tekFiyatModu) tarihFiyatListeCiz(mevcut);
-    toplamHesapla();
-  }
-
   function uyariGoster(msg) {
     const e = ay();
     if (!e.uyari) {
@@ -380,7 +379,6 @@
       alanYaz(e.telefon, rez.telefon || "");
       alanYaz(e.giris, rez.giris);
       alanYaz(e.cikis, rez.cikis);
-      alanYaz(e.ucret, rez.gunlukUcret || varsayilanUcret());
       fiyatFormYukle(rez);
       alanYaz(e.notlar, rez.notlar || "");
       e.btnSil?.classList.remove("hidden");
@@ -635,9 +633,6 @@
     e.ucret?.addEventListener("input", toplamHesapla);
     e.tekFiyatToggle?.addEventListener("change", () => tekFiyatModuGoster(e.tekFiyatToggle.checked));
     e.giris?.addEventListener("change", tarihDegisti);
-    document.querySelectorAll("[data-uzat]").forEach((btn) => {
-      btn.addEventListener("click", () => cikisUzat(Number(btn.dataset.uzat) || 1));
-    });
     document.getElementById("rez-yeni-btn")?.addEventListener("click", () => yeni({}));
     document.getElementById("cikis-close")?.addEventListener("click", cikisKapat);
     document.getElementById("cikis-iptal")?.addEventListener("click", cikisKapat);
