@@ -1472,58 +1472,50 @@ html:not(.theme-light) .rez-kaynak-badge {
   cursor: pointer;
 }
 .btn-chip:hover { background: var(--vurgu-soluk); border-color: var(--vurgu); }
-.rez-kademe-toggle {
-  display: block;
-  width: 100%;
-  text-align: left;
-  margin: 2px 0 8px;
-}
-.rez-kademe-grup.hidden { display: none; }
-
+.rez-indirim-toggle {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--metin);
+  cursor: pointer;
+  user-select: none;
+}
+.rez-indirim-toggle input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--vurgu);
+  flex-shrink: 0;
+}
+.rez-indirim-grup.hidden { display: none; }
+.rez-indirim-satir {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
-.rez-fiyat-baslik .field-label { margin-bottom: 0; }
-.btn-link {
-  background: none;
-  border: none;
-  color: var(--vurgu);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 0;
+.rez-indirim-gece {
+  width: 64px;
+  text-align: center;
+  padding: 8px 6px;
 }
-.btn-link:hover { text-decoration: underline; }
+.rez-indirim-ucret {
+  flex: 1;
+  min-width: 100px;
+  max-width: 140px;
+}
+.rez-indirim-ek {
+  font-size: 13px;
+  color: var(--metin-soluk);
+  white-space: nowrap;
+}
 .rez-fiyat-ipucu {
   font-size: 11px;
   color: var(--metin-soluk);
-  margin: 0 0 8px;
+  margin: 8px 0 0;
   line-height: 1.35;
-}
-.rez-kademeler { display: flex; flex-direction: column; gap: 6px; }
-.rez-kademe-satir {
-  display: grid;
-  grid-template-columns: 52px 12px 52px auto 1fr auto 28px;
-  gap: 6px;
-  align-items: center;
-}
-.rez-kademe-satir .field-input {
-  padding: 6px 8px;
-  min-width: 0;
-}
-.rez-k-bit { text-align: center; }
-.rez-k-etiket, .rez-k-tl { font-size: 11px; color: var(--metin-soluk); white-space: nowrap; }
-.rez-k-ayrac { text-align: center; color: var(--metin-soluk); }
-.rez-k-sil {
-  border: none;
-  background: transparent;
-  color: var(--tehlike);
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  padding: 0;
 }
 .rez-fiyat-ozet {
   font-size: 12px;
