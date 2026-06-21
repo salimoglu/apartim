@@ -22,11 +22,12 @@
   ];
 
   const SABIT_DAIRELER = [
-    { id: "ust",       ad: "Üst Kat",         kat: 3, konum: "tek",       gunlukUcret: 1500, sira: 1 },
-    { id: "orta-sol",  ad: "Orta Kat - Sol",  kat: 2, konum: "sol",       gunlukUcret: 1200, sira: 2 },
-    { id: "orta-sag",  ad: "Orta Kat - Sağ",  kat: 2, konum: "sag",       gunlukUcret: 1200, sira: 3 },
-    { id: "alt-sol",   ad: "Alt Kat - Sol",   kat: 1, konum: "sol",       gunlukUcret: 1000, sira: 4 },
-    { id: "alt-sag",   ad: "Alt Kat - Sağ",   kat: 1, konum: "sag",       gunlukUcret: 1000, sira: 5 }
+    { id: "oda-1", ad: "1. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 1 },
+    { id: "oda-2", ad: "2. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 2 },
+    { id: "oda-3", ad: "3. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 3 },
+    { id: "oda-4", ad: "4. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 4 },
+    { id: "oda-5", ad: "5. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 5 },
+    { id: "oda-6", ad: "6. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 6 }
   ];
 
   const durum = {
@@ -454,8 +455,48 @@
   }
 
   // ---------- Domain API ----------
+  function rezAyKesisimGelir(rez, ayBas, ayBit) {
+    const tarihler = geceTarihleri(rez.giris, rez.cikis);
+    let gece = 0;
+    let gelir = 0;
+    tarihler.forEach((t, idx) => {
+      if (t >= ayBas && t < ayBit) {
+        gece++;
+        gelir += rezervasyonGeceUcreti(rez, idx + 1);
+      }
+    });
+    return { gece, gelir };
+  }
+
+  function daireAylikOzet(daireId, yil, ay) {
+    const m = Number(ay);
+    const y = Number(yil);
+    const ayGun = new Date(y, m + 1, 0).getDate();
+    const pad = (n) => String(n).padStart(2, "0");
+    const ayBas = y + "-" + pad(m + 1) + "-01";
+    const ayBit = gunEkleISO(y + "-" + pad(m + 1) + "-" + pad(ayGun), 1);
+    let gece = 0;
+    let gelir = 0;
+    Object.values(durum.rezervasyonlar).forEach((rez) => {
+      if (!rez || rez.daireId !== daireId) return;
+      const k = rezAyKesisimGelir(rez, ayBas, ayBit);
+      gece += k.gece;
+      gelir += k.gelir;
+    });
+    return {
+      gece,
+      gelir,
+      ortalama: gece > 0 ? Math.round(gelir / gece) : 0,
+      ayGun,
+      doluluk: ayGun > 0 ? Math.round(gece * 100 / ayGun) : 0
+    };
+  }
+
   function dairelerListele() {
-    return Object.values(durum.daireler).sort((a, b) => (a.sira || 0) - (b.sira || 0));
+    return SABIT_DAIRELER
+      .map((t) => durum.daireler[t.id])
+      .filter(Boolean)
+      .sort((a, b) => (a.sira || 0) - (b.sira || 0));
   }
   function daireGetir(id) { return durum.daireler[id] || null; }
   function daireGuncelle(id, partial) {
@@ -648,6 +689,8 @@
     rezervasyonTutarHesapla,
     rezervasyonKalanTutar,
     rezervasyonOzeti,
+    rezAyKesisimGelir,
+    daireAylikOzet,
     tarihNormal,
     dairelerListele,
     daireGetir,

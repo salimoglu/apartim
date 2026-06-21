@@ -1,158 +1,170 @@
 /* =========================================================
-   APARTIM — Bina (ana ekran)
-   Seffaf illustrasyon arka plan + 5 daire hotspot.
-   Ust kat: cati hattini takip eden polygon (dikdortgen degil).
+   APARTIM — Apart ana ekranı
+   Her daire dikdörtgen kart: sol aylık özet, sağ mini takvim.
    ========================================================= */
 
 (function () {
   "use strict";
 
-  const wrap = () => document.getElementById("bina-svg-wrap");
+  const AY_ADLARI = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+                     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+  const GUN_KISA = ["P", "S", "Ç", "P", "C", "C", "P"];
 
-  // Koordinatlar 1024x792 illustrasyona gore (merkez x=512).
-  // Bina dis cerceve: ~x=96-928
-  const SVG = `
-<svg class="bina-svg" viewBox="0 0 1024 792" xmlns="http://www.w3.org/2000/svg" aria-label="Apartım binası" preserveAspectRatio="xMidYMid meet">
-  <defs>
-    <filter id="binaSg" x="-8%" y="-8%" width="116%" height="116%">
-      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-opacity="0.28"/>
-    </filter>
-    <filter id="noktaSg" x="-50%" y="-50%" width="200%" height="200%">
-      <feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-opacity="0.4"/>
-    </filter>
-  </defs>
+  const TEMIZLIK_METIN = {
+    temiz: "Temiz",
+    kirli: "Temizlenecek",
+    temizleniyor: "Temizleniyor"
+  };
 
-  <image href="icons/apart-illustrasyon.png?v=20260616" x="0" y="0" width="1024" height="792" filter="url(#binaSg)"/>
+  const durum = {
+    yil: new Date().getFullYear(),
+    ay: new Date().getMonth()
+  };
 
-  <!-- UST KAT — tek daire, cati ucgeni + alttaki ahşap bolum -->
-  <g class="daire" data-daire-id="ust" tabindex="0" role="button" aria-label="Üst Kat dairesi">
-    <polygon class="daire-bolge"
-      points="512,54 928,172 928,346 96,346 96,172"/>
-    <g class="daire-etiket-grup" transform="translate(512, 228)">
-      <rect x="-58" y="-22" width="116" height="40" rx="20" fill="rgba(20,15,10,0.88)"/>
-      <text class="daire-etiket" x="0" y="7" text-anchor="middle">ÜST KAT</text>
-    </g>
-    <g class="durum-grup" filter="url(#noktaSg)">
-      <circle cx="892" cy="118" r="20" fill="#fff" opacity="0.96"/>
-      <circle class="durum-nokta durum-nokta-bos-temiz" cx="892" cy="118" r="13"/>
-    </g>
-  </g>
+  function listeEl() { return document.getElementById("daire-kart-listesi"); }
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function iso(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
+  function fmt(n) { return Number(n || 0).toLocaleString("tr-TR"); }
 
-  <!-- ORTA SOL -->
-  <g class="daire" data-daire-id="orta-sol" tabindex="0" role="button" aria-label="Orta Kat - Sol dairesi">
-    <rect class="daire-bolge" x="96" y="358" width="408" height="168" rx="4"/>
-    <g class="daire-etiket-grup" transform="translate(300, 442)">
-      <rect x="-62" y="-22" width="124" height="40" rx="20" fill="rgba(20,15,10,0.88)"/>
-      <text class="daire-etiket" x="0" y="7" text-anchor="middle">ORTA SOL</text>
-    </g>
-    <g class="durum-grup" filter="url(#noktaSg)">
-      <circle cx="488" cy="378" r="20" fill="#fff" opacity="0.96"/>
-      <circle class="durum-nokta durum-nokta-bos-temiz" cx="488" cy="378" r="13"/>
-    </g>
-  </g>
-
-  <!-- ORTA SAG -->
-  <g class="daire" data-daire-id="orta-sag" tabindex="0" role="button" aria-label="Orta Kat - Sağ dairesi">
-    <rect class="daire-bolge" x="520" y="358" width="408" height="168" rx="4"/>
-    <g class="daire-etiket-grup" transform="translate(724, 442)">
-      <rect x="-62" y="-22" width="124" height="40" rx="20" fill="rgba(20,15,10,0.88)"/>
-      <text class="daire-etiket" x="0" y="7" text-anchor="middle">ORTA SAĞ</text>
-    </g>
-    <g class="durum-grup" filter="url(#noktaSg)">
-      <circle cx="912" cy="378" r="20" fill="#fff" opacity="0.96"/>
-      <circle class="durum-nokta durum-nokta-bos-temiz" cx="912" cy="378" r="13"/>
-    </g>
-  </g>
-
-  <!-- ALT SOL -->
-  <g class="daire" data-daire-id="alt-sol" tabindex="0" role="button" aria-label="Alt Kat - Sol dairesi">
-    <rect class="daire-bolge" x="96" y="536" width="408" height="168" rx="4"/>
-    <g class="daire-etiket-grup" transform="translate(300, 620)">
-      <rect x="-58" y="-22" width="116" height="40" rx="20" fill="rgba(20,15,10,0.88)"/>
-      <text class="daire-etiket" x="0" y="7" text-anchor="middle">ALT SOL</text>
-    </g>
-    <g class="durum-grup" filter="url(#noktaSg)">
-      <circle cx="488" cy="556" r="20" fill="#fff" opacity="0.96"/>
-      <circle class="durum-nokta durum-nokta-bos-temiz" cx="488" cy="556" r="13"/>
-    </g>
-  </g>
-
-  <!-- ALT SAG -->
-  <g class="daire" data-daire-id="alt-sag" tabindex="0" role="button" aria-label="Alt Kat - Sağ dairesi">
-    <rect class="daire-bolge" x="520" y="536" width="408" height="168" rx="4"/>
-    <g class="daire-etiket-grup" transform="translate(724, 620)">
-      <rect x="-58" y="-22" width="116" height="40" rx="20" fill="rgba(20,15,10,0.88)"/>
-      <text class="daire-etiket" x="0" y="7" text-anchor="middle">ALT SAĞ</text>
-    </g>
-    <g class="durum-grup" filter="url(#noktaSg)">
-      <circle cx="912" cy="556" r="20" fill="#fff" opacity="0.96"/>
-      <circle class="durum-nokta durum-nokta-bos-temiz" cx="912" cy="556" r="13"/>
-    </g>
-  </g>
-</svg>`;
-
-  function binayiCiz() {
-    const w = wrap();
-    if (!w) return;
-    w.innerHTML = SVG;
-    w.querySelectorAll(".daire").forEach((g) => {
-      g.addEventListener("click", () => {
-        const id = g.getAttribute("data-daire-id");
-        if (window.APARTIM.daire && id) window.APARTIM.daire.ac(id);
-      });
-      g.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          const id = g.getAttribute("data-daire-id");
-          if (window.APARTIM.daire && id) window.APARTIM.daire.ac(id);
-        }
-      });
-    });
-    durumlariGuncelle();
+  function esc(s) {
+    return String(s || "").replace(/[&<>"]/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]));
   }
 
-  function durumlariGuncelle() {
+  function ayBaslikGuncelle() {
+    const el = document.getElementById("bina-ay-baslik");
+    if (el) el.textContent = AY_ADLARI[durum.ay] + " " + durum.yil;
+  }
+
+  function ayGit(yon) {
+    let y = durum.yil;
+    let m = durum.ay + yon;
+    if (m < 0) { m = 11; y--; }
+    else if (m > 11) { m = 0; y++; }
+    durum.yil = y;
+    durum.ay = m;
+    ayBaslikGuncelle();
+    kartlariCiz();
+  }
+
+  function durumEtiket(daire, bugunDr) {
+    if (bugunDr.durum === "dolu") return { metin: "Dolu", sinif: "dolu" };
+    const t = daire.temizlik || "temiz";
+    return { metin: TEMIZLIK_METIN[t] || "Temiz", sinif: t === "kirli" ? "kirli" : t };
+  }
+
+  function boncukSinifi(gd) {
+    if (!gd || gd.tip === "bos") return "";
+    if (gd.tip === "turnover") return "turnover";
+    if (gd.tip === "checkin") return "giris";
+    if (gd.tip === "checkout") return "cikis";
+    return "dolu";
+  }
+
+  function miniTakvimHtml(daireId, daire) {
+    const db = window.APARTIM.db;
+    const y = durum.yil;
+    const m = durum.ay;
+    const ilk = new Date(y, m, 1);
+    const sonGun = new Date(y, m + 1, 0).getDate();
+    let hafGun = ilk.getDay() - 1;
+    if (hafGun < 0) hafGun = 6;
+    const bg = db.bugunISO();
+    const oncekiSon = new Date(y, m, 0).getDate();
+
+    let html = '<div class="mini-takvim"><div class="mini-takvim-baslik">';
+    GUN_KISA.forEach((g) => { html += '<span>' + g + "</span>"; });
+    html += '</div><div class="mini-takvim-grid">';
+
+    for (let i = hafGun - 1; i >= 0; i--) {
+      html += '<div class="mini-takvim-hucre disabled"><span class="mini-takvim-gun">' +
+        (oncekiSon - i) + "</span></div>";
+    }
+
+    for (let d = 1; d <= sonGun; d++) {
+      const isoT = iso(y, m, d);
+      const gd = db.daireGunDurumu(daireId, isoT);
+      const siniflar = ["mini-takvim-hucre"];
+      if (isoT === bg) siniflar.push("bugun");
+      if (gd.tip === "bos" && daire.temizlik === "kirli") siniflar.push("bos-kirli");
+      const boncuk = boncukSinifi(gd);
+      html += '<div class="' + siniflar.join(" ") + '">' +
+        '<span class="mini-takvim-gun">' + d + "</span>" +
+        (boncuk ? '<span class="mini-takvim-boncuk ' + boncuk + '"></span>' : "") +
+        "</div>";
+    }
+
+    const hucreSay = hafGun + sonGun;
+    const eksik = (7 - (hucreSay % 7)) % 7;
+    for (let i = 1; i <= eksik; i++) {
+      html += '<div class="mini-takvim-hucre disabled"><span class="mini-takvim-gun">' +
+        i + "</span></div>";
+    }
+
+    html += "</div></div>";
+    return html;
+  }
+
+  function kartHtml(d) {
+    const db = window.APARTIM.db;
+    const bugunDr = db.daireDurumuBugun(d.id);
+    const ozet = db.daireAylikOzet(d.id, durum.yil, durum.ay);
+    const dr = durumEtiket(d, bugunDr);
+
+    return (
+      '<article class="daire-kart" data-daire-id="' + esc(d.id) + '" tabindex="0" role="button">' +
+        '<div class="daire-kart-icerik">' +
+          '<div class="daire-kart-sol">' +
+            '<div class="daire-kart-baslik">' +
+              '<h3 class="daire-kart-ad">' + esc(d.ad) + "</h3>" +
+              '<span class="daire-kart-durum durum-' + esc(dr.sinif) + '">' +
+                '<span class="daire-kart-durum-nokta"></span>' + esc(dr.metin) +
+              "</span>" +
+            "</div>" +
+            '<div class="daire-kart-ozet">' +
+              '<div class="daire-kart-ozet-satir">' +
+                '<span class="etiket">Dolu gün</span>' +
+                '<span class="deger">' + ozet.gece + " / " + ozet.ayGun + "</span>" +
+              "</div>" +
+              '<div class="daire-kart-ozet-satir">' +
+                '<span class="etiket">Ort. fiyat</span>' +
+                '<span class="deger">' + (ozet.gece ? fmt(ozet.ortalama) + " TL" : "—") + "</span>" +
+              "</div>" +
+              '<div class="daire-kart-ozet-satir">' +
+                '<span class="etiket">Aylık gelir</span>' +
+                '<span class="deger">' + fmt(ozet.gelir) + " TL</span>" +
+              "</div>" +
+              '<div class="daire-kart-ozet-satir">' +
+                '<span class="etiket">Doluluk</span>' +
+                '<span class="deger">%' + ozet.doluluk + "</span>" +
+              "</div>" +
+            "</div>" +
+          "</div>" +
+          '<div class="daire-kart-sag" aria-hidden="true">' +
+            miniTakvimHtml(d.id, d) +
+          "</div>" +
+        "</div>" +
+      "</article>"
+    );
+  }
+
+  function ozetGuncelle() {
     const db = window.APARTIM.db;
     if (!db || !db.durum.yuklendi) return;
-    const w = wrap();
-    if (!w) return;
     const liste = db.dairelerListele();
-
-    let dolu = 0, bosTemiz = 0, bosKirli = 0, temizleniyor = 0;
+    let dolu = 0;
+    let bosTemiz = 0;
+    let kirli = 0;
     liste.forEach((d) => {
       const dr = db.daireDurumuBugun(d.id);
-      const g = w.querySelector('.daire[data-daire-id="' + d.id + '"]');
-      if (!g) return;
-      g.classList.remove("daire-dolu", "daire-bos-temiz", "daire-bos-kirli", "daire-temizleniyor");
-      g.classList.add("daire-" + dr.durum);
-
-      const nokta = g.querySelector(".durum-nokta");
-      if (nokta) {
-        nokta.classList.remove(
-          "durum-nokta-bos-temiz",
-          "durum-nokta-dolu",
-          "durum-nokta-bos-kirli",
-          "durum-nokta-temizleniyor"
-        );
-        nokta.classList.add("durum-nokta-" + dr.durum);
-      }
-
-      const etiket = g.querySelector(".daire-etiket");
-      if (etiket && d.ad) {
-        etiket.textContent = d.ad.toLocaleUpperCase("tr");
-      }
-      g.setAttribute("aria-label", (d.ad || d.id) + " dairesi");
-
       if (dr.durum === "dolu") dolu++;
-      else if (dr.durum === "bos-temiz") bosTemiz++;
-      else if (dr.durum === "bos-kirli") bosKirli++;
-      else if (dr.durum === "temizleniyor") temizleniyor++;
+      else if (dr.durum === "bos-kirli" || dr.durum === "temizleniyor") kirli++;
+      else bosTemiz++;
     });
-
     setText("ozet-toplam", liste.length);
     setText("ozet-dolu", dolu);
     setText("ozet-bos", bosTemiz);
-    setText("ozet-kirli", bosKirli + temizleniyor);
+    setText("ozet-kirli", kirli);
   }
 
   function setText(id, val) {
@@ -160,11 +172,62 @@
     if (el) el.textContent = val;
   }
 
-  document.addEventListener("apartim:veri-degisti", durumlariGuncelle);
-  document.addEventListener("apartim:gun-degisti", durumlariGuncelle);
+  function kartlariCiz() {
+    const wrap = listeEl();
+    const db = window.APARTIM.db;
+    if (!wrap || !db) return;
+    if (!db.durum.yuklendi) {
+      wrap.innerHTML = '<p class="bina-yukleniyor">Veriler yükleniyor…</p>';
+      return;
+    }
+    const liste = db.dairelerListele();
+    if (!liste.length) {
+      wrap.innerHTML = '<p class="bina-yukleniyor">Daire bulunamadı.</p>';
+      return;
+    }
+    wrap.innerHTML = liste.map(kartHtml).join("");
+    wrap.querySelectorAll(".daire-kart").forEach((kart) => {
+      const ac = () => {
+        const id = kart.getAttribute("data-daire-id");
+        if (window.APARTIM.daire && id) window.APARTIM.daire.ac(id);
+      };
+      kart.addEventListener("click", ac);
+      kart.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          ac();
+        }
+      });
+    });
+    ozetGuncelle();
+  }
+
+  function binayiCiz() {
+    ayBaslikGuncelle();
+    kartlariCiz();
+  }
+
+  function guncelle() {
+    ayBaslikGuncelle();
+    kartlariCiz();
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("bina-ay-prev")?.addEventListener("click", () => ayGit(-1));
+    document.getElementById("bina-ay-next")?.addEventListener("click", () => ayGit(1));
+    document.getElementById("bina-ay-bugun")?.addEventListener("click", () => {
+      const b = new Date();
+      durum.yil = b.getFullYear();
+      durum.ay = b.getMonth();
+      binayiCiz();
+    });
+  });
+
+  document.addEventListener("apartim:veri-degisti", guncelle);
+  document.addEventListener("apartim:gun-degisti", guncelle);
 
   window.APARTIM.bina = {
     ciz: binayiCiz,
-    guncelle: durumlariGuncelle
+    guncelle
   };
 })();

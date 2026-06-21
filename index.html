@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260627b" />
-  <link rel="stylesheet" href="css/style.css?v=20260707" />
+  <link rel="stylesheet" href="css/style.css?v=20260708" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -127,21 +127,24 @@
         <div class="bina-wrap" id="bina-wrap">
           <div class="bina-baslik">
             <h2>Apartım</h2>
-            <p>Bir daireye tıklayın</p>
+            <p>Detay için odaya dokunun</p>
           </div>
-          <div class="bina-svg-wrap" id="bina-svg-wrap">
-            <!-- bina.js inline SVG'yi buraya yerleştirir -->
+          <div class="bina-ay-nav">
+            <button type="button" class="takvim-ay-btn" id="bina-ay-prev" aria-label="Önceki ay">&#9664;</button>
+            <div class="bina-ay-baslik" id="bina-ay-baslik">—</div>
+            <button type="button" class="takvim-bugun-btn" id="bina-ay-bugun">Bugün</button>
+            <button type="button" class="takvim-ay-btn" id="bina-ay-next" aria-label="Sonraki ay">&#9654;</button>
           </div>
+          <div class="daire-kart-listesi" id="daire-kart-listesi"></div>
           <div class="bina-legend">
-            <div class="bina-legend-item"><span class="bina-legend-dot" style="background:#2ecc71"></span> Boş & temiz</div>
-            <div class="bina-legend-item"><span class="bina-legend-dot" style="background:#e74c3c"></span> Dolu</div>
-            <div class="bina-legend-item"><span class="bina-legend-dot" style="background:#f39c12"></span> Boş & kirli</div>
-            <div class="bina-legend-item"><span class="bina-legend-dot" style="background:#3498db"></span> Temizleniyor</div>
+            <div class="bina-legend-item"><span class="bina-legend-dot dolu"></span> Dolu gece</div>
+            <div class="bina-legend-item"><span class="bina-legend-dot turnover"></span> Giriş/çıkış</div>
+            <div class="bina-legend-item"><span class="bina-legend-dot kirli"></span> Temizlenecek</div>
           </div>
           <div class="bina-ozet" id="bina-ozet">
             <div class="bina-ozet-kart">
-              <span class="label">Toplam daire</span>
-              <span class="val" id="ozet-toplam">5</span>
+              <span class="label">Toplam oda</span>
+              <span class="val" id="ozet-toplam">6</span>
             </div>
             <div class="bina-ozet-kart dolu">
               <span class="label">Bugün dolu</span>
@@ -164,7 +167,7 @@
             <button type="button" class="daire-back" id="daire-back">&#9664; Geri</button>
             <div class="daire-title">
               <h2 id="daire-baslik">Daire</h2>
-              <span class="alt" id="daire-altbaslik">Kat ve konum</span>
+              <span class="alt hidden" id="daire-altbaslik"></span>
             </div>
             <div class="daire-ucret">
               <label for="daire-ucret-inp">Günlük</label>
@@ -430,8 +433,8 @@
   <script src="js/firebase.js?v=20260615"></script>
   <script src="js/pwa-install.js?v=20260628"></script>
   <script src="js/auth.js?v=20260615"></script>
-  <script src="js/db.js?v=20260707"></script>
-  <script src="js/bina.js?v=20260621b"></script>
+  <script src="js/db.js?v=20260708"></script>
+  <script src="js/bina.js?v=20260708"></script>
   <script src="js/takvim.js?v=20260704"></script>
   <script src="js/rezervasyon.js?v=20260707"></script>
   <script src="js/rez-ozet.js?v=20260701b"></script>

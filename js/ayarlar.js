@@ -114,12 +114,8 @@
 
   // ---- Daire isimleri ----
   function daireKatEtiket(d) {
-    const parcalar = [];
-    if (d.kat) parcalar.push(d.kat + ". kat");
-    if (d.konum === "sol") parcalar.push("Sol");
-    else if (d.konum === "sag") parcalar.push("Sağ");
-    else if (d.konum === "tek") parcalar.push("Tek daire");
-    return parcalar.join(" · ") || d.id;
+    if (d.sira) return "Oda " + d.sira;
+    return d.id || "";
   }
 
   function daireListeRender() {

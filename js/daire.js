@@ -24,9 +24,7 @@
     el("daire-wrap")?.classList.remove("hidden");
 
     el("daire-baslik").textContent = daire.ad;
-    const altMetin = (daire.kat ? daire.kat + ". Kat" : "") +
-      (daire.konum && daire.konum !== "tek" ? " • " + (daire.konum === "sol" ? "Sol" : "Sağ") : "");
-    el("daire-altbaslik").textContent = altMetin;
+    el("daire-altbaslik").textContent = "";
     el("daire-ucret-inp").value = daire.gunlukUcret || 0;
 
     window.APARTIM.temizlik.rozetGuncelle(daireId);
