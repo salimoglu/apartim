@@ -268,7 +268,10 @@
 
   function uyariGoster(msg) {
     const e = ay();
-    if (!e.uyari) return;
+    if (!e.uyari) {
+      if (msg) window.APARTIM.toast(msg, "uyari");
+      return;
+    }
     if (!msg) {
       e.uyari.classList.add("hidden");
       e.uyari.textContent = "";
@@ -276,6 +279,12 @@
     }
     e.uyari.classList.remove("hidden");
     e.uyari.textContent = msg;
+    e.uyari.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    window.APARTIM.toast(msg, "uyari");
+  }
+
+  function kaydetHata(msg) {
+    uyariGoster(msg);
   }
 
   function kaynakSelectDoldur(seciliId) {
@@ -384,10 +393,7 @@
   }
 
   function kademeDogrula(kademeler, gece) {
-    if (!kademeModu) {
-      const u = Number(ay().ucret?.value) || 0;
-      return u > 0 ? "" : "Günlük ücret 0'dan büyük olmalı.";
-    }
+    if (!kademeModu) return "";
     if (!kademeler.length) return "En az bir fiyat kademesi girin.";
     for (const k of kademeler) {
       if (k.ucret <= 0) return "Tüm kademelerde ücret 0'dan büyük olmalı.";
@@ -414,45 +420,65 @@
 
   async function kaydet() {
     const e = ay();
-    const misafir = e.misafir.value.trim();
-    const giris = e.giris.value;
-    const cikis = e.cikis.value;
-    if (!misafir) { uyariGoster("Misafir adı zorunlu."); return; }
-    if (!giris || !cikis) { uyariGoster("Tarihler zorunlu."); return; }
-    if (cikis <= giris) { uyariGoster("Çıkış tarihi girişten sonra olmalı."); return; }
-
-    const gece = window.APARTIM.db.geceSayisi(giris, cikis);
-    let kademeler = kademeModu
-      ? kademeleriKaydaHazirla(kademeleriOku(), gece)
-      : [{ basGece: 1, bitGece: null, ucret: Number(e.ucret?.value) || 0 }];
-    const kademeHata = kademeDogrula(kademeler, gece);
-    if (kademeHata) { uyariGoster(kademeHata); return; }
-
-    const kaynakId = e.kaynak?.value || "";
-    if (!kaynakId) { uyariGoster("Müşteri kaynağı seçin."); return; }
-
-    const tekKademe = !kademeModu || (
-      kademeler.length === 1 &&
-      kademeler[0].basGece === 1 &&
-      kademeler[0].bitGece == null
-    );
-
-    const veri = {
-      daireId: mevcutDaireId,
-      kaynakId,
-      misafirAdi: misafir,
-      telefon: e.telefon.value.trim(),
-      giris,
-      cikis,
-      gunlukUcret: kademeler[0].ucret,
-      notlar: e.notlar.value.trim()
-    };
-    if (!tekKademe) veri.ucretKademeleri = kademeler;
-    else veri.ucretKademeleri = null;
-
-    if (!mevcutDaireId) { uyariGoster("Daire seçilemedi. Modalı kapatıp tekrar deneyin."); return; }
-
+    let kaydediliyor = false;
     try {
+      if (!window.APARTIM.db?.rezervasyonEkle) {
+        kaydetHata("Veri katmanı yüklenemedi. Sayfayı yenileyin.");
+        return;
+      }
+      if (!window.APARTIM.db.durum?.yuklendi) {
+        kaydetHata("Veriler henüz yüklenmedi. Birkaç saniye bekleyin.");
+        return;
+      }
+
+      const misafir = (e.misafir?.value || "").trim();
+      const giris = e.giris?.value || "";
+      const cikis = e.cikis?.value || "";
+      const ucretDeger = Number(e.ucret?.value) || varsayilanUcret() || 1000;
+
+      if (!misafir) { kaydetHata("Misafir adı zorunlu."); return; }
+      if (!giris || !cikis) { kaydetHata("Tarihler zorunlu."); return; }
+      if (cikis <= giris) { kaydetHata("Çıkış tarihi girişten sonra olmalı."); return; }
+      if (ucretDeger <= 0) { kaydetHata("Günlük ücret 0'dan büyük olmalı."); return; }
+
+      const gece = window.APARTIM.db.geceSayisi(giris, cikis);
+      let kademeler = kademeModu
+        ? kademeleriKaydaHazirla(kademeleriOku(), gece)
+        : [{ basGece: 1, bitGece: null, ucret: ucretDeger }];
+      const kademeHata = kademeDogrula(kademeler, gece);
+      if (kademeHata) { kaydetHata(kademeHata); return; }
+
+      kaynakSelectDoldur(e.kaynak?.value || null);
+      const kaynakId = e.kaynak?.value || "";
+      if (!kaynakId) { kaydetHata("Müşteri kaynağı seçin."); return; }
+
+      if (!mevcutDaireId) { kaydetHata("Daire seçilemedi. Modalı kapatıp tekrar deneyin."); return; }
+
+      const tekKademe = !kademeModu || (
+        kademeler.length === 1 &&
+        kademeler[0].basGece === 1 &&
+        kademeler[0].bitGece == null
+      );
+
+      const veri = {
+        daireId: mevcutDaireId,
+        kaynakId,
+        misafirAdi: misafir,
+        telefon: (e.telefon?.value || "").trim(),
+        giris,
+        cikis,
+        gunlukUcret: kademeler[0].ucret || ucretDeger,
+        notlar: (e.notlar?.value || "").trim()
+      };
+      if (!tekKademe) veri.ucretKademeleri = kademeler;
+      else veri.ucretKademeleri = null;
+
+      kaydediliyor = true;
+      if (e.btnKaydet) {
+        e.btnKaydet.disabled = true;
+        e.btnKaydet.textContent = "Kaydediliyor…";
+      }
+
       if (mevcutRezId) {
         await window.APARTIM.db.rezervasyonGuncelle(mevcutRezId, veri);
         window.APARTIM.toast("Rezervasyon güncellendi", "basari");
@@ -461,8 +487,16 @@
         window.APARTIM.toast("Rezervasyon kaydedildi", "basari");
       }
       modalKapat();
+      window.APARTIM.rezOzet?.tabloCiz();
+      window.APARTIM.takvim?.yenidenCiz();
     } catch (err) {
-      uyariGoster(err.message || "Kayıt başarısız.");
+      console.error("rezervasyon.kaydet", err);
+      kaydetHata(err?.message || "Kayıt başarısız.");
+    } finally {
+      if (kaydediliyor && e.btnKaydet) {
+        e.btnKaydet.disabled = false;
+        e.btnKaydet.textContent = "Kaydet";
+      }
     }
   }
 

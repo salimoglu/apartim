@@ -354,40 +354,45 @@
   }
 
   function kaydet(yol, deger) {
-    if (window.APARTIM.firebaseAktif && fbRef) {
+    if (window.APARTIM.firebaseAktif) {
+      if (!fbRef) {
+        return Promise.reject(new Error("Bulut bağlantısı henüz hazır değil. Birkaç saniye bekleyin."));
+      }
       const temiz = deger == null ? null : nesneTemizle(deger);
       return fbRef.child(yol).set(temiz).catch((err) => {
         console.warn("Firebase yazma hatası:", yol, err);
         window.APARTIM.toast("Sunucuya kaydedilemedi", "hata");
         throw err;
       });
-    } else {
-      // yerel
-      const [tip, id] = yol.split("/");
-      const kok = tipKovasi(tip);
-      if (!kok) return Promise.resolve();
-      if (deger == null) delete kok[id];
-      else kok[id] = deger;
-      yereliKaydet();
-      bildir("veri-degisti", { sebep: tip });
-      return Promise.resolve();
     }
+    // yerel mod
+    const [tip, id] = yol.split("/");
+    const kok = tipKovasi(tip);
+    if (!kok) return Promise.resolve();
+    if (deger == null) delete kok[id];
+    else kok[id] = deger;
+    yereliKaydet();
+    bildir("veri-degisti", { sebep: tip });
+    return Promise.resolve();
   }
   function guncelle(yol, partialDeger) {
-    if (window.APARTIM.firebaseAktif && fbRef) {
+    if (window.APARTIM.firebaseAktif) {
+      if (!fbRef) {
+        return Promise.reject(new Error("Bulut bağlantısı henüz hazır değil."));
+      }
       return fbRef.child(yol).update(partialDeger).catch((err) => {
         console.warn("Firebase update hatası:", yol, err);
         window.APARTIM.toast("Güncelleme başarısız", "hata");
+        throw err;
       });
-    } else {
-      const [tip, id] = yol.split("/");
-      const kok = tipKovasi(tip);
-      if (!kok) return Promise.resolve();
-      kok[id] = Object.assign({}, kok[id] || {}, partialDeger);
-      yereliKaydet();
-      bildir("veri-degisti", { sebep: tip });
-      return Promise.resolve();
     }
+    const [tip, id] = yol.split("/");
+    const kok = tipKovasi(tip);
+    if (!kok) return Promise.resolve();
+    kok[id] = Object.assign({}, kok[id] || {}, partialDeger);
+    yereliKaydet();
+    bildir("veri-degisti", { sebep: tip });
+    return Promise.resolve();
   }
   function sil(yol) { return kaydet(yol, null); }
 
@@ -419,6 +424,9 @@
     return filtreli.sort((a, b) => (a.giris || "").localeCompare(b.giris || ""));
   }
   function musteriKaynaklariListele() {
+    if (!Object.keys(durum.musteriKaynaklari).length) {
+      musteriKaynaklariSeedEt();
+    }
     return Object.values(durum.musteriKaynaklari).sort((a, b) =>
       (a.sira || 0) - (b.sira || 0) || (a.ad || "").localeCompare(b.ad || "", "tr")
     );
