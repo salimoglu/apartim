@@ -744,26 +744,41 @@ html:not(.theme-light) .rez-ozet-table {
 .rez-ozet-table thead th {
   color: #111827 !important;
 }
-.rez-ozet-table .rez-ozet-tarih,
-.rez-ozet-table .rez-ozet-tarih-kose {
-  background: #1e2d3d !important;
-  color: #ffffff !important;
-}
-.rez-ozet-table .rez-ozet-tarih-gun {
-  color: #ffffff !important;
-}
-.rez-ozet-table .rez-ozet-gun-ad {
-  color: rgba(255, 255, 255, 0.78) !important;
-}
-html.theme-light .rez-ozet-table .rez-ozet-tarih,
-html.theme-light .rez-ozet-table .rez-ozet-tarih-kose {
-  background: #243446 !important;
-}
 .rez-ozet-table .rez-ozet-ad,
 .rez-ozet-table .rez-ozet-ad-alt,
 .rez-ozet-table .rez-ozet-sayi,
 .rez-ozet-table .rez-ozet-detay span {
   color: #111827 !important;
+}
+/* Tarih sütunu — koyu tema */
+html:not(.theme-light) .rez-ozet-table .rez-ozet-tarih,
+html:not(.theme-light) .rez-ozet-table .rez-ozet-tarih-kose {
+  background: #1e2d3d !important;
+  color: #ffffff !important;
+}
+html:not(.theme-light) .rez-ozet-table .rez-ozet-tarih-gun {
+  color: #ffffff !important;
+}
+html:not(.theme-light) .rez-ozet-table .rez-ozet-gun-ad {
+  color: rgba(255, 255, 255, 0.78) !important;
+}
+html:not(.theme-light) .rez-ozet-haftasonu .rez-ozet-tarih {
+  background: #243446 !important;
+}
+/* Tarih sütunu — açık tema */
+html.theme-light .rez-ozet-table .rez-ozet-tarih,
+html.theme-light .rez-ozet-table .rez-ozet-tarih-kose {
+  background: var(--kart-2) !important;
+  color: var(--metin) !important;
+}
+html.theme-light .rez-ozet-table .rez-ozet-tarih-gun {
+  color: #111827 !important;
+}
+html.theme-light .rez-ozet-table .rez-ozet-gun-ad {
+  color: var(--metin-soluk) !important;
+}
+html.theme-light .rez-ozet-haftasonu .rez-ozet-tarih {
+  background: #efe6d0 !important;
 }
 .rez-ozet-table thead th {
   border-bottom: 2px solid var(--rez-cizgi) !important;
@@ -851,12 +866,6 @@ html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-t
 .rez-ozet-tr-bugun .rez-ozet-tarih,
 .rez-ozet-bugun .rez-ozet-tarih {
   box-shadow: inset 3px 0 0 var(--vurgu);
-}
-.rez-ozet-haftasonu .rez-ozet-tarih {
-  background: #243446 !important;
-}
-html.theme-light .rez-ozet-haftasonu .rez-ozet-tarih {
-  background: #1e2d3d !important;
 }
 .rez-ozet-sayi {
   text-align: center;
