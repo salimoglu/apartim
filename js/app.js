@@ -69,6 +69,9 @@
     // Rapor butonları
     document.getElementById("rapor-prev")?.addEventListener("click", () => raporGit(-1));
     document.getElementById("rapor-next")?.addEventListener("click", () => raporGit(1));
+    document.querySelectorAll(".rapor-mod-btn").forEach((b) => {
+      b.addEventListener("click", () => raporModSec(b.dataset.mod));
+    });
 
     yatayModBagla();
   });
@@ -100,8 +103,12 @@
   }
   gunDegisimiPlanla();
 
-  // ---- Aylık rapor ----
-  const raporDurum = { yil: new Date().getFullYear(), ay: new Date().getMonth() };
+  // ---- Aylık / yıllık rapor ----
+  const raporDurum = {
+    mod: "ay",
+    yil: new Date().getFullYear(),
+    ay: new Date().getMonth()
+  };
   const AY_ADLARI = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
                      "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
 
@@ -111,20 +118,36 @@
 
   function ayinGunSayisi(y, m) { return new Date(y, m + 1, 0).getDate(); }
 
-  function rezGeceKesisim(rez, ayBas, ayBit) {
-    // [rez.giris, rez.cikis) ile [ayBas, ayBit) kesişimi (gece sayısı)
-    const a = rez.giris > ayBas ? rez.giris : ayBas;
-    const b = rez.cikis < ayBit ? rez.cikis : ayBit;
-    return window.APARTIM.db.geceSayisi(a, b);
+  function yilinGunSayisi(y) {
+    return Math.round((Date.UTC(y + 1, 0, 1) - Date.UTC(y, 0, 1)) / 86400000);
   }
 
-  function rezGeceGelirKesisim(rez, ayBas, ayBit) {
+  function raporDonemSinirlari() {
+    const y = raporDurum.yil;
+    if (raporDurum.mod === "yil") {
+      return {
+        bas: iso(y, 0, 1),
+        bit: iso(y + 1, 0, 1),
+        gunSayisi: yilinGunSayisi(y),
+        baslik: String(y)
+      };
+    }
+    const m = raporDurum.ay;
+    return {
+      bas: iso(y, m, 1),
+      bit: iso(y, m, ayinGunSayisi(y, m) + 1),
+      gunSayisi: ayinGunSayisi(y, m),
+      baslik: AY_ADLARI[m] + " " + y
+    };
+  }
+
+  function rezGeceGelirKesisim(rez, donemBas, donemBit) {
     const db = window.APARTIM.db;
     const tarihler = db.geceTarihleri(rez.giris, rez.cikis);
     let gece = 0;
     let gelir = 0;
     tarihler.forEach((t, idx) => {
-      if (t >= ayBas && t < ayBit) {
+      if (t >= donemBas && t < donemBit) {
         gece++;
         gelir += db.rezervasyonGeceUcreti(rez, idx + 1);
       }
@@ -134,20 +157,17 @@
 
   function raporHesapla() {
     const db = window.APARTIM.db;
-    const y = raporDurum.yil, m = raporDurum.ay;
-    const ayBas = iso(y, m, 1);
-    const ayBit = iso(y, m, ayinGunSayisi(y, m) + 1);
+    const donem = raporDonemSinirlari();
     const tumRez = Object.values(db.durum.rezervasyonlar);
     const daireler = db.dairelerListele();
-    const ayGun = ayinGunSayisi(y, m);
-    const toplamKapasite = daireler.length * ayGun;
+    const toplamKapasite = daireler.length * donem.gunSayisi;
 
     let toplamGece = 0, toplamGelir = 0, rezSayisi = 0;
     const daireOzet = {};
     daireler.forEach((d) => { daireOzet[d.id] = { gece: 0, gelir: 0 }; });
 
     tumRez.forEach((r) => {
-      const { gece, gelir } = rezGeceGelirKesisim(r, ayBas, ayBit);
+      const { gece, gelir } = rezGeceGelirKesisim(r, donem.bas, donem.bit);
       if (gece <= 0) return;
       toplamGece += gece;
       toplamGelir += gelir;
@@ -165,45 +185,63 @@
       doluluk: toplamKapasite > 0 ? (toplamGece * 100 / toplamKapasite) : 0,
       daireOzet,
       daireler,
-      ayGun
+      gunSayisi: donem.gunSayisi,
+      baslik: donem.baslik
     };
   }
 
   function raporCiz() {
     const baslik = document.getElementById("rapor-ay-baslik");
-    if (baslik) baslik.textContent = AY_ADLARI[raporDurum.ay] + " " + raporDurum.yil;
+    const gelirLabel = document.getElementById("rapor-gelir-label");
+    const yillik = raporDurum.mod === "yil";
+    if (gelirLabel) gelirLabel.textContent = yillik ? "Yıllık gelir" : "Aylık gelir";
     const db = window.APARTIM.db;
-    if (!db || !db.durum.yuklendi) return;
+    if (!db || !db.durum.yuklendi) {
+      if (baslik) baslik.textContent = "—";
+      return;
+    }
 
     const r = raporHesapla();
+    if (baslik) baslik.textContent = r.baslik;
     document.getElementById("rapor-gelir").textContent = fmt(r.toplamGelir) + " TL";
     document.getElementById("rapor-gece").textContent = r.toplamGece + " gece";
     document.getElementById("rapor-doluluk").textContent = "%" + Math.round(r.doluluk);
     document.getElementById("rapor-rez").textContent = r.rezSayisi;
 
     const tbl = document.getElementById("rapor-daire-tablo");
-    // İlk satır header kalsın
     tbl.querySelectorAll(".rapor-daire-satir:not(.header)").forEach((x) => x.remove());
     r.daireler.forEach((d) => {
       const o = r.daireOzet[d.id] || { gece: 0, gelir: 0 };
-      const doluluk = r.ayGun > 0 ? Math.round(o.gece * 100 / r.ayGun) : 0;
+      const doluluk = r.gunSayisi > 0 ? Math.round(o.gece * 100 / r.gunSayisi) : 0;
       const sat = document.createElement("div");
       sat.className = "rapor-daire-satir";
       sat.innerHTML =
-        '<span>' + d.ad + '</span>' +
-        '<span class="gece-val">' + o.gece + '</span>' +
-        '<span class="gelir-val">' + fmt(o.gelir) + ' TL</span>' +
-        '<span class="doluluk-val">%' + doluluk + '</span>';
+        "<span>" + d.ad + "</span>" +
+        '<span class="gece-val">' + o.gece + "</span>" +
+        '<span class="gelir-val">' + fmt(o.gelir) + " TL</span>" +
+        '<span class="doluluk-val">%' + doluluk + "</span>";
       tbl.appendChild(sat);
     });
   }
 
   function raporGit(yon) {
-    let y = raporDurum.yil, m = raporDurum.ay + yon;
-    if (m < 0) { m = 11; y--; }
-    else if (m > 11) { m = 0; y++; }
-    raporDurum.yil = y;
-    raporDurum.ay = m;
+    if (raporDurum.mod === "yil") {
+      raporDurum.yil += yon;
+    } else {
+      let y = raporDurum.yil, m = raporDurum.ay + yon;
+      if (m < 0) { m = 11; y--; }
+      else if (m > 11) { m = 0; y++; }
+      raporDurum.yil = y;
+      raporDurum.ay = m;
+    }
+    raporCiz();
+  }
+
+  function raporModSec(mod) {
+    if (mod !== "ay" && mod !== "yil") return;
+    raporDurum.mod = mod;
+    document.querySelectorAll(".rapor-mod-btn").forEach((b) =>
+      b.classList.toggle("active", b.dataset.mod === mod));
     raporCiz();
   }
 

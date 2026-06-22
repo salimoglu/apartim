@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260627b" />
-  <link rel="stylesheet" href="css/style.css?v=20260714" />
+  <link rel="stylesheet" href="css/style.css?v=20260715" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -241,6 +241,10 @@
       <!-- RAPOR -->
       <section id="tab-rapor" class="tab-panel">
         <div class="rapor-wrap">
+          <div class="rapor-mod-nav">
+            <button type="button" class="rapor-mod-btn active" data-mod="ay">Aylık</button>
+            <button type="button" class="rapor-mod-btn" data-mod="yil">Yıllık</button>
+          </div>
           <div class="rapor-ay-nav">
             <button type="button" class="takvim-ay-btn" id="rapor-prev">&#9664;</button>
             <div class="rapor-ay-baslik" id="rapor-ay-baslik">—</div>
@@ -248,7 +252,7 @@
           </div>
           <div class="rapor-grid">
             <div class="rapor-kart gelir">
-              <span class="label">Aylık gelir</span>
+              <span class="label" id="rapor-gelir-label">Aylık gelir</span>
               <div class="val" id="rapor-gelir">0 TL</div>
             </div>
             <div class="rapor-kart">
@@ -444,6 +448,6 @@
   <script src="js/daire.js?v=20260615"></script>
   <script src="js/tema.js?v=20260615"></script>
   <script src="js/ayarlar.js?v=20260626"></script>
-  <script src="js/app.js?v=20260712"></script>
+  <script src="js/app.js?v=20260715"></script>
 </body>
 </html>

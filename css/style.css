@@ -1825,6 +1825,30 @@ html:not(.theme-light) .rez-kaynak-badge {
 
 /* -------------------- 13. Genel rapor sekmesi -------------------- */
 .rapor-wrap { display: flex; flex-direction: column; gap: 14px; }
+.rapor-mod-nav {
+  display: flex;
+  gap: 6px;
+  background: var(--zemin-2);
+  border: 1px solid var(--kenar);
+  border-radius: 999px;
+  padding: 4px;
+  width: fit-content;
+  max-width: 100%;
+}
+.rapor-mod-btn {
+  background: transparent;
+  border: none;
+  color: var(--metin-soluk);
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.rapor-mod-btn.active {
+  background: var(--vurgu);
+  color: #fff;
+}
+.rapor-mod-btn:hover:not(.active) { color: var(--metin); }
 .rapor-ay-nav {
   display: flex; align-items: center; justify-content: center; gap: 10px;
   background: var(--kart);
@@ -2290,6 +2314,7 @@ html:not(.theme-light) .rez-kaynak-badge {
     gap: 8px;
     overflow: hidden;
   }
+  body.mobil-yatay-mod #tab-rapor .rapor-mod-nav { flex-shrink: 0; }
   body.mobil-yatay-mod #tab-rapor .rapor-ay-nav { flex-shrink: 0; }
   body.mobil-yatay-mod #tab-rapor .rapor-grid {
     flex-shrink: 0;
