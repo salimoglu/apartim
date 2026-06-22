@@ -14,10 +14,44 @@
       p.classList.toggle("active", p.id === "tab-" + ad));
     if (ad === "rapor") raporCiz();
     if (ad === "rezervasyonlar") {
-      window.APARTIM.rezOzet?.yonKilidiAc();
       window.APARTIM.rezOzet?.tabloCiz();
-      window.APARTIM.rezOzet?.yatayModGuncelle();
     }
+    yatayModGuncelle();
+  }
+
+  function yatayModMu() {
+    const mq = window.matchMedia("(orientation: landscape)");
+    const kisaKenar = Math.min(
+      window.screen.width || 0,
+      window.screen.height || 0,
+      window.visualViewport?.width || window.innerWidth,
+      window.visualViewport?.height || window.innerHeight
+    );
+    return mq.matches && kisaKenar > 0 && kisaKenar <= 520;
+  }
+
+  function yatayModGuncelle() {
+    const yatay = yatayModMu() || !!document.fullscreenElement;
+    document.body.classList.toggle("mobil-yatay-mod", yatay);
+  }
+
+  async function yonKilidiAc() {
+    try {
+      if (screen.orientation && typeof screen.orientation.unlock === "function") {
+        screen.orientation.unlock();
+      }
+    } catch (e) { /* yoksay */ }
+  }
+
+  function yatayModBagla() {
+    yatayModGuncelle();
+    yonKilidiAc();
+    window.addEventListener("resize", yatayModGuncelle);
+    window.visualViewport?.addEventListener("resize", yatayModGuncelle);
+    window.addEventListener("orientationchange", () => {
+      setTimeout(yatayModGuncelle, 200);
+    });
+    document.addEventListener("fullscreenchange", yatayModGuncelle);
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -35,6 +69,8 @@
     // Rapor butonları
     document.getElementById("rapor-prev")?.addEventListener("click", () => raporGit(-1));
     document.getElementById("rapor-next")?.addEventListener("click", () => raporGit(1));
+
+    yatayModBagla();
   });
 
   // ---- Veri hazır olduğunda bina çiz ----
@@ -171,5 +207,11 @@
     raporCiz();
   }
 
-  window.APARTIM.app = { sekmeSec, raporCiz };
+  window.APARTIM.app = {
+    sekmeSec,
+    raporCiz,
+    yatayModMu,
+    yatayModGuncelle,
+    yonKilidiAc
+  };
 })();

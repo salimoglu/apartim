@@ -433,28 +433,12 @@
     tabloCiz();
   }
 
-  function yatayModMu() {
-    const mq = window.matchMedia("(orientation: landscape)");
-    const kisaKenar = Math.min(
-      window.screen.width || 0,
-      window.screen.height || 0,
-      window.visualViewport?.width || window.innerWidth,
-      window.visualViewport?.height || window.innerHeight
-    );
-    return mq.matches && kisaKenar > 0 && kisaKenar <= 520;
-  }
-
   function yatayModGuncelle() {
-    const yatay = yatayModMu() || !!document.fullscreenElement;
-    document.body.classList.toggle("rez-yatay-mod", yatay);
+    window.APARTIM.app?.yatayModGuncelle?.();
   }
 
   async function yonKilidiAc() {
-    try {
-      if (screen.orientation && typeof screen.orientation.unlock === "function") {
-        screen.orientation.unlock();
-      }
-    } catch (e) { /* tarayıcı izin vermeyebilir */ }
+    return window.APARTIM.app?.yonKilidiAc?.();
   }
 
   async function tamEkranYatay() {
@@ -494,14 +478,6 @@
     document.getElementById("rez-ozet-next")?.addEventListener("click", () => git(1));
     document.getElementById("rez-ozet-bugun")?.addEventListener("click", buguneGit);
     document.getElementById("rez-ozet-tam")?.addEventListener("click", tamEkranYatay);
-    yatayModGuncelle();
-    yonKilidiAc();
-    window.addEventListener("resize", yatayModGuncelle);
-    window.visualViewport?.addEventListener("resize", yatayModGuncelle);
-    window.addEventListener("orientationchange", () => {
-      setTimeout(yatayModGuncelle, 200);
-    });
-    document.addEventListener("fullscreenchange", yatayModGuncelle);
   });
 
   document.addEventListener("apartim:veri-degisti", tabloCiz);

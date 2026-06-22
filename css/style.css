@@ -1899,30 +1899,27 @@ html:not(.theme-light) .rez-kaynak-badge {
   .takvim-hucre { padding: 2px; border-radius: 6px; }
 }
 
-/* Özet tablo — telefon yatay (landscape) ve tam ekran */
+/* Telefon yatay (landscape) — tüm modüller */
 @media (orientation: landscape) and (max-width: 960px) {
-  body:has(#tab-rezervasyonlar.active) {
+  body.mobil-yatay-mod {
     height: 100%;
     overflow: hidden;
   }
-  body:has(#tab-rezervasyonlar.active) .app,
-  body.rez-yatay-mod .app {
+  body.mobil-yatay-mod .app {
     height: 100dvh;
     height: 100svh;
     height: -webkit-fill-available;
     max-height: 100dvh;
     overflow: hidden;
   }
-  body:has(#tab-rezervasyonlar.active) .content,
-  body.rez-yatay-mod .content {
+  body.mobil-yatay-mod .content {
     flex: 1;
     min-height: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
   }
-  body:has(#tab-rezervasyonlar.active) #tab-rezervasyonlar.active,
-  body.rez-yatay-mod #tab-rezervasyonlar.active {
+  body.mobil-yatay-mod .tab-panel.active {
     flex: 1;
     min-height: 0;
     padding: 6px 8px;
@@ -1931,48 +1928,143 @@ html:not(.theme-light) .rez-kaynak-badge {
     box-sizing: border-box;
     overflow: hidden;
   }
-  body:has(#tab-rezervasyonlar.active) #tab-rezervasyonlar .rez-ozet-wrap,
-  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-wrap {
+  body.mobil-yatay-mod .topbar {
+    flex-shrink: 0;
+    padding: 6px 12px;
+  }
+  body.mobil-yatay-mod .tab-nav {
+    flex-shrink: 0;
+    padding: 6px 10px;
+  }
+
+  /* Apart */
+  body.mobil-yatay-mod #bina-wrap:not(.hidden) {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    gap: 6px;
+  }
+  body.mobil-yatay-mod #bina-wrap .bina-baslik {
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+  body.mobil-yatay-mod #bina-wrap .bina-baslik h2 { font-size: 18px; }
+  body.mobil-yatay-mod #bina-wrap .bina-baslik p { display: none; }
+  body.mobil-yatay-mod #bina-wrap .bina-ay-nav {
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+  body.mobil-yatay-mod #daire-kart-listesi {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    align-content: start;
+  }
+  body.mobil-yatay-mod #bina-wrap .bina-legend {
+    flex-shrink: 0;
+    font-size: 10px;
+    gap: 8px;
+  }
+  body.mobil-yatay-mod #bina-wrap .bina-ozet {
+    flex-shrink: 0;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+  body.mobil-yatay-mod #bina-wrap .bina-ozet-kart { padding: 6px 8px; }
+  body.mobil-yatay-mod #daire-wrap:not(.hidden) {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    gap: 8px;
+    padding-bottom: 0;
+  }
+  body.mobil-yatay-mod .daire-header { flex-shrink: 0; }
+  body.mobil-yatay-mod .daire-subnav { flex-shrink: 0; }
+  body.mobil-yatay-mod .daire-panel.active {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  body.mobil-yatay-mod .takvim-wrap {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  body.mobil-yatay-mod .takvim-nav { flex-shrink: 0; }
+  body.mobil-yatay-mod .takvim-grid {
+    flex: 1;
+    min-height: 0;
+    align-content: start;
+  }
+
+  /* Rezervasyon özeti */
+  body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-wrap {
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
     gap: 6px;
   }
-  body:has(#tab-rezervasyonlar.active) #tab-rezervasyonlar .rez-ozet-ay-nav,
-  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-nav {
+  body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-nav {
     flex-shrink: 0;
     padding: 4px 8px;
   }
-  body:has(#tab-rezervasyonlar.active) #tab-rezervasyonlar .rez-ozet-scroll,
-  body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-scroll {
+  body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-scroll {
     flex: 1;
     min-height: 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-  body:has(#tab-rezervasyonlar.active) .topbar,
-  body.rez-yatay-mod .topbar {
-    flex-shrink: 0;
-    padding: 6px 12px;
+
+  /* Temizlik */
+  body.mobil-yatay-mod #tab-temizlik #tum-temizlik-liste {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
-  body:has(#tab-rezervasyonlar.active) .tab-nav,
-  body.rez-yatay-mod .tab-nav {
+
+  /* Rapor */
+  body.mobil-yatay-mod #tab-rapor .rapor-wrap {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow: hidden;
+  }
+  body.mobil-yatay-mod #tab-rapor .rapor-ay-nav { flex-shrink: 0; }
+  body.mobil-yatay-mod #tab-rapor .rapor-grid {
     flex-shrink: 0;
-    padding: 6px 10px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+  }
+  body.mobil-yatay-mod #tab-rapor .rapor-daire-tablo {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 
-body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-baslik,
-body:has(#tab-rezervasyonlar.active) #tab-rezervasyonlar .rez-ozet-ay-baslik {
+body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-baslik {
   font-size: 17px;
 }
-body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-table {
+body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-table {
   font-size: 10px;
 }
-body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih-kose,
-body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
+body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih-kose,
+body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
   min-width: 76px;
 }
 
@@ -2009,16 +2101,13 @@ body.rez-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
   white-space: nowrap;
 }
 .rez-ozet-tam-btn:hover { background: var(--vurgu); color: #fff; }
-body.rez-yatay-mod .rez-ozet-tam-btn {
+body.mobil-yatay-mod .rez-ozet-tam-btn {
   background: var(--vurgu);
   color: #fff;
 }
 
 @media (orientation: landscape) and (max-width: 960px) and (max-height: 400px) {
-  body:has(#tab-rezervasyonlar.active) .topbar,
-  body.rez-yatay-mod .topbar { padding: 4px 10px; }
-  body:has(#tab-rezervasyonlar.active) .tab-nav,
-  body.rez-yatay-mod .tab-nav { padding: 4px 8px; }
-  body:has(#tab-rezervasyonlar.active) .tab-btn,
-  body.rez-yatay-mod .tab-btn { padding: 6px 10px; }
+  body.mobil-yatay-mod .topbar { padding: 4px 10px; }
+  body.mobil-yatay-mod .tab-nav { padding: 4px 8px; }
+  body.mobil-yatay-mod .tab-btn { padding: 6px 10px; }
 }
