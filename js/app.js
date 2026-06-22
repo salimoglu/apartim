@@ -19,15 +19,13 @@
     yatayModGuncelle();
   }
 
+  const YATAY_MQ = window.matchMedia("(orientation: landscape) and (max-width: 960px)");
+
   function yatayModMu() {
-    const mq = window.matchMedia("(orientation: landscape)");
-    const kisaKenar = Math.min(
-      window.screen.width || 0,
-      window.screen.height || 0,
-      window.visualViewport?.width || window.innerWidth,
-      window.visualViewport?.height || window.innerHeight
-    );
-    return mq.matches && kisaKenar > 0 && kisaKenar <= 520;
+    if (!YATAY_MQ.matches) return false;
+    const w = window.visualViewport?.width || window.innerWidth;
+    const h = window.visualViewport?.height || window.innerHeight;
+    return Math.min(w, h) > 0 && Math.min(w, h) <= 520;
   }
 
   function yatayModGuncelle() {
@@ -47,6 +45,7 @@
   function yatayModBagla() {
     yatayModGuncelle();
     yonKilidiAc();
+    YATAY_MQ.addEventListener("change", yatayModGuncelle);
     window.addEventListener("resize", yatayModGuncelle);
     window.visualViewport?.addEventListener("resize", yatayModGuncelle);
     window.addEventListener("orientationchange", () => {
