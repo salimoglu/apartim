@@ -32,6 +32,7 @@
 
   function yatayModGuncelle() {
     const yatay = yatayModMu() || !!document.fullscreenElement;
+    document.documentElement.classList.toggle("mobil-yatay-mod", yatay);
     document.body.classList.toggle("mobil-yatay-mod", yatay);
   }
 

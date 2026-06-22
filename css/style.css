@@ -1901,6 +1901,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 
 /* Telefon yatay (landscape) — tüm modüller */
 @media (orientation: landscape) and (max-width: 960px) {
+  html.mobil-yatay-mod,
   body.mobil-yatay-mod {
     height: 100%;
     overflow: hidden;
@@ -1937,44 +1938,83 @@ html:not(.theme-light) .rez-kaynak-badge {
     padding: 6px 10px;
   }
 
-  /* Apart */
+  /* Apart — üst özet/legend gizlenir; kart alanına yer kalır */
+  body.mobil-yatay-mod #tab-bina.active {
+    width: 100%;
+  }
   body.mobil-yatay-mod #bina-wrap:not(.hidden) {
-    flex: 1;
+    flex: 1 1 0;
     min-height: 0;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     overflow: hidden;
-    gap: 6px;
+    gap: 4px 8px;
+    align-items: center;
+    width: 100%;
+    padding: 0;
   }
   body.mobil-yatay-mod #bina-wrap .bina-baslik {
+    grid-column: 1;
+    grid-row: 1;
     flex-shrink: 0;
     margin-bottom: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: auto;
+    text-align: left;
+    gap: 8px;
   }
-  body.mobil-yatay-mod #bina-wrap .bina-baslik h2 { font-size: 18px; }
+  body.mobil-yatay-mod #bina-wrap .bina-baslik h2 {
+    font-size: 16px;
+    letter-spacing: 1px;
+    white-space: nowrap;
+  }
   body.mobil-yatay-mod #bina-wrap .bina-baslik p { display: none; }
   body.mobil-yatay-mod #bina-wrap .bina-ay-nav {
+    grid-column: 2;
+    grid-row: 1;
     flex-shrink: 0;
     margin-bottom: 0;
+    gap: 6px;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+  body.mobil-yatay-mod #bina-wrap .bina-ay-baslik {
+    font-size: 13px;
+    min-width: 88px;
+  }
+  body.mobil-yatay-mod #bina-wrap .bina-legend,
+  body.mobil-yatay-mod #bina-wrap .bina-ozet {
+    display: none;
   }
   body.mobil-yatay-mod #daire-kart-listesi {
-    flex: 1;
+    grid-column: 1 / -1;
+    grid-row: 2;
     min-height: 0;
+    width: 100%;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     align-content: start;
-  }
-  body.mobil-yatay-mod #bina-wrap .bina-legend {
-    flex-shrink: 0;
-    font-size: 10px;
-    gap: 8px;
-  }
-  body.mobil-yatay-mod #bina-wrap .bina-ozet {
-    flex-shrink: 0;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 6px;
+    margin-bottom: 0;
   }
-  body.mobil-yatay-mod #bina-wrap .bina-ozet-kart { padding: 6px 8px; }
+  body.mobil-yatay-mod .daire-kart-icerik {
+    padding: 8px;
+    gap: 0;
+  }
+  body.mobil-yatay-mod .daire-kart-sag {
+    display: none;
+  }
+  body.mobil-yatay-mod .daire-kart-baslik {
+    margin-bottom: 6px;
+  }
+  body.mobil-yatay-mod .daire-kart-ad { font-size: 14px; }
+  body.mobil-yatay-mod .daire-kart-ozet { gap: 2px; }
+  body.mobil-yatay-mod .daire-kart-ozet-satir { font-size: 11px; }
   body.mobil-yatay-mod #daire-wrap:not(.hidden) {
     flex: 1;
     min-height: 0;
