@@ -2022,8 +2022,8 @@ html:not(.theme-light) .rez-kaynak-badge {
     min-height: 0;
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    grid-template-rows: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(3, minmax(0, 1fr));
     gap: 5px;
     margin: 0;
     overflow: auto;
@@ -2046,15 +2046,46 @@ html:not(.theme-light) .rez-kaynak-badge {
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-icerik {
     flex: 1;
     min-height: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    padding: 5px 6px;
-    gap: 3px;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: 4px;
+    padding: 4px 5px;
+    align-items: center;
+    overflow: hidden;
+  }
+  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-sol {
+    min-width: 0;
+    min-height: 0;
     overflow: hidden;
   }
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-sag {
-    display: none;
+    display: flex;
+    min-width: 0;
+    min-height: 0;
+    align-items: center;
+    align-self: stretch;
+  }
+  body.mobil-yatay-mod #daire-kart-listesi .mini-takvim {
+    width: 100%;
+    min-width: 0;
+  }
+  body.mobil-yatay-mod #daire-kart-listesi .mini-takvim-baslik {
+    font-size: 7px;
+    margin-bottom: 1px;
+  }
+  body.mobil-yatay-mod #daire-kart-listesi .mini-takvim-grid {
+    gap: 1px;
+  }
+  body.mobil-yatay-mod #daire-kart-listesi .mini-takvim-hucre {
+    aspect-ratio: 1;
+    min-height: 0;
+  }
+  body.mobil-yatay-mod #daire-kart-listesi .mini-takvim-gun {
+    font-size: 7px;
+  }
+  body.mobil-yatay-mod #daire-kart-listesi .mini-takvim-boncuk {
+    width: 4px;
+    height: 4px;
   }
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-baslik {
     flex-direction: column;
@@ -2098,10 +2129,6 @@ html:not(.theme-light) .rez-kaynak-badge {
     text-overflow: ellipsis;
     white-space: nowrap;
     text-align: right;
-  }
-  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ozet-satir:nth-child(2),
-  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ozet-satir:nth-child(4) {
-    display: none;
   }
 
   /* Apart — oda detayı */
