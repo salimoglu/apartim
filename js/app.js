@@ -16,6 +16,9 @@
     if (ad === "rezervasyonlar") {
       window.APARTIM.rezOzet?.tabloCiz();
     }
+    if (ad === "temizlik") {
+      window.APARTIM.temizlik?.tumTemizlikListele();
+    }
     yatayModGuncelle();
   }
 

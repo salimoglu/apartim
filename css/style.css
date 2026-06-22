@@ -1405,7 +1405,79 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
   font-weight: 700;
 }
 
-/* -------------------- 10. Temizlik geçmişi -------------------- */
+/* -------------------- 10. Temizlik -------------------- */
+.temizlik-wrap { display: flex; flex-direction: column; gap: 14px; }
+.temizlik-oda-liste {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+.temizlik-oda-kart {
+  background: var(--kart);
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.temizlik-oda-kart.durum-kirli { border-color: var(--bos-kirli); }
+.temizlik-oda-kart.durum-temizleniyor { border-color: var(--temizleniyor); }
+.temizlik-oda-kart.dolu { opacity: 0.85; }
+.temizlik-oda-ust {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.temizlik-oda-ad {
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--metin);
+}
+.temizlik-oda-durum {
+  font-size: 12px;
+  color: var(--metin-soluk);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.temizlik-oda-btns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.temizlik-oda-btn {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--kenar);
+  background: var(--zemin-2);
+  color: var(--metin-soluk);
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.temizlik-oda-btn.active {
+  background: var(--vurgu);
+  border-color: var(--vurgu);
+  color: #fff;
+}
+.temizlik-oda-btn.disabled,
+.temizlik-oda-kart.dolu .temizlik-oda-btn {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+.temizlik-log-baslik {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--metin-soluk);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 .temizlik-liste { display: flex; flex-direction: column; gap: 8px; }
 .temizlik-kart {
   background: var(--kart);
@@ -2297,13 +2369,20 @@ html:not(.theme-light) .rez-kaynak-badge {
   }
 
   /* Temizlik */
-  body.mobil-yatay-mod #tab-temizlik #tum-temizlik-liste {
+  body.mobil-yatay-mod #tab-temizlik .temizlik-wrap {
     flex: 1;
     min-height: 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    gap: 8px;
   }
+  body.mobil-yatay-mod #tab-temizlik .temizlik-oda-liste {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  body.mobil-yatay-mod #tab-temizlik .temizlik-oda-kart { padding: 8px; gap: 6px; }
+  body.mobil-yatay-mod #tab-temizlik .temizlik-oda-btn { font-size: 10px; padding: 4px 6px; }
 
   /* Rapor */
   body.mobil-yatay-mod #tab-rapor .rapor-wrap {
