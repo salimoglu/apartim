@@ -1939,7 +1939,7 @@ html:not(.theme-light) .rez-kaynak-badge {
     padding: 6px 10px;
   }
 
-  /* Apart — kompakt üst bar + 3x2 oda ızgarası */
+  /* Apart — oda listesi */
   body.mobil-yatay-mod #tab-bina.active {
     flex: 1 1 0;
     min-height: 0;
@@ -1965,44 +1965,59 @@ html:not(.theme-light) .rez-kaynak-badge {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    justify-content: center;
+    gap: 6px;
     flex-shrink: 0;
     width: 100%;
+    order: 1;
   }
   body.mobil-yatay-mod #bina-wrap .bina-baslik {
-    margin: 0;
-    flex-direction: row;
-    align-items: center;
-    text-align: left;
-    flex-shrink: 0;
+    display: none;
   }
-  body.mobil-yatay-mod #bina-wrap .bina-baslik h2 {
-    font-size: 15px;
-    letter-spacing: 1px;
-    white-space: nowrap;
-  }
-  body.mobil-yatay-mod #bina-wrap .bina-baslik p { display: none; }
   body.mobil-yatay-mod #bina-wrap .bina-ay-nav {
     margin: 0;
     flex: 1;
     min-width: 0;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 4px;
   }
   body.mobil-yatay-mod #bina-wrap .bina-ay-baslik {
-    font-size: 12px;
-    min-width: 72px;
+    font-size: 13px;
+    min-width: 80px;
+  }
+  body.mobil-yatay-mod #bina-wrap .takvim-ay-btn {
+    padding: 4px 8px;
+    font-size: 11px;
   }
   body.mobil-yatay-mod #bina-wrap .takvim-bugun-btn {
     padding: 4px 8px;
     font-size: 11px;
   }
-  body.mobil-yatay-mod #bina-wrap .bina-legend,
-  body.mobil-yatay-mod #bina-wrap .bina-ozet {
+  body.mobil-yatay-mod #bina-wrap .bina-legend {
     display: none !important;
   }
+  body.mobil-yatay-mod #bina-wrap .bina-ozet {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    order: 2;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: none;
+  }
+  body.mobil-yatay-mod #bina-wrap .bina-ozet-kart {
+    padding: 4px 6px;
+    border-radius: var(--radius-sm);
+  }
+  body.mobil-yatay-mod #bina-wrap .bina-ozet-kart .label {
+    font-size: 9px;
+    margin-bottom: 1px;
+  }
+  body.mobil-yatay-mod #bina-wrap .bina-ozet-kart .val {
+    font-size: 14px;
+  }
   body.mobil-yatay-mod #daire-kart-listesi {
+    order: 3;
     flex: 1 1 0;
     min-height: 0;
     width: 100%;
@@ -2011,7 +2026,9 @@ html:not(.theme-light) .rez-kaynak-badge {
     grid-template-rows: repeat(2, minmax(0, 1fr));
     gap: 5px;
     margin: 0;
-    overflow: hidden;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     align-items: stretch;
   }
   body.mobil-yatay-mod #daire-kart-listesi .bina-yukleniyor {
@@ -2024,65 +2041,188 @@ html:not(.theme-light) .rez-kaynak-badge {
     min-height: 0;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
   }
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-icerik {
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 6px 8px;
-    gap: 4px;
+    justify-content: flex-start;
+    padding: 5px 6px;
+    gap: 3px;
+    overflow: hidden;
   }
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-sag {
     display: none;
   }
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-baslik {
+    flex-direction: column;
+    align-items: flex-start;
     margin-bottom: 0;
-    gap: 4px;
+    gap: 2px;
   }
-  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ad { font-size: 13px; }
+  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ad {
+    font-size: 13px;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+  }
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-durum {
-    font-size: 10px;
-    padding: 2px 6px;
+    font-size: 9px;
+    padding: 1px 5px;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ozet { gap: 1px; }
+  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ozet {
+    gap: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ozet-satir {
     font-size: 10px;
     padding: 0;
+    gap: 4px;
+    min-width: 0;
+  }
+  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ozet-satir .etiket {
+    flex-shrink: 0;
+    font-size: 9px;
+  }
+  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ozet-satir .deger {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: right;
   }
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ozet-satir:nth-child(2),
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ozet-satir:nth-child(4) {
     display: none;
   }
+
+  /* Apart — oda detayı */
   body.mobil-yatay-mod #daire-wrap:not(.hidden) {
-    flex: 1;
+    flex: 1 1 0;
     min-height: 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    gap: 8px;
+    gap: 4px;
     padding-bottom: 0;
   }
-  body.mobil-yatay-mod .daire-header { flex-shrink: 0; }
-  body.mobil-yatay-mod .daire-subnav { flex-shrink: 0; }
-  body.mobil-yatay-mod .daire-panel.active {
+  body.mobil-yatay-mod #daire-wrap .daire-header {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    gap: 6px;
+    flex-wrap: nowrap;
+    border-radius: var(--radius-sm);
+  }
+  body.mobil-yatay-mod #daire-wrap .daire-back {
+    padding: 5px 8px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+  body.mobil-yatay-mod #daire-wrap .daire-title {
+    min-width: 0;
+    flex: 1 1 0;
+  }
+  body.mobil-yatay-mod #daire-wrap .daire-title h2 {
+    font-size: 17px;
+    letter-spacing: 1px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  body.mobil-yatay-mod #daire-wrap .daire-ucret {
+    padding: 4px 6px;
+    flex-shrink: 0;
+  }
+  body.mobil-yatay-mod #daire-wrap .daire-ucret label { display: none; }
+  body.mobil-yatay-mod #daire-wrap .daire-ucret input {
+    width: 56px;
+    font-size: 13px;
+  }
+  body.mobil-yatay-mod #daire-wrap .daire-temizlik {
+    padding: 4px 8px;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  body.mobil-yatay-mod #daire-wrap .daire-subnav {
+    flex-shrink: 0;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+  }
+  body.mobil-yatay-mod #daire-wrap .daire-subnav-btn {
     flex: 1;
+    padding: 5px 8px;
+    font-size: 11px;
+    text-align: center;
+  }
+  body.mobil-yatay-mod #daire-wrap .daire-panel.active {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  body.mobil-yatay-mod #daire-wrap .takvim-wrap {
+    flex: 1 1 0;
+    min-height: 0;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+    overflow: hidden;
+  }
+  body.mobil-yatay-mod #daire-wrap .takvim-nav {
+    flex-shrink: 0;
+    margin-bottom: 6px;
+    gap: 6px;
+  }
+  body.mobil-yatay-mod #daire-wrap .takvim-ay-baslik {
+    font-size: 16px;
+  }
+  body.mobil-yatay-mod #daire-wrap .takvim-ay-btn,
+  body.mobil-yatay-mod #daire-wrap .takvim-bugun-btn {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  body.mobil-yatay-mod #daire-wrap .takvim-grid {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    align-content: start;
+    gap: 2px;
+  }
+  body.mobil-yatay-mod #daire-wrap .takvim-hucre {
+    aspect-ratio: auto;
+    min-height: 34px;
+  }
+  body.mobil-yatay-mod #daire-wrap .takvim-gun-no { font-size: 11px; }
+  body.mobil-yatay-mod #daire-wrap .takvim-gun-bilgi { font-size: 9px; }
+  body.mobil-yatay-mod #daire-wrap .rez-liste {
+    flex: 1 1 0;
     min-height: 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
   }
-  body.mobil-yatay-mod .takvim-wrap {
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  body.mobil-yatay-mod #daire-wrap .rez-yeni-btn {
+    padding: 8px;
+    font-size: 13px;
+    flex-shrink: 0;
   }
-  body.mobil-yatay-mod .takvim-nav { flex-shrink: 0; }
-  body.mobil-yatay-mod .takvim-grid {
-    flex: 1;
+  body.mobil-yatay-mod #daire-wrap #rez-liste-icerik,
+  body.mobil-yatay-mod #daire-wrap .temizlik-liste {
     min-height: 0;
-    align-content: start;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Rezervasyon özeti */
@@ -2191,9 +2331,13 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
   body.mobil-yatay-mod .tab-nav { padding: 4px 8px; }
   body.mobil-yatay-mod .tab-btn { padding: 6px 10px; }
   body.mobil-yatay-mod #tab-bina.active { padding: 2px 4px; }
-  body.mobil-yatay-mod #bina-wrap .bina-baslik h2 { font-size: 13px; }
+  body.mobil-yatay-mod #bina-wrap .bina-ozet-kart .val { font-size: 12px; }
   body.mobil-yatay-mod #daire-kart-listesi { gap: 3px; }
-  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-icerik { padding: 4px 6px; }
+  body.mobil-yatay-mod #daire-kart-listesi .daire-kart-icerik { padding: 3px 5px; }
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ad { font-size: 12px; }
   body.mobil-yatay-mod #daire-kart-listesi .daire-kart-ozet-satir { font-size: 9px; }
+  body.mobil-yatay-mod #daire-wrap .daire-header { padding: 4px 8px; }
+  body.mobil-yatay-mod #daire-wrap .daire-title h2 { font-size: 15px; }
+  body.mobil-yatay-mod #daire-wrap .takvim-wrap { padding: 6px; }
+  body.mobil-yatay-mod #daire-wrap .takvim-hucre { min-height: 30px; }
 }
