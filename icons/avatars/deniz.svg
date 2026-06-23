@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Deniz">
+  <defs>
+    <linearGradient id="deniz-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5eb3ff"/>
+      <stop offset="100%" stop-color="#1a3f7a"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="url(#deniz-g)"/>
+  <circle cx="72" cy="72" r="24" fill="#fff" opacity=".9"/>
+  <path d="M32 168 Q64 148 96 168 T160 168 T224 168 V208 H32Z" fill="#fff" opacity=".85"/>
+  <path d="M32 184 Q64 164 96 184 T160 184 T224 184 V208 H32Z" fill="#fff" opacity=".55"/>
+  <path d="M148 120 L188 196 H108Z" fill="#fff" opacity=".75"/>
+  <rect x="148" y="120" width="8" height="76" fill="#fff" opacity=".9"/>
+</svg>

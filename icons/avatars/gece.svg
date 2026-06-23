@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Gece">
+  <defs>
+    <linearGradient id="gece-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5eb3ff"/>
+      <stop offset="100%" stop-color="#1a3f7a"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="url(#gece-g)"/>
+  <path d="M156 64a56 56 0 1 0 56 56 44 44 0 0 1-56-56z" fill="#fff" opacity=".92"/>
+  <circle cx="64" cy="72" r="3" fill="#fff" opacity=".9"/>
+  <circle cx="88" cy="48" r="2" fill="#fff" opacity=".7"/>
+  <circle cx="192" cy="48" r="2.5" fill="#fff" opacity=".8"/>
+  <circle cx="208" cy="88" r="2" fill="#fff" opacity=".65"/>
+  <rect x="56" y="168" width="144" height="48" rx="8" fill="#fff" opacity=".2"/>
+  <rect x="72" y="152" width="20" height="16" rx="2" fill="#fff" opacity=".85"/>
+  <rect x="104" y="152" width="20" height="16" rx="2" fill="#fff" opacity=".85"/>
+  <rect x="136" y="152" width="20" height="16" rx="2" fill="#fff" opacity=".85"/>
+  <rect x="168" y="152" width="20" height="16" rx="2" fill="#fff" opacity=".85"/>
+</svg>

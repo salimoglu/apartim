@@ -67,12 +67,14 @@
     const kullaniciAdi = dahiliMi
       ? (fbUser.displayName || kullaniciAdiFromEmail(eposta))
       : (fbUser.displayName || "");
+    const googleFoto = !dahiliMi && fbUser.photoURL ? fbUser.photoURL : "";
     return {
       uid: fbUser.uid,
       eposta: dahiliMi ? "" : eposta,
       kullaniciAdi,
       ad: fbUser.displayName || kullaniciAdi || eposta,
-      foto: fbUser.photoURL || ""
+      googleFoto,
+      avatarId: dahiliMi ? (window.APARTIM.avatar?.VARSAYILAN || "ev") : null
     };
   }
 
@@ -105,8 +107,11 @@
     lockAcik = false;
     lockScreen.classList.add("hidden");
     app.classList.remove("hidden");
-    window.APARTIM.kullanici = kullanici;
-    document.dispatchEvent(new CustomEvent("apartim:auth-hazir", { detail: kullanici }));
+    const k = window.APARTIM.avatar
+      ? window.APARTIM.avatar.kullaniciyaEkle(kullanici)
+      : kullanici;
+    window.APARTIM.kullanici = k;
+    document.dispatchEvent(new CustomEvent("apartim:auth-hazir", { detail: k }));
   }
 
   function uygulamaKilitle() {
@@ -230,7 +235,8 @@
         eposta: "",
         kullaniciAdi: "yerel",
         ad: "Yerel Kullanıcı",
-        foto: ""
+        googleFoto: "",
+        avatarId: window.APARTIM.avatar?.VARSAYILAN || "ev"
       };
       window.APARTIM.syncDurum("beklemede");
       uygulamaAc(yerelKullanici);

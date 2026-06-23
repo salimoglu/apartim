@@ -397,17 +397,51 @@
   let fbRef = null; // ana ref
   let yerelAktif = !window.APARTIM.firebaseAktif;
 
+  function profilAvatarUygula(kullanici) {
+    if (!window.APARTIM.kullanici || !kullanici) return;
+    window.APARTIM.kullanici = Object.assign({}, window.APARTIM.kullanici, {
+      avatarId: kullanici.avatarId || window.APARTIM.kullanici.avatarId
+    });
+    if (window.APARTIM.avatar) {
+      window.APARTIM.kullanici = window.APARTIM.avatar.kullaniciyaEkle(window.APARTIM.kullanici);
+      window.APARTIM.avatar.guncelle(
+        document.getElementById("ayar-avatar"),
+        window.APARTIM.kullanici
+      );
+    }
+  }
+
+  function profilAvatarKaydet(avatarId) {
+    if (!kullaniciUid || !avatarId) return Promise.resolve();
+    window.APARTIM.kullanici = Object.assign({}, window.APARTIM.kullanici || {}, { avatarId });
+    profilAvatarUygula(window.APARTIM.kullanici);
+    if (window.APARTIM.firebaseAktif && fbRef) {
+      return fbRef.child("profil").update({ avatarId }).catch(() => {});
+    }
+    try {
+      localStorage.setItem("apartim-avatar-" + kullaniciUid, avatarId);
+    } catch (e) {}
+    return Promise.resolve();
+  }
+
   function kullaniciHazir(kullanici) {
     kullaniciUid = kullanici.uid;
     if (window.APARTIM.firebaseAktif) {
       fbRef = window.APARTIM.fbDb.ref("apartim/kullanicilar/" + kullaniciUid);
-      // Profil
-      fbRef.child("profil").update({
+      fbRef.child("profil").once("value", (snap) => {
+        const p = snap.val() || {};
+        if (p.avatarId) {
+          profilAvatarUygula(Object.assign({}, kullanici, { avatarId: p.avatarId }));
+        }
+      });
+      const profilPatch = {
         ad: kullanici.ad || "",
         kullaniciAdi: kullanici.kullaniciAdi || "",
         eposta: kullanici.eposta || "",
         son: firebase.database.ServerValue.TIMESTAMP
-      }).catch(() => {});
+      };
+      if (kullanici.avatarId) profilPatch.avatarId = kullanici.avatarId;
+      fbRef.child("profil").update(profilPatch).catch(() => {});
 
       // Daireler
       fbRef.child("daireler").on("value", (snap) => {
@@ -443,6 +477,10 @@
         bildir("veri-degisti", { sebep: "doviz-kurlari" });
       });
     } else {
+      try {
+        const aid = localStorage.getItem("apartim-avatar-" + kullanici.uid);
+        if (aid) profilAvatarUygula(Object.assign({}, kullanici, { avatarId: aid }));
+      } catch (e) {}
       const v = window.APARTIM.yerelOku();
       durum.daireler = v.daireler || {};
       durum.rezervasyonlar = rezervasyonlariNormalize(v.rezervasyonlar || {});
@@ -802,6 +840,7 @@
     musteriKaynagiSimge,
     musteriKaynagiEkle,
     musteriKaynagiSil,
+    profilAvatarKaydet,
     VARSAYILAN_MUSTERI_KAYNAKLARI,
     KATEGORI_SIMGELER,
     SABIT_DAIRELER

@@ -70,8 +70,9 @@
       : (d.ad || d.eposta || "");
     const epEl = document.getElementById("ayar-email");
     if (epEl) epEl.textContent = etiket;
-    const av = document.getElementById("ayar-avatar");
-    if (av && e.detail && e.detail.foto) av.src = e.detail.foto;
+    if (window.APARTIM.avatar) {
+      window.APARTIM.avatar.guncelle(document.getElementById("ayar-avatar"), d);
+    }
   });
 
   window.APARTIM.tema = { uygula, degistir };

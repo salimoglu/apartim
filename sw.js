@@ -1,11 +1,12 @@
 /* Apartım — basit cache-first service worker */
-const CACHE_VERSION = "apartim-v58-20260806";
+const CACHE_VERSION = "apartim-v59-20260807";
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
   "./css/style.css",
   "./js/firebase.js",
+  "./js/avatar.js",
   "./js/pwa-install.js",
   "./js/auth.js",
   "./js/db.js",
@@ -22,7 +23,15 @@ const CORE_ASSETS = [
   "./icons/icon-192.png",
   "./icons/icon-256.png",
   "./icons/icon-512.png",
-  "./icons/apart-illustrasyon.png"
+  "./icons/logo-ev.png",
+  "./icons/apart-illustrasyon.png",
+  "./icons/avatars/apart.svg",
+  "./icons/avatars/kamp.svg",
+  "./icons/avatars/doga.svg",
+  "./icons/avatars/deniz.svg",
+  "./icons/avatars/dag.svg",
+  "./icons/avatars/gece.svg",
+  "./icons/avatars/orman.svg"
 ];
 
 function networkFirstThenCache(request) {

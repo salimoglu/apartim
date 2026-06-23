@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Kamp">
+  <defs>
+    <linearGradient id="kamp-g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5eb3ff"/>
+      <stop offset="100%" stop-color="#1a3f7a"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="48" fill="url(#kamp-g)"/>
+  <polygon points="128,56 56,176 200,176" fill="#fff" opacity=".92"/>
+  <polygon points="128,80 88,168 168,168" fill="#1a3f7a" opacity=".35"/>
+  <rect x="118" y="136" width="20" height="40" rx="2" fill="#fff" opacity=".9"/>
+  <circle cx="176" cy="184" r="14" fill="#fff" opacity=".85"/>
+  <path d="M176 176c0 8-6 12-6 12s-6-4-6-12 6-8 6-8 6 0 6 8z" fill="#ffb347" opacity=".95"/>
+</svg>

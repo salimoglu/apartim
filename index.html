@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260627b" />
-  <link rel="stylesheet" href="css/style.css?v=20260804" />
+  <link rel="stylesheet" href="css/style.css?v=20260807" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -39,7 +39,7 @@
   <div id="lock-screen" class="lock-screen">
     <div class="lock-inner">
       <div class="lock-logo">
-        <img class="lock-app-icon" src="icons/icon-256.png?v=20260615" alt="" width="96" height="96" decoding="async" />
+        <img class="lock-app-icon" src="icons/logo-ev.png?v=20260807" alt="" width="96" height="96" decoding="async" />
         <h1 class="lock-title">APARTIM</h1>
         <p class="lock-sub">Apart-otel takip uygulaması</p>
       </div>
@@ -85,6 +85,10 @@
               <span class="ayar-email" id="ayar-email"></span>
             </div>
             <div class="ayar-divider"></div>
+            <button type="button" class="ayar-item" id="ayar-profil" role="menuitem">
+              <span class="ayar-item-ikon" aria-hidden="true">&#128247;</span>
+              Profil fotoğrafı
+            </button>
             <button type="button" class="ayar-item" id="ayar-tema" role="menuitem">
               <span class="ayar-item-ikon" aria-hidden="true">
                 <svg id="ayar-theme-moon" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>
@@ -359,6 +363,20 @@
     </div>
   </div>
 
+  <!-- MODAL: PROFİL FOTOĞRAFI -->
+  <div id="modal-avatar" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title">Profil fotoğrafı</h2>
+        <button type="button" class="modal-close" id="avatar-close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-aciklama">Apart, kamp ve doğa temalı simgelerden birini seçin.</p>
+        <div class="avatar-secim-grid" id="avatar-secim-grid"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: ÇIKIŞ ONAYI -->
   <div id="modal-cikis" class="modal-overlay hidden">
     <div class="modal-box">
@@ -487,8 +505,9 @@
 
   <script src="js/firebase.js?v=20260615"></script>
   <script src="js/pwa-install.js?v=20260628"></script>
-  <script src="js/auth.js?v=20260806"></script>
-  <script src="js/db.js?v=20260731"></script>
+  <script src="js/avatar.js?v=20260807"></script>
+  <script src="js/auth.js?v=20260807"></script>
+  <script src="js/db.js?v=20260807"></script>
   <script src="js/para.js?v=20260723"></script>
   <script src="js/bina.js?v=20260708"></script>
   <script src="js/takvim.js?v=20260731"></script>
@@ -496,7 +515,7 @@
   <script src="js/rez-ozet.js?v=20260804"></script>
   <script src="js/temizlik.js?v=20260717"></script>
   <script src="js/daire.js?v=20260615"></script>
-  <script src="js/tema.js?v=20260615"></script>
+  <script src="js/tema.js?v=20260807"></script>
   <script src="js/ayarlar.js?v=20260723"></script>
   <script src="js/app.js?v=20260725"></script>
 </body>
