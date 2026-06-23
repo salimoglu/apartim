@@ -166,6 +166,7 @@
       '<div class="rez-ozet-turnover-kompakt">' +
         '<span class="rez-ozet-turnover-grup out-grup">' +
           ioBadge("out", cikisRid) +
+          kaynakSimgeHtml(cikis) +
           '<span class="rez-ozet-io-ad rez-ozet-tik" data-rez-id="' + esc(cikisRid) +
           '" title="' + esc(cikis.misafirAdi) + '">' + esc(kisaAd(cikis.misafirAdi, 14)) + "</span>" +
           (cikisKalan || "") +
@@ -188,6 +189,7 @@
       '<div class="rez-ozet-io-satir">' +
         '<span class="rez-ozet-turnover-grup out-grup">' +
           ioBadge("out", rid) +
+          kaynakSimgeHtml(rez) +
           '<span class="rez-ozet-io-ad rez-ozet-tik" data-rez-id="' + esc(rid) +
           '" title="' + esc(rez.misafirAdi) + '">' + esc(kisaAd(rez.misafirAdi, 16)) + "</span>" +
         "</span>" +
