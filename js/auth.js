@@ -30,17 +30,30 @@
     errorEl.textContent = msg || "";
   }
 
-  /** Giriş/kayıt için dahili e-posta anahtarı */
-  function kullaniciAdiNormalize(ad) {
-    return String(ad || "").trim().toLowerCase();
+  /** Türkçe karakterli görünen ad + Firebase için ASCII anahtar */
+  function turkceKucult(ad) {
+    return String(ad || "").trim().toLocaleLowerCase("tr-TR");
   }
 
-  function kullaniciAdiGecerliMi(norm) {
-    return /^[a-z0-9_]{3,24}$/.test(norm);
+  function kullaniciAdiAnahtar(ad) {
+    return turkceKucult(ad)
+      .replace(/ğ/g, "g")
+      .replace(/ü/g, "u")
+      .replace(/ş/g, "s")
+      .replace(/ı/g, "i")
+      .replace(/ö/g, "o")
+      .replace(/ç/g, "c")
+      .replace(/[^a-z0-9_]/g, "");
   }
 
-  function kullaniciAdiToEmail(norm) {
-    return norm + KULLANICI_EMAIL_DOMAIN;
+  const KULLANICI_ADI_RE = /^[a-zA-Z0-9_ğüşıöçĞÜŞİÖÇ]{3,24}$/;
+
+  function kullaniciAdiGecerliMi(gorunen, anahtar) {
+    return KULLANICI_ADI_RE.test(gorunen) && /^[a-z0-9_]{3,24}$/.test(anahtar);
+  }
+
+  function kullaniciAdiToEmail(anahtar) {
+    return anahtar + KULLANICI_EMAIL_DOMAIN;
   }
 
   function kullaniciAdiFromEmail(eposta) {
@@ -50,11 +63,13 @@
 
   function firebaseKullaniciBilgi(fbUser) {
     const eposta = fbUser.email || "";
-    const dahiliAd = kullaniciAdiFromEmail(eposta);
-    const kullaniciAdi = dahiliAd || fbUser.displayName || "";
+    const dahiliMi = eposta.endsWith(KULLANICI_EMAIL_DOMAIN);
+    const kullaniciAdi = dahiliMi
+      ? (fbUser.displayName || kullaniciAdiFromEmail(eposta))
+      : (fbUser.displayName || "");
     return {
       uid: fbUser.uid,
-      eposta: dahiliAd ? "" : eposta,
+      eposta: dahiliMi ? "" : eposta,
       kullaniciAdi,
       ad: fbUser.displayName || kullaniciAdi || eposta,
       foto: fbUser.photoURL || ""
@@ -118,15 +133,15 @@
 
   function kullaniciAdiDogrula(ham) {
     const gorunen = String(ham || "").trim();
-    const norm = kullaniciAdiNormalize(gorunen);
-    if (!gorunen || !norm) return { ok: false, mesaj: "Kullanıcı adı gerekli." };
-    if (!kullaniciAdiGecerliMi(norm)) {
+    const anahtar = kullaniciAdiAnahtar(gorunen);
+    if (!gorunen) return { ok: false, mesaj: "Kullanıcı adı gerekli." };
+    if (!kullaniciAdiGecerliMi(gorunen, anahtar)) {
       return {
         ok: false,
-        mesaj: "Kullanıcı adı 3–24 karakter olmalı; yalnızca harf, rakam ve alt çizgi (_) kullanın."
+        mesaj: "Kullanıcı adı 3–24 karakter olmalı; harf (ğ, ü, ş, ı, ö, ç dahil), rakam ve alt çizgi (_) kullanılabilir."
       };
     }
-    return { ok: true, gorunen, norm };
+    return { ok: true, gorunen, anahtar };
   }
 
   if (window.APARTIM.firebaseAktif) {
@@ -152,7 +167,7 @@
       if (!ad.ok) { hataGoster(ad.mesaj); return; }
       if (!s) { hataGoster("Şifre gerekli."); return; }
       try {
-        await auth.signInWithEmailAndPassword(kullaniciAdiToEmail(ad.norm), s);
+        await auth.signInWithEmailAndPassword(kullaniciAdiToEmail(ad.anahtar), s);
       } catch (err) { hataGoster(firebaseHataMetni(err)); }
     });
 
@@ -164,7 +179,7 @@
       if (!s) { hataGoster("Şifre gerekli."); return; }
       if (s.length < 6) { hataGoster("Şifre en az 6 karakter olmalı."); return; }
       try {
-        const cred = await auth.createUserWithEmailAndPassword(kullaniciAdiToEmail(ad.norm), s);
+        const cred = await auth.createUserWithEmailAndPassword(kullaniciAdiToEmail(ad.anahtar), s);
         await cred.user.updateProfile({ displayName: ad.gorunen });
       } catch (err) { hataGoster(firebaseHataMetni(err)); }
     });
