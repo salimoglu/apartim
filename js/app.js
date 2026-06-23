@@ -127,42 +127,39 @@
       para.tlKarsiligi(gelirPB.EUR, "EUR");
   }
 
-  function raporGelirSatiriHtml(tutar, pb, kompakt) {
+  function raporPbParcaHtml(tutar, pb) {
     const para = window.APARTIM.para;
     if (!tutar || tutar <= 0) return "";
-    const anaCls = kompakt ? " rapor-gelir-ana-k" : "";
-    const altCls = kompakt ? " rapor-gelir-tl-alt-k" : "";
     const ana = para ? para.formatTutar(tutar, pb) : fmt(tutar) + " " + pb;
     if (pb === "USD" || pb === "EUR") {
       const tl = para ? para.tlKarsiligi(tutar, pb) : tutar;
-      return '<div class="rapor-gelir-satir ' + pb.toLowerCase() + (kompakt ? " kompakt" : "") + '">' +
-        '<span class="rapor-gelir-ana' + anaCls + '">' + ana + "</span>" +
-        '<span class="rapor-gelir-tl-alt' + altCls + '">≈ ' + fmt(Math.round(tl)) + " ₺</span>" +
-        "</div>";
+      return '<span class="rapor-pb-grup">' +
+        '<span class="rapor-pb ' + pb.toLowerCase() + '">' + ana + "</span>" +
+        '<span class="rapor-pb-tl-alt">≈ ' + fmt(Math.round(tl)) + " ₺</span>" +
+        "</span>";
     }
-    return '<div class="rapor-gelir-satir tl' + (kompakt ? " kompakt" : "") + '">' +
-      '<span class="rapor-gelir-ana' + anaCls + '">' + ana + "</span></div>";
+    return '<span class="rapor-pb tl">' + ana + "</span>";
   }
 
   function raporGelirOzetHtml(gelirPB, kompakt) {
-    const satirlar = [];
-    if (gelirPB.TL > 0) satirlar.push(raporGelirSatiriHtml(gelirPB.TL, "TL", kompakt));
-    if (gelirPB.USD > 0) satirlar.push(raporGelirSatiriHtml(gelirPB.USD, "USD", kompakt));
-    if (gelirPB.EUR > 0) satirlar.push(raporGelirSatiriHtml(gelirPB.EUR, "EUR", kompakt));
-    if (!satirlar.length) {
-      return kompakt
-        ? '<span class="rapor-gelir-ana-k">0 ₺</span>'
-        : '<div class="rapor-gelir-satir tl"><span class="rapor-gelir-ana">0 ₺</span></div>';
+    const parcalar = [];
+    if (gelirPB.TL > 0) parcalar.push(raporPbParcaHtml(gelirPB.TL, "TL"));
+    if (gelirPB.USD > 0) parcalar.push(raporPbParcaHtml(gelirPB.USD, "USD"));
+    if (gelirPB.EUR > 0) parcalar.push(raporPbParcaHtml(gelirPB.EUR, "EUR"));
+    const cls = "rapor-gelir-inline" + (kompakt ? " kompakt" : "");
+    if (!parcalar.length) {
+      return '<div class="' + cls + '"><span class="rapor-pb tl">0 ₺</span></div>';
     }
-    const tlToplam = gelirPbToplamTL(gelirPB);
-    const coklu = satirlar.length > 1 || gelirPB.USD > 0 || gelirPB.EUR > 0;
-    if (coklu) {
-      satirlar.push(
-        '<div class="rapor-gelir-toplam' + (kompakt ? " kompakt" : "") + '">Toplam ≈ ' +
-          fmt(Math.round(tlToplam)) + " ₺</div>"
-      );
+    const yabanci = gelirPB.USD > 0 || gelirPB.EUR > 0;
+    const coklu = parcalar.length > 1;
+    let icerik = parcalar.join('<span class="rapor-gelir-ayrac">·</span>');
+    if (yabanci || coklu) {
+      const tlToplam = gelirPbToplamTL(gelirPB);
+      icerik +=
+        '<span class="rapor-gelir-ayrac">|</span>' +
+        '<span class="rapor-gelir-toplam-inline">Toplam ≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>";
     }
-    return satirlar.join("");
+    return '<div class="' + cls + '">' + icerik + "</div>";
   }
 
   function ayinGunSayisi(y, m) { return new Date(y, m + 1, 0).getDate(); }
@@ -275,9 +272,7 @@
       sat.innerHTML =
         "<span>" + d.ad + "</span>" +
         '<span class="gece-val">' + o.gece + "</span>" +
-        '<span class="gelir-val"><div class="rapor-daire-gelir-wrap">' +
-          raporGelirOzetHtml(o.gelirPB, true) +
-        "</div></span>" +
+        '<span class="gelir-val">' + raporGelirOzetHtml(o.gelirPB, true) + "</span>" +
         '<span class="doluluk-val">%' + doluluk + "</span>";
       tbl.appendChild(sat);
     });

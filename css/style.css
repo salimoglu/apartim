@@ -1980,67 +1980,51 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rapor-kart .label { font-size: 12px; color: var(--metin-soluk); }
 .rapor-kart .val { font-size: 22px; font-weight: 800; color: var(--metin); margin-top: 4px; }
-.rapor-kart.gelir { grid-column: 1 / -1; }
-.rapor-gelir-detay {
+.rapor-gelir-detay { margin-top: 4px; min-width: 0; }
+.rapor-gelir-inline {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 18px;
-  align-items: flex-end;
-  margin-top: 6px;
-}
-.rapor-gelir-satir {
-  display: flex;
   align-items: baseline;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 4px 7px;
+  line-height: 1.25;
 }
-.rapor-gelir-satir.kompakt {
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 1px;
+.rapor-gelir-inline.kompakt {
+  justify-content: flex-end;
+  gap: 3px 5px;
 }
-.rapor-gelir-ana { font-size: 20px; font-weight: 800; }
-.rapor-gelir-satir.tl .rapor-gelir-ana { color: var(--basari); }
-.rapor-gelir-satir.usd .rapor-gelir-ana { color: var(--bilgi); }
-.rapor-gelir-satir.eur .rapor-gelir-ana { color: var(--vurgu); }
-.rapor-gelir-tl-alt {
-  font-size: 12px;
+.rapor-pb-grup {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  white-space: nowrap;
+}
+.rapor-pb { font-weight: 800; white-space: nowrap; }
+.rapor-gelir-inline .rapor-pb { font-size: 15px; }
+.rapor-gelir-inline.kompakt .rapor-pb { font-size: 12px; }
+.rapor-pb.tl { color: var(--basari); }
+.rapor-pb.usd { color: var(--bilgi); }
+.rapor-pb.eur { color: var(--vurgu); }
+.rapor-pb-tl-alt {
+  font-size: 11px;
   color: var(--metin-soluk);
   font-weight: 600;
+  white-space: nowrap;
 }
-.rapor-gelir-toplam {
-  flex-basis: 100%;
-  font-size: 16px;
+.rapor-gelir-inline.kompakt .rapor-pb-tl-alt { font-size: 10px; }
+.rapor-gelir-ayrac {
+  color: var(--metin-soluk-2);
+  font-weight: 400;
+  font-size: 12px;
+  user-select: none;
+}
+.rapor-gelir-inline.kompakt .rapor-gelir-ayrac { font-size: 10px; }
+.rapor-gelir-toplam-inline {
   font-weight: 800;
   color: var(--metin);
-  margin-top: 2px;
-  padding-top: 8px;
-  border-top: 1px solid var(--kenar);
+  white-space: nowrap;
+  font-size: 14px;
 }
-.rapor-gelir-toplam.kompakt {
-  flex-basis: auto;
-  width: 100%;
-  font-size: 12px;
-  margin-top: 4px;
-  padding-top: 4px;
-  border-top-color: var(--kenar);
-  text-align: right;
-}
-.rapor-gelir-ana-k { font-size: 13px; font-weight: 800; color: var(--basari); }
-.rapor-gelir-satir.usd.kompakt .rapor-gelir-ana-k { color: var(--bilgi); }
-.rapor-gelir-satir.eur.kompakt .rapor-gelir-ana-k { color: var(--vurgu); }
-.rapor-gelir-tl-alt-k {
-  font-size: 10px;
-  color: var(--metin-soluk);
-  font-weight: 600;
-  line-height: 1.2;
-}
-.rapor-daire-gelir-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  align-items: flex-end;
-}
+.rapor-gelir-inline.kompakt .rapor-gelir-toplam-inline { font-size: 11px; }
 .rapor-kart.doluluk .val { color: var(--vurgu); }
 
 .rapor-daire-tablo {
@@ -2051,8 +2035,8 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rapor-daire-satir {
   display: grid;
-  grid-template-columns: 1fr 80px minmax(100px, 1.2fr) 90px;
-  padding: 12px 14px;
+  grid-template-columns: 1fr 56px 1fr 72px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--kenar);
   align-items: center;
   gap: 8px;
