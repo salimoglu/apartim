@@ -1554,6 +1554,21 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
   border-top: 1px solid var(--kenar);
   display: flex; gap: 8px; justify-content: flex-end;
 }
+.modal-footer-split {
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.modal-footer-sag {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+.doviz-son-guncelleme {
+  font-size: 12px;
+  color: var(--metin-soluk);
+  margin: 4px 0 0;
+}
 
 .field-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
 .field-label {

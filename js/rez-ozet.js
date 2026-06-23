@@ -45,6 +45,10 @@
     }
     const { toplam, tlToplam } = window.APARTIM.para.ayToplamlari(db, y, m);
     const k = window.APARTIM.para.kurlariGetir();
+    const meta = window.APARTIM.para.kurMetaGetir();
+    const kurTarih = meta.guncelleme
+      ? " · " + window.APARTIM.para.formatKurTarihi(meta.guncelleme)
+      : "";
     const parcalar = [];
     if (toplam.TL > 0) parcalar.push('<span class="rez-ozet-para-item tl">' + window.APARTIM.para.formatTutar(toplam.TL, "TL") + "</span>");
     if (toplam.USD > 0) parcalar.push('<span class="rez-ozet-para-item usd">' + window.APARTIM.para.formatTutar(toplam.USD, "USD") + "</span>");
@@ -55,7 +59,8 @@
         parcalar.join('<span class="rez-ozet-para-ayrac">|</span>') +
         ayir +
         '<span class="rez-ozet-para-toplam">Toplam ≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>" +
-        '<span class="rez-ozet-para-kur">(1$=' + k.USD + "₺ · 1€=" + k.EUR + "₺)</span>" +
+        '<span class="rez-ozet-para-kur">(1$=' + window.APARTIM.para.formatKur(k.USD) + "₺ · 1€=" +
+          window.APARTIM.para.formatKur(k.EUR) + "₺" + kurTarih + ")</span>" +
       "</div>";
   }
   function ayinGunSayisi(y, m) { return new Date(y, m + 1, 0).getDate(); }

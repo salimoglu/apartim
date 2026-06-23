@@ -175,13 +175,25 @@
   // ---- Döviz kurları ----
   const modalDoviz = () => document.getElementById("modal-doviz");
 
+  function dovizSonGuncellemeGoster() {
+    const el = document.getElementById("doviz-son-guncelleme");
+    if (!el) return;
+    const meta = window.APARTIM.para?.kurMetaGetir();
+    if (meta?.guncelleme) {
+      el.textContent = "Son güncelleme: " + window.APARTIM.para.formatKurTarihi(meta.guncelleme);
+    } else {
+      el.textContent = "Kurlar uygulama açılışında otomatik güncellenir.";
+    }
+  }
+
   function dovizAc() {
     uyari("doviz-uyari", "");
-    const k = window.APARTIM.para?.kurlariGetir() || { USD: 34, EUR: 37 };
+    const k = window.APARTIM.para?.kurlariGetir() || { USD: 46.5, EUR: 50.5 };
     const usd = document.getElementById("doviz-usd");
     const eur = document.getElementById("doviz-eur");
     if (usd) usd.value = k.USD;
     if (eur) eur.value = k.EUR;
+    dovizSonGuncellemeGoster();
     modalDoviz()?.classList.remove("hidden");
     usd?.focus();
   }
@@ -189,6 +201,32 @@
   function dovizKapat() {
     modalDoviz()?.classList.add("hidden");
     uyari("doviz-uyari", "");
+  }
+
+  async function dovizCanliCek() {
+    const btn = document.getElementById("doviz-canli");
+    uyari("doviz-uyari", "");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Alınıyor…";
+    }
+    try {
+      const live = await window.APARTIM.app?.dovizKurlariCanliGuncelle(true);
+      if (!live) throw new Error("Kurlar alınamadı.");
+      const usd = document.getElementById("doviz-usd");
+      const eur = document.getElementById("doviz-eur");
+      if (usd) usd.value = live.USD;
+      if (eur) eur.value = live.EUR;
+      dovizSonGuncellemeGoster();
+      window.APARTIM.toast("Güncel kurlar yüklendi", "basari");
+    } catch (err) {
+      uyari("doviz-uyari", err.message || "Kurlar alınamadı.");
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Güncel kurları getir";
+      }
+    }
   }
 
   async function dovizKaydet() {
@@ -199,7 +237,12 @@
       return;
     }
     try {
-      await window.APARTIM.db.dovizKurlariKaydet({ USD: usd, EUR: eur });
+      await window.APARTIM.db.dovizKurlariKaydet({
+        USD: usd,
+        EUR: eur,
+        guncelleme: new Date().toISOString(),
+        kaynak: "manuel"
+      });
       window.APARTIM.toast("Döviz kurları kaydedildi", "basari");
       dovizKapat();
       window.APARTIM.rezOzet?.tabloCiz();
@@ -238,6 +281,7 @@
     document.getElementById("doviz-close")?.addEventListener("click", dovizKapat);
     document.getElementById("doviz-kapat")?.addEventListener("click", dovizKapat);
     document.getElementById("doviz-kaydet")?.addEventListener("click", dovizKaydet);
+    document.getElementById("doviz-canli")?.addEventListener("click", dovizCanliCek);
   });
 
   document.addEventListener("apartim:veri-degisti", (e) => {

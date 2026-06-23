@@ -35,7 +35,7 @@
     rezervasyonlar: {},// { rezId: {...} }
     temizlikKayit: {}, // { kayitId: {...} }
     musteriKaynaklari: {}, // { id: { id, ad, simge, sira, sistem } }
-    dovizKurlari: { USD: 34, EUR: 37 },
+    dovizKurlari: { USD: 46.5, EUR: 50.5 },
     yuklendi: false
   };
   const dinleyiciler = [];
@@ -152,11 +152,19 @@
     }
   }
 
-  function dovizKurlariKaydet(kurlar) {
-    durum.dovizKurlari = {
-      USD: Number(kurlar?.USD) > 0 ? Number(kurlar.USD) : 34,
-      EUR: Number(kurlar?.EUR) > 0 ? Number(kurlar.EUR) : 37
+  function dovizKurlariNorm(kurlar) {
+    const v = window.APARTIM.para?.VARSAYILAN || { USD: 46.5, EUR: 50.5 };
+    const out = {
+      USD: Number(kurlar?.USD) > 0 ? Number(kurlar.USD) : v.USD,
+      EUR: Number(kurlar?.EUR) > 0 ? Number(kurlar.EUR) : v.EUR
     };
+    if (kurlar?.guncelleme) out.guncelleme = kurlar.guncelleme;
+    if (kurlar?.kaynak) out.kaynak = kurlar.kaynak;
+    return out;
+  }
+
+  function dovizKurlariKaydet(kurlar) {
+    durum.dovizKurlari = dovizKurlariNorm(kurlar);
     dovizKurlariSenkron();
     return kaydet("doviz-kurlari", durum.dovizKurlari);
   }
@@ -385,12 +393,7 @@
 
       fbRef.child("doviz-kurlari").on("value", (snap) => {
         const v = snap.val();
-        if (v) {
-          durum.dovizKurlari = {
-            USD: Number(v.USD) > 0 ? Number(v.USD) : 34,
-            EUR: Number(v.EUR) > 0 ? Number(v.EUR) : 37
-          };
-        }
+        if (v) durum.dovizKurlari = dovizKurlariNorm(v);
         dovizKurlariSenkron();
         bildir("veri-degisti", { sebep: "doviz-kurlari" });
       });
@@ -400,12 +403,7 @@
       durum.rezervasyonlar = rezervasyonlariNormalize(v.rezervasyonlar || {});
       durum.temizlikKayit = v.temizlikKayit || {};
       durum.musteriKaynaklari = v.musteriKaynaklari || {};
-      if (v.dovizKurlari) {
-        durum.dovizKurlari = {
-          USD: Number(v.dovizKurlari.USD) > 0 ? Number(v.dovizKurlari.USD) : 34,
-          EUR: Number(v.dovizKurlari.EUR) > 0 ? Number(v.dovizKurlari.EUR) : 37
-        };
-      }
+      if (v.dovizKurlari) durum.dovizKurlari = dovizKurlariNorm(v.dovizKurlari);
       dovizKurlariSenkron();
       musteriKaynaklariSeedEt();
       dairelerSeedEt();

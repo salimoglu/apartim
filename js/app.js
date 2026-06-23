@@ -250,11 +250,43 @@
     raporCiz();
   }
 
+  let kurGuncellemeCalisti = false;
+
+  async function dovizKurlariCanliGuncelle(zorla) {
+    const para = window.APARTIM.para;
+    const db = window.APARTIM.db;
+    if (!para || !db?.durum?.yuklendi) return null;
+
+    const live = await para.kurlariOtomatikGuncelle({
+      zorla: !!zorla,
+      sonGuncelleme: db.durum.dovizKurlari?.guncelleme
+    });
+    if (!live || live.onbellek) return live;
+
+    await db.dovizKurlariKaydet({
+      USD: live.USD,
+      EUR: live.EUR,
+      guncelleme: live.guncelleme,
+      kaynak: live.kaynak
+    });
+    window.APARTIM.rezOzet?.tabloCiz();
+    raporCiz();
+    return live;
+  }
+
+  document.addEventListener("apartim:veri-degisti", () => {
+    if (kurGuncellemeCalisti) return;
+    if (!window.APARTIM.db?.durum?.yuklendi) return;
+    kurGuncellemeCalisti = true;
+    dovizKurlariCanliGuncelle(false).catch(() => {});
+  });
+
   window.APARTIM.app = {
     sekmeSec,
     raporCiz,
     yatayModMu,
     yatayModGuncelle,
-    yonKilidiAc
+    yonKilidiAc,
+    dovizKurlariCanliGuncelle
   };
 })();
