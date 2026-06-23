@@ -157,117 +157,43 @@
     return '<span class="rez-ozet-io ' + tip + ' rez-ozet-tik" data-rez-id="' + esc(rezId) + '">' + lbl + '</span>';
   }
 
-  function turnoverYarim(tip, inner) {
+  function turnoverHtml(cikis, giris, tarih) {
+    const det = konakDetay(giris, tarih);
+    const cikisRid = rezIdAl(cikis);
+    const girisRid = rezIdAl(giris);
+    const cikisKalan = rezOutKalanHtml(cikis);
     return (
-      '<div class="rez-ozet-turnover-yarim ' + tip + '">' +
-      (inner || '<span class="rez-ozet-turnover-bos">—</span>') +
+      '<div class="rez-ozet-turnover-kompakt">' +
+        '<span class="rez-ozet-turnover-grup out-grup">' +
+          ioBadge("out", cikisRid) +
+          '<span class="rez-ozet-io-ad rez-ozet-tik" data-rez-id="' + esc(cikisRid) +
+          '" title="' + esc(cikis.misafirAdi) + '">' + esc(kisaAd(cikis.misafirAdi, 14)) + "</span>" +
+          (cikisKalan || "") +
+        "</span>" +
+        '<span class="rez-ozet-io-sep">·</span>' +
+        '<span class="rez-ozet-turnover-grup in-grup">' +
+          ioBadge("in", girisRid) +
+          det.kategoriHtml +
+          '<span class="rez-ozet-io-ad rez-ozet-tik" data-rez-id="' + esc(girisRid) +
+          '" title="' + esc(det.misafir) + '">' + esc(kisaAd(det.misafir, 14)) + "</span>" +
+        "</span>" +
       "</div>"
     );
   }
 
-  function turnoverAdSpan(rez, ad, maxLen) {
-    const rid = rezIdAl(rez);
-    return (
-      '<span class="rez-ozet-turnover-ad rez-ozet-tik" data-rez-id="' + esc(rid) +
-      '" title="' + esc(ad || "") + '">' + esc(kisaAd(ad, maxLen || 13)) + "</span>"
-    );
-  }
-
-  function turnoverHucreler(cikis, giris, tarih) {
-    const gDet = konakDetay(giris, tarih);
-    const cikisRid = rezIdAl(cikis);
-    const girisRid = rezIdAl(giris);
-    const cikisKalan = rezOutKalanHtml(cikis);
-    const klnOut = cikisKalan
-      ? '<span class="rez-ozet-tik" data-rez-id="' + esc(cikisRid) + '">' + cikisKalan + "</span>"
-      : "";
-
-    return [
-      {
-        cls: "rez-ozet-turnover-cift rez-ozet-sayi",
-        html: turnoverYarim("out", ioBadge("out", cikisRid)) +
-          turnoverYarim("in", ioBadge("in", girisRid) + '<span class="rez-ozet-g-no">' + gDet.g + "</span>")
-      },
-      {
-        cls: "rez-ozet-turnover-cift rez-ozet-kategori",
-        html: turnoverYarim("out", "") + turnoverYarim("in", gDet.kategoriHtml)
-      },
-      {
-        cls: "rez-ozet-turnover-cift rez-ozet-sayi",
-        html: turnoverYarim("out", "") +
-          turnoverYarim("in", "<span>" + esc(formatHucreFiyat(giris, gDet.prc)) + "</span>")
-      },
-      { type: "turnover-odn", cikis, giris, tarih, cikisRid, girisRid, klnOut },
-      {
-        cls: "rez-ozet-turnover-cift rez-ozet-ad",
-        html: turnoverYarim("out", turnoverAdSpan(cikis, cikis.misafirAdi, 13)) +
-          turnoverYarim("in", turnoverAdSpan(giris, gDet.misafir, 13))
-      }
-    ];
-  }
-
-  function turnoverOdnTd(cikis, giris, tarih, renk, cikisRid, girisRid, klnOut) {
-    const db = window.APARTIM.db;
-    const { tutar, manuel } = db.rezervasyonOdenenGosterim(giris, tarih);
-
-    const td = document.createElement("td");
-    td.className = "rez-ozet-turnover-cift rez-ozet-turnover-odn rez-ozet-hucre-dolu";
-    td.style.background = renk;
-
-    const outDiv = document.createElement("div");
-    outDiv.className = "rez-ozet-turnover-yarim out rez-ozet-sayi";
-    outDiv.innerHTML = klnOut || '<span class="rez-ozet-turnover-bos">—</span>';
-
-    const inDiv = document.createElement("div");
-    inDiv.className = "rez-ozet-turnover-yarim in rez-ozet-sayi rez-ozet-odenen" +
-      (manuel ? " manuel" : " bos");
-    inDiv.dataset.rezId = girisRid;
-    inDiv.dataset.tarih = tarih;
-    inDiv.textContent = odenenHucreGoster(giris, tutar, manuel);
-    inDiv.title = "Ödenen tutarı girmek için tıklayın";
-
-    td.appendChild(outDiv);
-    td.appendChild(inDiv);
-    return td;
-  }
-
-  function turnoverHucreTdOlustur(c, cikis, giris, tarih, renk) {
-    if (c.type === "turnover-odn") {
-      return turnoverOdnTd(c.cikis, c.giris, tarih, renk, c.cikisRid, c.girisRid, c.klnOut);
-    }
-    const td = document.createElement("td");
-    td.className = c.cls + " rez-ozet-hucre-dolu";
-    td.style.background = renk;
-    td.innerHTML = c.html;
-    return td;
-  }
-
-  function checkoutHucreler(rez) {
+  function checkoutHtml(rez) {
     const rid = rezIdAl(rez);
     const kalan = rezOutKalanHtml(rez);
-    const klnInner = kalan
-      ? '<span class="rez-ozet-tik" data-rez-id="' + esc(rid) + '">' + kalan + "</span>"
-      : "";
-    return [
-      { cls: "rez-ozet-sayi", html: ioBadge("out", rid) },
-      { cls: "rez-ozet-kategori", txt: "" },
-      { cls: "rez-ozet-sayi", txt: "" },
-      { cls: "rez-ozet-sayi rez-ozet-checkout-kln", html: klnInner || "—" },
-      {
-        cls: "rez-ozet-ad",
-        html: '<span class="rez-ozet-tik" data-rez-id="' + esc(rid) + '" title="' +
-          esc(rez.misafirAdi || "") + '">' + esc(kisaAd(rez.misafirAdi, 14)) + "</span>"
-      }
-    ];
-  }
-
-  function checkoutHucreTdOlustur(c, renk) {
-    const td = document.createElement("td");
-    td.className = c.cls + " rez-ozet-hucre-dolu";
-    td.style.background = renk;
-    if (c.html) td.innerHTML = c.html;
-    else td.textContent = c.txt || "";
-    return td;
+    return (
+      '<div class="rez-ozet-io-satir">' +
+        '<span class="rez-ozet-turnover-grup out-grup">' +
+          ioBadge("out", rid) +
+          '<span class="rez-ozet-io-ad rez-ozet-tik" data-rez-id="' + esc(rid) +
+          '" title="' + esc(rez.misafirAdi) + '">' + esc(kisaAd(rez.misafirAdi, 16)) + "</span>" +
+        "</span>" +
+        (kalan ? '<span class="rez-ozet-turnover-grup sag-grup">' + kalan + "</span>" : "") +
+      "</div>"
+    );
   }
 
   function checkinHucreler(rez, tarih) {
@@ -592,9 +518,12 @@
         const renk = daireRenk(d, di);
 
         if (h.tip === "turnover") {
-          turnoverHucreler(h.cikis, h.giris, tarih).forEach((c) => {
-            tr.appendChild(turnoverHucreTdOlustur(c, h.cikis, h.giris, tarih, renk));
-          });
+          const td = document.createElement("td");
+          td.colSpan = 5;
+          td.style.background = renk;
+          td.className = "rez-ozet-hucre-dolu rez-ozet-turnover-hucre";
+          td.innerHTML = turnoverHtml(h.cikis, h.giris, tarih);
+          tr.appendChild(td);
         } else if (h.tip === "checkin") {
           const rid = rezIdAl(h.rez);
           checkinHucreler(h.rez, tarih).forEach((c, ci) => {
@@ -603,9 +532,14 @@
             ));
           });
         } else if (h.tip === "checkout") {
-          checkoutHucreler(h.rez).forEach((c) => {
-            tr.appendChild(checkoutHucreTdOlustur(c, renk));
-          });
+          const rid = rezIdAl(h.rez);
+          const td = document.createElement("td");
+          td.colSpan = 5;
+          td.style.background = renk;
+          td.className = "rez-ozet-hucre-dolu rez-ozet-turnover-hucre";
+          if (rid) td.dataset.rezId = rid;
+          td.innerHTML = checkoutHtml(h.rez);
+          tr.appendChild(td);
         } else if (h.tip === "konak") {
           const det = konakDetay(h.rez, tarih);
           const rid = rezIdAl(h.rez);

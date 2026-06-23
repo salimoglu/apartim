@@ -1464,11 +1464,15 @@ html:not(.theme-light) .rez-ozet-odenen.manuel {
 .rez-ozet-io-ad {
   font-weight: 600;
   font-size: 9px;
-  max-width: 56px;
   overflow: hidden;
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
+  min-width: 0;
+}
+.rez-ozet-turnover-hucre .rez-ozet-io-ad {
+  flex: 1 1 auto;
+  max-width: 88px;
 }
 .rez-ozet-out-kalan {
   font-size: 8px;
@@ -1477,79 +1481,46 @@ html:not(.theme-light) .rez-ozet-odenen.manuel {
   white-space: nowrap;
   flex-shrink: 0;
 }
-.rez-ozet-checkout-kln {
-  font-size: 8px;
-  font-weight: 800;
-  text-align: center;
-}
-.rez-ozet-turnover-cift {
-  padding: 0 !important;
+.rez-ozet-io-sep {
+  color: #6b7280;
+  font-size: 9px;
+  padding: 0 2px;
   vertical-align: middle;
+  flex-shrink: 0;
+  opacity: 0.7;
 }
-.rez-ozet-turnover-yarim {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  min-height: 18px;
-  padding: 1px 3px;
-  line-height: 1.15;
-  overflow: hidden;
-}
-.rez-ozet-turnover-yarim.out {
-  border-bottom: 1px dashed rgba(17, 24, 39, 0.22);
-}
-html:not(.theme-light) .rez-ozet-turnover-yarim.out {
-  border-bottom-color: rgba(255, 255, 255, 0.18);
-}
-.rez-ozet-turnover-bos {
-  color: rgba(17, 24, 39, 0.35);
-  font-weight: 600;
-  font-size: 9px;
-}
-.rez-ozet-turnover-cift.rez-ozet-ad {
-  min-width: 54px;
-  max-width: 72px;
-}
-.rez-ozet-turnover-ad {
-  font-weight: 600;
-  font-size: 9px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
-}
-.rez-ozet-g-no {
-  font-size: 9px;
-  font-weight: 700;
-}
-.rez-ozet-turnover-odn {
-  min-width: 42px !important;
-  max-width: 42px;
-  width: 42px;
-}
-.rez-ozet-turnover-odn .rez-ozet-turnover-yarim.in.rez-ozet-odenen {
-  width: 100%;
-  min-height: 18px;
-  max-height: 18px;
-  cursor: text;
-  position: relative;
-}
-.rez-ozet-turnover-odn .rez-ozet-turnover-yarim.in.rez-ozet-odenen.duzenleniyor {
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: inset 0 0 0 1px var(--vurgu);
-}
-html:not(.theme-light) .rez-ozet-turnover-odn .rez-ozet-turnover-yarim.in.rez-ozet-odenen.duzenleniyor {
-  background: rgba(30, 45, 61, 0.95);
-}
+.rez-ozet-turnover-kompakt,
 .rez-ozet-io-satir {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 3px;
+  justify-content: space-between;
+  gap: 4px;
   flex-wrap: nowrap;
+  width: 100%;
   min-height: 18px;
-  padding: 1px 2px;
+  padding: 1px 6px;
+  box-sizing: border-box;
+}
+.rez-ozet-turnover-grup {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.rez-ozet-turnover-grup.out-grup {
+  flex: 1 1 0;
+  justify-content: flex-start;
+}
+.rez-ozet-turnover-grup.in-grup {
+  flex: 1 1 0;
+  justify-content: flex-end;
+}
+.rez-ozet-turnover-grup.sag-grup {
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
+.rez-ozet-turnover-hucre {
+  padding: 1px 2px !important;
 }
 .rez-ozet-giris-hucre {
   display: flex;
