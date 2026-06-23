@@ -5,11 +5,11 @@
 (function () {
   "use strict";
 
-  const V = "20260807";
+  const V = "20260809";
   const VARSAYILAN = "ev";
 
   const AVATARLAR = [
-    { id: "ev", etiket: "Apart ev", src: "icons/logo-ev.svg" },
+    { id: "ev", etiket: "Apart ev", src: "icons/logo-ev.png", evLogo: true },
     { id: "apart", etiket: "Apart otel", src: "icons/avatars/apart.svg" },
     { id: "kamp", etiket: "Kamp", src: "icons/avatars/kamp.svg" },
     { id: "doga", etiket: "Doğa", src: "icons/avatars/doga.svg" },
@@ -38,8 +38,11 @@
 
   function guncelle(imgEl, kullanici) {
     if (!imgEl) return;
-    imgEl.src = coz(kullanici);
+    const url = coz(kullanici);
+    imgEl.src = url;
     imgEl.referrerPolicy = "no-referrer";
+    const evMi = url.indexOf("logo-ev.png") !== -1;
+    imgEl.classList.toggle("avatar-ev-crop", evMi);
   }
 
   function kullaniciyaEkle(k) {
@@ -57,7 +60,7 @@
     coz,
     guncelle,
     kullaniciyaEkle,
-    logoEv: "icons/logo-ev.svg?v=" + V,
+    logoEv: "icons/logo-ev.png?v=" + V,
     seciciAc,
     seciciKapat
   };
@@ -76,7 +79,7 @@
     AVATARLAR.forEach((a) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "avatar-secim-btn" + (a.id === mevcut ? " active" : "");
+      btn.className = "avatar-secim-btn" + (a.id === mevcut ? " active" : "") + (a.evLogo ? " avatar-ev-wrap" : "");
       btn.dataset.avatarId = a.id;
       btn.title = a.etiket;
       btn.innerHTML =
