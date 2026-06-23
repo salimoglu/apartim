@@ -62,11 +62,14 @@
     menuBagla();
   });
 
-  // E-posta etiketini auth sonrası doldur
+  // Kullanıcı etiketini auth sonrası doldur
   document.addEventListener("apartim:auth-hazir", (e) => {
-    const eposta = (e.detail && e.detail.eposta) || "";
+    const d = e.detail || {};
+    const etiket = d.kullaniciAdi
+      ? "@" + d.kullaniciAdi
+      : (d.ad || d.eposta || "");
     const epEl = document.getElementById("ayar-email");
-    if (epEl) epEl.textContent = eposta;
+    if (epEl) epEl.textContent = etiket;
     const av = document.getElementById("ayar-avatar");
     if (av && e.detail && e.detail.foto) av.src = e.detail.foto;
   });

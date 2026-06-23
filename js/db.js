@@ -404,6 +404,7 @@
       // Profil
       fbRef.child("profil").update({
         ad: kullanici.ad || "",
+        kullaniciAdi: kullanici.kullaniciAdi || "",
         eposta: kullanici.eposta || "",
         son: firebase.database.ServerValue.TIMESTAMP
       }).catch(() => {});

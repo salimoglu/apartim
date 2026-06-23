@@ -9,6 +9,7 @@
    1) https://console.firebase.google.com adresinden yeni proje açın
    2) "Web" uygulaması ekleyin, ayardan config'i kopyalayın
    3) Authentication > Google ve E-posta/Şifre sağlayıcılarını açın
+      (Kullanıcı adı girişi e-posta/şifre altyapısı ile çalışır)
    4) Realtime Database'i etkinleştirin
    5) Aşağıdaki APARTIM_CONFIG nesnesine bilgileri yapıştırın
    ========================================================= */
