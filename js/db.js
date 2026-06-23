@@ -140,6 +140,7 @@
       if (r && typeof r === "object") {
         const kayit = Object.assign({}, r, { id: r.id || key });
         if (!kayit.paraBirimi) kayit.paraBirimi = "TL";
+        delete kayit.kalanGunleri;
         out[key] = kayit;
       }
     });
@@ -214,80 +215,53 @@
     return { gece, toplam, gecelik };
   }
 
-  function rezervasyonKalanTutar(rez, tarih) {
-    const geceNo = geceSayisi(rez.giris, tarih) + 1;
-    const toplamGece = geceSayisi(rez.giris, rez.cikis);
-    let kalan = 0;
-    for (let i = geceNo + 1; i <= toplamGece; i++) {
-      kalan += rezervasyonGeceUcreti(rez, i);
-    }
-    return kalan;
+  function rezervasyonToplamTutar(rez) {
+    if (rez.toplamTutar != null) return Number(rez.toplamTutar) || 0;
+    return rezervasyonTutarHesapla(rez).toplam;
   }
 
-  function kalanGunleriTemizle(rez) {
-    if (!rez.kalanGunleri || typeof rez.kalanGunleri !== "object") return undefined;
+  function odenenGunleriTemizle(rez) {
+    if (!rez.odenenGunleri || typeof rez.odenenGunleri !== "object") return undefined;
     const gecerli = new Set(geceTarihleri(rez.giris, rez.cikis));
     const out = {};
-    Object.keys(rez.kalanGunleri).forEach((t) => {
+    Object.keys(rez.odenenGunleri).forEach((t) => {
       if (!gecerli.has(t)) return;
-      const n = Number(rez.kalanGunleri[t]);
+      const n = Number(rez.odenenGunleri[t]);
       if (Number.isFinite(n) && n >= 0) out[t] = n;
     });
     return Object.keys(out).length ? out : undefined;
   }
 
-  function rezervasyonKalanGosterim(rez, tarih) {
-    const kg = rez.kalanGunleri;
-    if (kg && Object.prototype.hasOwnProperty.call(kg, tarih)) {
-      return { tutar: Number(kg[tarih]) || 0, manuel: true };
-    }
-    return { tutar: rezervasyonKalanTutar(rez, tarih), manuel: false };
+  function rezervasyonOdenenToplam(rez) {
+    const og = odenenGunleriTemizle(rez) || rez.odenenGunleri;
+    if (!og) return 0;
+    return Object.values(og).reduce((s, v) => s + (Number(v) || 0), 0);
   }
 
-  function rezervasyonKalanHucreKaydet(rezId, tarih, deger) {
+  /** Toplam ücret − girilen ödemeler */
+  function rezervasyonKalanHesapla(rez) {
+    return Math.max(0, rezervasyonToplamTutar(rez) - rezervasyonOdenenToplam(rez));
+  }
+
+  function rezervasyonOdenenGosterim(rez, tarih) {
+    const og = rez.odenenGunleri;
+    if (og && Object.prototype.hasOwnProperty.call(og, tarih)) {
+      return { tutar: Number(og[tarih]) || 0, manuel: true };
+    }
+    return { tutar: 0, manuel: false };
+  }
+
+  function rezervasyonOdenenHucreKaydet(rezId, tarih, deger) {
     const mevcut = durum.rezervasyonlar[rezId];
     if (!mevcut) throw new Error("Rezervasyon bulunamadı");
-    const kalanGunleri = Object.assign({}, mevcut.kalanGunleri || {});
+    const odenenGunleri = Object.assign({}, mevcut.odenenGunleri || {});
     if (deger == null || deger === "" || !Number.isFinite(Number(deger))) {
-      delete kalanGunleri[tarih];
+      delete odenenGunleri[tarih];
     } else {
-      kalanGunleri[tarih] = Math.max(0, Number(deger));
+      odenenGunleri[tarih] = Math.max(0, Number(deger));
     }
-    const partial = { kalanGunleri: Object.keys(kalanGunleri).length ? kalanGunleri : null };
+    const partial = { odenenGunleri: Object.keys(odenenGunleri).length ? odenenGunleri : null };
     return rezervasyonGuncelle(rezId, partial);
-  }
-
-  /** Ay içinde her rezervasyonun son girilen kalan tutarını toplar */
-  function ayKalanToplamlari(yil, ay) {
-    const pad = (n) => String(n).padStart(2, "0");
-    const ayGun = new Date(yil, ay + 1, 0).getDate();
-    const ayBas = yil + "-" + pad(ay + 1) + "-01";
-    const ayBit = gunEkleISO(yil + "-" + pad(ay + 1) + "-" + pad(ayGun), 1);
-    const toplam = { TL: 0, USD: 0, EUR: 0 };
-    let kayitSayisi = 0;
-
-    Object.values(durum.rezervasyonlar || {}).forEach((rez) => {
-      if (!rez?.kalanGunleri) return;
-      let sonTarih = null;
-      let sonTutar = 0;
-      Object.keys(rez.kalanGunleri).forEach((t) => {
-        if (t < ayBas || t >= ayBit) return;
-        if (!sonTarih || t > sonTarih) {
-          sonTarih = t;
-          sonTutar = Number(rez.kalanGunleri[t]) || 0;
-        }
-      });
-      if (!sonTarih) return;
-      kayitSayisi++;
-      const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
-      toplam[pb] += sonTutar;
-    });
-
-    const tlToplam = toplam.TL +
-      (window.APARTIM.para?.tlKarsiligi(toplam.USD, "USD") ?? 0) +
-      (window.APARTIM.para?.tlKarsiligi(toplam.EUR, "EUR") ?? 0);
-
-    return { toplam, tlToplam, kayitSayisi };
   }
 
   function rezervasyonOzeti(rez) {
@@ -326,9 +300,10 @@
       if (ozet.kademeler) kayit.ucretKademeleri = ozet.kademeler;
       else delete kayit.ucretKademeleri;
     }
-    const kg = kalanGunleriTemizle(kayit);
-    if (kg) kayit.kalanGunleri = kg;
-    else delete kayit.kalanGunleri;
+    const og = odenenGunleriTemizle(kayit);
+    if (og) kayit.odenenGunleri = og;
+    else delete kayit.odenenGunleri;
+    delete kayit.kalanGunleri;
     return kayit;
   }
 
@@ -693,9 +668,10 @@
     if (Object.prototype.hasOwnProperty.call(partial, "tarihFiyatlari") && partial.tarihFiyatlari == null) {
       delete yeni.tarihFiyatlari;
     }
-    if (Object.prototype.hasOwnProperty.call(partial, "kalanGunleri") && partial.kalanGunleri == null) {
-      delete yeni.kalanGunleri;
+    if (Object.prototype.hasOwnProperty.call(partial, "odenenGunleri") && partial.odenenGunleri == null) {
+      delete yeni.odenenGunleri;
     }
+    delete yeni.kalanGunleri;
     if (partial.kaynakId != null) {
       rezervasyonKaynakDogrula(yeni);
       yeni.kaynakAd = musteriKaynagiAd(yeni.kaynakId);
@@ -796,10 +772,11 @@
     rezervasyonGeceUcreti,
     rezervasyonTarihUcreti,
     rezervasyonTutarHesapla,
-    rezervasyonKalanTutar,
-    rezervasyonKalanGosterim,
-    rezervasyonKalanHucreKaydet,
-    ayKalanToplamlari,
+    rezervasyonToplamTutar,
+    rezervasyonOdenenToplam,
+    rezervasyonKalanHesapla,
+    rezervasyonOdenenGosterim,
+    rezervasyonOdenenHucreKaydet,
     rezervasyonOzeti,
     rezAyKesisimGelir,
     daireAylikOzet,

@@ -109,8 +109,12 @@
     if (!bilgi) return "";
     const ozet = db.rezervasyonOzeti(rez);
     const kaynak = db.musteriKaynagiAd(rez.kaynakId) || "—";
-    const kalanInfo = db.rezervasyonKalanGosterim(rez, isoT);
-    const kalan = kalanInfo.tutar;
+    const odenen = db.rezervasyonOdenenToplam(rez);
+    const kalan = db.rezervasyonKalanHesapla(rez);
+    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    const fmtPb = (n) => window.APARTIM.para
+      ? window.APARTIM.para.formatTutar(n, pb)
+      : fmt(n) + " TL";
 
     return (
       '<div class="takvim-detay-blok">' +
@@ -127,10 +131,14 @@
         '<div class="takvim-detay-satir"><span>Bu gece</span><strong>' +
           fmt(bilgi.ucret) + " TL</strong></div>" +
         '<div class="takvim-detay-satir"><span>Toplam</span><strong>' +
-          fmt(ozet.toplamTutar) + " TL</strong></div>" +
-        (kalan > 0
+          fmtPb(ozet.toplamTutar) + "</strong></div>" +
+        (odenen > 0
+          ? '<div class="takvim-detay-satir"><span>Ödenen</span><strong>' +
+            fmtPb(odenen) + "</strong></div>"
+          : "") +
+        (odenen > 0
           ? '<div class="takvim-detay-satir"><span>Kalan</span><strong>' +
-            fmt(kalan) + " TL</strong></div>"
+            fmtPb(kalan) + "</strong></div>"
           : "") +
       "</div>"
     );

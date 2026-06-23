@@ -23,7 +23,7 @@
     yil: new Date().getFullYear(),
     ay: new Date().getMonth(),
     seciliTarih: null,
-    pendingKalanFocus: null
+    pendingOdenenFocus: null
   };
 
   function pad(n) { return String(n).padStart(2, "0"); }
@@ -42,7 +42,7 @@
     return fmt(miktar);
   }
 
-  function kalanHucreGoster(rez, tutar, manuel) {
+  function odenenHucreGoster(rez, tutar, manuel) {
     if (!manuel) return "—";
     return formatKalanKisa(rez, tutar);
   }
@@ -54,25 +54,14 @@
     return Number.isFinite(n) ? n : NaN;
   }
 
-  function rezSonKalanBul(rez) {
-    const kg = rez?.kalanGunleri;
-    if (!kg || !Object.keys(kg).length) return null;
-    let sonTarih = null;
-    let sonTutar = 0;
-    Object.keys(kg).forEach((t) => {
-      if (!sonTarih || t > sonTarih) {
-        sonTarih = t;
-        sonTutar = Number(kg[t]) || 0;
-      }
-    });
-    return sonTarih ? { tarih: sonTarih, tutar: sonTutar } : null;
-  }
-
   function rezOutKalanHtml(rez) {
-    const k = rezSonKalanBul(rez);
-    if (!k) return "";
-    return '<span class="rez-ozet-out-kalan" title="Kalan bakiye">Kln ' +
-      formatKalanKisa(rez, k.tutar) + "</span>";
+    const db = window.APARTIM.db;
+    if (!db) return "";
+    const odenen = db.rezervasyonOdenenToplam(rez);
+    if (odenen <= 0) return "";
+    const kalan = db.rezervasyonKalanHesapla(rez);
+    return '<span class="rez-ozet-out-kalan" title="Toplam − ödenen = kalan">Kln ' +
+      formatKalanKisa(rez, kalan) + "</span>";
   }
 
   function paraOzetCiz(y, m) {
@@ -201,7 +190,7 @@
       { cls: "rez-ozet-sayi rez-ozet-giris-hucre", html: ioBadge("in", rez.id) + '<span>' + det.g + '</span>' },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
-      { type: "kln" },
+      { type: "odn" },
       { cls: "rez-ozet-ad", txt: kisaAd(det.misafir, 11) }
     ];
   }
@@ -210,7 +199,7 @@
     const db = window.APARTIM.db;
     const g = db.geceSayisi(rez.giris, tarih) + 1;
     const prc = db.rezervasyonGeceUcreti(rez, g);
-    const kalanInfo = db.rezervasyonKalanGosterim(rez, tarih);
+    const odenenInfo = db.rezervasyonOdenenGosterim(rez, tarih);
     const toplam = rez.toplamTutar != null
       ? rez.toplamTutar
       : db.rezervasyonTutarHesapla(rez).toplam;
@@ -219,28 +208,28 @@
       kategori: kaynakSimge(rez),
       kategoriHtml: kaynakSimgeHtml(rez),
       prc,
-      rmnd: kalanInfo.tutar,
-      rmndManuel: kalanInfo.manuel,
+      odenen: odenenInfo.tutar,
+      odenenManuel: odenenInfo.manuel,
       toplam,
       misafir: rez.misafirAdi
     };
   }
 
-  function klnHucreTd(rez, tarih, renk, rid) {
+  function odnHucreTd(rez, tarih, renk, rid) {
     const db = window.APARTIM.db;
-    const { tutar, manuel } = db.rezervasyonKalanGosterim(rez, tarih);
+    const { tutar, manuel } = db.rezervasyonOdenenGosterim(rez, tarih);
     const td = document.createElement("td");
-    td.className = "rez-ozet-sayi rez-ozet-kalan" + (manuel ? " manuel" : " bos");
+    td.className = "rez-ozet-sayi rez-ozet-odenen" + (manuel ? " manuel" : " bos");
     td.style.background = renk;
     if (rid) td.dataset.rezId = rid;
     td.dataset.tarih = tarih;
-    td.textContent = kalanHucreGoster(rez, tutar, manuel);
-    td.title = "Kalan tutarı girmek için tıklayın";
+    td.textContent = odenenHucreGoster(rez, tutar, manuel);
+    td.title = "Ödenen tutarı girmek için tıklayın";
     return td;
   }
 
   function hucreTdOlustur(c, rez, tarih, renk, rid, misafirBaslik) {
-    if (c.type === "kln") return klnHucreTd(rez, tarih, renk, rid);
+    if (c.type === "odn") return odnHucreTd(rez, tarih, renk, rid);
     const td = document.createElement("td");
     td.className = c.cls + " rez-ozet-tik";
     td.style.background = renk;
@@ -280,21 +269,21 @@
     return null;
   }
 
-  function sonrakiKalanHucre(td) {
+  function sonrakiOdenenHucre(td) {
     const rezId = td.dataset.rezId;
     if (!rezId) return null;
     const tbody = td.closest("tbody");
     if (!tbody) return null;
     let tr = td.closest("tr")?.nextElementSibling;
     while (tr && tr.parentElement === tbody) {
-      const hucre = tr.querySelector('.rez-ozet-kalan[data-rez-id="' + rezId + '"]');
+      const hucre = tr.querySelector('.rez-ozet-odenen[data-rez-id="' + rezId + '"]');
       if (hucre) return hucre;
       tr = tr.nextElementSibling;
     }
     return null;
   }
 
-  function kalanHucreDuzenle(td) {
+  function odenenHucreDuzenle(td) {
     if (td.querySelector("input")) return;
 
     const rezId = td.dataset.rezId;
@@ -305,16 +294,16 @@
     const rez = db?.durum.rezervasyonlar[rezId];
     if (!rez) return;
 
-    const { tutar, manuel } = db.rezervasyonKalanGosterim(rez, tarih);
+    const { tutar, manuel } = db.rezervasyonOdenenGosterim(rez, tarih);
     const eski = td.textContent;
     td.classList.add("duzenleniyor");
     const edit = document.createElement("span");
-    edit.className = "rez-ozet-kalan-edit";
+    edit.className = "rez-ozet-odenen-edit";
     const inp = document.createElement("input");
     inp.type = "text";
     inp.inputMode = "decimal";
     inp.autocomplete = "off";
-    inp.className = "rez-ozet-kalan-input";
+    inp.className = "rez-ozet-odenen-input";
     inp.placeholder = "0";
     inp.value = manuel ? String(tutar) : "";
     edit.appendChild(inp);
@@ -329,12 +318,12 @@
     let enterSonraki = false;
     const temizle = () => {
       td.classList.remove("duzenleniyor");
-      const editEl = td.querySelector(".rez-ozet-kalan-edit");
+      const editEl = td.querySelector(".rez-ozet-odenen-edit");
       if (editEl) editEl.remove();
     };
     const hucreyiGuncelle = (yeniDeger, manuelMi) => {
       temizle();
-      td.textContent = kalanHucreGoster(rez, manuelMi ? yeniDeger : 0, manuelMi);
+      td.textContent = odenenHucreGoster(rez, manuelMi ? yeniDeger : 0, manuelMi);
       td.classList.toggle("manuel", manuelMi);
       td.classList.toggle("bos", !manuelMi);
       if (renk) td.style.background = renk;
@@ -352,17 +341,17 @@
       }
       const manuelMi = yeni != null;
       if (enterSonraki) {
-        const sonraki = sonrakiKalanHucre(td);
+        const sonraki = sonrakiOdenenHucre(td);
         if (sonraki) {
-          durum.pendingKalanFocus = { rezId, tarih: sonraki.dataset.tarih };
+          durum.pendingOdenenFocus = { rezId, tarih: sonraki.dataset.tarih };
         }
         enterSonraki = false;
       }
       hucreyiGuncelle(manuelMi ? yeni : 0, manuelMi);
       try {
-        await db.rezervasyonKalanHucreKaydet(rezId, tarih, yeni);
+        await db.rezervasyonOdenenHucreKaydet(rezId, tarih, yeni);
       } catch (err) {
-        durum.pendingKalanFocus = null;
+        durum.pendingOdenenFocus = null;
         window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
         hucreyiGuncelle(manuel ? tutar : 0, manuel);
       }
@@ -387,11 +376,11 @@
     });
   }
 
-  function kalanHucreBagla(wrap) {
-    wrap.querySelectorAll(".rez-ozet-kalan").forEach((td) => {
+  function odenenHucreBagla(wrap) {
+    wrap.querySelectorAll(".rez-ozet-odenen").forEach((td) => {
       td.addEventListener("click", (ev) => {
         ev.stopPropagation();
-        kalanHucreDuzenle(td);
+        odenenHucreDuzenle(td);
       });
     });
   }
@@ -477,7 +466,7 @@
     tr2.className = "rez-ozet-tr-alt";
     daireler.forEach((d, i) => {
       const renk = daireRenk(d, i);
-      ["G", "Kt", "Fyt", "Kln", "Ad"].forEach((lbl) => {
+      ["G", "Kt", "Fyt", "Ödn", "Ad"].forEach((lbl) => {
         const th = document.createElement("th");
         th.className = lbl === "Ad"
           ? "rez-ozet-misafir-baslik"
@@ -545,7 +534,7 @@
             { cls: "rez-ozet-sayi", txt: String(det.g) },
             { cls: "rez-ozet-kategori", html: det.kategoriHtml },
             { cls: "rez-ozet-sayi", txt: formatHucreFiyat(h.rez, det.prc) },
-            { type: "kln" },
+            { type: "odn" },
             { cls: "rez-ozet-ad", txt: kisaAd(det.misafir, 11) }
           ];
           hucreler.forEach((c, ci) => {
@@ -571,19 +560,19 @@
     wrap.appendChild(table);
     satirVurguBagla(table);
     tikBagla(wrap);
-    kalanHucreBagla(wrap);
+    odenenHucreBagla(wrap);
     bosHucreTikBagla(wrap, daireler);
     paraOzetCiz(y, m);
 
-    if (durum.pendingKalanFocus) {
-      const pf = durum.pendingKalanFocus;
+    if (durum.pendingOdenenFocus) {
+      const pf = durum.pendingOdenenFocus;
       requestAnimationFrame(() => {
         const hucre = wrap.querySelector(
-          '.rez-ozet-kalan[data-rez-id="' + pf.rezId + '"][data-tarih="' + pf.tarih + '"]'
+          '.rez-ozet-odenen[data-rez-id="' + pf.rezId + '"][data-tarih="' + pf.tarih + '"]'
         );
         if (hucre) {
-          durum.pendingKalanFocus = null;
-          kalanHucreDuzenle(hucre);
+          durum.pendingOdenenFocus = null;
+          odenenHucreDuzenle(hucre);
         }
       });
     }
@@ -630,7 +619,7 @@
     tbody.addEventListener("click", (e) => {
       const tr = satirBul(e);
       if (!tr) return;
-      if (e.target.closest(".rez-ozet-kalan")) return;
+      if (e.target.closest(".rez-ozet-odenen")) return;
       if (e.target.closest(".rez-ozet-tik") && tr.dataset.tarih) {
         satirSec(tr);
         return;
