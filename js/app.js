@@ -119,6 +119,52 @@
   function iso(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
   function fmt(n) { return Number(n || 0).toLocaleString("tr-TR"); }
 
+  function gelirPbToplamTL(gelirPB) {
+    const para = window.APARTIM.para;
+    if (!para) return gelirPB.TL + gelirPB.USD + gelirPB.EUR;
+    return gelirPB.TL +
+      para.tlKarsiligi(gelirPB.USD, "USD") +
+      para.tlKarsiligi(gelirPB.EUR, "EUR");
+  }
+
+  function raporGelirSatiriHtml(tutar, pb, kompakt) {
+    const para = window.APARTIM.para;
+    if (!tutar || tutar <= 0) return "";
+    const anaCls = kompakt ? " rapor-gelir-ana-k" : "";
+    const altCls = kompakt ? " rapor-gelir-tl-alt-k" : "";
+    const ana = para ? para.formatTutar(tutar, pb) : fmt(tutar) + " " + pb;
+    if (pb === "USD" || pb === "EUR") {
+      const tl = para ? para.tlKarsiligi(tutar, pb) : tutar;
+      return '<div class="rapor-gelir-satir ' + pb.toLowerCase() + (kompakt ? " kompakt" : "") + '">' +
+        '<span class="rapor-gelir-ana' + anaCls + '">' + ana + "</span>" +
+        '<span class="rapor-gelir-tl-alt' + altCls + '">≈ ' + fmt(Math.round(tl)) + " ₺</span>" +
+        "</div>";
+    }
+    return '<div class="rapor-gelir-satir tl' + (kompakt ? " kompakt" : "") + '">' +
+      '<span class="rapor-gelir-ana' + anaCls + '">' + ana + "</span></div>";
+  }
+
+  function raporGelirOzetHtml(gelirPB, kompakt) {
+    const satirlar = [];
+    if (gelirPB.TL > 0) satirlar.push(raporGelirSatiriHtml(gelirPB.TL, "TL", kompakt));
+    if (gelirPB.USD > 0) satirlar.push(raporGelirSatiriHtml(gelirPB.USD, "USD", kompakt));
+    if (gelirPB.EUR > 0) satirlar.push(raporGelirSatiriHtml(gelirPB.EUR, "EUR", kompakt));
+    if (!satirlar.length) {
+      return kompakt
+        ? '<span class="rapor-gelir-ana-k">0 ₺</span>'
+        : '<div class="rapor-gelir-satir tl"><span class="rapor-gelir-ana">0 ₺</span></div>';
+    }
+    const tlToplam = gelirPbToplamTL(gelirPB);
+    const coklu = satirlar.length > 1 || gelirPB.USD > 0 || gelirPB.EUR > 0;
+    if (coklu) {
+      satirlar.push(
+        '<div class="rapor-gelir-toplam' + (kompakt ? " kompakt" : "") + '">Toplam ≈ ' +
+          fmt(Math.round(tlToplam)) + " ₺</div>"
+      );
+    }
+    return satirlar.join("");
+  }
+
   function ayinGunSayisi(y, m) { return new Date(y, m + 1, 0).getDate(); }
 
   function yilinGunSayisi(y) {
@@ -165,27 +211,32 @@
     const daireler = db.dairelerListele();
     const toplamKapasite = daireler.length * donem.gunSayisi;
 
-    let toplamGece = 0, toplamGelir = 0, rezSayisi = 0;
+    let toplamGece = 0, rezSayisi = 0;
+    const gelirPB = { TL: 0, USD: 0, EUR: 0 };
     const daireOzet = {};
-    daireler.forEach((d) => { daireOzet[d.id] = { gece: 0, gelir: 0 }; });
+    daireler.forEach((d) => {
+      daireOzet[d.id] = { gece: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
+    });
 
     tumRez.forEach((r) => {
       const { gece, gelir } = rezGeceGelirKesisim(r, donem.bas, donem.bit);
       if (gece <= 0) return;
       toplamGece += gece;
       const pb = window.APARTIM.para?.rezParaBirimi(r) || "TL";
-      toplamGelir += window.APARTIM.para?.tlKarsiligi(gelir, pb) ?? gelir;
+      gelirPB[pb] += gelir;
       rezSayisi++;
       if (daireOzet[r.daireId]) {
         daireOzet[r.daireId].gece += gece;
-        const pb = window.APARTIM.para?.rezParaBirimi(r) || "TL";
-        daireOzet[r.daireId].gelir += window.APARTIM.para?.tlKarsiligi(gelir, pb) ?? gelir;
+        daireOzet[r.daireId].gelirPB[pb] += gelir;
       }
     });
+
+    const toplamGelir = gelirPbToplamTL(gelirPB);
 
     return {
       toplamGece,
       toplamGelir,
+      gelirPB,
       rezSayisi,
       doluluk: toplamKapasite > 0 ? (toplamGece * 100 / toplamKapasite) : 0,
       daireOzet,
@@ -208,7 +259,8 @@
 
     const r = raporHesapla();
     if (baslik) baslik.textContent = r.baslik;
-    document.getElementById("rapor-gelir").textContent = fmt(r.toplamGelir) + " TL";
+    const gelirEl = document.getElementById("rapor-gelir");
+    if (gelirEl) gelirEl.innerHTML = raporGelirOzetHtml(r.gelirPB, false);
     document.getElementById("rapor-gece").textContent = r.toplamGece + " gece";
     document.getElementById("rapor-doluluk").textContent = "%" + Math.round(r.doluluk);
     document.getElementById("rapor-rez").textContent = r.rezSayisi;
@@ -216,14 +268,16 @@
     const tbl = document.getElementById("rapor-daire-tablo");
     tbl.querySelectorAll(".rapor-daire-satir:not(.header)").forEach((x) => x.remove());
     r.daireler.forEach((d) => {
-      const o = r.daireOzet[d.id] || { gece: 0, gelir: 0 };
+      const o = r.daireOzet[d.id] || { gece: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
       const doluluk = r.gunSayisi > 0 ? Math.round(o.gece * 100 / r.gunSayisi) : 0;
       const sat = document.createElement("div");
       sat.className = "rapor-daire-satir";
       sat.innerHTML =
         "<span>" + d.ad + "</span>" +
         '<span class="gece-val">' + o.gece + "</span>" +
-        '<span class="gelir-val">' + fmt(o.gelir) + " TL</span>" +
+        '<span class="gelir-val"><div class="rapor-daire-gelir-wrap">' +
+          raporGelirOzetHtml(o.gelirPB, true) +
+        "</div></span>" +
         '<span class="doluluk-val">%' + doluluk + "</span>";
       tbl.appendChild(sat);
     });
