@@ -123,7 +123,8 @@ html.theme-light {
   width: 96px; height: 96px;
   border-radius: 22px;
   box-shadow: var(--golge);
-  object-fit: cover;
+  object-fit: contain;
+  display: block;
 }
 .lock-title {
   font-family: "Bebas Neue", "Nunito", sans-serif;
@@ -289,7 +290,7 @@ html.theme-light {
   width: 64px;
   height: 64px;
   border-radius: 16px;
-  object-fit: cover;
+  object-fit: contain;
 }
 .avatar-secim-btn span {
   font-size: 11px;
