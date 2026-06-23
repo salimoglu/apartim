@@ -5,11 +5,11 @@
 (function () {
   "use strict";
 
-  const V = "20260809";
+  const V = "20260810";
   const VARSAYILAN = "ev";
 
   const AVATARLAR = [
-    { id: "ev", etiket: "Apart ev", src: "icons/logo-ev.png", evLogo: true },
+    { id: "ev", etiket: "Apart ev", src: "icons/logo-ev.png", png: true },
     { id: "apart", etiket: "Apart otel", src: "icons/avatars/apart.svg" },
     { id: "kamp", etiket: "Kamp", src: "icons/avatars/kamp.svg" },
     { id: "doga", etiket: "Doğa", src: "icons/avatars/doga.svg" },
@@ -24,7 +24,7 @@
 
   function srcUrl(avatarId) {
     const a = byId[avatarId] || byId[VARSAYILAN];
-    return a.src + "?v=" + V;
+    return a.src + (a.png ? "" : "?v=" + V);
   }
 
   function coz(kullanici) {
@@ -38,11 +38,8 @@
 
   function guncelle(imgEl, kullanici) {
     if (!imgEl) return;
-    const url = coz(kullanici);
-    imgEl.src = url;
+    imgEl.src = coz(kullanici);
     imgEl.referrerPolicy = "no-referrer";
-    const evMi = url.indexOf("logo-ev.png") !== -1;
-    imgEl.classList.toggle("avatar-ev-crop", evMi);
   }
 
   function kullaniciyaEkle(k) {
@@ -60,7 +57,7 @@
     coz,
     guncelle,
     kullaniciyaEkle,
-    logoEv: "icons/logo-ev.png?v=" + V,
+    logoEv: "icons/logo-ev.png",
     seciciAc,
     seciciKapat
   };
@@ -79,7 +76,7 @@
     AVATARLAR.forEach((a) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "avatar-secim-btn" + (a.id === mevcut ? " active" : "") + (a.evLogo ? " avatar-ev-wrap" : "");
+      btn.className = "avatar-secim-btn" + (a.id === mevcut ? " active" : "");
       btn.dataset.avatarId = a.id;
       btn.title = a.etiket;
       btn.innerHTML =
