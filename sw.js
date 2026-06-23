@@ -1,5 +1,5 @@
 /* Apartım — basit cache-first service worker */
-const CACHE_VERSION = "apartim-v42-20260717";
+const CACHE_VERSION = "apartim-v43-20260718";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -9,6 +9,7 @@ const CORE_ASSETS = [
   "./js/pwa-install.js",
   "./js/auth.js",
   "./js/db.js",
+  "./js/para.js",
   "./js/bina.js",
   "./js/takvim.js",
   "./js/daire.js",

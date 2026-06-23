@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260627b" />
-  <link rel="stylesheet" href="css/style.css?v=20260717" />
+  <link rel="stylesheet" href="css/style.css?v=20260718" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -99,6 +99,10 @@
             <button type="button" class="ayar-item" id="ayar-daireler" role="menuitem">
               <span class="ayar-item-ikon" aria-hidden="true">&#127968;</span>
               Daire isimleri
+            </button>
+            <button type="button" class="ayar-item" id="ayar-doviz" role="menuitem">
+              <span class="ayar-item-ikon" aria-hidden="true">&#128176;</span>
+              Döviz kurları
             </button>
             <button type="button" class="ayar-item" id="ayar-yenile" role="menuitem">
               <span class="ayar-item-ikon" aria-hidden="true">&#8635;</span>
@@ -223,6 +227,7 @@
             <button type="button" class="rez-ozet-bugun-btn" id="rez-ozet-bugun">Bugün</button>
             <button type="button" class="rez-ozet-tam-btn" id="rez-ozet-tam" title="Tam ekran yatay tablo">&#9974; Yatay</button>
           </div>
+          <div class="rez-ozet-para-bar" id="rez-ozet-para-bar"></div>
           <div class="rez-ozet-scroll">
             <div id="rez-ozet-tablo">
               <div class="rez-bos">Yükleniyor...</div>
@@ -318,9 +323,19 @@
           <input type="checkbox" id="rez-tek-fiyat" checked />
           <span>Tüm geceler aynı fiyat</span>
         </label>
-        <div class="field-group rez-ucret-grup" id="rez-ucret-grup">
-          <label class="field-label" for="rez-ucret">Gecelik ücret (TL) *</label>
-          <input type="number" id="rez-ucret" class="field-input" min="0" step="50" placeholder="1500" />
+        <div class="field-row rez-ucret-para-satir">
+          <div class="field-group rez-ucret-grup" id="rez-ucret-grup">
+            <label class="field-label" for="rez-ucret" id="rez-ucret-label">Gecelik ücret (TL) *</label>
+            <input type="number" id="rez-ucret" class="field-input" min="0" step="50" placeholder="1500" />
+          </div>
+          <div class="field-group rez-para-grup">
+            <label class="field-label" for="rez-para-birimi">Para birimi</label>
+            <select id="rez-para-birimi" class="field-select">
+              <option value="TL">₺ TL</option>
+              <option value="USD">$ USD</option>
+              <option value="EUR">€ EUR</option>
+            </select>
+          </div>
         </div>
         <div class="field-group rez-tarih-fiyat-grup hidden" id="rez-tarih-fiyat-grup">
           <label class="field-label">Gece başına fiyat</label>
@@ -405,6 +420,34 @@
     </div>
   </div>
 
+  <!-- MODAL: DÖVİZ KURLARI -->
+  <div id="modal-doviz" class="modal-overlay hidden">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2 class="modal-title">Döviz kurları</h2>
+        <button type="button" class="modal-close" id="doviz-close">&#10005;</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-aciklama">USD ve EUR tutarlarının TL karşılığı hesaplanırken kullanılır. Özet tablo ve raporda toplam TL buna göre gösterilir.</p>
+        <div class="field-row">
+          <div class="field-group">
+            <label class="field-label" for="doviz-usd">1 USD = ? TL</label>
+            <input type="number" id="doviz-usd" class="field-input" min="0.01" step="0.01" />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="doviz-eur">1 EUR = ? TL</label>
+            <input type="number" id="doviz-eur" class="field-input" min="0.01" step="0.01" />
+          </div>
+        </div>
+        <div id="doviz-uyari" class="modal-uyari hidden"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="doviz-kapat">İptal</button>
+        <button type="button" class="btn-primary" id="doviz-kaydet">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: SİL ONAYI -->
   <div id="modal-onay" class="modal-overlay hidden">
     <div class="modal-box">
@@ -441,15 +484,16 @@
   <script src="js/firebase.js?v=20260615"></script>
   <script src="js/pwa-install.js?v=20260628"></script>
   <script src="js/auth.js?v=20260615"></script>
-  <script src="js/db.js?v=20260708"></script>
+  <script src="js/db.js?v=20260718"></script>
+  <script src="js/para.js?v=20260718"></script>
   <script src="js/bina.js?v=20260708"></script>
   <script src="js/takvim.js?v=20260704"></script>
-  <script src="js/rezervasyon.js?v=20260716"></script>
-  <script src="js/rez-ozet.js?v=20260710"></script>
+  <script src="js/rezervasyon.js?v=20260718"></script>
+  <script src="js/rez-ozet.js?v=20260718"></script>
   <script src="js/temizlik.js?v=20260717"></script>
   <script src="js/daire.js?v=20260615"></script>
   <script src="js/tema.js?v=20260615"></script>
-  <script src="js/ayarlar.js?v=20260626"></script>
-  <script src="js/app.js?v=20260715"></script>
+  <script src="js/ayarlar.js?v=20260718"></script>
+  <script src="js/app.js?v=20260718"></script>
 </body>
 </html>

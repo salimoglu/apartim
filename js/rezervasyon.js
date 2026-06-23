@@ -20,6 +20,8 @@
     giris: document.getElementById("rez-giris"),
     cikis: document.getElementById("rez-cikis"),
     ucret: document.getElementById("rez-ucret"),
+    ucretLabel: document.getElementById("rez-ucret-label"),
+    paraBirimi: document.getElementById("rez-para-birimi"),
     ucretGrup: document.getElementById("rez-ucret-grup"),
     tekFiyatToggle: document.getElementById("rez-tek-fiyat"),
     tarihFiyatGrup: document.getElementById("rez-tarih-fiyat-grup"),
@@ -44,6 +46,22 @@
   function varsayilanUcret() {
     const daire = mevcutDaireId ? window.APARTIM.db?.daireGetir(mevcutDaireId) : null;
     return Number(daire?.gunlukUcret) || 1000;
+  }
+
+  function seciliParaBirimi() {
+    return window.APARTIM.para?.paraBirimiNorm(ay().paraBirimi?.value) || "TL";
+  }
+
+  function paraSimge() {
+    return window.APARTIM.para?.simge(seciliParaBirimi()) || "₺";
+  }
+
+  function ucretEtiketGuncelle() {
+    const lbl = ay().ucretLabel;
+    if (lbl) lbl.textContent = "Gecelik ücret (" + seciliParaBirimi() + ") *";
+    document.querySelectorAll(".rez-tarih-pb").forEach((el) => {
+      el.textContent = paraSimge();
+    });
   }
 
   function tarihGoster(iso) {
@@ -122,7 +140,7 @@
         '<span class="rez-tarih-etiket">' + esc(tarihGoster(t)) + "</span>" +
         '<input type="number" class="field-input rez-tarih-ucret" min="0" step="50" value="' +
         (mevcut[t] != null ? mevcut[t] : u) + '" aria-label="' + esc(tarihGoster(t)) + ' fiyat" />' +
-        '<span class="rez-tarih-tl">TL</span>';
+        '<span class="rez-tarih-pb">' + paraSimge() + "</span>";
       satir.querySelector("input").addEventListener("input", toplamHesapla);
       wrap.appendChild(satir);
     });
@@ -251,7 +269,7 @@
       const aralik = basTarih === bitTarih
         ? tarihGoster(basTarih)
         : tarihGoster(basTarih) + "–" + tarihGoster(bitTarih);
-      parcalar.push(aralik + " " + aralikFormatla(u) + " TL");
+      parcalar.push(aralik + " " + aralikFormatla(u) + " " + paraSimge());
       i++;
     }
     return parcalar.join(" · ");
@@ -272,7 +290,11 @@
       };
       const { gece, toplam } = tutarHesapla(rez);
       if (e.tGece) e.tGece.textContent = gece + " gece";
-      if (e.tTutar) e.tTutar.textContent = aralikFormatla(toplam) + " TL";
+      if (e.tTutar) {
+        e.tTutar.textContent = window.APARTIM.para
+          ? window.APARTIM.para.formatTutar(toplam, seciliParaBirimi())
+          : aralikFormatla(toplam) + " TL";
+      }
       if (e.fiyatOzet) {
         e.fiyatOzet.textContent = !tekFiyatModu && gece > 0 ? fiyatOzetMetni(rez) : "";
       }
@@ -345,6 +367,8 @@
       alanYaz(e.cikis, gunEkle(gIso, 1));
       const u = daire ? daire.gunlukUcret : 1000;
       alanYaz(e.ucret, u);
+      if (e.paraBirimi) e.paraBirimi.value = "TL";
+      ucretEtiketGuncelle();
       tekFiyatModuGoster(true);
       alanYaz(e.notlar, "");
       e.btnSil?.classList.add("hidden");
@@ -380,6 +404,10 @@
       alanYaz(e.giris, rez.giris);
       alanYaz(e.cikis, rez.cikis);
       fiyatFormYukle(rez);
+      if (e.paraBirimi) {
+        e.paraBirimi.value = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+      }
+      ucretEtiketGuncelle();
       alanYaz(e.notlar, rez.notlar || "");
       e.btnSil?.classList.remove("hidden");
       uyariGoster("");
@@ -445,6 +473,7 @@
         giris,
         cikis,
         gunlukUcret: ucretDeger,
+        paraBirimi: seciliParaBirimi(),
         notlar: (e.notlar?.value || "").trim(),
         tarihFiyatlari: tekFiyatModu ? null : tf,
         ucretKademeleri: null
@@ -552,12 +581,16 @@
       !db.tarihFiyatlariTekMi(rez.giris, rez.cikis, rez.tarihFiyatlari, rez.gunlukUcret)
       ? " · Tarihli fiyat"
       : (rez.ucretKademeleri ? " · Kademeli fiyat" : "");
+    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    const tutarMetin = window.APARTIM.para
+      ? window.APARTIM.para.formatTutar(rez.toplamTutar || 0, pb)
+      : aralikFormatla(rez.toplamTutar || 0) + " TL";
 
     div.innerHTML =
       '<div class="rez-kart-ust">' +
         '<span class="rez-kart-misafir">' + esc(rez.misafirAdi || "Misafir") + '</span>' +
         '<span class="rez-kaynak-badge" title="' + esc(kaynakAd) + '">' + esc(kaynakSimge) + ' ' + esc(kaynakAd) + '</span>' +
-        '<span class="rez-kart-tutar">' + aralikFormatla(rez.toplamTutar || 0) + ' TL</span>' +
+        '<span class="rez-kart-tutar">' + tutarMetin + '</span>' +
       '</div>' +
       '<div class="rez-kart-orta">' +
         '<span>' + (daire ? esc(daire.ad) : esc(rez.daireId)) + '</span>' +
@@ -631,6 +664,11 @@
     e.giris?.addEventListener("input", tarihDegisti);
     e.cikis?.addEventListener("input", tarihDegisti);
     e.ucret?.addEventListener("input", toplamHesapla);
+    e.paraBirimi?.addEventListener("change", () => {
+      ucretEtiketGuncelle();
+      if (!tekFiyatModu) tarihFiyatListeCiz(tarihFiyatlariOku());
+      toplamHesapla();
+    });
     e.tekFiyatToggle?.addEventListener("change", () => tekFiyatModuGoster(e.tekFiyatToggle.checked));
     e.giris?.addEventListener("change", tarihDegisti);
     document.getElementById("rez-yeni-btn")?.addEventListener("click", () => yeni({}));

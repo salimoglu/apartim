@@ -28,6 +28,36 @@
   function pad(n) { return String(n).padStart(2, "0"); }
   function iso(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
   function fmt(n) { return Number(n || 0).toLocaleString("tr-TR"); }
+
+  function formatHucreFiyat(rez, miktar) {
+    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    if (window.APARTIM.para) return window.APARTIM.para.formatTutarKisa(miktar, pb);
+    return fmt(miktar);
+  }
+
+  function paraOzetCiz(y, m) {
+    const bar = document.getElementById("rez-ozet-para-bar");
+    if (!bar || !window.APARTIM.para) return;
+    const db = window.APARTIM.db;
+    if (!db || !db.durum.yuklendi) {
+      bar.innerHTML = "";
+      return;
+    }
+    const { toplam, tlToplam } = window.APARTIM.para.ayToplamlari(db, y, m);
+    const k = window.APARTIM.para.kurlariGetir();
+    const parcalar = [];
+    if (toplam.TL > 0) parcalar.push('<span class="rez-ozet-para-item tl">' + window.APARTIM.para.formatTutar(toplam.TL, "TL") + "</span>");
+    if (toplam.USD > 0) parcalar.push('<span class="rez-ozet-para-item usd">' + window.APARTIM.para.formatTutar(toplam.USD, "USD") + "</span>");
+    if (toplam.EUR > 0) parcalar.push('<span class="rez-ozet-para-item eur">' + window.APARTIM.para.formatTutar(toplam.EUR, "EUR") + "</span>");
+    const ayir = parcalar.length ? '<span class="rez-ozet-para-ayrac">|</span>' : "";
+    bar.innerHTML =
+      '<div class="rez-ozet-para-ic">' +
+        parcalar.join('<span class="rez-ozet-para-ayrac">|</span>') +
+        ayir +
+        '<span class="rez-ozet-para-toplam">Toplam ≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>" +
+        '<span class="rez-ozet-para-kur">(1$=' + k.USD + "₺ · 1€=" + k.EUR + "₺)</span>" +
+      "</div>";
+  }
   function ayinGunSayisi(y, m) { return new Date(y, m + 1, 0).getDate(); }
 
   function tarihGoster(isoStr) {
@@ -121,8 +151,8 @@
     return [
       { cls: "rez-ozet-sayi rez-ozet-giris-hucre", html: ioBadge("in", rez.id) + '<span>' + det.g + '</span>' },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
-      { cls: "rez-ozet-sayi", txt: fmt(det.prc) },
-      { cls: "rez-ozet-sayi", txt: fmt(det.rmnd) },
+      { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
+      { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.rmnd) },
       { cls: "rez-ozet-ad", txt: kisaAd(det.misafir, 11) }
     ];
   }
@@ -254,7 +284,7 @@
     tr2.className = "rez-ozet-tr-alt";
     daireler.forEach((d, i) => {
       const renk = daireRenk(d, i);
-      ["G", "Kt", "₺", "Kln", "Ad"].forEach((lbl) => {
+      ["G", "Kt", "Fyt", "Kln", "Ad"].forEach((lbl) => {
         const th = document.createElement("th");
         th.className = lbl === "Ad"
           ? "rez-ozet-misafir-baslik"
@@ -328,8 +358,8 @@
           const hucreler = [
             { cls: "rez-ozet-sayi", txt: String(det.g) },
             { cls: "rez-ozet-kategori", html: det.kategoriHtml },
-            { cls: "rez-ozet-sayi", txt: fmt(det.prc) },
-            { cls: "rez-ozet-sayi", txt: fmt(det.rmnd) },
+            { cls: "rez-ozet-sayi", txt: formatHucreFiyat(h.rez, det.prc) },
+            { cls: "rez-ozet-sayi", txt: formatHucreFiyat(h.rez, det.rmnd) },
             { cls: "rez-ozet-ad", txt: kisaAd(det.misafir, 11) }
           ];
           hucreler.forEach((c, ci) => {
@@ -363,6 +393,7 @@
     satirVurguBagla(table);
     tikBagla(wrap);
     bosHucreTikBagla(wrap, daireler);
+    paraOzetCiz(y, m);
   }
 
   function satirVurguBagla(table) {

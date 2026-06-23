@@ -172,6 +172,42 @@
     }
   }
 
+  // ---- Döviz kurları ----
+  const modalDoviz = () => document.getElementById("modal-doviz");
+
+  function dovizAc() {
+    uyari("doviz-uyari", "");
+    const k = window.APARTIM.para?.kurlariGetir() || { USD: 34, EUR: 37 };
+    const usd = document.getElementById("doviz-usd");
+    const eur = document.getElementById("doviz-eur");
+    if (usd) usd.value = k.USD;
+    if (eur) eur.value = k.EUR;
+    modalDoviz()?.classList.remove("hidden");
+    usd?.focus();
+  }
+
+  function dovizKapat() {
+    modalDoviz()?.classList.add("hidden");
+    uyari("doviz-uyari", "");
+  }
+
+  async function dovizKaydet() {
+    const usd = Number(document.getElementById("doviz-usd")?.value);
+    const eur = Number(document.getElementById("doviz-eur")?.value);
+    if (!usd || !eur || usd <= 0 || eur <= 0) {
+      uyari("doviz-uyari", "Geçerli kur değerleri girin.");
+      return;
+    }
+    try {
+      await window.APARTIM.db.dovizKurlariKaydet({ USD: usd, EUR: eur });
+      window.APARTIM.toast("Döviz kurları kaydedildi", "basari");
+      dovizKapat();
+      window.APARTIM.rezOzet?.tabloCiz();
+    } catch (err) {
+      uyari("doviz-uyari", err.message || "Kaydedilemedi.");
+    }
+  }
+
   document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("ayar-kaynaklar")?.addEventListener("click", () => {
       document.getElementById("ayar-menu")?.classList.add("hidden");
@@ -194,6 +230,14 @@
     document.getElementById("daireler-close")?.addEventListener("click", daireKapat);
     document.getElementById("daireler-kapat")?.addEventListener("click", daireKapat);
     document.getElementById("daireler-kaydet")?.addEventListener("click", daireKaydet);
+
+    document.getElementById("ayar-doviz")?.addEventListener("click", () => {
+      document.getElementById("ayar-menu")?.classList.add("hidden");
+      dovizAc();
+    });
+    document.getElementById("doviz-close")?.addEventListener("click", dovizKapat);
+    document.getElementById("doviz-kapat")?.addEventListener("click", dovizKapat);
+    document.getElementById("doviz-kaydet")?.addEventListener("click", dovizKaydet);
   });
 
   document.addEventListener("apartim:veri-degisti", (e) => {
@@ -205,5 +249,5 @@
     }
   });
 
-  window.APARTIM.ayarlar = { kaynakAc, kaynakKapat, daireAc, daireKapat };
+  window.APARTIM.ayarlar = { kaynakAc, kaynakKapat, daireAc, daireKapat, dovizAc, dovizKapat };
 })();

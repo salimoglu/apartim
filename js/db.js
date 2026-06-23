@@ -35,6 +35,7 @@
     rezervasyonlar: {},// { rezId: {...} }
     temizlikKayit: {}, // { kayitId: {...} }
     musteriKaynaklari: {}, // { id: { id, ad, simge, sira, sistem } }
+    dovizKurlari: { USD: 34, EUR: 37 },
     yuklendi: false
   };
   const dinleyiciler = [];
@@ -137,10 +138,27 @@
     Object.keys(obj).forEach((key) => {
       const r = obj[key];
       if (r && typeof r === "object") {
-        out[key] = Object.assign({}, r, { id: r.id || key });
+        const kayit = Object.assign({}, r, { id: r.id || key });
+        if (!kayit.paraBirimi) kayit.paraBirimi = "TL";
+        out[key] = kayit;
       }
     });
     return out;
+  }
+
+  function dovizKurlariSenkron() {
+    if (window.APARTIM.para) {
+      window.APARTIM.para.kurlariYukle(durum.dovizKurlari);
+    }
+  }
+
+  function dovizKurlariKaydet(kurlar) {
+    durum.dovizKurlari = {
+      USD: Number(kurlar?.USD) > 0 ? Number(kurlar.USD) : 34,
+      EUR: Number(kurlar?.EUR) > 0 ? Number(kurlar.EUR) : 37
+    };
+    dovizKurlariSenkron();
+    return kaydet("doviz-kurlari", durum.dovizKurlari);
   }
 
   /** Konak gecesi (1 tabanlı) için ücret */
@@ -364,12 +382,31 @@
         musteriKaynaklariSeedEt();
         bildir("veri-degisti", { sebep: "musteri-kaynaklari" });
       });
+
+      fbRef.child("doviz-kurlari").on("value", (snap) => {
+        const v = snap.val();
+        if (v) {
+          durum.dovizKurlari = {
+            USD: Number(v.USD) > 0 ? Number(v.USD) : 34,
+            EUR: Number(v.EUR) > 0 ? Number(v.EUR) : 37
+          };
+        }
+        dovizKurlariSenkron();
+        bildir("veri-degisti", { sebep: "doviz-kurlari" });
+      });
     } else {
       const v = window.APARTIM.yerelOku();
       durum.daireler = v.daireler || {};
       durum.rezervasyonlar = rezervasyonlariNormalize(v.rezervasyonlar || {});
       durum.temizlikKayit = v.temizlikKayit || {};
       durum.musteriKaynaklari = v.musteriKaynaklari || {};
+      if (v.dovizKurlari) {
+        durum.dovizKurlari = {
+          USD: Number(v.dovizKurlari.USD) > 0 ? Number(v.dovizKurlari.USD) : 34,
+          EUR: Number(v.dovizKurlari.EUR) > 0 ? Number(v.dovizKurlari.EUR) : 37
+        };
+      }
+      dovizKurlariSenkron();
       musteriKaynaklariSeedEt();
       dairelerSeedEt();
       durum.yuklendi = true;
@@ -384,7 +421,8 @@
       daireler: durum.daireler,
       rezervasyonlar: durum.rezervasyonlar,
       temizlikKayit: durum.temizlikKayit,
-      musteriKaynaklari: durum.musteriKaynaklari
+      musteriKaynaklari: durum.musteriKaynaklari,
+      dovizKurlari: durum.dovizKurlari
     });
   }
 
@@ -481,7 +519,8 @@
       if (!rez || rez.daireId !== daireId) return;
       const k = rezAyKesisimGelir(rez, ayBas, ayBit);
       gece += k.gece;
-      gelir += k.gelir;
+      const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+      gelir += window.APARTIM.para?.tlKarsiligi(k.gelir, pb) ?? k.gelir;
     });
     return {
       gece,
@@ -705,6 +744,7 @@
     daireDurumuBugun,
     temizlikLogEkle,
     temizlikLogListele,
+    dovizKurlariKaydet,
     musteriKaynaklariListele,
     musteriKaynagiGetir,
     musteriKaynagiAd,

@@ -173,11 +173,13 @@
       const { gece, gelir } = rezGeceGelirKesisim(r, donem.bas, donem.bit);
       if (gece <= 0) return;
       toplamGece += gece;
-      toplamGelir += gelir;
+      const pb = window.APARTIM.para?.rezParaBirimi(r) || "TL";
+      toplamGelir += window.APARTIM.para?.tlKarsiligi(gelir, pb) ?? gelir;
       rezSayisi++;
       if (daireOzet[r.daireId]) {
         daireOzet[r.daireId].gece += gece;
-        daireOzet[r.daireId].gelir += gelir;
+        const pb = window.APARTIM.para?.rezParaBirimi(r) || "TL";
+        daireOzet[r.daireId].gelir += window.APARTIM.para?.tlKarsiligi(gelir, pb) ?? gelir;
       }
     });
 
