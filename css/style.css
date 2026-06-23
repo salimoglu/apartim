@@ -203,8 +203,13 @@ html.theme-light {
 /* -------------------- 4. Uygulama kabuğu -------------------- */
 .app {
   min-height: 100vh;
-  display: flex; flex-direction: column;
+  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background: var(--zemin);
+  overflow: hidden;
 }
 .topbar {
   position: sticky; top: 0; z-index: 100;
@@ -318,13 +323,31 @@ html.theme-light {
 .tab-icon { font-size: 16px; }
 
 .content {
-  flex: 1; padding: 0;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
   max-width: 1280px;
   width: 100%;
   margin: 0 auto;
 }
-.tab-panel { display: none; padding: 16px; }
-.tab-panel.active { display: block; }
+.tab-panel { display: none; padding: 16px; box-sizing: border-box; }
+.tab-panel.active {
+  display: block;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+#tab-rezervasyonlar.active {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+#tab-rezervasyonlar.active .rez-ozet-wrap {
+  flex: 1;
+  min-height: 0;
+}
 
 /* -------------------- 6. Bina ana ekranı -------------------- */
 .bina-wrap {
@@ -1103,6 +1126,7 @@ html:not(.theme-light) .takvim-turnover-ad {
   border: 1px solid var(--kenar);
   border-radius: var(--radius);
   padding: 8px;
+  flex-shrink: 0;
 }
 .rez-ozet-ay-baslik {
   font-family: "Bebas Neue", "Nunito", sans-serif;
@@ -1123,18 +1147,23 @@ html:not(.theme-light) .takvim-turnover-ad {
 }
 .rez-ozet-bugun-btn:hover { background: var(--vurgu-soluk); }
 .rez-ozet-scroll {
-  overflow-x: auto;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   border: 1px solid var(--kenar);
   border-radius: var(--radius);
   background: var(--kart);
 }
 .rez-ozet-table {
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 10px;
   min-width: 100%;
   white-space: nowrap;
   --rez-cizgi: #6b7280;
+  --rez-ozet-head1-h: 22px;
   color: #111827;
 }
 html:not(.theme-light) .rez-ozet-table {
@@ -1259,10 +1288,30 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
   position: sticky;
   top: 0;
   z-index: 4;
+  background-clip: padding-box;
+}
+.rez-ozet-table thead tr.rez-ozet-tr-alt th {
+  top: var(--rez-ozet-head1-h);
+  z-index: 5;
+  box-shadow: 0 -1px 0 var(--rez-cizgi);
+}
+.rez-ozet-table thead tr.rez-ozet-tr-daire th {
+  z-index: 4;
+  box-shadow: 0 1px 0 var(--rez-cizgi);
 }
 .rez-ozet-table thead .rez-ozet-tarih-kose {
-  z-index: 6;
+  z-index: 7;
   left: 0;
+  top: 0;
+  background: var(--kart-2) !important;
+}
+html:not(.theme-light) .rez-ozet-table thead .rez-ozet-tarih-kose {
+  background: #1e2d3d !important;
+  color: #ffffff !important;
+}
+html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
+  background: var(--kart-2) !important;
+  color: var(--metin) !important;
 }
 .rez-ozet-tarih-kose {
   position: sticky;

@@ -436,6 +436,14 @@
     });
   }
 
+  function stickyBaslikOlcul(table) {
+    requestAnimationFrame(() => {
+      const tr1 = table.querySelector(".rez-ozet-tr-daire");
+      if (!tr1) return;
+      table.style.setProperty("--rez-ozet-head1-h", tr1.getBoundingClientRect().height + "px");
+    });
+  }
+
   function tabloCiz() {
     const wrap = document.getElementById("rez-ozet-tablo");
     const baslik = document.getElementById("rez-ozet-ay-baslik");
@@ -573,6 +581,7 @@
     table.appendChild(tbody);
     wrap.innerHTML = "";
     wrap.appendChild(table);
+    stickyBaslikOlcul(table);
     satirVurguBagla(table);
     tikBagla(wrap);
     odenenHucreBagla(wrap);
@@ -707,6 +716,10 @@
     document.getElementById("rez-ozet-next")?.addEventListener("click", () => git(1));
     document.getElementById("rez-ozet-bugun")?.addEventListener("click", buguneGit);
     document.getElementById("rez-ozet-tam")?.addEventListener("click", tamEkranYatay);
+    window.addEventListener("resize", () => {
+      const table = document.querySelector("#rez-ozet-tablo .rez-ozet-table");
+      if (table) stickyBaslikOlcul(table);
+    });
   });
 
   document.addEventListener("apartim:veri-degisti", tabloCiz);
