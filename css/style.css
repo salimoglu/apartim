@@ -1094,6 +1094,31 @@ html:not(.theme-light) .takvim-turnover-ad {
   color: var(--metin-soluk);
   margin-left: auto;
 }
+.rez-ozet-kalan-ic {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--kenar);
+}
+.rez-ozet-kalan-ic.bos {
+  color: var(--metin-soluk);
+}
+.rez-ozet-kalan-etiket {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--metin-soluk);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.rez-ozet-kalan-toplam {
+  font-weight: 800;
+  color: var(--metin);
+  font-size: 12px;
+}
 .rez-ozet-ay-nav {
   display: flex;
   align-items: center;
@@ -1371,30 +1396,37 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
   max-width: 42px;
   min-width: 42px !important;
   height: 18px;
-  line-height: 1.1;
+  max-height: 18px;
+  line-height: 18px;
   padding: 0 !important;
   overflow: hidden;
   box-sizing: border-box;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle !important;
 }
 .rez-ozet-kalan.bos {
   color: var(--metin-soluk-2);
 }
 .rez-ozet-kalan.manuel {
-  font-weight: 800;
-  color: var(--metin);
+  font-weight: 700;
+  color: #111827 !important;
+}
+html:not(.theme-light) .rez-ozet-kalan.manuel {
+  color: #111827 !important;
 }
 .rez-ozet-kalan:hover:not(.duzenleniyor) {
   outline: 1px solid var(--vurgu);
   outline-offset: -1px;
-  filter: none;
 }
 .rez-ozet-kalan.duzenleniyor {
   z-index: 5;
-  overflow: visible;
   padding: 0 !important;
+  outline: 1px solid var(--vurgu);
+  outline-offset: -1px;
 }
 .rez-ozet-kalan.duzenleniyor:hover {
-  outline: none;
+  outline: 1px solid var(--vurgu);
 }
 .rez-ozet-kalan-edit {
   display: block;
@@ -1406,7 +1438,7 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
 .rez-ozet-kalan-input {
   display: block;
   width: 100%;
-  height: 100%;
+  height: 18px;
   min-width: 0;
   max-width: 100%;
   margin: 0;
@@ -1415,13 +1447,12 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
   font-weight: 700;
   font-family: inherit;
   text-align: center;
-  line-height: 16px;
+  line-height: 18px;
   padding: 0 1px;
   border: none;
-  border-radius: 2px;
-  background: var(--kart-2);
-  color: var(--metin);
-  box-shadow: inset 0 0 0 1px var(--vurgu);
+  border-radius: 0;
+  background: transparent;
+  color: #111827;
   outline: none;
   -moz-appearance: textfield;
   appearance: textfield;

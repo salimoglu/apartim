@@ -257,6 +257,39 @@
     return rezervasyonGuncelle(rezId, partial);
   }
 
+  /** Ay içinde her rezervasyonun son girilen kalan tutarını toplar */
+  function ayKalanToplamlari(yil, ay) {
+    const pad = (n) => String(n).padStart(2, "0");
+    const ayGun = new Date(yil, ay + 1, 0).getDate();
+    const ayBas = yil + "-" + pad(ay + 1) + "-01";
+    const ayBit = gunEkleISO(yil + "-" + pad(ay + 1) + "-" + pad(ayGun), 1);
+    const toplam = { TL: 0, USD: 0, EUR: 0 };
+    let kayitSayisi = 0;
+
+    Object.values(durum.rezervasyonlar || {}).forEach((rez) => {
+      if (!rez?.kalanGunleri) return;
+      let sonTarih = null;
+      let sonTutar = 0;
+      Object.keys(rez.kalanGunleri).forEach((t) => {
+        if (t < ayBas || t >= ayBit) return;
+        if (!sonTarih || t > sonTarih) {
+          sonTarih = t;
+          sonTutar = Number(rez.kalanGunleri[t]) || 0;
+        }
+      });
+      if (!sonTarih) return;
+      kayitSayisi++;
+      const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+      toplam[pb] += sonTutar;
+    });
+
+    const tlToplam = toplam.TL +
+      (window.APARTIM.para?.tlKarsiligi(toplam.USD, "USD") ?? 0) +
+      (window.APARTIM.para?.tlKarsiligi(toplam.EUR, "EUR") ?? 0);
+
+    return { toplam, tlToplam, kayitSayisi };
+  }
+
   function rezervasyonOzeti(rez) {
     const { gece, toplam, gecelik } = rezervasyonTutarHesapla(rez);
     const gunluk = Number(rez.gunlukUcret) || 0;
@@ -766,6 +799,7 @@
     rezervasyonKalanTutar,
     rezervasyonKalanGosterim,
     rezervasyonKalanHucreKaydet,
+    ayKalanToplamlari,
     rezervasyonOzeti,
     rezAyKesisimGelir,
     daireAylikOzet,

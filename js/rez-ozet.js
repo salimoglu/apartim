@@ -35,6 +35,46 @@
     return fmt(miktar);
   }
 
+  function formatKalanKisa(rez, miktar) {
+    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    if (window.APARTIM.para) return window.APARTIM.para.formatTutarKisa(miktar, pb);
+    return fmt(miktar);
+  }
+
+  function kalanHucreGoster(rez, tutar, manuel) {
+    if (!manuel) return "—";
+    return formatKalanKisa(rez, tutar);
+  }
+
+  function kalanOzetHtml(y, m) {
+    const db = window.APARTIM.db;
+    if (!db || !window.APARTIM.para) return "";
+    const { toplam, tlToplam, kayitSayisi } = db.ayKalanToplamlari(y, m);
+    if (!kayitSayisi) {
+      return '<div class="rez-ozet-kalan-ic bos"><span class="rez-ozet-kalan-etiket">Kalan</span><span>—</span></div>';
+    }
+    const parcalar = [];
+    if (toplam.TL > 0) {
+      parcalar.push('<span class="rez-ozet-para-item tl">' + window.APARTIM.para.formatTutar(toplam.TL, "TL") + "</span>");
+    }
+    if (toplam.USD > 0) {
+      parcalar.push('<span class="rez-ozet-para-item usd">' + window.APARTIM.para.formatTutar(toplam.USD, "USD") + "</span>");
+    }
+    if (toplam.EUR > 0) {
+      parcalar.push('<span class="rez-ozet-para-item eur">' + window.APARTIM.para.formatTutar(toplam.EUR, "EUR") + "</span>");
+    }
+    const cokluPb = parcalar.length > 1 || toplam.USD > 0 || toplam.EUR > 0;
+    let html = '<div class="rez-ozet-kalan-ic">' +
+      '<span class="rez-ozet-kalan-etiket">Kalan</span>' +
+      parcalar.join('<span class="rez-ozet-para-ayrac">·</span>');
+    if (cokluPb) {
+      html += '<span class="rez-ozet-para-ayrac">|</span>' +
+        '<span class="rez-ozet-kalan-toplam">≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>";
+    }
+    html += "</div>";
+    return html;
+  }
+
   function paraOzetCiz(y, m) {
     const bar = document.getElementById("rez-ozet-para-bar");
     if (!bar || !window.APARTIM.para) return;
@@ -61,7 +101,8 @@
         '<span class="rez-ozet-para-toplam">Toplam ≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>" +
         '<span class="rez-ozet-para-kur">(1$=' + window.APARTIM.para.formatKur(k.USD) + "₺ · 1€=" +
           window.APARTIM.para.formatKur(k.EUR) + "₺" + kurTarih + ")</span>" +
-      "</div>";
+      "</div>" +
+      kalanOzetHtml(y, m);
   }
   function ayinGunSayisi(y, m) { return new Date(y, m + 1, 0).getDate(); }
 
@@ -190,7 +231,7 @@
     td.style.background = renk;
     if (rid) td.dataset.rezId = rid;
     td.dataset.tarih = tarih;
-    td.textContent = manuel ? formatHucreFiyat(rez, tutar) : "—";
+    td.textContent = kalanHucreGoster(rez, tutar, manuel);
     td.title = "Kalan tutarı girmek için tıklayın";
     return td;
   }
@@ -268,27 +309,39 @@
         inp.focus();
         inp.select();
 
+        const renk = td.style.background;
         let iptal = false;
+        let bitti = false;
         const temizle = () => {
           td.classList.remove("duzenleniyor");
-          edit.remove();
+          const editEl = td.querySelector(".rez-ozet-kalan-edit");
+          if (editEl) editEl.remove();
+        };
+        const hucreyiGuncelle = (yeniDeger, manuelMi) => {
+          temizle();
+          td.textContent = kalanHucreGoster(rez, manuelMi ? yeniDeger : 0, manuelMi);
+          td.classList.toggle("manuel", manuelMi);
+          td.classList.toggle("bos", !manuelMi);
+          if (renk) td.style.background = renk;
         };
         const bitir = async () => {
-          if (iptal) return;
+          if (iptal || bitti) return;
+          bitti = true;
           const ham = inp.value.trim().replace(/\./g, "").replace(",", ".");
           const yeni = ham === "" ? null : Number(ham);
           if (ham !== "" && (!Number.isFinite(yeni) || yeni < 0)) {
+            bitti = false;
             window.APARTIM.toast("Geçerli bir tutar girin", "uyari");
-            temizle();
-            td.textContent = eski;
+            hucreyiGuncelle(manuel ? tutar : 0, manuel);
             return;
           }
+          const manuelMi = yeni != null;
+          hucreyiGuncelle(manuelMi ? yeni : 0, manuelMi);
           try {
             await db.rezervasyonKalanHucreKaydet(rezId, tarih, yeni);
           } catch (err) {
             window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
-            temizle();
-            td.textContent = eski;
+            hucreyiGuncelle(manuel ? tutar : 0, manuel);
           }
         };
 
@@ -300,8 +353,12 @@
           }
           if (e.key === "Escape") {
             iptal = true;
+            bitti = true;
             temizle();
             td.textContent = eski;
+            td.classList.toggle("manuel", manuel);
+            td.classList.toggle("bos", !manuel);
+            if (renk) td.style.background = renk;
           }
         });
       });
