@@ -252,26 +252,34 @@
 
         const { tutar, manuel } = db.rezervasyonKalanGosterim(rez, tarih);
         const eski = td.textContent;
+        td.classList.add("duzenleniyor");
+        const edit = document.createElement("span");
+        edit.className = "rez-ozet-kalan-edit";
         const inp = document.createElement("input");
-        inp.type = "number";
-        inp.min = "0";
-        inp.step = "1";
+        inp.type = "text";
+        inp.inputMode = "decimal";
+        inp.autocomplete = "off";
         inp.className = "rez-ozet-kalan-input";
         inp.placeholder = "0";
         inp.value = manuel ? String(tutar) : "";
-
+        edit.appendChild(inp);
         td.textContent = "";
-        td.appendChild(inp);
+        td.appendChild(edit);
         inp.focus();
         inp.select();
 
         let iptal = false;
+        const temizle = () => {
+          td.classList.remove("duzenleniyor");
+          edit.remove();
+        };
         const bitir = async () => {
           if (iptal) return;
-          const ham = inp.value.trim();
+          const ham = inp.value.trim().replace(/\./g, "").replace(",", ".");
           const yeni = ham === "" ? null : Number(ham);
           if (ham !== "" && (!Number.isFinite(yeni) || yeni < 0)) {
             window.APARTIM.toast("Geçerli bir tutar girin", "uyari");
+            temizle();
             td.textContent = eski;
             return;
           }
@@ -279,6 +287,7 @@
             await db.rezervasyonKalanHucreKaydet(rezId, tarih, yeni);
           } catch (err) {
             window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
+            temizle();
             td.textContent = eski;
           }
         };
@@ -291,7 +300,7 @@
           }
           if (e.key === "Escape") {
             iptal = true;
-            inp.remove();
+            temizle();
             td.textContent = eski;
           }
         });
