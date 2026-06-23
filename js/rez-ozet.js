@@ -157,7 +157,7 @@
       { cls: "rez-ozet-sayi rez-ozet-giris-hucre", html: ioBadge("in", rez.id) + '<span>' + det.g + '</span>' },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
-      { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.rmnd) },
+      { type: "kln" },
       { cls: "rez-ozet-ad", txt: kisaAd(det.misafir, 11) }
     ];
   }
@@ -166,7 +166,7 @@
     const db = window.APARTIM.db;
     const g = db.geceSayisi(rez.giris, tarih) + 1;
     const prc = db.rezervasyonGeceUcreti(rez, g);
-    const rmnd = db.rezervasyonKalanTutar(rez, tarih);
+    const kalanInfo = db.rezervasyonKalanGosterim(rez, tarih);
     const toplam = rez.toplamTutar != null
       ? rez.toplamTutar
       : db.rezervasyonTutarHesapla(rez).toplam;
@@ -175,10 +175,38 @@
       kategori: kaynakSimge(rez),
       kategoriHtml: kaynakSimgeHtml(rez),
       prc,
-      rmnd,
+      rmnd: kalanInfo.tutar,
+      rmndManuel: kalanInfo.manuel,
       toplam,
       misafir: rez.misafirAdi
     };
+  }
+
+  function klnHucreTd(rez, tarih, renk, rid) {
+    const db = window.APARTIM.db;
+    const { tutar, manuel } = db.rezervasyonKalanGosterim(rez, tarih);
+    const td = document.createElement("td");
+    td.className = "rez-ozet-sayi rez-ozet-kalan" + (manuel ? " manuel" : " bos");
+    td.style.background = renk;
+    if (rid) td.dataset.rezId = rid;
+    td.dataset.tarih = tarih;
+    td.textContent = manuel ? formatHucreFiyat(rez, tutar) : "—";
+    td.title = "Kalan tutarı girmek için tıklayın";
+    return td;
+  }
+
+  function hucreTdOlustur(c, rez, tarih, renk, rid, misafirBaslik) {
+    if (c.type === "kln") return klnHucreTd(rez, tarih, renk, rid);
+    const td = document.createElement("td");
+    td.className = c.cls + " rez-ozet-tik";
+    td.style.background = renk;
+    if (rid) td.dataset.rezId = rid;
+    if (c.html) td.innerHTML = c.html;
+    else {
+      td.textContent = c.txt;
+      if (misafirBaslik) td.title = misafirBaslik;
+    }
+    return td;
   }
 
   function esc(s) {
@@ -206,6 +234,69 @@
       if (gunDurumu(daireler[i].id, tarih).tip === "bos") return daireler[i].id;
     }
     return null;
+  }
+
+  function kalanHucreBagla(wrap) {
+    wrap.querySelectorAll(".rez-ozet-kalan").forEach((td) => {
+      td.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        if (td.querySelector("input")) return;
+
+        const rezId = td.dataset.rezId;
+        const tarih = td.dataset.tarih;
+        if (!rezId || !tarih) return;
+
+        const db = window.APARTIM.db;
+        const rez = db?.durum.rezervasyonlar[rezId];
+        if (!rez) return;
+
+        const { tutar, manuel } = db.rezervasyonKalanGosterim(rez, tarih);
+        const eski = td.textContent;
+        const inp = document.createElement("input");
+        inp.type = "number";
+        inp.min = "0";
+        inp.step = "1";
+        inp.className = "rez-ozet-kalan-input";
+        inp.placeholder = "0";
+        inp.value = manuel ? String(tutar) : "";
+
+        td.textContent = "";
+        td.appendChild(inp);
+        inp.focus();
+        inp.select();
+
+        let iptal = false;
+        const bitir = async () => {
+          if (iptal) return;
+          const ham = inp.value.trim();
+          const yeni = ham === "" ? null : Number(ham);
+          if (ham !== "" && (!Number.isFinite(yeni) || yeni < 0)) {
+            window.APARTIM.toast("Geçerli bir tutar girin", "uyari");
+            td.textContent = eski;
+            return;
+          }
+          try {
+            await db.rezervasyonKalanHucreKaydet(rezId, tarih, yeni);
+          } catch (err) {
+            window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
+            td.textContent = eski;
+          }
+        };
+
+        inp.addEventListener("blur", bitir);
+        inp.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            inp.blur();
+          }
+          if (e.key === "Escape") {
+            iptal = true;
+            inp.remove();
+            td.textContent = eski;
+          }
+        });
+      });
+    });
   }
 
   function tikBagla(wrap) {
@@ -337,16 +428,9 @@
         } else if (h.tip === "checkin") {
           const rid = rezIdAl(h.rez);
           checkinHucreler(h.rez, tarih).forEach((c, ci) => {
-            const td = document.createElement("td");
-            td.className = c.cls + " rez-ozet-tik";
-            td.style.background = renk;
-            if (rid) td.dataset.rezId = rid;
-            if (c.html) td.innerHTML = c.html;
-            else {
-              td.textContent = c.txt;
-              if (ci === 4) td.title = h.rez.misafirAdi || "";
-            }
-            tr.appendChild(td);
+            tr.appendChild(hucreTdOlustur(
+              c, h.rez, tarih, renk, rid, ci === 4 ? (h.rez.misafirAdi || "") : ""
+            ));
           });
         } else if (h.tip === "checkout") {
           const rid = rezIdAl(h.rez);
@@ -364,20 +448,13 @@
             { cls: "rez-ozet-sayi", txt: String(det.g) },
             { cls: "rez-ozet-kategori", html: det.kategoriHtml },
             { cls: "rez-ozet-sayi", txt: formatHucreFiyat(h.rez, det.prc) },
-            { cls: "rez-ozet-sayi", txt: formatHucreFiyat(h.rez, det.rmnd) },
+            { type: "kln" },
             { cls: "rez-ozet-ad", txt: kisaAd(det.misafir, 11) }
           ];
           hucreler.forEach((c, ci) => {
-            const td = document.createElement("td");
-            td.className = c.cls + " rez-ozet-tik";
-            td.style.background = renk;
-            if (rid) td.dataset.rezId = rid;
-            if (c.html) td.innerHTML = c.html;
-            else {
-              td.textContent = c.txt;
-              if (ci === 4) td.title = det.misafir || "";
-            }
-            tr.appendChild(td);
+            tr.appendChild(hucreTdOlustur(
+              c, h.rez, tarih, renk, rid, ci === 4 ? (det.misafir || "") : ""
+            ));
           });
         } else {
           for (let i = 0; i < 5; i++) {
@@ -397,6 +474,7 @@
     wrap.appendChild(table);
     satirVurguBagla(table);
     tikBagla(wrap);
+    kalanHucreBagla(wrap);
     bosHucreTikBagla(wrap, daireler);
     paraOzetCiz(y, m);
   }
@@ -442,6 +520,7 @@
     tbody.addEventListener("click", (e) => {
       const tr = satirBul(e);
       if (!tr) return;
+      if (e.target.closest(".rez-ozet-kalan")) return;
       if (e.target.closest(".rez-ozet-tik") && tr.dataset.tarih) {
         satirSec(tr);
         return;

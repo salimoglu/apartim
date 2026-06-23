@@ -1364,6 +1364,33 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
 .rez-ozet-tik:hover {
   filter: brightness(0.95);
 }
+.rez-ozet-kalan {
+  cursor: text;
+}
+.rez-ozet-kalan.bos {
+  color: var(--metin-soluk-2);
+}
+.rez-ozet-kalan.manuel {
+  font-weight: 800;
+  color: var(--metin);
+}
+.rez-ozet-kalan:hover {
+  outline: 1px solid var(--vurgu);
+  outline-offset: -1px;
+  filter: none;
+}
+.rez-ozet-kalan-input {
+  width: 100%;
+  min-width: 44px;
+  box-sizing: border-box;
+  font-size: inherit;
+  font-weight: inherit;
+  padding: 0 2px;
+  border: 1px solid var(--vurgu);
+  border-radius: 2px;
+  background: var(--kart);
+  color: var(--metin);
+}
 .rez-ozet-tr-bugun .rez-ozet-tarih,
 .rez-ozet-bugun .rez-ozet-tarih {
   box-shadow: inset 3px 0 0 var(--vurgu);

@@ -224,6 +224,39 @@
     return kalan;
   }
 
+  function kalanGunleriTemizle(rez) {
+    if (!rez.kalanGunleri || typeof rez.kalanGunleri !== "object") return undefined;
+    const gecerli = new Set(geceTarihleri(rez.giris, rez.cikis));
+    const out = {};
+    Object.keys(rez.kalanGunleri).forEach((t) => {
+      if (!gecerli.has(t)) return;
+      const n = Number(rez.kalanGunleri[t]);
+      if (Number.isFinite(n) && n >= 0) out[t] = n;
+    });
+    return Object.keys(out).length ? out : undefined;
+  }
+
+  function rezervasyonKalanGosterim(rez, tarih) {
+    const kg = rez.kalanGunleri;
+    if (kg && Object.prototype.hasOwnProperty.call(kg, tarih)) {
+      return { tutar: Number(kg[tarih]) || 0, manuel: true };
+    }
+    return { tutar: rezervasyonKalanTutar(rez, tarih), manuel: false };
+  }
+
+  function rezervasyonKalanHucreKaydet(rezId, tarih, deger) {
+    const mevcut = durum.rezervasyonlar[rezId];
+    if (!mevcut) throw new Error("Rezervasyon bulunamadı");
+    const kalanGunleri = Object.assign({}, mevcut.kalanGunleri || {});
+    if (deger == null || deger === "" || !Number.isFinite(Number(deger))) {
+      delete kalanGunleri[tarih];
+    } else {
+      kalanGunleri[tarih] = Math.max(0, Number(deger));
+    }
+    const partial = { kalanGunleri: Object.keys(kalanGunleri).length ? kalanGunleri : null };
+    return rezervasyonGuncelle(rezId, partial);
+  }
+
   function rezervasyonOzeti(rez) {
     const { gece, toplam, gecelik } = rezervasyonTutarHesapla(rez);
     const gunluk = Number(rez.gunlukUcret) || 0;
@@ -260,6 +293,9 @@
       if (ozet.kademeler) kayit.ucretKademeleri = ozet.kademeler;
       else delete kayit.ucretKademeleri;
     }
+    const kg = kalanGunleriTemizle(kayit);
+    if (kg) kayit.kalanGunleri = kg;
+    else delete kayit.kalanGunleri;
     return kayit;
   }
 
@@ -624,6 +660,9 @@
     if (Object.prototype.hasOwnProperty.call(partial, "tarihFiyatlari") && partial.tarihFiyatlari == null) {
       delete yeni.tarihFiyatlari;
     }
+    if (Object.prototype.hasOwnProperty.call(partial, "kalanGunleri") && partial.kalanGunleri == null) {
+      delete yeni.kalanGunleri;
+    }
     if (partial.kaynakId != null) {
       rezervasyonKaynakDogrula(yeni);
       yeni.kaynakAd = musteriKaynagiAd(yeni.kaynakId);
@@ -725,6 +764,8 @@
     rezervasyonTarihUcreti,
     rezervasyonTutarHesapla,
     rezervasyonKalanTutar,
+    rezervasyonKalanGosterim,
+    rezervasyonKalanHucreKaydet,
     rezervasyonOzeti,
     rezAyKesisimGelir,
     daireAylikOzet,

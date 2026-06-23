@@ -109,7 +109,8 @@
     if (!bilgi) return "";
     const ozet = db.rezervasyonOzeti(rez);
     const kaynak = db.musteriKaynagiAd(rez.kaynakId) || "—";
-    const kalan = db.rezervasyonKalanTutar(rez, isoT);
+    const kalanInfo = db.rezervasyonKalanGosterim(rez, isoT);
+    const kalan = kalanInfo.tutar;
 
     return (
       '<div class="takvim-detay-blok">' +
