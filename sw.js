@@ -1,37 +1,37 @@
 /* Apartım — basit cache-first service worker */
-const CACHE_VERSION = "apartim-v62-20260810";
+const CACHE_VERSION = "apartim-v63-20260811";
+const ASSET_V = "20260811";
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./css/style.css",
-  "./js/firebase.js",
-  "./js/avatar.js",
-  "./js/pwa-install.js",
-  "./js/auth.js",
-  "./js/db.js",
-  "./js/para.js",
-  "./js/bina.js",
-  "./js/takvim.js",
-  "./js/daire.js",
-  "./js/rezervasyon.js",
-  "./js/rez-ozet.js",
-  "./js/temizlik.js",
-  "./js/tema.js",
-  "./js/ayarlar.js",
-  "./js/app.js",
+  "./css/style.css?v=" + ASSET_V,
+  "./js/firebase.js?v=" + ASSET_V,
+  "./js/avatar.js?v=" + ASSET_V,
+  "./js/pwa-install.js?v=" + ASSET_V,
+  "./js/auth.js?v=" + ASSET_V,
+  "./js/db.js?v=" + ASSET_V,
+  "./js/para.js?v=" + ASSET_V,
+  "./js/bina.js?v=" + ASSET_V,
+  "./js/takvim.js?v=" + ASSET_V,
+  "./js/daire.js?v=" + ASSET_V,
+  "./js/rezervasyon.js?v=" + ASSET_V,
+  "./js/rez-ozet.js?v=" + ASSET_V,
+  "./js/temizlik.js?v=" + ASSET_V,
+  "./js/tema.js?v=" + ASSET_V,
+  "./js/ayarlar.js?v=" + ASSET_V,
+  "./js/app.js?v=" + ASSET_V,
   "./icons/icon-192.png",
   "./icons/icon-256.png",
   "./icons/icon-512.png",
-  "./icons/logo-ev.png",
-  "./icons/apart-illustrasyon.png",
-  "./icons/avatars/apart.svg",
-  "./icons/avatars/kamp.svg",
-  "./icons/avatars/doga.svg",
-  "./icons/avatars/deniz.svg",
-  "./icons/avatars/dag.svg",
-  "./icons/avatars/gece.svg",
-  "./icons/avatars/orman.svg"
+  "./icons/logo-ev.png?v=" + ASSET_V,
+  "./icons/avatars/apart.svg?v=" + ASSET_V,
+  "./icons/avatars/kamp.svg?v=" + ASSET_V,
+  "./icons/avatars/doga.svg?v=" + ASSET_V,
+  "./icons/avatars/deniz.svg?v=" + ASSET_V,
+  "./icons/avatars/dag.svg?v=" + ASSET_V,
+  "./icons/avatars/gece.svg?v=" + ASSET_V,
+  "./icons/avatars/orman.svg?v=" + ASSET_V
 ];
 
 function networkFirstThenCache(request) {
@@ -48,59 +48,43 @@ function networkFirstThenCache(request) {
 
 function cacheFirstThenNetwork(request) {
   return caches.match(request).then((cached) => {
-    const fetchPromise = fetch(request)
-      .then((resp) => {
-        if (resp && resp.status === 200 && resp.type === "basic") {
-          const copy = resp.clone();
-          caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
-        }
-        return resp;
-      })
-      .catch(() => cached);
-    return cached || fetchPromise;
+    if (cached) return cached;
+    return fetch(request).then((resp) => {
+      if (resp && resp.status === 200 && resp.type === "basic") {
+        const copy = resp.clone();
+        caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
+      }
+      return resp;
+    });
   });
-}
-
-function kritikDosyaMi(url) {
-  const p = url.pathname;
-  return p.endsWith("/manifest.json") ||
-    p.endsWith("/index.html") ||
-    p.endsWith("/sw.js") ||
-    p.endsWith("/");
 }
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) =>
-      cache.addAll(CORE_ASSETS).catch(() => null)
-    )
+    caches.open(CACHE_VERSION).then((cache) => cache.addAll(CORE_ASSETS)).then(() => self.skipWaiting())
   );
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          .filter((k) => k !== CACHE_VERSION)
-          .map((k) => caches.delete(k))
-      )
+      Promise.all(keys.filter((k) => k !== CACHE_VERSION).map((k) => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("fetch", (event) => {
-  const req = event.request;
-  if (req.method !== "GET") return;
-
-  const url = new URL(req.url);
+  const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
-
-  if (kritikDosyaMi(url)) {
-    event.respondWith(networkFirstThenCache(req));
+  const path = url.pathname.replace(/\/$/, "");
+  const isRoot = path.endsWith("/apartim") || path.endsWith("/apartim/index.html") || path === "" || path.endsWith("/index.html");
+  if (isRoot && event.request.mode === "navigate") {
+    event.respondWith(networkFirstThenCache(event.request));
     return;
   }
-
-  event.respondWith(cacheFirstThenNetwork(req));
+  if (/\.(js|css|png|svg|json|ico|webp)$/i.test(url.pathname) || url.pathname.includes("/icons/")) {
+    event.respondWith(cacheFirstThenNetwork(event.request));
+    return;
+  }
+  event.respondWith(networkFirstThenCache(event.request));
 });

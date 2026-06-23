@@ -652,7 +652,6 @@
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]));
   }
 
-  function tumRezListele() { listeRender("tum-rez-liste"); }
   function daireRezListele(daireId) { listeRender("rez-liste-icerik", daireId); }
 
   function bagla() {
@@ -687,7 +686,6 @@
     if (window.APARTIM.daire?.aktifId()) {
       daireRezListele(window.APARTIM.daire.aktifId());
     }
-    tumRezListele();
     if (modal() && !modal().classList.contains("hidden") && ay().kaynak) {
       const secili = ay().kaynak.value;
       kaynakSelectDoldur(secili || null);
@@ -700,7 +698,6 @@
     rezIdAl,
     cikisAc,
     listeRender,
-    tumRezListele,
     daireRezListele,
     kartOlustur,
     onayAc

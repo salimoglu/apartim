@@ -54,21 +54,6 @@ img { max-width: 100%; display: block; }
   --radius-lg: 22px;
 
   --gecis: 180ms ease;
-
-  /* Bina (Notion/Linear mimari iz paleti — dark tema) */
-  --bina-cizgi: #c8d4e1;
-  --bina-cizgi-ic: rgba(200, 212, 225, 0.35);
-  --bina-cati: rgba(217, 119, 87, 0.18);
-  --bina-cati-koyu: rgba(217, 119, 87, 0.28);
-  --bina-ust: rgba(244, 212, 184, 0.08);
-  --bina-orta: rgba(232, 195, 154, 0.08);
-  --bina-alt: rgba(245, 234, 215, 0.08);
-  --bina-cam: rgba(184, 213, 232, 0.28);
-  --bina-cam-dolu: rgba(255, 209, 122, 0.40);
-  --bina-cam-kirli: rgba(230, 184, 168, 0.35);
-  --bina-cam-temizleniyor: rgba(185, 224, 216, 0.35);
-  --bina-kapi: rgba(150, 110, 90, 0.30);
-  --bina-kenar: #2a1a1a;
 }
 
 html.theme-light {
@@ -85,21 +70,6 @@ html.theme-light {
   --vurgu-soluk: rgba(31, 111, 92, 0.12);
   --golge: 0 8px 30px rgba(0, 0, 0, 0.12);
   --golge-sm: 0 2px 10px rgba(0, 0, 0, 0.08);
-
-  /* Bina light tema — solid soft pastel */
-  --bina-cizgi: #4a4a4a;
-  --bina-cizgi-ic: rgba(74, 74, 74, 0.30);
-  --bina-cati: #fde2d4;
-  --bina-cati-koyu: #fbd0bc;
-  --bina-ust: #fef6ed;
-  --bina-orta: #fcf0dd;
-  --bina-alt: #fefaf2;
-  --bina-cam: #e3f0f8;
-  --bina-cam-dolu: #fff0c4;
-  --bina-cam-kirli: #fbe2d4;
-  --bina-cam-temizleniyor: #def0ec;
-  --bina-kapi: #e8dccc;
-  --bina-kenar: #3a2418;
 }
 
 /* -------------------- 3. Kilit ekranı (auth) -------------------- */
@@ -565,69 +535,6 @@ html.theme-light {
 .mini-takvim-boncuk.turnover { background: var(--uyari); }
 .mini-takvim-boncuk.giris,
 .mini-takvim-boncuk.cikis { background: var(--dolu); opacity: 0.9; }
-
-.bina-svg-wrap {
-  width: 100%; max-width: 720px;
-  background: transparent;
-  border-radius: 22px;
-  padding: 0;
-  box-shadow: none;
-  border: none;
-  overflow: visible;
-}
-.bina-svg { width: 100%; height: auto; display: block; pointer-events: none; }
-.bina-svg image { pointer-events: none; }
-.bina-svg .daire {
-  pointer-events: all;
-  cursor: pointer;
-  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
-  transform-origin: center;
-  transform-box: fill-box;
-}
-.bina-svg .daire-bolge {
-  fill: rgba(255, 255, 255, 0);
-  stroke: transparent;
-  stroke-width: 3;
-  stroke-linejoin: round;
-  transition: stroke 180ms ease, fill 180ms ease;
-  pointer-events: all;
-}
-.bina-svg .daire-etiket-grup {
-  opacity: 0;
-  transition: opacity 180ms ease, transform 200ms ease;
-  pointer-events: none;
-}
-.bina-svg .daire:hover .daire-etiket-grup,
-.bina-svg .daire:focus-visible .daire-etiket-grup { opacity: 1; }
-.bina-svg .daire:hover {
-  transform: scale(1.015);
-}
-.bina-svg .daire:hover .daire-bolge,
-.bina-svg .daire:focus-visible .daire-bolge {
-  stroke: #fff;
-  stroke-width: 4;
-  fill: rgba(255, 255, 255, 0.12);
-}
-.bina-svg .daire:focus { outline: none; }
-.bina-svg:hover .daire:not(:hover) .daire-bolge { stroke: rgba(0, 0, 0, 0); }
-
-/* Durum noktaları (büyük, beyaz halka içinde) */
-.bina-svg .durum-nokta { transition: fill 200ms ease; }
-.bina-svg .durum-nokta-bos-temiz { fill: var(--bos-temiz); }
-.bina-svg .durum-nokta-dolu { fill: var(--dolu); }
-.bina-svg .durum-nokta-bos-kirli { fill: var(--bos-kirli); }
-.bina-svg .durum-nokta-temizleniyor { fill: var(--temizleniyor); }
-.bina-svg .durum-grup { transition: transform 200ms ease; transform-origin: center; transform-box: fill-box; }
-.bina-svg .daire:hover .durum-grup { transform: scale(1.15); }
-
-.bina-svg .daire-etiket {
-  fill: #fff;
-  font-family: "Nunito", sans-serif;
-  font-weight: 800;
-  font-size: 16px;
-  letter-spacing: 2px;
-  pointer-events: none;
-}
 
 /* Bina özet kartlar */
 .bina-ozet {

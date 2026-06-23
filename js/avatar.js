@@ -5,11 +5,11 @@
 (function () {
   "use strict";
 
-  const V = "20260810";
+  const V = "20260811";
   const VARSAYILAN = "ev";
 
   const AVATARLAR = [
-    { id: "ev", etiket: "Apart ev", src: "icons/logo-ev.png", png: true },
+    { id: "ev", etiket: "Apart ev", src: "icons/logo-ev.png" },
     { id: "apart", etiket: "Apart otel", src: "icons/avatars/apart.svg" },
     { id: "kamp", etiket: "Kamp", src: "icons/avatars/kamp.svg" },
     { id: "doga", etiket: "Doğa", src: "icons/avatars/doga.svg" },
@@ -24,7 +24,7 @@
 
   function srcUrl(avatarId) {
     const a = byId[avatarId] || byId[VARSAYILAN];
-    return a.src + (a.png ? "" : "?v=" + V);
+    return a.src + "?v=" + V;
   }
 
   function coz(kullanici) {
@@ -57,7 +57,6 @@
     coz,
     guncelle,
     kullaniciyaEkle,
-    logoEv: "icons/logo-ev.png",
     seciciAc,
     seciciKapat
   };

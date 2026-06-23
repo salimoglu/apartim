@@ -38,14 +38,9 @@
     dovizKurlari: { USD: 46.5, EUR: 50.5 },
     yuklendi: false
   };
-  const dinleyiciler = [];
-
   function bildir(olay, veri) {
     document.dispatchEvent(new CustomEvent("apartim:" + olay, { detail: veri }));
-    dinleyiciler.forEach((fn) => { try { fn(olay, veri); } catch (e) {} });
   }
-
-  function dinle(fn) { if (typeof fn === "function") dinleyiciler.push(fn); }
 
   // ---------- Tarih yardımcıları ----------
   function tarihNormal(s) {
@@ -798,7 +793,6 @@
   // ---------- Public API ----------
   window.APARTIM.db = {
     durum,
-    dinle,
     bugunISO,
     geceSayisi,
     gunEkleISO,
