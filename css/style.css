@@ -1094,43 +1094,6 @@ html:not(.theme-light) .takvim-turnover-ad {
   color: var(--metin-soluk);
   margin-left: auto;
 }
-.rez-ozet-kalan-bar {
-  flex-shrink: 0;
-  background: var(--kart);
-  border: 1px solid var(--kenar);
-  border-left: 3px solid var(--vurgu);
-  border-radius: var(--radius-sm);
-  padding: 7px 12px;
-  min-height: 34px;
-  display: flex;
-  align-items: center;
-}
-.rez-ozet-kalan-bar-ic {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  width: 100%;
-}
-.rez-ozet-kalan-etiket {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--vurgu);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  flex-shrink: 0;
-}
-.rez-ozet-kalan-bos-metin {
-  font-size: 12px;
-  color: var(--metin-soluk);
-  font-style: italic;
-}
-.rez-ozet-kalan-toplam {
-  font-weight: 800;
-  color: var(--metin);
-  font-size: 13px;
-}
 .rez-ozet-ay-nav {
   display: flex;
   align-items: center;
@@ -1506,6 +1469,13 @@ html:not(.theme-light) .rez-ozet-kalan.manuel {
   text-overflow: ellipsis;
   vertical-align: middle;
   white-space: nowrap;
+}
+.rez-ozet-out-kalan {
+  font-size: 8px;
+  font-weight: 800;
+  color: #111827;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .rez-ozet-io-sep {
   color: #6b7280;

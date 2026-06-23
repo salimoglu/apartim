@@ -47,53 +47,32 @@
     return formatKalanKisa(rez, tutar);
   }
 
-  function kalanOzetHtml(y, m) {
-    const db = window.APARTIM.db;
-    if (!db || !window.APARTIM.para) {
-      return '<span class="rez-ozet-kalan-bos-metin">—</span>';
-    }
-    const { toplam, tlToplam, kayitSayisi } = db.ayKalanToplamlari(y, m);
-    if (!kayitSayisi) {
-      return '<span class="rez-ozet-kalan-bos-metin">Henüz girilmedi</span>';
-    }
-    const parcalar = [];
-    if (toplam.TL > 0) {
-      parcalar.push('<span class="rez-ozet-para-item tl">' +
-        window.APARTIM.para.formatTutar(toplam.TL, "TL") + "</span>");
-    }
-    if (toplam.USD > 0) {
-      parcalar.push('<span class="rez-ozet-para-item usd">' +
-        window.APARTIM.para.formatTutar(toplam.USD, "USD") + "</span>");
-    }
-    if (toplam.EUR > 0) {
-      parcalar.push('<span class="rez-ozet-para-item eur">' +
-        window.APARTIM.para.formatTutar(toplam.EUR, "EUR") + "</span>");
-    }
-    if (!parcalar.length) {
-      parcalar.push('<span class="rez-ozet-para-item tl">0 ₺</span>');
-    }
-    const cokluPb = toplam.USD > 0 || toplam.EUR > 0;
-    let html = parcalar.join('<span class="rez-ozet-para-ayrac">·</span>');
-    if (cokluPb) {
-      html += '<span class="rez-ozet-para-ayrac">|</span>' +
-        '<span class="rez-ozet-kalan-toplam">≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>";
-    }
-    return html;
+  function parseTutarGiris(val) {
+    const s = String(val || "").trim().replace(/[^\d,.-]/g, "");
+    if (!s) return null;
+    const n = Number(s.replace(/\./g, "").replace(",", "."));
+    return Number.isFinite(n) ? n : NaN;
   }
 
-  function kalanOzetCiz(y, m) {
-    const bar = document.getElementById("rez-ozet-kalan-bar");
-    if (!bar) return;
-    const db = window.APARTIM.db;
-    if (!db || !db.durum.yuklendi) {
-      bar.innerHTML = "";
-      return;
-    }
-    bar.innerHTML =
-      '<div class="rez-ozet-kalan-bar-ic">' +
-        '<span class="rez-ozet-kalan-etiket">Toplam kalan</span>' +
-        kalanOzetHtml(y, m) +
-      "</div>";
+  function rezSonKalanBul(rez) {
+    const kg = rez?.kalanGunleri;
+    if (!kg || !Object.keys(kg).length) return null;
+    let sonTarih = null;
+    let sonTutar = 0;
+    Object.keys(kg).forEach((t) => {
+      if (!sonTarih || t > sonTarih) {
+        sonTarih = t;
+        sonTutar = Number(kg[t]) || 0;
+      }
+    });
+    return sonTarih ? { tarih: sonTarih, tutar: sonTutar } : null;
+  }
+
+  function rezOutKalanHtml(rez) {
+    const k = rezSonKalanBul(rez);
+    if (!k) return "";
+    return '<span class="rez-ozet-out-kalan" title="Kalan bakiye">Kln ' +
+      formatKalanKisa(rez, k.tutar) + "</span>";
   }
 
   function paraOzetCiz(y, m) {
@@ -191,10 +170,12 @@
 
   function turnoverHtml(cikis, giris, tarih) {
     const det = konakDetay(giris, tarih);
+    const cikisKalan = rezOutKalanHtml(cikis);
     return (
       '<div class="rez-ozet-turnover-kompakt">' +
       ioBadge("out", cikis.id) +
       '<span class="rez-ozet-io-ad" title="' + esc(cikis.misafirAdi) + '">' + esc(kisaAd(cikis.misafirAdi)) + '</span>' +
+      (cikisKalan || "") +
       '<span class="rez-ozet-io-sep">·</span>' +
       ioBadge("in", giris.id) +
       det.kategoriHtml +
@@ -204,10 +185,12 @@
   }
 
   function checkoutHtml(rez) {
+    const kalan = rezOutKalanHtml(rez);
     return (
       '<div class="rez-ozet-io-satir">' +
       ioBadge("out", rez.id) +
       '<span class="rez-ozet-io-ad" title="' + esc(rez.misafirAdi) + '">' + esc(kisaAd(rez.misafirAdi, 12)) + '</span>' +
+      (kalan || "") +
       '</div>'
     );
   }
@@ -359,8 +342,8 @@
     const bitir = async () => {
       if (iptal || bitti) return;
       bitti = true;
-      const ham = inp.value.trim().replace(/\./g, "").replace(",", ".");
-      const yeni = ham === "" ? null : Number(ham);
+      const ham = inp.value.trim();
+      const yeni = ham === "" ? null : parseTutarGiris(ham);
       if (ham !== "" && (!Number.isFinite(yeni) || yeni < 0)) {
         bitti = false;
         window.APARTIM.toast("Geçerli bir tutar girin", "uyari");
@@ -368,17 +351,18 @@
         return;
       }
       const manuelMi = yeni != null;
-      let sonrakiFocus = null;
       if (enterSonraki) {
         const sonraki = sonrakiKalanHucre(td);
-        if (sonraki) sonrakiFocus = { rezId, tarih: sonraki.dataset.tarih };
+        if (sonraki) {
+          durum.pendingKalanFocus = { rezId, tarih: sonraki.dataset.tarih };
+        }
         enterSonraki = false;
       }
       hucreyiGuncelle(manuelMi ? yeni : 0, manuelMi);
       try {
         await db.rezervasyonKalanHucreKaydet(rezId, tarih, yeni);
-        if (sonrakiFocus) durum.pendingKalanFocus = sonrakiFocus;
       } catch (err) {
+        durum.pendingKalanFocus = null;
         window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
         hucreyiGuncelle(manuel ? tutar : 0, manuel);
       }
@@ -590,16 +574,17 @@
     kalanHucreBagla(wrap);
     bosHucreTikBagla(wrap, daireler);
     paraOzetCiz(y, m);
-    kalanOzetCiz(y, m);
 
     if (durum.pendingKalanFocus) {
       const pf = durum.pendingKalanFocus;
-      durum.pendingKalanFocus = null;
       requestAnimationFrame(() => {
         const hucre = wrap.querySelector(
           '.rez-ozet-kalan[data-rez-id="' + pf.rezId + '"][data-tarih="' + pf.tarih + '"]'
         );
-        if (hucre) kalanHucreDuzenle(hucre);
+        if (hucre) {
+          durum.pendingKalanFocus = null;
+          kalanHucreDuzenle(hucre);
+        }
       });
     }
   }
