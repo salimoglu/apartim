@@ -1590,11 +1590,14 @@ html:not(.theme-light) .rez-ozet-odenen.manuel {
   vertical-align: middle;
 }
 html:not(.theme-light) .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
-  background: #4a3f00 !important;
-  color: #ffe082;
+  background: #6b5200 !important;
+  color: #ffe566;
 }
 html.theme-light .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
-  background: #fff9c4 !important;
+  background: #e6a817 !important;
+  color: #1a1a1a;
+}
+.rez-ozet-table td.rez-ozet-io-hucre {
   color: #1a1a1a;
 }
 .rez-ozet-tr-turnover-out td {

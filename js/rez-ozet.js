@@ -15,6 +15,8 @@
   const SEZON_BIT_AY = 8;
   const CHUNK_GUN = 14;
 
+  const IO_HUCRE_RENK = "#e6a817";
+
   const DAIRE_RENK = {
     "ust": "#ffcdd2",
     "orta-sol": "#c8e6c9",
@@ -400,7 +402,7 @@
   }
 
   function hucreBg(renk, ioVurgu) {
-    return ioVurgu ? "#fff9c4" : renk;
+    return ioVurgu ? IO_HUCRE_RENK : renk;
   }
 
   function gunTurnoverVarMi(harita, daireler, tarih) {
