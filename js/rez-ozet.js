@@ -55,9 +55,39 @@
     return fmt(miktar);
   }
 
-  function odenenHucreGoster(rez, tutar, manuel) {
-    if (!manuel) return "—";
-    return formatKalanKisa(rez, tutar);
+  const ODEME_YONTEM_KISA = { elden: "Elden", havale: "Havale", booking: "Booking", diger: "Diğer" };
+
+  function formatOdemeTutar(rez, miktar) {
+    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    if (window.APARTIM.para) return window.APARTIM.para.formatTutarKisa(miktar, pb);
+    return fmt(miktar);
+  }
+
+  function odenenHucreGoster(rez, info) {
+    if (!info || !info.manuel || !info.tutar) return "—";
+    return formatOdemeTutar(rez, info.tutar);
+  }
+
+  function odenenHucreBaslik(rez, info) {
+    if (!info || !info.manuel || !info.tutar) return "Ödeme girmek için tıklayın";
+    const yontem = window.APARTIM.db?.ODEME_YONTEMLERI?.[info.yontem] ||
+      ODEME_YONTEM_KISA[info.yontem] || "Elden";
+    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    const tam = window.APARTIM.para
+      ? window.APARTIM.para.formatTutar(info.tutar, pb)
+      : fmt(info.tutar);
+    return yontem + " · " + tam;
+  }
+
+  function rezervasyonBakiyeMetin(rez) {
+    const db = window.APARTIM.db;
+    if (!db) return "";
+    const odenen = db.rezervasyonOdenenToplam(rez);
+    if (odenen <= 0) return "";
+    const kalan = db.rezervasyonKalanHesapla(rez);
+    if (kalan < 0) return "Fazla " + formatKalanKisa(rez, -kalan);
+    if (kalan > 0) return "Kln " + formatKalanKisa(rez, kalan);
+    return "Kapalı";
   }
 
   function parseTutarGiris(val) {
@@ -68,13 +98,10 @@
   }
 
   function rezOutKalanHtml(rez) {
-    const db = window.APARTIM.db;
-    if (!db) return "";
-    const odenen = db.rezervasyonOdenenToplam(rez);
-    if (odenen <= 0) return "";
-    const kalan = db.rezervasyonKalanHesapla(rez);
-    return '<span class="rez-ozet-out-kalan" title="Toplam − ödenen = kalan">Kln ' +
-      formatKalanKisa(rez, kalan) + "</span>";
+    const metin = rezervasyonBakiyeMetin(rez);
+    if (!metin) return "";
+    const cls = metin.indexOf("Fazla") === 0 ? " rez-ozet-out-fazla" : "";
+    return '<span class="rez-ozet-out-kalan' + cls + '" title="Toplam − ödenen">' + esc(metin) + "</span>";
   }
 
   function sezonBasBit(y) {
@@ -535,6 +562,8 @@
       prc,
       odenen: odenenInfo.tutar,
       odenenManuel: odenenInfo.manuel,
+      odenenYontem: odenenInfo.yontem,
+      odenenInfo,
       toplam,
       misafir: rez.misafirAdi
     };
@@ -542,15 +571,16 @@
 
   function odnHucreTd(rez, tarih, renk, rid, ioVurgu) {
     const db = window.APARTIM.db;
-    const { tutar, manuel } = db.rezervasyonOdenenGosterim(rez, tarih);
+    const info = db.rezervasyonOdenenGosterim(rez, tarih);
     const td = document.createElement("td");
-    td.className = "rez-ozet-sayi rez-ozet-odenen" + (manuel ? " manuel" : " bos") +
+    td.className = "rez-ozet-sayi rez-ozet-odenen" + (info.manuel ? " manuel" : " bos") +
       (ioVurgu ? " rez-ozet-io-hucre" : "");
     td.style.background = hucreBg(renk, ioVurgu);
     if (rid) td.dataset.rezId = rid;
     td.dataset.tarih = tarih;
-    td.textContent = odenenHucreGoster(rez, tutar, manuel);
-    td.title = "Ödenen tutarı girmek için tıklayın";
+    if (info.manuel) td.dataset.yontem = info.yontem;
+    td.textContent = odenenHucreGoster(rez, info);
+    td.title = odenenHucreBaslik(rez, info);
     return td;
   }
 
@@ -612,9 +642,29 @@
     return null;
   }
 
-  function odenenHucreDuzenle(hucre) {
-    if (hucre.querySelector("input")) return;
+  let odemeDuzenleDurum = null;
 
+  function odemeModal() { return document.getElementById("modal-odeme"); }
+
+  function odemeModalKapat() {
+    odemeModal()?.classList.add("hidden");
+    odemeDuzenleDurum = null;
+  }
+
+  function odenenHucreyiYenile(hucre, rez) {
+    const db = window.APARTIM.db;
+    const tarih = hucre.dataset.tarih;
+    if (!db || !tarih) return;
+    const info = db.rezervasyonOdenenGosterim(rez, tarih);
+    hucre.textContent = odenenHucreGoster(rez, info);
+    hucre.title = odenenHucreBaslik(rez, info);
+    hucre.classList.toggle("manuel", info.manuel);
+    hucre.classList.toggle("bos", !info.manuel);
+    if (info.manuel) hucre.dataset.yontem = info.yontem;
+    else delete hucre.dataset.yontem;
+  }
+
+  function odenenHucreDuzenle(hucre) {
     const rezId = hucre.dataset.rezId;
     const tarih = hucre.dataset.tarih;
     if (!rezId || !tarih) return;
@@ -624,86 +674,81 @@
     const rez = db?.durum.rezervasyonlar[rezId];
     if (!rez) return;
 
-    const { tutar, manuel } = db.rezervasyonOdenenGosterim(rez, tarih);
-    const eski = hucre.textContent;
-    const td = hucre.closest("td") || hucre;
-    hucre.classList.add("duzenleniyor");
-    const edit = document.createElement("span");
-    edit.className = "rez-ozet-odenen-edit";
-    const inp = document.createElement("input");
-    inp.type = "text";
-    inp.inputMode = "decimal";
-    inp.autocomplete = "off";
-    inp.className = "rez-ozet-odenen-input";
-    inp.placeholder = "0";
-    inp.value = manuel ? String(tutar) : "";
-    edit.appendChild(inp);
-    hucre.textContent = "";
-    hucre.appendChild(edit);
-    inp.focus();
-    inp.select();
+    const info = db.rezervasyonOdenenGosterim(rez, tarih);
+    const modal = odemeModal();
+    if (!modal) return;
 
-    const renk = td.style.background;
-    let iptal = false;
-    let bitti = false;
-    let enterSonraki = false;
-    const temizle = () => {
-      hucre.classList.remove("duzenleniyor");
-      const editEl = hucre.querySelector(".rez-ozet-odenen-edit");
-      if (editEl) editEl.remove();
-    };
-    const hucreyiGuncelle = (yeniDeger, manuelMi) => {
-      temizle();
-      hucre.textContent = odenenHucreGoster(rez, manuelMi ? yeniDeger : 0, manuelMi);
-      hucre.classList.toggle("manuel", manuelMi);
-      hucre.classList.toggle("bos", !manuelMi);
-      if (renk) td.style.background = renk;
-    };
-    const bitir = async () => {
-      if (iptal || bitti) return;
-      bitti = true;
-      const ham = inp.value.trim();
-      const yeni = ham === "" ? null : parseTutarGiris(ham);
-      if (ham !== "" && (!Number.isFinite(yeni) || yeni < 0)) {
-        bitti = false;
+    odemeDuzenleDurum = { rezId, tarih, hucre };
+
+    const baslik = document.getElementById("odeme-modal-baslik");
+    const aciklama = document.getElementById("odeme-modal-aciklama");
+    const inp = document.getElementById("odeme-tutar");
+    const sel = document.getElementById("odeme-yontem");
+    if (baslik) {
+      baslik.textContent = "Ödeme — " + (rez.misafirAdi || "Misafir") + " · " + tarihGoster(tarih);
+    }
+    if (aciklama) {
+      const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+      const geceUcret = db.rezervasyonTarihUcreti(rez, tarih);
+      const geceMetin = window.APARTIM.para
+        ? window.APARTIM.para.formatTutar(geceUcret, pb)
+        : fmt(geceUcret) + " " + pb;
+      aciklama.textContent = "Bu gece ücreti: " + geceMetin;
+    }
+    if (inp) {
+      inp.value = info.manuel ? String(info.tutar) : "";
+    }
+    if (sel) sel.value = info.yontem || "elden";
+
+    modal.classList.remove("hidden");
+    inp?.focus();
+    inp?.select();
+  }
+
+  async function odemeModalKaydet(temizle) {
+    const ctx = odemeDuzenleDurum;
+    if (!ctx) return;
+    const db = window.APARTIM.db;
+    const rez = db?.durum.rezervasyonlar[ctx.rezId];
+    if (!db || !rez) return odemeModalKapat();
+
+    let kayit = null;
+    if (!temizle) {
+      const inp = document.getElementById("odeme-tutar");
+      const sel = document.getElementById("odeme-yontem");
+      const ham = inp?.value?.trim() || "";
+      const tutar = ham === "" ? null : parseTutarGiris(ham);
+      if (ham !== "" && (!Number.isFinite(tutar) || tutar < 0)) {
         window.APARTIM.toast("Geçerli bir tutar girin", "uyari");
-        hucreyiGuncelle(manuel ? tutar : 0, manuel);
         return;
       }
-      const manuelMi = yeni != null;
-      if (enterSonraki) {
-        const sonraki = sonrakiOdenenHucre(hucre);
-        if (sonraki) {
-          durum.pendingOdenenFocus = { rezId, tarih: sonraki.dataset.tarih };
-        }
-        enterSonraki = false;
+      if (tutar == null || tutar <= 0) {
+        window.APARTIM.toast("Tutar girin veya Temizle kullanın", "uyari");
+        return;
       }
-      hucreyiGuncelle(manuelMi ? yeni : 0, manuelMi);
-      try {
-        await db.rezervasyonOdenenHucreKaydet(rezId, tarih, yeni);
-      } catch (err) {
-        durum.pendingOdenenFocus = null;
-        window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
-        hucreyiGuncelle(manuel ? tutar : 0, manuel);
-      }
-    };
+      kayit = { tutar, yontem: sel?.value || "elden" };
+    }
 
-    inp.addEventListener("blur", bitir);
-    inp.addEventListener("keydown", (e) => {
+    try {
+      await db.rezervasyonOdenenHucreKaydet(ctx.rezId, ctx.tarih, kayit);
+      odenenHucreyiYenile(ctx.hucre, rez);
+      odemeModalKapat();
+    } catch (err) {
+      window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
+    }
+  }
+
+  function odemeModalBagla() {
+    document.getElementById("odeme-modal-kaydet")?.addEventListener("click", () => odemeModalKaydet(false));
+    document.getElementById("odeme-modal-temizle")?.addEventListener("click", () => odemeModalKaydet(true));
+    document.getElementById("odeme-modal-iptal")?.addEventListener("click", odemeModalKapat);
+    document.getElementById("odeme-modal-close")?.addEventListener("click", odemeModalKapat);
+    document.getElementById("odeme-tutar")?.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
-        enterSonraki = true;
-        inp.blur();
+        odemeModalKaydet(false);
       }
-      if (e.key === "Escape") {
-        iptal = true;
-        bitti = true;
-        temizle();
-        hucre.textContent = eski;
-        hucre.classList.toggle("manuel", manuel);
-        hucre.classList.toggle("bos", !manuel);
-        if (renk) td.style.background = renk;
-      }
+      if (e.key === "Escape") odemeModalKapat();
     });
   }
 
@@ -1009,11 +1054,13 @@
   }
 
   function rezOutKalanMetin(rez) {
-    const db = window.APARTIM.db;
-    if (!db) return "";
-    const odenen = db.rezervasyonOdenenToplam(rez);
-    if (odenen <= 0) return "";
-    return "Kln " + formatKalanKisa(rez, db.rezervasyonKalanHesapla(rez));
+    return rezervasyonBakiyeMetin(rez);
+  }
+
+  function excelOdemeGoster(rez, info) {
+    if (!info || !info.manuel || !info.tutar) return "—";
+    const yontem = window.APARTIM.db?.ODEME_YONTEMLERI?.[info.yontem] || info.yontem || "";
+    return odenenHucreGoster(rez, info) + (yontem ? " (" + yontem + ")" : "");
   }
 
   const XL_DAIRE_COL = 6;
@@ -1075,7 +1122,7 @@
           "IN " + det.g,
           det.kategori,
           formatHucreFiyat(h.rez, det.prc),
-          odenenHucreGoster(h.rez, det.odenen, det.odenenManuel),
+          excelOdemeGoster(h.rez, det.odenenInfo),
           det.misafir || "",
           rezNotMetni(h.rez)
         ]
@@ -1088,7 +1135,7 @@
           String(det.g),
           det.kategori,
           formatHucreFiyat(h.rez, det.prc),
-          odenenHucreGoster(h.rez, det.odenen, det.odenenManuel),
+          excelOdemeGoster(h.rez, det.odenenInfo),
           det.misafir || "",
           rezNotMetni(h.rez)
         ]
@@ -1251,6 +1298,7 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    odemeModalBagla();
     etkilesimBagla(document.querySelector("#tab-rezervasyonlar .rez-ozet-scroll"));
     document.getElementById("rez-ozet-yil-prev")?.addEventListener("click", () => sezonGit(-1));
     document.getElementById("rez-ozet-yil-next")?.addEventListener("click", () => sezonGit(1));

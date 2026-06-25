@@ -111,6 +111,7 @@
     const kaynak = db.musteriKaynagiAd(rez.kaynakId) || "—";
     const odenen = db.rezervasyonOdenenToplam(rez);
     const kalan = db.rezervasyonKalanHesapla(rez);
+    const fazla = db.rezervasyonFazlaOdenen(rez);
     const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
     const fmtPb = (n) => window.APARTIM.para
       ? window.APARTIM.para.formatTutar(n, pb)
@@ -136,10 +137,15 @@
           ? '<div class="takvim-detay-satir"><span>Ödenen</span><strong>' +
             fmtPb(odenen) + "</strong></div>"
           : "") +
-        (odenen > 0
-          ? '<div class="takvim-detay-satir"><span>Kalan</span><strong>' +
-            fmtPb(kalan) + "</strong></div>"
-          : "") +
+        (fazla > 0
+          ? '<div class="takvim-detay-satir"><span>Fazla ödeme</span><strong>' +
+            fmtPb(fazla) + "</strong></div>"
+          : (odenen > 0 && kalan > 0
+            ? '<div class="takvim-detay-satir"><span>Kalan</span><strong>' +
+              fmtPb(kalan) + "</strong></div>"
+            : (odenen > 0
+              ? '<div class="takvim-detay-satir"><span>Durum</span><strong>Kapalı</strong></div>'
+              : ""))) +
       "</div>"
     );
   }

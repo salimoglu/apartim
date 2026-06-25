@@ -1403,20 +1403,21 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   filter: brightness(0.95);
 }
 .rez-ozet-odenen {
-  cursor: text;
+  cursor: pointer;
   position: relative;
-  width: 42px;
-  max-width: 42px;
-  min-width: 42px !important;
+  width: 52px;
+  max-width: 52px;
+  min-width: 52px !important;
   height: 18px;
   max-height: 18px;
   line-height: 18px;
-  padding: 0 !important;
+  padding: 0 2px !important;
   overflow: hidden;
   box-sizing: border-box;
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle !important;
+  font-size: 9px;
 }
 .rez-ozet-odenen.bos {
   color: var(--metin-soluk-2);
@@ -1518,6 +1519,10 @@ html:not(.theme-light) .rez-ozet-odenen.manuel {
   color: #111827;
   white-space: nowrap;
   flex-shrink: 0;
+}
+.rez-ozet-out-kalan.rez-ozet-out-fazla {
+  color: #1565c0;
+  font-weight: 800;
 }
 .rez-ozet-io-sep {
   color: #6b7280;
@@ -2203,6 +2208,25 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rapor-gelir-inline.kompakt .rapor-gelir-toplam-inline { font-size: 11px; }
 .rapor-kart.doluluk .val { color: var(--vurgu); }
+.rapor-kart-tahsilat .rapor-tahsilat-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+.rapor-tahsilat-yontem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rapor-tahsilat-etiket {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--metin-soluk);
+}
+.modal-box-kucuk {
+  max-width: 360px;
+}
 
 .rapor-daire-tablo {
   background: var(--kart);

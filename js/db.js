@@ -215,14 +215,42 @@
     return rezervasyonTutarHesapla(rez).toplam;
   }
 
+  const ODEME_YONTEMLERI = {
+    elden: "Elden",
+    havale: "Hesaba havale",
+    booking: "Booking",
+    diger: "Diğer"
+  };
+  const ODEME_YONTEM_VARSAYILAN = "elden";
+
+  function odemeYontemNorm(yontem) {
+    const y = String(yontem || "").toLowerCase();
+    return ODEME_YONTEMLERI[y] ? y : ODEME_YONTEM_VARSAYILAN;
+  }
+
+  function odenenGunKaydiNorm(deger) {
+    if (deger == null || deger === "") return null;
+    if (typeof deger === "number" || typeof deger === "string") {
+      const tutar = Number(deger);
+      if (!Number.isFinite(tutar) || tutar < 0) return null;
+      return { tutar, yontem: ODEME_YONTEM_VARSAYILAN };
+    }
+    if (typeof deger === "object") {
+      const tutar = Number(deger.tutar);
+      if (!Number.isFinite(tutar) || tutar < 0) return null;
+      return { tutar, yontem: odemeYontemNorm(deger.yontem) };
+    }
+    return null;
+  }
+
   function odenenGunleriTemizle(rez) {
     if (!rez.odenenGunleri || typeof rez.odenenGunleri !== "object") return undefined;
     const gecerli = new Set(geceTarihleri(rez.giris, rez.cikis));
     const out = {};
     Object.keys(rez.odenenGunleri).forEach((t) => {
       if (!gecerli.has(t)) return;
-      const n = Number(rez.odenenGunleri[t]);
-      if (Number.isFinite(n) && n >= 0) out[t] = n;
+      const kayit = odenenGunKaydiNorm(rez.odenenGunleri[t]);
+      if (kayit && kayit.tutar > 0) out[t] = kayit;
     });
     return Object.keys(out).length ? out : undefined;
   }
@@ -230,33 +258,66 @@
   function rezervasyonOdenenToplam(rez) {
     const og = odenenGunleriTemizle(rez) || rez.odenenGunleri;
     if (!og) return 0;
-    return Object.values(og).reduce((s, v) => s + (Number(v) || 0), 0);
+    return Object.values(og).reduce((s, v) => {
+      const kayit = odenenGunKaydiNorm(v);
+      return s + (kayit ? kayit.tutar : 0);
+    }, 0);
   }
 
-  /** Toplam ücret − girilen ödemeler */
+  /** Toplam ücret − girilen ödemeler (negatif = fazla ödeme) */
   function rezervasyonKalanHesapla(rez) {
-    return Math.max(0, rezervasyonToplamTutar(rez) - rezervasyonOdenenToplam(rez));
+    return rezervasyonToplamTutar(rez) - rezervasyonOdenenToplam(rez);
+  }
+
+  function rezervasyonFazlaOdenen(rez) {
+    const k = rezervasyonKalanHesapla(rez);
+    return k < 0 ? -k : 0;
   }
 
   function rezervasyonOdenenGosterim(rez, tarih) {
     const og = rez.odenenGunleri;
     if (og && Object.prototype.hasOwnProperty.call(og, tarih)) {
-      return { tutar: Number(og[tarih]) || 0, manuel: true };
+      const kayit = odenenGunKaydiNorm(og[tarih]);
+      if (kayit) {
+        return { tutar: kayit.tutar, manuel: true, yontem: kayit.yontem };
+      }
     }
-    return { tutar: 0, manuel: false };
+    return { tutar: 0, manuel: false, yontem: ODEME_YONTEM_VARSAYILAN };
   }
 
   function rezervasyonOdenenHucreKaydet(rezId, tarih, deger) {
     const mevcut = durum.rezervasyonlar[rezId];
     if (!mevcut) throw new Error("Rezervasyon bulunamadı");
     const odenenGunleri = Object.assign({}, mevcut.odenenGunleri || {});
-    if (deger == null || deger === "" || !Number.isFinite(Number(deger))) {
+    if (deger == null || deger === "") {
       delete odenenGunleri[tarih];
     } else {
-      odenenGunleri[tarih] = Math.max(0, Number(deger));
+      const kayit = odenenGunKaydiNorm(deger);
+      if (!kayit || kayit.tutar <= 0) {
+        delete odenenGunleri[tarih];
+      } else {
+        odenenGunleri[tarih] = kayit;
+      }
     }
     const partial = { odenenGunleri: Object.keys(odenenGunleri).length ? odenenGunleri : null };
     return rezervasyonGuncelle(rezId, partial);
+  }
+
+  /** Dönem içindeki tahsilatları ödeme yöntemi × para birimi olarak toplar */
+  function rezervasyonOdemeDonemToplam(rez, donemBas, donemBit) {
+    const og = odenenGunleriTemizle(rez) || rez.odenenGunleri;
+    if (!og) return null;
+    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    const yontemToplam = {};
+    Object.keys(og).forEach((t) => {
+      if (t < donemBas || t >= donemBit) return;
+      const kayit = odenenGunKaydiNorm(og[t]);
+      if (!kayit || kayit.tutar <= 0) return;
+      const y = kayit.yontem;
+      if (!yontemToplam[y]) yontemToplam[y] = { TL: 0, USD: 0, EUR: 0 };
+      yontemToplam[y][pb] += kayit.tutar;
+    });
+    return Object.keys(yontemToplam).length ? yontemToplam : null;
   }
 
   function rezervasyonOzeti(rez) {
@@ -808,8 +869,12 @@
     rezervasyonToplamTutar,
     rezervasyonOdenenToplam,
     rezervasyonKalanHesapla,
+    rezervasyonFazlaOdenen,
     rezervasyonOdenenGosterim,
     rezervasyonOdenenHucreKaydet,
+    rezervasyonOdemeDonemToplam,
+    odemeYontemNorm,
+    ODEME_YONTEMLERI,
     rezervasyonOzeti,
     rezAyKesisimGelir,
     daireAylikOzet,

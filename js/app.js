@@ -198,6 +198,57 @@
     return { gece, gelir };
   }
 
+  function raporTahsilatYontemHesapla() {
+    const db = window.APARTIM.db;
+    const donem = raporDonemSinirlari();
+    const tumRez = Object.values(db.durum.rezervasyonlar);
+    const yontemler = Object.keys(db.ODEME_YONTEMLERI || {
+      elden: 1, havale: 1, booking: 1, diger: 1
+    });
+    const ozet = {};
+    yontemler.forEach((y) => { ozet[y] = { TL: 0, USD: 0, EUR: 0 }; });
+
+    tumRez.forEach((r) => {
+      if (!r) return;
+      const parca = db.rezervasyonOdemeDonemToplam(r, donem.bas, donem.bit);
+      if (!parca) return;
+      Object.keys(parca).forEach((y) => {
+        if (!ozet[y]) ozet[y] = { TL: 0, USD: 0, EUR: 0 };
+        ozet[y].TL += parca[y].TL || 0;
+        ozet[y].USD += parca[y].USD || 0;
+        ozet[y].EUR += parca[y].EUR || 0;
+      });
+    });
+
+    return ozet;
+  }
+
+  function raporTahsilatOzetHtml(tahsilatYontem) {
+    const db = window.APARTIM.db;
+    const yontemler = db?.ODEME_YONTEMLERI || {
+      elden: "Elden", havale: "Hesaba havale", booking: "Booking", diger: "Diğer"
+    };
+    const parcalar = [];
+    Object.keys(yontemler).forEach((key) => {
+      const pb = tahsilatYontem[key] || { TL: 0, USD: 0, EUR: 0 };
+      const alt = [];
+      if (pb.TL > 0) alt.push(raporPbParcaHtml(pb.TL, "TL"));
+      if (pb.USD > 0) alt.push(raporPbParcaHtml(pb.USD, "USD"));
+      if (pb.EUR > 0) alt.push(raporPbParcaHtml(pb.EUR, "EUR"));
+      if (!alt.length) return;
+      parcalar.push(
+        '<div class="rapor-tahsilat-yontem">' +
+          '<span class="rapor-tahsilat-etiket">' + yontemler[key] + "</span>" +
+          '<div class="rapor-gelir-inline kompakt">' + alt.join('<span class="rapor-gelir-ayrac">·</span>') + "</div>" +
+        "</div>"
+      );
+    });
+    if (!parcalar.length) {
+      return '<div class="rapor-gelir-inline"><span class="rapor-pb tl">0 ₺</span></div>';
+    }
+    return '<div class="rapor-tahsilat-liste">' + parcalar.join("") + "</div>";
+  }
+
   function raporHesapla() {
     const db = window.APARTIM.db;
     const donem = raporDonemSinirlari();
@@ -226,11 +277,13 @@
     });
 
     const toplamGelir = gelirPbToplamTL(gelirPB);
+    const tahsilatYontem = raporTahsilatYontemHesapla();
 
     return {
       toplamGece,
       toplamGelir,
       gelirPB,
+      tahsilatYontem,
       rezSayisi,
       doluluk: toplamKapasite > 0 ? (toplamGece * 100 / toplamKapasite) : 0,
       daireOzet,
@@ -243,8 +296,10 @@
   function raporCiz() {
     const baslik = document.getElementById("rapor-ay-baslik");
     const gelirLabel = document.getElementById("rapor-gelir-label");
+    const tahsilatLabel = document.getElementById("rapor-tahsilat-label");
     const yillik = raporDurum.mod === "yil";
-    if (gelirLabel) gelirLabel.textContent = yillik ? "Yıllık gelir" : "Aylık gelir";
+    if (gelirLabel) gelirLabel.textContent = yillik ? "Yıllık gelir (gece)" : "Aylık gelir (gece)";
+    if (tahsilatLabel) tahsilatLabel.textContent = yillik ? "Yıllık tahsilat" : "Aylık tahsilat";
     const db = window.APARTIM.db;
     if (!db || !db.durum.yuklendi) {
       if (baslik) baslik.textContent = "—";
@@ -255,6 +310,8 @@
     if (baslik) baslik.textContent = r.baslik;
     const gelirEl = document.getElementById("rapor-gelir");
     if (gelirEl) gelirEl.innerHTML = raporGelirOzetHtml(r.gelirPB, false);
+    const tahsilatEl = document.getElementById("rapor-tahsilat");
+    if (tahsilatEl) tahsilatEl.innerHTML = raporTahsilatOzetHtml(r.tahsilatYontem);
     document.getElementById("rapor-gece").textContent = r.toplamGece + " gece";
     document.getElementById("rapor-doluluk").textContent = "%" + Math.round(r.doluluk);
     document.getElementById("rapor-rez").textContent = r.rezSayisi;
