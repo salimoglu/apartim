@@ -1109,16 +1109,21 @@ html:not(.theme-light) .takvim-turnover-ad {
   position: sticky;
   left: 0;
   z-index: 2;
-  background: var(--kart-2);
-  color: var(--metin);
-  font-family: "Bebas Neue", "Nunito", sans-serif;
-  font-size: 14px;
+  background: #1a2633;
+  color: #ffffff;
+  font-family: "Nunito", sans-serif;
+  font-size: 11px;
   letter-spacing: 2px;
   text-align: center;
-  padding: 8px 10px;
-  border-top: 2px solid var(--vurgu);
-  border-bottom: 1px solid var(--kenar);
-  font-weight: 700;
+  padding: 5px 10px;
+  border-top: 1px solid #3d4f63;
+  border-bottom: 1px solid #3d4f63;
+  font-weight: 300;
+}
+html.theme-light .rez-ozet-ay-ayrac td {
+  background: #374151;
+  color: #ffffff;
+  border-color: #6b7280;
 }
 .rez-ozet-table {
   border-collapse: separate;
@@ -2653,6 +2658,18 @@ body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
   white-space: nowrap;
 }
 .rez-ozet-tam-btn:hover { background: var(--vurgu); color: #fff; }
+.rez-ozet-rapor-btn {
+  padding: 6px 10px;
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius-sm);
+  background: var(--kart-2);
+  color: var(--metin);
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.rez-ozet-rapor-btn:hover { background: var(--basari); color: #fff; border-color: var(--basari); }
 body.mobil-yatay-mod .rez-ozet-tam-btn {
   background: var(--vurgu);
   color: #fff;

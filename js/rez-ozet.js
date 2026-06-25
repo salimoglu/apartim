@@ -802,6 +802,188 @@
     tabloCiz();
   }
 
+  function rezOutKalanMetin(rez) {
+    const db = window.APARTIM.db;
+    if (!db) return "";
+    const odenen = db.rezervasyonOdenenToplam(rez);
+    if (odenen <= 0) return "";
+    return "Kln " + formatKalanKisa(rez, db.rezervasyonKalanHesapla(rez));
+  }
+
+  const XL = {
+    cizgi: "#6b7280",
+    tarihBg: "#1e2d3d",
+    tarihHaftaSonu: "#243446",
+    hucreYazi: "#111827",
+    ayAyiriciBg: "#1a2633",
+    ayAyiriciYazi: "#ffffff",
+    thKose: "padding:3px 6px;background:#1e2d3d;color:#ffffff;font-weight:800;font-size:10px;border:1px solid #6b7280;text-align:center;white-space:nowrap;",
+    thDaire: (bg) => "padding:3px 6px;background:" + bg + ";font-weight:800;font-size:10px;color:#111827;text-align:center;border:1px solid #6b7280;white-space:nowrap;",
+    thMini: (bg) => "padding:2px 3px;background:" + bg + ";font-size:9px;font-weight:700;color:#111827;border:1px solid #6b7280;text-align:center;",
+    tdTarih: (haftaSonu) => "padding:2px 4px;background:" + (haftaSonu ? XL.tarihHaftaSonu : XL.tarihBg) +
+      ";color:#ffffff;font-size:10px;border:1px solid #6b7280;vertical-align:middle;white-space:nowrap;",
+    tdHucre: (bg) => "padding:1px 3px;background:" + bg + ";color:#111827;font-size:10px;border:1px solid #6b7280;vertical-align:middle;text-align:center;white-space:nowrap;",
+    tdAyAyirici: "padding:5px 8px;background:" + XL.ayAyiriciBg + ";color:" + XL.ayAyiriciYazi +
+      ";font-weight:300;font-size:11px;letter-spacing:1px;text-align:center;border:1px solid #6b7280;",
+    tdBirlesik: (bg) => "padding:2px 4px;background:" + bg + ";color:#111827;font-size:10px;border:1px solid #6b7280;vertical-align:middle;text-align:left;white-space:nowrap;"
+  };
+
+  function xlHucre(metin, stil, colspan) {
+    const cs = colspan ? ' colspan="' + colspan + '"' : "";
+    return '<td' + cs + ' style="' + stil + '">' + esc(metin) + "</td>";
+  }
+
+  function excelDaireHucreleri(h, tarih) {
+    if (h.tip === "turnover") {
+      const det = konakDetay(h.giris, tarih);
+      const outK = rezOutKalanMetin(h.cikis);
+      const txt = "OUT " + kaynakSimge(h.cikis) + " " + (h.cikis.misafirAdi || "") +
+        (outK ? " " + outK : "") + "  ·  IN " + det.kategori + " " + (det.misafir || "");
+      return { birlesik: txt };
+    }
+    if (h.tip === "checkout") {
+      const k = rezOutKalanMetin(h.rez);
+      return { birlesik: "OUT " + kaynakSimge(h.rez) + " " + (h.rez.misafirAdi || "") + (k ? " " + k : "") };
+    }
+    if (h.tip === "checkin") {
+      const det = konakDetay(h.rez, tarih);
+      return {
+        hucreler: [
+          "IN " + det.g,
+          det.kategori,
+          formatHucreFiyat(h.rez, det.prc),
+          odenenHucreGoster(h.rez, det.odenen, det.odenenManuel),
+          det.misafir || ""
+        ]
+      };
+    }
+    if (h.tip === "konak") {
+      const det = konakDetay(h.rez, tarih);
+      return {
+        hucreler: [
+          String(det.g),
+          det.kategori,
+          formatHucreFiyat(h.rez, det.prc),
+          odenenHucreGoster(h.rez, det.odenen, det.odenenManuel),
+          det.misafir || ""
+        ]
+      };
+    }
+    return { hucreler: ["", "", "", "", ""] };
+  }
+
+  function excelSezonOzetMetni(y) {
+    const db = window.APARTIM.db;
+    if (!db || !window.APARTIM.para) return "";
+    const { bas, bitHaric } = sezonBasBit(y);
+    const { toplam, tlToplam } = window.APARTIM.para.aralikToplamlari(db, bas, bitHaric);
+    const parcalar = [];
+    if (toplam.TL > 0) parcalar.push(window.APARTIM.para.formatTutar(toplam.TL, "TL"));
+    if (toplam.USD > 0) parcalar.push(window.APARTIM.para.formatTutar(toplam.USD, "USD"));
+    if (toplam.EUR > 0) parcalar.push(window.APARTIM.para.formatTutar(toplam.EUR, "EUR"));
+    const gelir = parcalar.length ? parcalar.join("  |  ") : "0 ₺";
+    return gelir + "  —  Sezon toplam ≈ " + fmt(Math.round(tlToplam)) + " ₺";
+  }
+
+  function excelRaporHtml(y, daireler, gunler, harita, bugun) {
+    const colSpan = 1 + daireler.length * 5;
+    const satirlar = [];
+
+    satirlar.push(
+      '<tr><td colspan="' + colSpan + '" style="padding:8px 10px;background:#15202b;color:#ffffff;font-size:14px;font-weight:800;border:1px solid #6b7280;">' +
+        esc("APARTIM — Rezervasyon Özeti · Haziran – Eylül " + y) + "</td></tr>"
+    );
+    satirlar.push(
+      '<tr><td colspan="' + colSpan + '" style="padding:6px 10px;background:#1e2d3d;color:#ffffff;font-size:11px;border:1px solid #6b7280;">' +
+        esc(excelSezonOzetMetni(y)) + "</td></tr>"
+    );
+
+    let h1 = '<td rowspan="2" style="' + XL.thKose + '">Tarih</td>';
+    daireler.forEach((d, i) => {
+      h1 += xlHucre(daireBaslik(d), XL.thDaire(daireRenk(d, i)), 5);
+    });
+    satirlar.push("<tr>" + h1 + "</tr>");
+
+    let h2 = "";
+    daireler.forEach((d, i) => {
+      const renk = daireRenk(d, i);
+      ["G", "Kt", "Fyt", "Ödn", "Ad"].forEach((lbl) => {
+        h2 += xlHucre(lbl, XL.thMini(renk));
+      });
+    });
+    satirlar.push("<tr>" + h2 + "</tr>");
+
+    let oncekiAy = -1;
+    gunler.forEach(({ tarih, ay }) => {
+      const gun = Number(tarih.slice(8, 10));
+      const haftaSonu = new Date(y, ay, gun - 1).getDay();
+      const hs = haftaSonu === 0 || haftaSonu === 6;
+
+      if (ay !== oncekiAy) {
+        satirlar.push("<tr>" + xlHucre(AY_ADLARI[ay] + " " + y, XL.tdAyAyirici, colSpan) + "</tr>");
+        oncekiAy = ay;
+      }
+
+      let satir = xlHucre(tarihGoster(tarih) + " " + gunAdi(tarih), XL.tdTarih(hs));
+      daireler.forEach((d, di) => {
+        const h = gunDurumuHarita(harita, d.id, tarih);
+        const renk = daireRenk(d, di);
+        const hucre = excelDaireHucreleri(h, tarih);
+        if (hucre.birlesik) {
+          satir += xlHucre(hucre.birlesik, XL.tdBirlesik(renk), 5);
+        } else {
+          hucre.hucreler.forEach((txt) => {
+            satir += xlHucre(txt, XL.tdHucre(renk));
+          });
+        }
+      });
+      satirlar.push("<tr>" + satir + "</tr>");
+    });
+
+    return satirlar.join("");
+  }
+
+  function excelRaporIndir() {
+    const db = window.APARTIM.db;
+    if (!db?.durum.yuklendi) {
+      window.APARTIM.toast?.("Veriler henüz yüklenmedi", "uyari");
+      return;
+    }
+
+    try {
+      const y = durum.sezonYil;
+      const daireler = dairelerOzetSirasi(db);
+      const gunler = sezonGunleri(y);
+      const { bas, bit } = sezonBasBit(y);
+      const bugun = db.bugunISO();
+      const harita = gunHaritasiOlustur(db, daireler, bas, bit);
+
+      const tabloGovde = excelRaporHtml(y, daireler, gunler, harita, bugun);
+      const html =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
+        "<head><meta charset=\"UTF-8\"/>" +
+        "<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>" +
+        "<x:Name>Rezervasyon</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>" +
+        "</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->" +
+        "<style>table{border-collapse:collapse;}td,th{mso-number-format:\"\\@\";}</style></head><body>" +
+        '<table border="0" cellspacing="0" cellpadding="0">' + tabloGovde + "</table></body></html>";
+
+      const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Apartim-Rezervasyon-" + y + "-Haziran-Eylul.xls";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      window.APARTIM.toast?.("Excel raporu indirildi", "basari");
+    } catch (err) {
+      console.error("excelRaporIndir", err);
+      window.APARTIM.toast?.("Rapor oluşturulamadı", "hata");
+    }
+  }
+
   function yatayModGuncelle() {
     window.APARTIM.app?.yatayModGuncelle?.();
   }
@@ -848,6 +1030,7 @@
     document.getElementById("rez-ozet-yil-next")?.addEventListener("click", () => sezonGit(1));
     document.getElementById("rez-ozet-bugun")?.addEventListener("click", buguneGit);
     document.getElementById("rez-ozet-tam")?.addEventListener("click", tamEkranYatay);
+    document.getElementById("rez-ozet-rapor")?.addEventListener("click", excelRaporIndir);
     window.addEventListener("resize", () => {
       const table = document.querySelector("#rez-ozet-tablo .rez-ozet-table");
       if (table) stickyBaslikOlcul(table);
@@ -858,5 +1041,5 @@
 
   document.addEventListener("apartim:gun-degisti", tabloCizPlanla);
 
-  window.APARTIM.rezOzet = { tabloCiz, sezonGit, buguneGit, yatayModGuncelle, tamEkranYatay, yonKilidiAc };
+  window.APARTIM.rezOzet = { tabloCiz, sezonGit, buguneGit, excelRaporIndir, yatayModGuncelle, tamEkranYatay, yonKilidiAc };
 })();
