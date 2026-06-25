@@ -80,7 +80,10 @@
       const siniflar = ["mini-takvim-hucre"];
       if (isoT === bg) siniflar.push("bugun");
       const boncuk = boncukSinifi(gd);
-      html += '<div class="' + siniflar.join(" ") + '">' +
+      if (boncuk) siniflar.push("mini-takvim-dolu");
+      html += '<div class="' + siniflar.join(" ") + '"' +
+        ' data-daire-id="' + esc(daireId) + '"' +
+        ' data-tarih="' + isoT + '">' +
         '<span class="mini-takvim-gun">' + d + "</span>" +
         (boncuk ? '<span class="mini-takvim-boncuk ' + boncuk + '"></span>' : "") +
         "</div>";
@@ -187,6 +190,11 @@
           ac();
         }
       });
+    });
+    wrap.querySelectorAll(".mini-takvim-hucre.mini-takvim-dolu").forEach((hucre) => {
+      const daireId = hucre.getAttribute("data-daire-id");
+      const isoT = hucre.getAttribute("data-tarih");
+      window.APARTIM.takvim?.ozetHoverBagla(hucre, daireId, isoT);
     });
     ozetGuncelle();
   }

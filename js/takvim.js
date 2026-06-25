@@ -46,6 +46,19 @@
 
   function fmt(n) { return Number(n || 0).toLocaleString("tr-TR"); }
 
+  function tarihEtiket(isoT) {
+    const p = String(isoT || "").split("-").map(Number);
+    if (p.length < 3 || !p[0]) return isoT || "";
+    const dt = new Date(p[0], p[1] - 1, p[2]);
+    return dt.toLocaleDateString("tr-TR", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric"
+    });
+  }
+
+  function hoverDestekli() {
+    return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  }
+
   function esc(s) {
     return String(s || "").replace(/[&<>"]/g, (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]));
@@ -123,14 +136,16 @@
           ? '<div class="takvim-detay-etiket">' + esc(baslikEtiket) + "</div>"
           : "") +
         '<div class="takvim-detay-ad">' + esc(rez.misafirAdi || "Misafir") + "</div>" +
-        '<div class="takvim-detay-satir"><span>Giriş – Çıkış</span><strong>' +
-          esc(rez.giris) + " → " + esc(rez.cikis) + "</strong></div>" +
-        '<div class="takvim-detay-satir"><span>Gece</span><strong>' +
+        '<div class="takvim-detay-satir"><span>Giriş</span><strong>' + esc(rez.giris) + "</strong></div>" +
+        '<div class="takvim-detay-satir"><span>Çıkış</span><strong>' + esc(rez.cikis) + "</strong></div>" +
+        '<div class="takvim-detay-satir"><span>Kalacağı gün</span><strong>' +
           esc(bilgi.geceEtiket) + " / " + ozet.toplamGece + "</strong></div>" +
         '<div class="takvim-detay-satir"><span>Kaynak</span><strong>' +
           esc(bilgi.simge + " " + kaynak) + "</strong></div>" +
         '<div class="takvim-detay-satir"><span>Bu gece</span><strong>' +
           fmt(bilgi.ucret) + " TL</strong></div>" +
+        '<div class="takvim-detay-satir"><span>Ort. fiyat</span><strong>' +
+          fmtPb(ozet.gecelik) + "</strong></div>" +
         '<div class="takvim-detay-satir"><span>Toplam</span><strong>' +
           fmtPb(ozet.toplamTutar) + "</strong></div>" +
         (odenen > 0
@@ -157,7 +172,22 @@
     );
   }
 
-  function takvimDetayGoster(html, tarih) {
+  function daireGunDetayHtml(daireId, isoT) {
+    const db = window.APARTIM.db;
+    if (!db || !daireId || !isoT) return "";
+    const gd = db.daireGunDurumu(daireId, isoT);
+    if (gd.tip === "turnover") {
+      return turnoverDetayHtml(isoT, gd.cikis, gd.giris);
+    }
+    const rez = gd.rez;
+    if (!rez) return "";
+    let hucreTip = "konak";
+    if (gd.tip === "checkin") hucreTip = "checkin";
+    else if (gd.tip === "checkout") hucreTip = "checkout";
+    return rezDetayHtml(rez, isoT, hucreTip, null);
+  }
+
+  function takvimDetayGoster(html, tarih, onDuzenle) {
     if (!html) return;
     let pop = document.getElementById("takvim-detay-pop");
     if (!pop) {
@@ -171,7 +201,10 @@
             '<button type="button" class="takvim-detay-kapat" aria-label="Kapat">×</button>' +
           "</div>" +
           '<div class="takvim-detay-icerik"></div>' +
-          '<p class="takvim-detay-ipucu">Düzenlemek için kısa dokunuş</p>' +
+          '<div class="takvim-detay-alt">' +
+            '<button type="button" class="takvim-detay-duzenle hidden">Düzenle</button>' +
+            '<p class="takvim-detay-ipucu"></p>' +
+          "</div>" +
         "</div>";
       document.body.appendChild(pop);
       pop.addEventListener("click", (e) => {
@@ -183,9 +216,90 @@
         e.stopPropagation();
       });
     }
-    pop.querySelector(".takvim-detay-tarih").textContent = tarih || "";
+    pop.querySelector(".takvim-detay-tarih").textContent = tarihEtiket(tarih) || tarih || "";
     pop.querySelector(".takvim-detay-icerik").innerHTML = html;
+    const duzenleBtn = pop.querySelector(".takvim-detay-duzenle");
+    const ipucu = pop.querySelector(".takvim-detay-ipucu");
+    if (onDuzenle) {
+      duzenleBtn.classList.remove("hidden");
+      duzenleBtn.onclick = () => {
+        pop.classList.add("hidden");
+        onDuzenle();
+      };
+      ipucu.textContent = "Rezervasyonu düzenlemek için Düzenle'ye dokunun";
+    } else {
+      duzenleBtn.classList.add("hidden");
+      duzenleBtn.onclick = null;
+      ipucu.textContent = "Kapatmak için dışarı dokunun";
+    }
+    ozetHoverGizle();
     pop.classList.remove("hidden");
+  }
+
+  let hoverZaman = null;
+
+  function ozetHoverElemani() {
+    let el = document.getElementById("takvim-ozet-hover");
+    if (!el) {
+      el = document.createElement("div");
+      el.id = "takvim-ozet-hover";
+      el.className = "takvim-ozet-hover hidden";
+      el.setAttribute("role", "tooltip");
+      el.innerHTML = '<div class="takvim-ozet-hover-icerik"></div>';
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+
+  function ozetKartKonumla(anchor, kart) {
+    const r = anchor.getBoundingClientRect();
+    kart.classList.remove("hidden");
+    const kr = kart.getBoundingClientRect();
+    let top = r.bottom + 8;
+    let left = r.left + (r.width / 2) - (kr.width / 2);
+    left = Math.max(8, Math.min(left, window.innerWidth - kr.width - 8));
+    if (top + kr.height > window.innerHeight - 8) {
+      top = r.top - kr.height - 8;
+    }
+    kart.style.top = Math.max(8, top) + "px";
+    kart.style.left = left + "px";
+  }
+
+  function ozetHoverGoster(anchorEl, daireId, isoT) {
+    if (!hoverDestekli() || !anchorEl) return;
+    const html = daireGunDetayHtml(daireId, isoT);
+    if (!html) return;
+    if (hoverZaman) clearTimeout(hoverZaman);
+    hoverZaman = setTimeout(() => {
+      hoverZaman = null;
+      const kart = ozetHoverElemani();
+      kart.querySelector(".takvim-ozet-hover-icerik").innerHTML = html;
+      ozetKartKonumla(anchorEl, kart);
+    }, 180);
+  }
+
+  function ozetHoverGizle() {
+    if (hoverZaman) {
+      clearTimeout(hoverZaman);
+      hoverZaman = null;
+    }
+    document.getElementById("takvim-ozet-hover")?.classList.add("hidden");
+  }
+
+  function ozetKartGoster(daireId, isoT, onDuzenle) {
+    const html = daireGunDetayHtml(daireId, isoT);
+    if (!html) return;
+    takvimDetayGoster(html, isoT, onDuzenle || null);
+  }
+
+  function ozetHoverBagla(el, daireId, isoT, onDuzenle) {
+    if (!el || !daireId || !isoT) return;
+    el.addEventListener("mouseenter", () => ozetHoverGoster(el, daireId, isoT));
+    el.addEventListener("mouseleave", ozetHoverGizle);
+    el.addEventListener("click", (e) => {
+      e.stopPropagation();
+      ozetKartGoster(daireId, isoT, onDuzenle);
+    });
   }
 
   function hucreTiklamaBagla(h, onKisa, onUzun) {
@@ -357,7 +471,7 @@
         hucreBilgiEkle(h, gd, rez, isoT);
       }
 
-      const kisaTik = () => {
+      const duzenle = () => {
         const rezervasyon = window.APARTIM.rezervasyon;
         if (!rezervasyon) {
           window.APARTIM.toast("Rezervasyon modülü yüklenemedi", "hata");
@@ -375,30 +489,35 @@
         if (rez) {
           const id = rezervasyon.rezIdAl(rez);
           if (id) rezervasyon.duzenle(id);
-        } else {
-          rezervasyon.yeni({
-            daireId: durum.daireId,
-            girisOnseci: isoT
-          });
         }
       };
 
-      const uzunBas = () => {
-        if (gd.tip === "turnover") {
-          takvimDetayGoster(turnoverDetayHtml(isoT, gd.cikis, gd.giris), isoT);
+      const kartGoster = () => {
+        ozetKartGoster(durum.daireId, isoT, duzenle);
+      };
+
+      const bosTik = () => {
+        const rezervasyon = window.APARTIM.rezervasyon;
+        if (!rezervasyon) {
+          window.APARTIM.toast("Rezervasyon modülü yüklenemedi", "hata");
           return;
         }
-        if (!rez) return;
-        let hucreTip = "konak";
-        if (gd.tip === "checkin") hucreTip = "checkin";
-        else if (gd.tip === "checkout") hucreTip = "checkout";
-        takvimDetayGoster(rezDetayHtml(rez, isoT, hucreTip, null), isoT);
+        rezervasyon.yeni({
+          daireId: durum.daireId,
+          girisOnseci: isoT
+        });
       };
 
       if (gd.tip === "turnover" || rez) {
-        hucreTiklamaBagla(h, kisaTik, uzunBas);
+        if (hoverDestekli()) {
+          h.addEventListener("mouseenter", () => ozetHoverGoster(h, durum.daireId, isoT));
+          h.addEventListener("mouseleave", ozetHoverGizle);
+          h.addEventListener("click", duzenle);
+        } else {
+          hucreTiklamaBagla(h, kartGoster, duzenle);
+        }
       } else {
-        h.addEventListener("click", kisaTik);
+        h.addEventListener("click", bosTik);
       }
       grid.appendChild(h);
     }
@@ -429,6 +548,9 @@
   window.APARTIM.takvim = {
     ayOlustur,
     yenidenCiz: ciz,
-    durum
+    durum,
+    ozetKartGoster,
+    ozetHoverBagla,
+    ozetHoverGizle
   };
 })();

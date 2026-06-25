@@ -995,11 +995,73 @@ html:not(.theme-light) .takvim-turnover-ad {
 }
 .takvim-detay-ipucu {
   margin: 0;
-  padding: 10px 16px 14px;
+  padding: 0 16px 14px;
   font-size: 11px;
   color: var(--metin-soluk);
   text-align: center;
+}
+.takvim-detay-alt {
   border-top: 1px solid var(--kenar);
+  padding: 10px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+}
+.takvim-detay-duzenle {
+  width: 100%;
+  padding: 11px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--vurgu);
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
+  cursor: pointer;
+}
+.takvim-detay-duzenle.hidden { display: none; }
+
+.takvim-ozet-hover {
+  position: fixed;
+  z-index: 5050;
+  max-width: min(320px, calc(100vw - 16px));
+  background: var(--zemin);
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius);
+  box-shadow: var(--golge-lg);
+  pointer-events: none;
+}
+.takvim-ozet-hover.hidden { display: none; }
+.takvim-ozet-hover-icerik {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.takvim-ozet-hover .takvim-detay-blok {
+  padding-bottom: 0;
+  border-bottom: none;
+}
+.takvim-ozet-hover .takvim-detay-ad {
+  font-size: 15px;
+}
+.takvim-ozet-hover .takvim-detay-satir {
+  font-size: 12px;
+}
+.mini-takvim-hucre.mini-takvim-dolu {
+  cursor: pointer;
+}
+.mini-takvim-hucre.mini-takvim-dolu:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+.takvim-hucre.dolu,
+.takvim-hucre.cikis,
+.takvim-hucre.giris,
+.takvim-hucre.turnover {
+  cursor: pointer;
 }
 
 /* -------------------- 9. Rezervasyon listesi -------------------- */
