@@ -1305,14 +1305,14 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   position: sticky;
   left: 0;
   z-index: 3;
-  min-width: 68px;
+  min-width: 82px;
   font-weight: 800;
 }
 .rez-ozet-tarih {
   position: sticky;
   left: 0;
   z-index: 2;
-  min-width: 68px;
+  min-width: 82px;
 }
 .rez-ozet-tarih-gun {
   display: block;
@@ -1321,8 +1321,9 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 }
 .rez-ozet-gun-ad {
   display: block;
-  font-size: 8px;
-  letter-spacing: 0.3px;
+  font-size: 9px;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 .rez-ozet-daire-baslik {
   text-align: center;

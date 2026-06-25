@@ -7,6 +7,7 @@
   "use strict";
 
   const GUN_KISA = ["PAZ", "PZT", "SAL", "ÇAR", "PER", "CUM", "CMT"];
+  const GUN_UZUN = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
   const AY_ADLARI = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
 
@@ -194,9 +195,9 @@
     return p[2] + "." + p[1] + "." + p[0];
   }
 
-  function gunAdi(isoStr) {
+  function gunAdi(isoStr, kisa) {
     const d = new Date(isoStr + "T12:00:00");
-    return GUN_KISA[d.getDay()];
+    return (kisa ? GUN_KISA : GUN_UZUN)[d.getDay()];
   }
 
   function kaynakSimge(rez) {
@@ -1011,7 +1012,7 @@
         oncekiAy = ay;
       }
 
-      let satir = xlHucre(tarihGoster(tarih) + " " + gunAdi(tarih), XL.tdTarih(hs));
+      let satir = xlHucre(tarihGoster(tarih) + " " + gunAdi(tarih, true), XL.tdTarih(hs));
       daireler.forEach((d, di) => {
         const h = gunDurumuHarita(harita, d.id, tarih);
         const renk = daireRenk(d, di);
