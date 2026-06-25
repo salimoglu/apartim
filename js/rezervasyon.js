@@ -374,6 +374,7 @@
       e.btnSil?.classList.add("hidden");
       uyariGoster("");
       toplamHesapla();
+      window.APARTIM.rezOzet?.konumKoru?.(gIso);
       modalAc();
     } catch (err) {
       console.error("rezervasyon.yeni", err);
@@ -412,6 +413,7 @@
       e.btnSil?.classList.remove("hidden");
       uyariGoster("");
       toplamHesapla();
+      window.APARTIM.rezOzet?.konumKoru?.(rez.giris);
       modalAc();
     } catch (err) {
       console.error("rezervasyon.duzenle", err);
@@ -485,6 +487,8 @@
         e.btnKaydet.textContent = "Kaydediliyor…";
       }
 
+      window.APARTIM.rezOzet?.konumKoru?.(giris);
+
       if (mevcutRezId) {
         await window.APARTIM.db.rezervasyonGuncelle(mevcutRezId, veri);
         window.APARTIM.toast("Rezervasyon güncellendi", "basari");
@@ -493,7 +497,6 @@
         window.APARTIM.toast("Rezervasyon kaydedildi", "basari");
       }
       modalKapat();
-      window.APARTIM.rezOzet?.tabloCiz();
       window.APARTIM.takvim?.yenidenCiz();
     } catch (err) {
       console.error("rezervasyon.kaydet", err);

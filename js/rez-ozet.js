@@ -616,7 +616,7 @@
   function tabloTamamla(wrap, table, daireler) {
     sonDaireler = daireler;
     stickyBaslikOlcul(table);
-    requestAnimationFrame(() => scrollGeriYukle(wrap, table));
+    scrollGeriYukleSonra(wrap, table);
   }
 
   function etkilesimBagla(kapsayici) {
@@ -695,10 +695,17 @@
     tr.classList.add("rez-ozet-satir-secili");
   }
 
-  function scrollKaydet() {
+  function scrollKaydet(zorla) {
     if (durum.buguneKaydir) return;
     const sc = scrollKapsayici || document.querySelector(".rez-ozet-scroll");
-    if (sc) kayitliScrollTop = sc.scrollTop;
+    if (!sc) return;
+    if (zorla || kayitliScrollTop == null) kayitliScrollTop = sc.scrollTop;
+  }
+
+  /** Modal kayıt / düzenleme öncesi scroll ve tarih konumunu koru */
+  function konumKoru(tarih) {
+    if (tarih) durum.seciliTarih = tarih;
+    scrollKaydet(true);
   }
 
   function scrollElemana(sc, el, ortala) {
@@ -745,13 +752,38 @@
 
     if (durum.seciliTarih) {
       const row = table.querySelector('tr.rez-ozet-tr[data-tarih="' + durum.seciliTarih + '"]');
-      if (row) scrollElemana(sc, row, false);
+      if (row) {
+        if (kayitliScrollTop != null && kayitliScrollTop > 20) {
+          sc.scrollTop = kayitliScrollTop;
+        } else {
+          scrollElemana(sc, row, true);
+        }
+        kayitliScrollTop = null;
+        return;
+      }
     }
 
     if (kayitliScrollTop != null) {
       sc.scrollTop = kayitliScrollTop;
       kayitliScrollTop = null;
     }
+  }
+
+  function scrollGeriYukleSonra(wrap, table) {
+    const yedekScroll = kayitliScrollTop;
+    const yedekTarih = durum.seciliTarih;
+    requestAnimationFrame(() => {
+      scrollGeriYukle(wrap, table);
+      requestAnimationFrame(() => {
+        const sc = scrollKapsayici || document.querySelector(".rez-ozet-scroll");
+        if (!sc) return;
+        if (yedekScroll != null && yedekScroll > 0) sc.scrollTop = yedekScroll;
+        else if (yedekTarih) {
+          const row = table.querySelector('tr.rez-ozet-tr[data-tarih="' + yedekTarih + '"]');
+          if (row) scrollElemana(sc, row, true);
+        }
+      });
+    });
   }
 
   function stickyBaslikOlcul(table) {
@@ -777,6 +809,9 @@
     const myToken = ++renderToken;
     if (baslik) baslik.textContent = "Haziran – Eylül " + y;
 
+    scrollKaydet();
+    const ilkYukleme = !wrap.querySelector(".rez-ozet-table");
+
     const daireler = dairelerOzetSirasi(db);
     const gunler = sezonGunleri(y);
     if (!gunler.length) return;
@@ -786,8 +821,6 @@
     const colSpan = 1 + daireler.length * 5;
 
     paraOzetCiz(y);
-    scrollKaydet();
-    const ilkYukleme = !wrap.querySelector(".rez-ozet-table");
     if (ilkYukleme) {
       wrap.innerHTML = '<div class="rez-ozet-yukleniyor">Sezon tablosu hazırlanıyor…</div>';
     }
@@ -802,12 +835,35 @@
     wrap.appendChild(table);
 
     let idx = 0;
-    let oncekiAy = -1;
+
+    function satirlariEkle(hedef, basIdx) {
+      let i = basIdx;
+      let oncekiAy = basIdx > 0 ? gunler[basIdx - 1].ay : -1;
+      const frag = document.createDocumentFragment();
+      while (i < gunler.length) {
+        const { tarih, ay } = gunler[i];
+        const gun = Number(tarih.slice(8, 10));
+        if (ay !== oncekiAy) {
+          frag.appendChild(ayAyiriciTr(y, ay, colSpan));
+          oncekiAy = ay;
+        }
+        frag.appendChild(satirOlustur(tarih, y, ay, gun, daireler, harita, bugun));
+        i++;
+      }
+      hedef.appendChild(frag);
+      return i;
+    }
 
     function parcaCiz() {
       if (myToken !== renderToken) return;
+      if (!ilkYukleme) {
+        satirlariEkle(tbody, 0);
+        tabloTamamla(wrap, table, daireler);
+        return;
+      }
       const frag = document.createDocumentFragment();
       const bitIdx = Math.min(idx + CHUNK_GUN, gunler.length);
+      let oncekiAy = idx > 0 ? gunler[idx - 1].ay : -1;
       while (idx < bitIdx) {
         const { tarih, ay } = gunler[idx];
         const gun = Number(tarih.slice(8, 10));
@@ -1086,5 +1142,8 @@
 
   document.addEventListener("apartim:gun-degisti", tabloCizPlanla);
 
-  window.APARTIM.rezOzet = { tabloCiz, sezonGit, buguneGit, excelRaporIndir, yatayModGuncelle, tamEkranYatay, yonKilidiAc };
+  window.APARTIM.rezOzet = {
+    tabloCiz, sezonGit, buguneGit, konumKoru, excelRaporIndir,
+    yatayModGuncelle, tamEkranYatay, yonKilidiAc
+  };
 })();
