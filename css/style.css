@@ -3019,9 +3019,13 @@ body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
   min-width: 76px;
 }
 
-/* Tam ekran tablo modu (PWA yatay fallback) */
+/* Tam ekran tablo modu — CSS ile (native fullscreen modalları gizlerdi) */
+.rez-ozet-wrap.rez-ozet-tam-ekran,
 .rez-ozet-wrap:fullscreen,
 .rez-ozet-wrap:-webkit-full-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
   background: var(--zemin);
   padding: 10px 12px;
   box-sizing: border-box;
@@ -3032,6 +3036,10 @@ body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
   width: 100%;
   height: 100%;
 }
+body.rez-ozet-tam-ekran {
+  overflow: hidden;
+}
+.rez-ozet-wrap.rez-ozet-tam-ekran .rez-ozet-scroll,
 .rez-ozet-wrap:fullscreen .rez-ozet-scroll,
 .rez-ozet-wrap:-webkit-full-screen .rez-ozet-scroll {
   flex: 1;
@@ -3039,6 +3047,19 @@ body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: var(--radius);
+}
+body.mobil-yatay-mod .modal-overlay {
+  z-index: 10000;
+  padding: 10px;
+  align-items: center;
+}
+body.mobil-yatay-mod .modal-box {
+  max-height: min(96vh, 96dvh);
+}
+body.mobil-yatay-mod .modal-body input,
+body.mobil-yatay-mod .modal-body select,
+body.mobil-yatay-mod .modal-body textarea {
+  font-size: 16px;
 }
 body.mobil-yatay-mod .rez-ozet-tam-btn {
   background: var(--vurgu);

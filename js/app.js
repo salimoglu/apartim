@@ -144,6 +144,10 @@
 
   // ---- Sekme yönetimi ----
   function sekmeSec(ad) {
+    if (ad !== "rezervasyonlar") {
+      document.querySelector("#tab-rezervasyonlar .rez-ozet-wrap")?.classList.remove("rez-ozet-tam-ekran");
+      document.body.classList.remove("rez-ozet-tam-ekran");
+    }
     document.querySelectorAll(".tab-btn").forEach((b) =>
       b.classList.toggle("active", b.dataset.tab === ad));
     document.querySelectorAll(".tab-panel").forEach((p) =>
@@ -165,7 +169,8 @@
   }
 
   function yatayModGuncelle() {
-    const yatay = yatayModMu() || !!document.fullscreenElement;
+    const tamEkran = document.querySelector("#tab-rezervasyonlar .rez-ozet-wrap.rez-ozet-tam-ekran");
+    const yatay = yatayModMu() || !!document.fullscreenElement || !!tamEkran;
     document.documentElement.classList.toggle("mobil-yatay-mod", yatay);
     document.body.classList.toggle("mobil-yatay-mod", yatay);
   }

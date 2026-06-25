@@ -699,8 +699,10 @@
     if (sel) sel.value = info.yontem || "elden";
 
     modal.classList.remove("hidden");
-    inp?.focus();
-    inp?.select();
+    setTimeout(() => {
+      inp?.focus({ preventScroll: true });
+      inp?.select?.();
+    }, 80);
   }
 
   async function odemeModalKaydet(temizle) {
@@ -845,6 +847,7 @@
     });
 
     kapsayici.addEventListener("pointerdown", (e) => {
+      if (e.target.closest(".rez-ozet-odenen, .rez-ozet-tik, .rez-ozet-bos, .rez-ozet-hucre-tik")) return;
       const tr = e.target.closest("tbody tr.rez-ozet-tr");
       if (!tr || e.pointerType === "mouse") return;
       satirSec(tr);
@@ -1267,32 +1270,30 @@
     const wrap = document.querySelector("#tab-rezervasyonlar .rez-ozet-wrap");
     if (!wrap) return;
 
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-        yatayModGuncelle();
-        return;
-      }
-
-      await yonKilidiAc();
-
-      if (wrap.requestFullscreen) {
-        await wrap.requestFullscreen();
-      } else if (wrap.webkitRequestFullscreen) {
-        await wrap.webkitRequestFullscreen();
-      }
-
+    const acik = wrap.classList.contains("rez-ozet-tam-ekran");
+    if (acik) {
+      wrap.classList.remove("rez-ozet-tam-ekran");
+      document.body.classList.remove("rez-ozet-tam-ekran");
       try {
-        if (screen.orientation && typeof screen.orientation.lock === "function") {
-          await screen.orientation.lock("landscape");
+        if (screen.orientation && typeof screen.orientation.unlock === "function") {
+          screen.orientation.unlock();
         }
-      } catch (e) { /* iOS / bazı PWA'larda desteklenmez */ }
-
+      } catch (e) { /* yoksay */ }
       yatayModGuncelle();
-      window.APARTIM.toast?.("Tam ekran — çıkmak için Yatay'a tekrar dokunun", "bilgi");
-    } catch (err) {
-      window.APARTIM.toast?.("Tam ekran açılamadı; telefonu yan çevirin", "uyari");
+      return;
     }
+
+    wrap.classList.add("rez-ozet-tam-ekran");
+    document.body.classList.add("rez-ozet-tam-ekran");
+
+    try {
+      if (screen.orientation && typeof screen.orientation.lock === "function") {
+        await screen.orientation.lock("landscape");
+      }
+    } catch (e) { /* iOS / bazı PWA'larda desteklenmez */ }
+
+    yatayModGuncelle();
+    window.APARTIM.toast?.("Tam ekran — çıkmak için Yatay'a tekrar dokunun", "bilgi");
   }
 
   document.addEventListener("DOMContentLoaded", () => {
