@@ -145,8 +145,7 @@
   // ---- Sekme yönetimi ----
   function sekmeSec(ad) {
     if (ad !== "rezervasyonlar") {
-      document.querySelector("#tab-rezervasyonlar .rez-ozet-wrap")?.classList.remove("rez-ozet-tam-ekran");
-      document.body.classList.remove("rez-ozet-tam-ekran");
+      window.APARTIM.rezOzet?.tamEkranKapat?.();
     }
     document.querySelectorAll(".tab-btn").forEach((b) =>
       b.classList.toggle("active", b.dataset.tab === ad));

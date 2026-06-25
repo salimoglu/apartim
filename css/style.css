@@ -3019,25 +3019,58 @@ body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
   min-width: 76px;
 }
 
-/* Tam ekran tablo modu — CSS ile (native fullscreen modalları gizlerdi) */
+/* Tam ekran yatay tablo modu */
 .rez-ozet-wrap.rez-ozet-tam-ekran,
 .rez-ozet-wrap:fullscreen,
 .rez-ozet-wrap:-webkit-full-screen {
   position: fixed;
   inset: 0;
-  z-index: 900;
+  z-index: 9990;
   background: var(--zemin);
-  padding: 10px 12px;
+  padding: 8px 10px;
+  padding-top: max(8px, env(safe-area-inset-top));
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
+  padding-left: max(10px, env(safe-area-inset-left));
+  padding-right: max(10px, env(safe-area-inset-right));
   box-sizing: border-box;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   height: 100%;
 }
 body.rez-ozet-tam-ekran {
   overflow: hidden;
+}
+body.rez-ozet-tam-ekran .topbar,
+body.rez-ozet-tam-ekran .tab-nav {
+  visibility: hidden;
+  pointer-events: none;
+}
+/* Dikey tutulduğunda tabloyu yatay göster (iOS yön kilidi yoksa) */
+@media (orientation: portrait) {
+  body.rez-ozet-tam-ekran .rez-ozet-wrap.rez-ozet-tam-ekran:not(:fullscreen):not(:-webkit-full-screen) {
+    width: 100vh;
+    height: 100vw;
+    max-width: 100vh;
+    max-height: 100vw;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+}
+.rez-ozet-modal-host {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+}
+.rez-ozet-modal-host .modal-overlay {
+  pointer-events: auto;
+  z-index: 10001;
 }
 .rez-ozet-wrap.rez-ozet-tam-ekran .rez-ozet-scroll,
 .rez-ozet-wrap:fullscreen .rez-ozet-scroll,
@@ -3046,19 +3079,30 @@ body.rez-ozet-tam-ekran {
   min-height: 0;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
   border-radius: var(--radius);
 }
-body.mobil-yatay-mod .modal-overlay {
-  z-index: 10000;
+.rez-ozet-wrap.rez-ozet-tam-ekran .rez-ozet-odenen,
+.rez-ozet-wrap:fullscreen .rez-ozet-odenen {
+  min-height: 22px;
+  touch-action: manipulation;
+}
+body.mobil-yatay-mod .modal-overlay,
+body.rez-ozet-tam-ekran .modal-overlay {
+  z-index: 10002;
   padding: 10px;
   align-items: center;
 }
-body.mobil-yatay-mod .modal-box {
+body.mobil-yatay-mod .modal-box,
+body.rez-ozet-tam-ekran .modal-box {
   max-height: min(96vh, 96dvh);
 }
 body.mobil-yatay-mod .modal-body input,
 body.mobil-yatay-mod .modal-body select,
-body.mobil-yatay-mod .modal-body textarea {
+body.mobil-yatay-mod .modal-body textarea,
+body.rez-ozet-tam-ekran .modal-body input,
+body.rez-ozet-tam-ekran .modal-body select,
+body.rez-ozet-tam-ekran .modal-body textarea {
   font-size: 16px;
 }
 body.mobil-yatay-mod .rez-ozet-tam-btn {

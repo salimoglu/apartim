@@ -243,8 +243,11 @@
   }
 
   function modalAc() {
+    if (window.APARTIM.rezOzet?.tamEkranAcikMi?.()) {
+      window.APARTIM.rezOzet.tamEkranaModallariTasi?.(true);
+    }
     modal()?.classList.remove("hidden");
-    setTimeout(() => ay().misafir?.focus(), 50);
+    setTimeout(() => ay().misafir?.focus({ preventScroll: true }), 80);
   }
   function modalKapat() {
     modal()?.classList.add("hidden");
