@@ -140,7 +140,7 @@
         (fazla > 0
           ? '<div class="takvim-detay-satir"><span>Fazla ödeme</span><strong>' +
             fmtPb(fazla) + "</strong></div>"
-          : (odenen > 0 && kalan > 0
+          : (kalan > 0
             ? '<div class="takvim-detay-satir"><span>Kalan</span><strong>' +
               fmtPb(kalan) + "</strong></div>"
             : (odenen > 0

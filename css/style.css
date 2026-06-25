@@ -2216,13 +2216,32 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rapor-tahsilat-yontem {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: nowrap;
 }
 .rapor-tahsilat-etiket {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  color: var(--metin-soluk);
+  color: var(--metin);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.rapor-tahsilat-yontem .rapor-gelir-inline {
+  flex: 1 1 auto;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+.rez-ozet-odenen.rez-ozet-kalan-ipucu {
+  font-weight: 700;
+  color: #92400e !important;
+  font-size: 8px;
+}
+html:not(.theme-light) .rez-ozet-odenen.rez-ozet-kalan-ipucu {
+  color: #fbbf24 !important;
 }
 .modal-box-kucuk {
   max-width: 360px;

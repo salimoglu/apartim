@@ -82,12 +82,13 @@
   function rezervasyonBakiyeMetin(rez) {
     const db = window.APARTIM.db;
     if (!db) return "";
-    const odenen = db.rezervasyonOdenenToplam(rez);
-    if (odenen <= 0) return "";
+    const toplam = db.rezervasyonToplamTutar(rez);
+    if (toplam <= 0) return "";
     const kalan = db.rezervasyonKalanHesapla(rez);
     if (kalan < 0) return "Fazla " + formatKalanKisa(rez, -kalan);
     if (kalan > 0) return "Kln " + formatKalanKisa(rez, kalan);
-    return "Kapalı";
+    if (db.rezervasyonOdenenToplam(rez) > 0) return "Kapalı";
+    return "";
   }
 
   function parseTutarGiris(val) {
@@ -579,8 +580,15 @@
     if (rid) td.dataset.rezId = rid;
     td.dataset.tarih = tarih;
     if (info.manuel) td.dataset.yontem = info.yontem;
-    td.textContent = odenenHucreGoster(rez, info);
-    td.title = odenenHucreBaslik(rez, info);
+    if (info.manuel) {
+      td.textContent = odenenHucreGoster(rez, info);
+      td.title = odenenHucreBaslik(rez, info);
+    } else {
+      const kln = rezervasyonBakiyeMetin(rez);
+      td.textContent = kln || "—";
+      td.title = kln ? "Toplam kalan · ödeme girmek için tıklayın" : "Ödeme girmek için tıklayın";
+      if (kln) td.classList.add("rez-ozet-kalan-ipucu");
+    }
     return td;
   }
 
