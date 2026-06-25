@@ -34,7 +34,7 @@
   let tabloTimer = null;
   let sonDaireler = [];
   let scrollKapsayici = null;
-  let kayitliScrollTop = null;
+  let korunanScroll = null;
 
   function pad(n) { return String(n).padStart(2, "0"); }
   function iso(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
@@ -104,7 +104,7 @@
   function tabloCizPlanla() {
     if (!tabloSekmesiAcikMi()) return;
     clearTimeout(tabloTimer);
-    tabloTimer = setTimeout(tabloCiz, 60);
+    tabloTimer = setTimeout(tabloCiz, 80);
   }
 
   /** Daire × gün durum haritası — tablo çiziminde tekrarlı db sorgusunu önler */
@@ -248,6 +248,9 @@
     const td = document.createElement("td");
     td.colSpan = colSpan;
     td.textContent = AY_ADLARI[m] + " " + y;
+    td.style.background = "#1a2633";
+    td.style.color = "#ffffff";
+    td.style.fontWeight = "300";
     tr.appendChild(td);
     return tr;
   }
@@ -695,17 +698,20 @@
     tr.classList.add("rez-ozet-satir-secili");
   }
 
-  function scrollKaydet(zorla) {
-    if (durum.buguneKaydir) return;
+  function scrollKonumAl() {
     const sc = scrollKapsayici || document.querySelector(".rez-ozet-scroll");
-    if (!sc) return;
-    if (zorla || kayitliScrollTop == null) kayitliScrollTop = sc.scrollTop;
+    return sc ? sc.scrollTop : 0;
+  }
+
+  function scrollKonumKoru(zorla) {
+    if (durum.buguneKaydir) return;
+    if (zorla || korunanScroll == null) korunanScroll = scrollKonumAl();
   }
 
   /** Modal kayıt / düzenleme öncesi scroll ve tarih konumunu koru */
   function konumKoru(tarih) {
     if (tarih) durum.seciliTarih = tarih;
-    scrollKaydet(true);
+    scrollKonumKoru(true);
   }
 
   function scrollElemana(sc, el, ortala) {
@@ -736,7 +742,6 @@
         scrollElemana(sc, hucre, true);
         durum.pendingOdenenFocus = null;
         odenenHucreDuzenle(hucre);
-        kayitliScrollTop = null;
         return;
       }
       durum.pendingOdenenFocus = null;
@@ -746,43 +751,29 @@
       durum.buguneKaydir = false;
       const row = table.querySelector(".rez-ozet-bugun");
       if (row) scrollElemana(sc, row, true);
-      kayitliScrollTop = null;
+      korunanScroll = null;
+      return;
+    }
+
+    if (korunanScroll != null && korunanScroll > 0) {
+      sc.scrollTop = korunanScroll;
       return;
     }
 
     if (durum.seciliTarih) {
       const row = table.querySelector('tr.rez-ozet-tr[data-tarih="' + durum.seciliTarih + '"]');
-      if (row) {
-        if (kayitliScrollTop != null && kayitliScrollTop > 20) {
-          sc.scrollTop = kayitliScrollTop;
-        } else {
-          scrollElemana(sc, row, true);
-        }
-        kayitliScrollTop = null;
-        return;
-      }
-    }
-
-    if (kayitliScrollTop != null) {
-      sc.scrollTop = kayitliScrollTop;
-      kayitliScrollTop = null;
+      if (row) scrollElemana(sc, row, true);
     }
   }
 
   function scrollGeriYukleSonra(wrap, table) {
-    const yedekScroll = kayitliScrollTop;
-    const yedekTarih = durum.seciliTarih;
     requestAnimationFrame(() => {
       scrollGeriYukle(wrap, table);
-      requestAnimationFrame(() => {
-        const sc = scrollKapsayici || document.querySelector(".rez-ozet-scroll");
-        if (!sc) return;
-        if (yedekScroll != null && yedekScroll > 0) sc.scrollTop = yedekScroll;
-        else if (yedekTarih) {
-          const row = table.querySelector('tr.rez-ozet-tr[data-tarih="' + yedekTarih + '"]');
-          if (row) scrollElemana(sc, row, true);
-        }
-      });
+      requestAnimationFrame(() => scrollGeriYukle(wrap, table));
+      setTimeout(() => {
+        scrollGeriYukle(wrap, table);
+        korunanScroll = null;
+      }, 0);
     });
   }
 
@@ -809,7 +800,7 @@
     const myToken = ++renderToken;
     if (baslik) baslik.textContent = "Haziran – Eylül " + y;
 
-    scrollKaydet();
+    scrollKonumKoru(false);
     const ilkYukleme = !wrap.querySelector(".rez-ozet-table");
 
     const daireler = dairelerOzetSirasi(db);
@@ -821,9 +812,6 @@
     const colSpan = 1 + daireler.length * 5;
 
     paraOzetCiz(y);
-    if (ilkYukleme) {
-      wrap.innerHTML = '<div class="rez-ozet-yukleniyor">Sezon tablosu hazırlanıyor…</div>';
-    }
 
     const harita = gunHaritasiOlustur(db, daireler, bas, bit);
     if (myToken !== renderToken) return;
@@ -831,63 +819,41 @@
     const table = theadOlustur(daireler);
     const tbody = document.createElement("tbody");
     table.appendChild(tbody);
-    wrap.innerHTML = "";
-    wrap.appendChild(table);
 
-    let idx = 0;
+    satirlariEkle(tbody, 0, y, gunler, daireler, harita, bugun, colSpan);
 
-    function satirlariEkle(hedef, basIdx) {
-      let i = basIdx;
-      let oncekiAy = basIdx > 0 ? gunler[basIdx - 1].ay : -1;
-      const frag = document.createDocumentFragment();
-      while (i < gunler.length) {
-        const { tarih, ay } = gunler[i];
-        const gun = Number(tarih.slice(8, 10));
-        if (ay !== oncekiAy) {
-          frag.appendChild(ayAyiriciTr(y, ay, colSpan));
-          oncekiAy = ay;
-        }
-        frag.appendChild(satirOlustur(tarih, y, ay, gun, daireler, harita, bugun));
-        i++;
-      }
-      hedef.appendChild(frag);
-      return i;
+    if (ilkYukleme) {
+      wrap.innerHTML = "";
+      wrap.appendChild(table);
+    } else {
+      const eski = wrap.querySelector(".rez-ozet-table");
+      if (eski) wrap.replaceChild(table, eski);
+      else wrap.appendChild(table);
     }
 
-    function parcaCiz() {
-      if (myToken !== renderToken) return;
-      if (!ilkYukleme) {
-        satirlariEkle(tbody, 0);
-        tabloTamamla(wrap, table, daireler);
-        return;
-      }
-      const frag = document.createDocumentFragment();
-      const bitIdx = Math.min(idx + CHUNK_GUN, gunler.length);
-      let oncekiAy = idx > 0 ? gunler[idx - 1].ay : -1;
-      while (idx < bitIdx) {
-        const { tarih, ay } = gunler[idx];
-        const gun = Number(tarih.slice(8, 10));
-        if (ay !== oncekiAy) {
-          frag.appendChild(ayAyiriciTr(y, ay, colSpan));
-          oncekiAy = ay;
-        }
-        frag.appendChild(satirOlustur(tarih, y, ay, gun, daireler, harita, bugun));
-        idx++;
-      }
-      tbody.appendChild(frag);
-      if (idx < gunler.length) {
-        requestAnimationFrame(parcaCiz);
-      } else {
-        tabloTamamla(wrap, table, daireler);
-      }
-    }
+    tabloTamamla(wrap, table, daireler);
+  }
 
-    requestAnimationFrame(parcaCiz);
+  function satirlariEkle(hedef, basIdx, y, gunler, daireler, harita, bugun, colSpan) {
+    let i = basIdx;
+    let oncekiAy = basIdx > 0 ? gunler[basIdx - 1].ay : -1;
+    const frag = document.createDocumentFragment();
+    while (i < gunler.length) {
+      const { tarih, ay } = gunler[i];
+      const gun = Number(tarih.slice(8, 10));
+      if (ay !== oncekiAy) {
+        frag.appendChild(ayAyiriciTr(y, ay, colSpan));
+        oncekiAy = ay;
+      }
+      frag.appendChild(satirOlustur(tarih, y, ay, gun, daireler, harita, bugun));
+      i++;
+    }
+    hedef.appendChild(frag);
   }
 
   function sezonGit(yon) {
     durum.sezonYil += yon;
-    kayitliScrollTop = null;
+    korunanScroll = null;
     tabloCiz();
   }
 
@@ -896,7 +862,7 @@
     durum.sezonYil = varsayilanSezonYil();
     const { bas, bit } = sezonBasBit(durum.sezonYil);
     const bugun = window.APARTIM.db?.bugunISO?.() || iso(n.getFullYear(), n.getMonth(), n.getDate());
-    kayitliScrollTop = null;
+    korunanScroll = null;
     durum.buguneKaydir = bugun >= bas && bugun <= bit;
     if (!durum.buguneKaydir) {
       window.APARTIM.toast?.("Bugün sezon dışında (Haziran–Eylül)", "bilgi");
@@ -1143,7 +1109,7 @@
   document.addEventListener("apartim:gun-degisti", tabloCizPlanla);
 
   window.APARTIM.rezOzet = {
-    tabloCiz, sezonGit, buguneGit, konumKoru, excelRaporIndir,
+    tabloCiz, tabloCizPlanla, sezonGit, buguneGit, konumKoru, excelRaporIndir,
     yatayModGuncelle, tamEkranYatay, yonKilidiAc
   };
 })();

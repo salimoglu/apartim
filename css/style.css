@@ -1146,6 +1146,24 @@ html:not(.theme-light) .rez-ozet-table {
   vertical-align: middle;
   color: #111827 !important;
 }
+.rez-ozet-table tr.rez-ozet-ay-ayrac td {
+  background: #1a2633 !important;
+  color: #ffffff !important;
+  font-family: "Nunito", sans-serif;
+  font-size: 10px !important;
+  font-weight: 300 !important;
+  letter-spacing: 3px;
+  text-align: center;
+  padding: 4px 10px !important;
+  border-top: 1px solid #3d4f63 !important;
+  border-bottom: 1px solid #3d4f63 !important;
+  text-transform: uppercase;
+}
+html.theme-light .rez-ozet-table tr.rez-ozet-ay-ayrac td {
+  background: #374151 !important;
+  color: #ffffff !important;
+  border-color: #6b7280 !important;
+}
 .rez-ozet-table thead th {
   color: #111827 !important;
 }

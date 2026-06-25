@@ -245,7 +245,7 @@
       });
       window.APARTIM.toast("Döviz kurları kaydedildi", "basari");
       dovizKapat();
-      window.APARTIM.rezOzet?.tabloCiz();
+      window.APARTIM.rezOzet?.tabloCizPlanla?.();
     } catch (err) {
       uyari("doviz-uyari", err.message || "Kaydedilemedi.");
     }
