@@ -878,6 +878,21 @@
     return "Kln " + formatKalanKisa(rez, db.rezervasyonKalanHesapla(rez));
   }
 
+  const XL_DAIRE_COL = 6;
+
+  function excelNotGoster(rez, tarih, tip) {
+    const not = String(rez?.notlar || "").trim();
+    if (!not || !rez) return "";
+    if (rez.giris === tarih || tip === "checkin") return not;
+    if (tip === "checkout" && rez.cikis === tarih) return not;
+    return "";
+  }
+
+  function excelNotEki(rez, tarih, tip) {
+    const n = excelNotGoster(rez, tarih, tip);
+    return n ? " · Not: " + n : "";
+  }
+
   const XL = {
     cizgi: "#6b7280",
     tarihBg: "#1e2d3d",
@@ -892,7 +907,8 @@
       ";color:#ffffff;font-size:10px;border:1px solid #6b7280;vertical-align:middle;white-space:nowrap;",
     tdHucre: (bg) => "padding:1px 3px;background:" + bg + ";color:#111827;font-size:10px;border:1px solid #6b7280;vertical-align:middle;text-align:center;white-space:nowrap;",
     tdAyAyirici: "padding:5px 8px;background:#1a2633;color:#ffffff;font-weight:300;font-size:11px;letter-spacing:1px;text-align:center;border:1px solid #6b7280;",
-    tdBirlesik: (bg) => "padding:2px 4px;background:" + bg + ";color:#111827;font-size:10px;border:1px solid #6b7280;vertical-align:middle;text-align:left;white-space:nowrap;"
+    tdBirlesik: (bg) => "padding:2px 4px;background:" + bg + ";color:#111827;font-size:10px;border:1px solid #6b7280;vertical-align:middle;text-align:left;white-space:nowrap;",
+    tdNot: (bg) => "padding:2px 4px;background:" + bg + ";color:#374151;font-size:9px;border:1px solid #6b7280;vertical-align:middle;text-align:left;white-space:normal;min-width:80px;"
   };
 
   function xlHucre(metin, stil, colspan) {
@@ -905,12 +921,17 @@
       const det = konakDetay(h.giris, tarih);
       const outK = rezOutKalanMetin(h.cikis);
       const txt = "OUT " + kaynakSimge(h.cikis) + " " + (h.cikis.misafirAdi || "") +
-        (outK ? " " + outK : "") + "  ·  IN " + det.kategori + " " + (det.misafir || "");
+        excelNotEki(h.cikis, tarih, "checkout") +
+        (outK ? " " + outK : "") + "  ·  IN " + det.kategori + " " + (det.misafir || "") +
+        excelNotEki(h.giris, tarih, "checkin");
       return { birlesik: txt };
     }
     if (h.tip === "checkout") {
       const k = rezOutKalanMetin(h.rez);
-      return { birlesik: "OUT " + kaynakSimge(h.rez) + " " + (h.rez.misafirAdi || "") + (k ? " " + k : "") };
+      return {
+        birlesik: "OUT " + kaynakSimge(h.rez) + " " + (h.rez.misafirAdi || "") +
+          excelNotEki(h.rez, tarih, "checkout") + (k ? " " + k : "")
+      };
     }
     if (h.tip === "checkin") {
       const det = konakDetay(h.rez, tarih);
@@ -920,7 +941,8 @@
           det.kategori,
           formatHucreFiyat(h.rez, det.prc),
           odenenHucreGoster(h.rez, det.odenen, det.odenenManuel),
-          det.misafir || ""
+          det.misafir || "",
+          excelNotGoster(h.rez, tarih, "checkin")
         ]
       };
     }
@@ -932,11 +954,12 @@
           det.kategori,
           formatHucreFiyat(h.rez, det.prc),
           odenenHucreGoster(h.rez, det.odenen, det.odenenManuel),
-          det.misafir || ""
+          det.misafir || "",
+          ""
         ]
       };
     }
-    return { hucreler: ["", "", "", "", ""] };
+    return { hucreler: ["", "", "", "", "", ""] };
   }
 
   function excelSezonOzetMetni(y) {
@@ -953,7 +976,7 @@
   }
 
   function excelRaporHtml(y, daireler, gunler, harita, bugun) {
-    const colSpan = 1 + daireler.length * 5;
+    const colSpan = 1 + daireler.length * XL_DAIRE_COL;
     const satirlar = [];
 
     satirlar.push(
@@ -967,14 +990,14 @@
 
     let h1 = '<td rowspan="2" style="' + XL.thKose + '">Tarih</td>';
     daireler.forEach((d, i) => {
-      h1 += xlHucre(daireBaslik(d), XL.thDaire(daireRenk(d, i)), 5);
+      h1 += xlHucre(daireBaslik(d), XL.thDaire(daireRenk(d, i)), XL_DAIRE_COL);
     });
     satirlar.push("<tr>" + h1 + "</tr>");
 
     let h2 = "";
     daireler.forEach((d, i) => {
       const renk = daireRenk(d, i);
-      ["G", "Kt", "Fyt", "Ödn", "Ad"].forEach((lbl) => {
+      ["G", "Kt", "Fyt", "Ödn", "Ad", "Not"].forEach((lbl) => {
         h2 += xlHucre(lbl, XL.thMini(renk));
       });
     });
@@ -997,10 +1020,11 @@
         const renk = daireRenk(d, di);
         const hucre = excelDaireHucreleri(h, tarih);
         if (hucre.birlesik) {
-          satir += xlHucre(hucre.birlesik, XL.tdBirlesik(renk), 5);
+          satir += xlHucre(hucre.birlesik, XL.tdBirlesik(renk), XL_DAIRE_COL);
         } else {
-          hucre.hucreler.forEach((txt) => {
-            satir += xlHucre(txt, XL.tdHucre(renk));
+          hucre.hucreler.forEach((txt, ci) => {
+            const stil = ci === 5 ? XL.tdNot(renk) : XL.tdHucre(renk);
+            satir += xlHucre(txt, stil);
           });
         }
       });
