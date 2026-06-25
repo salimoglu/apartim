@@ -1109,21 +1109,22 @@ html:not(.theme-light) .takvim-turnover-ad {
   position: sticky;
   left: 0;
   z-index: 2;
-  background: #1a2633;
-  color: #ffffff;
+  background: #1a2633 !important;
+  color: #ffffff !important;
   font-family: "Nunito", sans-serif;
-  font-size: 11px;
-  letter-spacing: 2px;
+  font-size: 10px;
+  letter-spacing: 3px;
   text-align: center;
-  padding: 5px 10px;
-  border-top: 1px solid #3d4f63;
-  border-bottom: 1px solid #3d4f63;
-  font-weight: 300;
+  padding: 4px 10px;
+  border-top: 1px solid #3d4f63 !important;
+  border-bottom: 1px solid #3d4f63 !important;
+  font-weight: 300 !important;
+  text-transform: uppercase;
 }
 html.theme-light .rez-ozet-ay-ayrac td {
-  background: #374151;
-  color: #ffffff;
-  border-color: #6b7280;
+  background: #374151 !important;
+  color: #ffffff !important;
+  border-color: #6b7280 !important;
 }
 .rez-ozet-table {
   border-collapse: separate;
