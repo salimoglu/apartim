@@ -1098,6 +1098,28 @@ html:not(.theme-light) .takvim-turnover-ad {
   border-radius: var(--radius);
   background: var(--kart);
 }
+.rez-ozet-yukleniyor {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--metin-soluk);
+  font-size: 13px;
+  font-weight: 600;
+}
+.rez-ozet-ay-ayrac td {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: var(--kart-2);
+  color: var(--metin);
+  font-family: "Bebas Neue", "Nunito", sans-serif;
+  font-size: 14px;
+  letter-spacing: 2px;
+  text-align: center;
+  padding: 8px 10px;
+  border-top: 2px solid var(--vurgu);
+  border-bottom: 1px solid var(--kenar);
+  font-weight: 700;
+}
 .rez-ozet-table {
   border-collapse: separate;
   border-spacing: 0;

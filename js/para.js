@@ -110,11 +110,16 @@
     const ayGun = new Date(yil, ay + 1, 0).getDate();
     const ayBas = yil + "-" + pad(ay + 1) + "-01";
     const ayBit = db.gunEkleISO(yil + "-" + pad(ay + 1) + "-" + pad(ayGun), 1);
+    return aralikToplamlari(db, ayBas, ayBit);
+  }
+
+  /** basISO dahil, bitISO hariç */
+  function aralikToplamlari(db, basISO, bitISO) {
     const toplam = { TL: 0, USD: 0, EUR: 0 };
 
     Object.values(db.durum.rezervasyonlar || {}).forEach((rez) => {
       if (!rez) return;
-      const k = db.rezAyKesisimGelir(rez, ayBas, ayBit);
+      const k = db.rezAyKesisimGelir(rez, basISO, bitISO);
       if (k.gece <= 0) return;
       const pb = rezParaBirimi(rez);
       toplam[pb] += k.gelir;
@@ -229,6 +234,7 @@
     formatKurTarihi,
     rezParaBirimi,
     ayToplamlari,
+    aralikToplamlari,
     VARSAYILAN,
     YENILEME_MS
   };
