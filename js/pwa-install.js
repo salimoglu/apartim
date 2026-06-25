@@ -125,8 +125,14 @@
     document.getElementById("install-btn")?.addEventListener("click", yukleTikla);
 
     if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("./sw.js").catch((err) => {
+      const swV = window.APARTIM_VERSION?.ASSET || Date.now();
+      navigator.serviceWorker.register("./sw.js?v=" + swV).catch((err) => {
         console.warn("SW kayıt hatası:", err);
+      });
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (!window.APARTIM_SW_RELOAD) return;
+        window.APARTIM_SW_RELOAD = false;
+        location.reload();
       });
     }
 

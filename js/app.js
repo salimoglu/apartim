@@ -6,6 +6,142 @@
 (function () {
   "use strict";
 
+  let yenilemeBekleniyor = false;
+
+  // ---- Sürüm gösterimi ----
+  function versiyonGoster() {
+    const el = document.getElementById("app-version");
+    const v = window.APARTIM_VERSION;
+    if (el && v) el.textContent = v.LABEL || v.ASSET || "—";
+  }
+
+  // ---- Güncelleme kontrol + yenile ----
+  async function guncellemeYenile() {
+    if (yenilemeBekleniyor) return;
+    yenilemeBekleniyor = true;
+    const ptr = document.getElementById("ptr-gosterge");
+    if (ptr) {
+      ptr.textContent = "Güncelleme kontrol ediliyor…";
+      ptr.classList.remove("hidden", "ptr-hazir");
+    }
+
+    try {
+      if ("serviceWorker" in navigator) {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) {
+          await reg.update();
+          if (reg.waiting) {
+            window.APARTIM_SW_RELOAD = true;
+            reg.waiting.postMessage({ type: "SKIP_WAITING" });
+            return;
+          }
+          if (reg.installing) {
+            await new Promise((resolve) => {
+              reg.installing.addEventListener("statechange", function onState() {
+                if (reg.installing.state === "installed") {
+                  reg.installing.removeEventListener("statechange", onState);
+                  if (navigator.serviceWorker.controller && reg.waiting) {
+                    window.APARTIM_SW_RELOAD = true;
+                    reg.waiting.postMessage({ type: "SKIP_WAITING" });
+                  }
+                  resolve();
+                }
+              });
+            });
+            if (window.APARTIM_SW_RELOAD) return;
+          }
+        }
+      }
+      location.reload();
+    } catch (err) {
+      console.warn("guncellemeYenile", err);
+      location.reload();
+    }
+  }
+
+  // ---- Aşağı çekerek yenile (pull-to-refresh) ----
+  const PTR_ESIK = 72;
+  let ptrBasY = 0;
+  let ptrMesafe = 0;
+  let ptrAktif = false;
+  let ptrScrollEl = null;
+
+  function aktifScrollElemani() {
+    const panel = document.querySelector(".tab-panel.active");
+    if (!panel) return document.documentElement;
+    const adaylar = [
+      panel.querySelector(".rez-ozet-scroll"),
+      panel.querySelector(".bina-wrap"),
+      panel.querySelector(".rapor-wrap"),
+      panel.querySelector(".daire-wrap"),
+      panel
+    ];
+    for (let i = 0; i < adaylar.length; i++) {
+      const el = adaylar[i];
+      if (el && el.scrollHeight > el.clientHeight + 2) return el;
+    }
+    return document.documentElement;
+  }
+
+  function scrollUstteMi(el) {
+    if (!el || el === document.documentElement) {
+      return (window.scrollY || document.documentElement.scrollTop || 0) <= 2;
+    }
+    return (el.scrollTop || 0) <= 2;
+  }
+
+  function ptrGostergeGuncelle(mesafe, hazir) {
+    const ptr = document.getElementById("ptr-gosterge");
+    if (!ptr) return;
+    ptr.classList.remove("hidden");
+    ptr.classList.toggle("ptr-hazir", !!hazir);
+    ptr.textContent = hazir ? "Bırakın, yenilenecek" : "Güncellemek için çekin";
+  }
+
+  function ptrSifirla() {
+    ptrAktif = false;
+    ptrScrollEl = null;
+    ptrMesafe = 0;
+    document.body.classList.remove("ptr-cekiliyor");
+    const ptr = document.getElementById("ptr-gosterge");
+    ptr?.classList.add("hidden");
+    ptr?.classList.remove("ptr-hazir");
+  }
+
+  function cekerekYenileBagla() {
+    document.addEventListener("touchstart", (e) => {
+      if (e.touches.length !== 1 || yenilemeBekleniyor) return;
+      ptrScrollEl = aktifScrollElemani();
+      if (!scrollUstteMi(ptrScrollEl)) return;
+      ptrBasY = e.touches[0].clientY;
+      ptrMesafe = 0;
+      ptrAktif = true;
+    }, { passive: true });
+
+    document.addEventListener("touchmove", (e) => {
+      if (!ptrAktif || e.touches.length !== 1) return;
+      if (!scrollUstteMi(ptrScrollEl)) {
+        ptrSifirla();
+        return;
+      }
+      ptrMesafe = e.touches[0].clientY - ptrBasY;
+      if (ptrMesafe > 8) {
+        document.body.classList.add("ptr-cekiliyor");
+        ptrGostergeGuncelle(ptrMesafe, ptrMesafe >= PTR_ESIK);
+        if (ptrMesafe > 12) e.preventDefault();
+      }
+    }, { passive: false });
+
+    document.addEventListener("touchend", () => {
+      if (!ptrAktif) return;
+      const tetik = ptrMesafe >= PTR_ESIK;
+      ptrSifirla();
+      if (tetik) guncellemeYenile();
+    }, { passive: true });
+
+    document.addEventListener("touchcancel", ptrSifirla, { passive: true });
+  }
+
   // ---- Sekme yönetimi ----
   function sekmeSec(ad) {
     document.querySelectorAll(".tab-btn").forEach((b) =>
@@ -61,7 +197,7 @@
 
     document.getElementById("topbar-home")?.addEventListener("click", () => {
       window.APARTIM.daire?.kapat();
-      sekmeSec("bina");
+      sekmeSec("rezervasyonlar");
     });
 
     // PWA — pwa-install.js banner ve yükleme akışını yönetir
@@ -74,6 +210,8 @@
     });
 
     yatayModBagla();
+    cekerekYenileBagla();
+    versiyonGoster();
     sekmeSec("rezervasyonlar");
   });
 
@@ -390,6 +528,8 @@
     yatayModMu,
     yatayModGuncelle,
     yonKilidiAc,
-    dovizKurlariCanliGuncelle
+    dovizKurlariCanliGuncelle,
+    guncellemeYenile,
+    versiyonGoster
   };
 })();

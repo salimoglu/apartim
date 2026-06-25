@@ -50,7 +50,12 @@
       menu.classList.add("hidden");
     });
     document.getElementById("ayar-yenile")?.addEventListener("click", () => {
-      location.reload();
+      menu.classList.add("hidden");
+      if (window.APARTIM.app?.guncellemeYenile) {
+        window.APARTIM.app.guncellemeYenile();
+      } else {
+        location.reload();
+      }
     });
     document.getElementById("ayar-cikis")?.addEventListener("click", () => {
       if (window.APARTIM.cikis) window.APARTIM.cikis();

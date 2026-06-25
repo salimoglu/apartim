@@ -203,7 +203,41 @@ html.theme-light {
 .app-name {
   font-family: "Bebas Neue", "Nunito", sans-serif;
   font-size: 22px; letter-spacing: 3px; color: var(--metin);
+  line-height: 1;
 }
+.topbar-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.1;
+}
+.app-version {
+  font-family: "Nunito", sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: var(--metin-soluk);
+}
+.ptr-gosterge {
+  position: fixed;
+  top: 52px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--kart);
+  border: 1px solid var(--kenar);
+  color: var(--metin);
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: var(--golge-sm);
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.ptr-gosterge.hidden { opacity: 0; visibility: hidden; }
+.ptr-gosterge.ptr-hazir { color: var(--basari); border-color: var(--basari); }
+body.ptr-cekiliyor { overscroll-behavior-y: contain; }
 .topbar-right {
   display: flex; align-items: center; gap: 8px;
 }

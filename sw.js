@@ -1,10 +1,12 @@
 /* Apartım — basit cache-first service worker */
-const CACHE_VERSION = "apartim-v79-20260827";
-const ASSET_V = "20260827";
+/* Sürüm: js/version.js ile senkron */
+const CACHE_VERSION = "apartim-v80-20260828";
+const ASSET_V = "20260828";
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
+  "./js/version.js?v=" + ASSET_V,
   "./css/style.css?v=" + ASSET_V,
   "./js/firebase.js?v=" + ASSET_V,
   "./js/avatar.js?v=" + ASSET_V,
@@ -57,6 +59,12 @@ function cacheFirstThenNetwork(request) {
     });
   });
 }
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
