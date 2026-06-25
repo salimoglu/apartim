@@ -880,16 +880,13 @@
 
   const XL_DAIRE_COL = 6;
 
-  function excelNotGoster(rez, tarih, tip) {
-    const not = String(rez?.notlar || "").trim();
-    if (!not || !rez) return "";
-    if (rez.giris === tarih || tip === "checkin") return not;
-    if (tip === "checkout" && rez.cikis === tarih) return not;
-    return "";
+  function rezNotMetni(rez) {
+    if (!rez) return "";
+    return String(rez.notlar || rez.not || "").trim();
   }
 
-  function excelNotEki(rez, tarih, tip) {
-    const n = excelNotGoster(rez, tarih, tip);
+  function excelNotEki(rez) {
+    const n = rezNotMetni(rez);
     return n ? " · Not: " + n : "";
   }
 
@@ -921,16 +918,16 @@
       const det = konakDetay(h.giris, tarih);
       const outK = rezOutKalanMetin(h.cikis);
       const txt = "OUT " + kaynakSimge(h.cikis) + " " + (h.cikis.misafirAdi || "") +
-        excelNotEki(h.cikis, tarih, "checkout") +
+        excelNotEki(h.cikis) +
         (outK ? " " + outK : "") + "  ·  IN " + det.kategori + " " + (det.misafir || "") +
-        excelNotEki(h.giris, tarih, "checkin");
+        excelNotEki(h.giris);
       return { birlesik: txt };
     }
     if (h.tip === "checkout") {
       const k = rezOutKalanMetin(h.rez);
       return {
         birlesik: "OUT " + kaynakSimge(h.rez) + " " + (h.rez.misafirAdi || "") +
-          excelNotEki(h.rez, tarih, "checkout") + (k ? " " + k : "")
+          excelNotEki(h.rez) + (k ? " " + k : "")
       };
     }
     if (h.tip === "checkin") {
@@ -942,7 +939,7 @@
           formatHucreFiyat(h.rez, det.prc),
           odenenHucreGoster(h.rez, det.odenen, det.odenenManuel),
           det.misafir || "",
-          excelNotGoster(h.rez, tarih, "checkin")
+          rezNotMetni(h.rez)
         ]
       };
     }
@@ -955,7 +952,7 @@
           formatHucreFiyat(h.rez, det.prc),
           odenenHucreGoster(h.rez, det.odenen, det.odenenManuel),
           det.misafir || "",
-          ""
+          rezNotMetni(h.rez)
         ]
       };
     }

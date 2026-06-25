@@ -29,6 +29,7 @@
     fiyatOzet: document.getElementById("rez-fiyat-ozet"),
     tGece: document.getElementById("rez-toplam-gece"),
     tTutar: document.getElementById("rez-toplam-tutar"),
+    notlar: document.getElementById("rez-notlar"),
     btnKaydet: document.getElementById("rez-modal-kaydet"),
     btnIptal: document.getElementById("rez-modal-iptal"),
     btnSil: document.getElementById("rez-modal-sil"),
