@@ -34,6 +34,7 @@
   let tabloTimer = null;
   let sonDaireler = [];
   let scrollKapsayici = null;
+  let kayitliScrollTop = null;
 
   function pad(n) { return String(n).padStart(2, "0"); }
   function iso(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
@@ -379,6 +380,7 @@
       return;
     }
     window.APARTIM.rezervasyon.yeni({ daireId, girisOnseci: tarih });
+    durum.seciliTarih = tarih;
   }
 
   function ilkBosDaire(tarih, daireler) {
@@ -410,6 +412,7 @@
     const rezId = hucre.dataset.rezId;
     const tarih = hucre.dataset.tarih;
     if (!rezId || !tarih) return;
+    durum.seciliTarih = tarih;
 
     const db = window.APARTIM.db;
     const rez = db?.durum.rezervasyonlar[rezId];
@@ -613,29 +616,7 @@
   function tabloTamamla(wrap, table, daireler) {
     sonDaireler = daireler;
     stickyBaslikOlcul(table);
-    if (durum.pendingOdenenFocus) {
-      const pf = durum.pendingOdenenFocus;
-      requestAnimationFrame(() => {
-        const hucre = wrap.querySelector(
-          '.rez-ozet-odenen[data-rez-id="' + pf.rezId + '"][data-tarih="' + pf.tarih + '"]'
-        );
-        if (hucre) {
-          durum.pendingOdenenFocus = null;
-          odenenHucreDuzenle(hucre);
-        }
-      });
-    }
-    if (durum.buguneKaydir) {
-      durum.buguneKaydir = false;
-      requestAnimationFrame(() => {
-        const row = table.querySelector(".rez-ozet-bugun");
-        const sc = scrollKapsayici || document.querySelector(".rez-ozet-scroll");
-        if (!row || !sc) return;
-        const scRect = sc.getBoundingClientRect();
-        const rowRect = row.getBoundingClientRect();
-        sc.scrollTop += rowRect.top - scRect.top - (sc.clientHeight - rowRect.height) / 2;
-      });
-    }
+    requestAnimationFrame(() => scrollGeriYukle(wrap, table));
   }
 
   function etkilesimBagla(kapsayici) {
@@ -714,6 +695,65 @@
     tr.classList.add("rez-ozet-satir-secili");
   }
 
+  function scrollKaydet() {
+    if (durum.buguneKaydir) return;
+    const sc = scrollKapsayici || document.querySelector(".rez-ozet-scroll");
+    if (sc) kayitliScrollTop = sc.scrollTop;
+  }
+
+  function scrollElemana(sc, el, ortala) {
+    if (!sc || !el) return;
+    const scRect = sc.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    if (ortala) {
+      sc.scrollTop += elRect.top - scRect.top - (sc.clientHeight - elRect.height) / 2;
+      return;
+    }
+    if (elRect.top < scRect.top + 4) {
+      sc.scrollTop += elRect.top - scRect.top - 40;
+    } else if (elRect.bottom > scRect.bottom - 4) {
+      sc.scrollTop += elRect.bottom - scRect.bottom + 40;
+    }
+  }
+
+  function scrollGeriYukle(wrap, table) {
+    const sc = scrollKapsayici || document.querySelector(".rez-ozet-scroll");
+    if (!sc) return;
+
+    if (durum.pendingOdenenFocus) {
+      const pf = durum.pendingOdenenFocus;
+      const hucre = wrap.querySelector(
+        '.rez-ozet-odenen[data-rez-id="' + pf.rezId + '"][data-tarih="' + pf.tarih + '"]'
+      );
+      if (hucre) {
+        scrollElemana(sc, hucre, true);
+        durum.pendingOdenenFocus = null;
+        odenenHucreDuzenle(hucre);
+        kayitliScrollTop = null;
+        return;
+      }
+      durum.pendingOdenenFocus = null;
+    }
+
+    if (durum.buguneKaydir) {
+      durum.buguneKaydir = false;
+      const row = table.querySelector(".rez-ozet-bugun");
+      if (row) scrollElemana(sc, row, true);
+      kayitliScrollTop = null;
+      return;
+    }
+
+    if (durum.seciliTarih) {
+      const row = table.querySelector('tr.rez-ozet-tr[data-tarih="' + durum.seciliTarih + '"]');
+      if (row) scrollElemana(sc, row, false);
+    }
+
+    if (kayitliScrollTop != null) {
+      sc.scrollTop = kayitliScrollTop;
+      kayitliScrollTop = null;
+    }
+  }
+
   function stickyBaslikOlcul(table) {
     requestAnimationFrame(() => {
       const tr1 = table.querySelector(".rez-ozet-tr-daire");
@@ -746,7 +786,11 @@
     const colSpan = 1 + daireler.length * 5;
 
     paraOzetCiz(y);
-    wrap.innerHTML = '<div class="rez-ozet-yukleniyor">Sezon tablosu hazırlanıyor…</div>';
+    scrollKaydet();
+    const ilkYukleme = !wrap.querySelector(".rez-ozet-table");
+    if (ilkYukleme) {
+      wrap.innerHTML = '<div class="rez-ozet-yukleniyor">Sezon tablosu hazırlanıyor…</div>';
+    }
 
     const harita = gunHaritasiOlustur(db, daireler, bas, bit);
     if (myToken !== renderToken) return;
@@ -787,6 +831,7 @@
 
   function sezonGit(yon) {
     durum.sezonYil += yon;
+    kayitliScrollTop = null;
     tabloCiz();
   }
 
@@ -795,6 +840,7 @@
     durum.sezonYil = varsayilanSezonYil();
     const { bas, bit } = sezonBasBit(durum.sezonYil);
     const bugun = window.APARTIM.db?.bugunISO?.() || iso(n.getFullYear(), n.getMonth(), n.getDate());
+    kayitliScrollTop = null;
     durum.buguneKaydir = bugun >= bas && bugun <= bit;
     if (!durum.buguneKaydir) {
       window.APARTIM.toast?.("Bugün sezon dışında (Haziran–Eylül)", "bilgi");
