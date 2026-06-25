@@ -1,6 +1,6 @@
 /* Apartım — basit cache-first service worker */
-const CACHE_VERSION = "apartim-v73-20260821";
-const ASSET_V = "20260821";
+const CACHE_VERSION = "apartim-v74-20260822";
+const ASSET_V = "20260822";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -17,7 +17,6 @@ const CORE_ASSETS = [
   "./js/daire.js?v=" + ASSET_V,
   "./js/rezervasyon.js?v=" + ASSET_V,
   "./js/rez-ozet.js?v=" + ASSET_V,
-  "./js/temizlik.js?v=" + ASSET_V,
   "./js/tema.js?v=" + ASSET_V,
   "./js/ayarlar.js?v=" + ASSET_V,
   "./js/app.js?v=" + ASSET_V,

@@ -539,8 +539,7 @@
       const bg = bugunISO();
       const yeniCikis = bg > rez.giris ? bg : gunEkle(rez.giris, 1);
       await window.APARTIM.db.rezervasyonGuncelle(cikisRezId, { cikis: yeniCikis });
-      await window.APARTIM.temizlik.durumDegistir(rez.daireId, "kirli", { zorla: true });
-      window.APARTIM.toast("Çıkış tamamlandı, daire kirli olarak işaretlendi", "basari");
+      window.APARTIM.toast("Çıkış tamamlandı", "basari");
       cikisKapat();
     } catch (err) {
       window.APARTIM.toast("Çıkış başarısız", "hata");

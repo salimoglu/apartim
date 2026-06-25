@@ -1,5 +1,5 @@
 /* =========================================================
-   APARTIM — Apart ana ekranı
+   APARTIM — Odalar ana ekranı
    Her daire dikdörtgen kart: sol aylık özet, sağ mini takvim.
    ========================================================= */
 
@@ -9,12 +9,6 @@
   const AY_ADLARI = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
                      "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
   const GUN_KISA = ["P", "S", "Ç", "P", "C", "C", "P"];
-
-  const TEMIZLIK_METIN = {
-    temiz: "Temiz",
-    kirli: "Temizlenecek",
-    temizleniyor: "Temizleniyor"
-  };
 
   const durum = {
     yil: new Date().getFullYear(),
@@ -47,10 +41,9 @@
     kartlariCiz();
   }
 
-  function durumEtiket(daire, bugunDr) {
+  function durumEtiket(bugunDr) {
     if (bugunDr.durum === "dolu") return { metin: "Dolu", sinif: "dolu" };
-    const t = daire.temizlik || "temiz";
-    return { metin: TEMIZLIK_METIN[t] || "Temiz", sinif: t === "kirli" ? "kirli" : t };
+    return { metin: "Boş", sinif: "bos" };
   }
 
   function boncukSinifi(gd) {
@@ -86,7 +79,6 @@
       const gd = db.daireGunDurumu(daireId, isoT);
       const siniflar = ["mini-takvim-hucre"];
       if (isoT === bg) siniflar.push("bugun");
-      if (gd.tip === "bos" && daire.temizlik === "kirli") siniflar.push("bos-kirli");
       const boncuk = boncukSinifi(gd);
       html += '<div class="' + siniflar.join(" ") + '">' +
         '<span class="mini-takvim-gun">' + d + "</span>" +
@@ -109,7 +101,7 @@
     const db = window.APARTIM.db;
     const bugunDr = db.daireDurumuBugun(d.id);
     const ozet = db.daireAylikOzet(d.id, durum.yil, durum.ay);
-    const dr = durumEtiket(d, bugunDr);
+    const dr = durumEtiket(bugunDr);
 
     return (
       '<article class="daire-kart" data-daire-id="' + esc(d.id) + '" tabindex="0" role="button">' +
@@ -153,18 +145,15 @@
     if (!db || !db.durum.yuklendi) return;
     const liste = db.dairelerListele();
     let dolu = 0;
-    let bosTemiz = 0;
-    let kirli = 0;
+    let bos = 0;
     liste.forEach((d) => {
       const dr = db.daireDurumuBugun(d.id);
       if (dr.durum === "dolu") dolu++;
-      else if (dr.durum === "bos-kirli" || dr.durum === "temizleniyor") kirli++;
-      else bosTemiz++;
+      else bos++;
     });
     setText("ozet-toplam", liste.length);
     setText("ozet-dolu", dolu);
-    setText("ozet-bos", bosTemiz);
-    setText("ozet-kirli", kirli);
+    setText("ozet-bos", bos);
   }
 
   function setText(id, val) {

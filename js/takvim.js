@@ -287,14 +287,12 @@
     }
     if (gd.tip === "checkout") {
       sinif.push("cikis");
-      if (daire && daire.temizlik === "kirli") sinif.push("bos-kirli");
       return { sinif: sinif.join(" "), gd, rez: gd.rez };
     }
     if (gd.tip === "konak") {
       sinif.push("dolu");
       return { sinif: sinif.join(" "), gd, rez: gd.rez };
     }
-    if (daire && daire.temizlik === "kirli") sinif.push("bos-kirli");
     return { sinif: sinif.join(" "), gd, rez: null };
   }
 
@@ -351,11 +349,6 @@
         hucreBilgiEkle(h, gd, rez, isoT);
       } else if (rez) {
         hucreBilgiEkle(h, gd, rez, isoT);
-      } else if (daire && daire.temizlik === "kirli") {
-        const info = document.createElement("span");
-        info.className = "takvim-gun-bilgi";
-        info.textContent = "Temizlenecek";
-        h.appendChild(info);
       }
 
       const kisaTik = () => {

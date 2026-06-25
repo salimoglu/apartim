@@ -123,15 +123,14 @@
     </header>
 
     <nav class="tab-nav">
-      <button class="tab-btn active" data-tab="bina"><span class="tab-icon">&#127968;</span><span class="tab-label">Apart</span></button>
-      <button class="tab-btn" data-tab="rezervasyonlar"><span class="tab-icon">&#128197;</span><span class="tab-label">Rezervasyonlar</span></button>
-      <button class="tab-btn" data-tab="temizlik"><span class="tab-icon">&#129529;</span><span class="tab-label">Temizlik</span></button>
+      <button class="tab-btn active" data-tab="rezervasyonlar"><span class="tab-icon">&#128197;</span><span class="tab-label">Rezervasyonlar</span></button>
+      <button class="tab-btn" data-tab="bina"><span class="tab-icon">&#127968;</span><span class="tab-label">Odalar</span></button>
       <button class="tab-btn" data-tab="rapor"><span class="tab-icon">&#128202;</span><span class="tab-label">Rapor</span></button>
     </nav>
 
     <main class="content">
       <!-- BİNA / DAİRE SEÇİMİ -->
-      <section id="tab-bina" class="tab-panel active">
+      <section id="tab-bina" class="tab-panel">
         <div class="bina-wrap" id="bina-wrap">
           <div class="bina-ust-bar">
             <div class="bina-baslik">
@@ -149,7 +148,6 @@
           <div class="bina-legend">
             <div class="bina-legend-item"><span class="bina-legend-dot dolu"></span> Dolu gece</div>
             <div class="bina-legend-item"><span class="bina-legend-dot turnover"></span> Giriş/çıkış</div>
-            <div class="bina-legend-item"><span class="bina-legend-dot kirli"></span> Temizlenecek</div>
           </div>
           <div class="bina-ozet" id="bina-ozet">
             <div class="bina-ozet-kart">
@@ -163,10 +161,6 @@
             <div class="bina-ozet-kart bos">
               <span class="label">Bugün boş</span>
               <span class="val" id="ozet-bos">6</span>
-            </div>
-            <div class="bina-ozet-kart kirli">
-              <span class="label">Temizlenecek</span>
-              <span class="val" id="ozet-kirli">0</span>
             </div>
           </div>
         </div>
@@ -184,16 +178,11 @@
               <input type="number" id="daire-ucret-inp" min="0" step="50" />
               <span class="tl">TL</span>
             </div>
-            <button type="button" class="daire-temizlik" id="daire-temizlik" data-durum="temiz">
-              <span class="daire-temizlik-dot"></span>
-              <span id="daire-temizlik-metin">Temiz</span>
-            </button>
           </div>
 
           <div class="daire-subnav">
             <button class="daire-subnav-btn active" data-panel="takvim">Takvim</button>
             <button class="daire-subnav-btn" data-panel="rez">Rezervasyonlar</button>
-            <button class="daire-subnav-btn" data-panel="temizlik">Temizlik</button>
           </div>
 
           <div class="daire-panel active" id="daire-panel-takvim">
@@ -214,15 +203,11 @@
               <div id="rez-liste-icerik"></div>
             </div>
           </div>
-
-          <div class="daire-panel" id="daire-panel-temizlik">
-            <div class="temizlik-liste" id="temizlik-liste-icerik"></div>
-          </div>
         </div>
       </section>
 
       <!-- TÜM REZERVASYONLAR -->
-      <section id="tab-rezervasyonlar" class="tab-panel">
+      <section id="tab-rezervasyonlar" class="tab-panel active">
         <div class="rez-ozet-wrap">
           <div class="rez-ozet-ay-nav">
             <button type="button" class="takvim-ay-btn" id="rez-ozet-yil-prev" aria-label="Önceki sezon">&#9664;</button>
@@ -237,15 +222,6 @@
             <div id="rez-ozet-tablo">
               <div class="rez-bos">Yükleniyor...</div>
             </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- TEMİZLİK GENEL -->
-      <section id="tab-temizlik" class="tab-panel">
-        <div class="temizlik-wrap">
-          <div class="temizlik-oda-liste" id="temizlik-oda-liste">
-            <div class="rez-bos">Yükleniyor…</div>
           </div>
         </div>
       </section>
@@ -386,7 +362,7 @@
         <button type="button" class="modal-close" id="cikis-close">&#10005;</button>
       </div>
       <div class="modal-body">
-        <p>Misafirin çıkışı yapıldı mı? Daire otomatik olarak <strong>Kirli</strong> durumuna getirilecek.</p>
+        <p>Misafirin çıkışı yapıldı mı? Rezervasyon bugünün tarihiyle kapatılacak.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn-secondary" id="cikis-iptal">İptal</button>
@@ -510,14 +486,13 @@
   <script src="js/auth.js?v=20260811"></script>
   <script src="js/db.js?v=20260811"></script>
   <script src="js/para.js?v=20260812"></script>
-  <script src="js/bina.js?v=20260811"></script>
-  <script src="js/takvim.js?v=20260811"></script>
-  <script src="js/rez-ozet.js?v=20260821"></script>
-  <script src="js/rezervasyon.js?v=20260821"></script>
-  <script src="js/temizlik.js?v=20260811"></script>
-  <script src="js/daire.js?v=20260811"></script>
+  <script src="js/bina.js?v=20260822"></script>
+  <script src="js/takvim.js?v=20260822"></script>
+  <script src="js/rez-ozet.js?v=20260822"></script>
+  <script src="js/rezervasyon.js?v=20260822"></script>
+  <script src="js/daire.js?v=20260822"></script>
   <script src="js/tema.js?v=20260811"></script>
   <script src="js/ayarlar.js?v=20260819"></script>
-  <script src="js/app.js?v=20260819"></script>
+  <script src="js/app.js?v=20260822"></script>
 </body>
 </html>

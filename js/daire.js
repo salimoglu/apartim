@@ -1,7 +1,7 @@
 /* =========================================================
    APARTIM — Daire detay ekranı
-   Bina ekranıyla aynı sekme alanında geçiş yapar. Takvim,
-   rezervasyon listesi ve temizlik geçmişini koordine eder.
+   Bina ekranıyla aynı sekme alanında geçiş yapar. Takvim
+   ve rezervasyon listesini koordine eder.
    ========================================================= */
 
 (function () {
@@ -27,11 +27,9 @@
     el("daire-altbaslik").textContent = "";
     el("daire-ucret-inp").value = daire.gunlukUcret || 0;
 
-    window.APARTIM.temizlik.rozetGuncelle(daireId);
     panelSec("takvim");
     window.APARTIM.takvim.ayOlustur(daireId);
     window.APARTIM.rezervasyon.daireRezListele(daireId);
-    window.APARTIM.temizlik.daireTemizlikListele(daireId);
   }
 
   function kapat() {
