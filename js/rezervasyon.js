@@ -243,9 +243,6 @@
   }
 
   function modalAc() {
-    if (window.APARTIM.rezOzet?.tamEkranAcikMi?.()) {
-      window.APARTIM.rezOzet.tamEkranaModallariTasi?.(true);
-    }
     modal()?.classList.remove("hidden");
     setTimeout(() => ay().misafir?.focus({ preventScroll: true }), 80);
   }

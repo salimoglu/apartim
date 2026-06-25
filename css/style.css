@@ -3019,48 +3019,27 @@ body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
   min-width: 76px;
 }
 
-/* Tam ekran yatay tablo modu */
-.rez-ozet-wrap.rez-ozet-tam-ekran,
+/* Tam ekran yatay tablo — native fullscreen + modal host */
 .rez-ozet-wrap:fullscreen,
-.rez-ozet-wrap:-webkit-full-screen {
-  position: fixed;
-  inset: 0;
-  z-index: 9990;
+.rez-ozet-wrap:-webkit-full-screen,
+.rez-ozet-wrap.rez-ozet-tam-ekran {
   background: var(--zemin);
-  padding: 8px 10px;
-  padding-top: max(8px, env(safe-area-inset-top));
-  padding-bottom: max(8px, env(safe-area-inset-bottom));
-  padding-left: max(10px, env(safe-area-inset-left));
-  padding-right: max(10px, env(safe-area-inset-right));
+  padding: 10px 12px;
   box-sizing: border-box;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
   height: 100%;
 }
+.rez-ozet-wrap.rez-ozet-tam-ekran {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+}
 body.rez-ozet-tam-ekran {
   overflow: hidden;
-}
-body.rez-ozet-tam-ekran .topbar,
-body.rez-ozet-tam-ekran .tab-nav {
-  visibility: hidden;
-  pointer-events: none;
-}
-/* Dikey tutulduğunda tabloyu yatay göster (iOS yön kilidi yoksa) */
-@media (orientation: portrait) {
-  body.rez-ozet-tam-ekran .rez-ozet-wrap.rez-ozet-tam-ekran:not(:fullscreen):not(:-webkit-full-screen) {
-    width: 100vh;
-    height: 100vw;
-    max-width: 100vh;
-    max-height: 100vw;
-    top: 50%;
-    left: 50%;
-    right: auto;
-    bottom: auto;
-    transform: translate(-50%, -50%) rotate(90deg);
-  }
 }
 .rez-ozet-modal-host {
   position: fixed;
@@ -3070,39 +3049,32 @@ body.rez-ozet-tam-ekran .tab-nav {
 }
 .rez-ozet-modal-host .modal-overlay {
   pointer-events: auto;
-  z-index: 10001;
 }
-.rez-ozet-wrap.rez-ozet-tam-ekran .rez-ozet-scroll,
 .rez-ozet-wrap:fullscreen .rez-ozet-scroll,
-.rez-ozet-wrap:-webkit-full-screen .rez-ozet-scroll {
+.rez-ozet-wrap:-webkit-full-screen .rez-ozet-scroll,
+.rez-ozet-wrap.rez-ozet-tam-ekran .rez-ozet-scroll {
   flex: 1;
   min-height: 0;
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  touch-action: pan-x pan-y;
   border-radius: var(--radius);
 }
-.rez-ozet-wrap.rez-ozet-tam-ekran .rez-ozet-odenen,
-.rez-ozet-wrap:fullscreen .rez-ozet-odenen {
-  min-height: 22px;
-  touch-action: manipulation;
-}
 body.mobil-yatay-mod .modal-overlay,
-body.rez-ozet-tam-ekran .modal-overlay {
-  z-index: 10002;
+.rez-ozet-modal-host .modal-overlay {
+  z-index: 10001;
   padding: 10px;
   align-items: center;
 }
 body.mobil-yatay-mod .modal-box,
-body.rez-ozet-tam-ekran .modal-box {
-  max-height: min(96vh, 96dvh);
+.rez-ozet-modal-host .modal-box {
+  max-height: min(90vh, 90dvh);
 }
 body.mobil-yatay-mod .modal-body input,
 body.mobil-yatay-mod .modal-body select,
 body.mobil-yatay-mod .modal-body textarea,
-body.rez-ozet-tam-ekran .modal-body input,
-body.rez-ozet-tam-ekran .modal-body select,
-body.rez-ozet-tam-ekran .modal-body textarea {
+.rez-ozet-modal-host .modal-body input,
+.rez-ozet-modal-host .modal-body select,
+.rez-ozet-modal-host .modal-body textarea {
   font-size: 16px;
 }
 body.mobil-yatay-mod .rez-ozet-tam-btn {

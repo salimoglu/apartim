@@ -806,7 +806,6 @@
       const odenen = ev.target.closest(".rez-ozet-odenen");
       if (odenen && !odenen.classList.contains("duzenleniyor")) {
         ev.stopPropagation();
-        ev.preventDefault();
         odenenHucreDuzenle(odenen);
         return;
       }
@@ -1275,7 +1274,8 @@
 
   function tamEkranAcikMi() {
     const wrap = tamEkranWrap();
-    return !!(wrap && (wrap.classList.contains("rez-ozet-tam-ekran") || document.fullscreenElement === wrap));
+    if (!wrap) return false;
+    return document.fullscreenElement === wrap || wrap.classList.contains("rez-ozet-tam-ekran");
   }
 
   function modalHost() {
@@ -1305,12 +1305,12 @@
   async function tamEkranKapat() {
     const wrap = tamEkranWrap();
     if (!wrap) return;
-    tamEkranaModallariTasi(false);
-    wrap.classList.remove("rez-ozet-tam-ekran");
-    document.body.classList.remove("rez-ozet-tam-ekran");
     try {
       if (document.fullscreenElement) await document.exitFullscreen();
     } catch (e) { /* yoksay */ }
+    wrap.classList.remove("rez-ozet-tam-ekran");
+    document.body.classList.remove("rez-ozet-tam-ekran");
+    tamEkranaModallariTasi(false);
     try {
       if (screen.orientation && typeof screen.orientation.unlock === "function") {
         screen.orientation.unlock();
@@ -1328,39 +1328,31 @@
       return;
     }
 
-    tamEkranaModallariTasi(true);
-    wrap.classList.add("rez-ozet-tam-ekran");
-    document.body.classList.add("rez-ozet-tam-ekran");
-
     try {
-      if (screen.orientation && typeof screen.orientation.lock === "function") {
-        await screen.orientation.lock("landscape-primary").catch(() =>
-          screen.orientation.lock("landscape")
-        );
-      }
-    } catch (e) { /* iOS / bazı tarayıcılarda yok */ }
+      tamEkranaModallariTasi(true);
+      await yonKilidiAc();
 
-    try {
       if (wrap.requestFullscreen) {
         await wrap.requestFullscreen();
       } else if (wrap.webkitRequestFullscreen) {
         wrap.webkitRequestFullscreen();
-      }
-    } catch (e) { /* CSS tam ekran yeterli */ }
-
-    yatayModGuncelle();
-
-    setTimeout(() => {
-      const yatay = window.matchMedia("(orientation: landscape)").matches;
-      if (!yatay) {
-        window.APARTIM.toast?.(
-          "Telefonu yan çevirin; tablo otomatik yatay görünür",
-          "bilgi"
-        );
       } else {
-        window.APARTIM.toast?.("Yatay mod — çıkmak için Yatay'a tekrar dokunun", "bilgi");
+        wrap.classList.add("rez-ozet-tam-ekran");
+        document.body.classList.add("rez-ozet-tam-ekran");
       }
-    }, 350);
+
+      try {
+        if (screen.orientation && typeof screen.orientation.lock === "function") {
+          await screen.orientation.lock("landscape");
+        }
+      } catch (e) { /* yoksay */ }
+
+      yatayModGuncelle();
+      window.APARTIM.toast?.("Tam ekran — çıkmak için Yatay'a tekrar dokunun", "bilgi");
+    } catch (err) {
+      await tamEkranKapat();
+      window.APARTIM.toast?.("Tam ekran açılamadı; telefonu yan çevirin", "uyari");
+    }
   }
 
   document.addEventListener("DOMContentLoaded", () => {
@@ -1371,12 +1363,6 @@
     document.getElementById("rez-ozet-bugun")?.addEventListener("click", buguneGit);
     document.getElementById("rez-ozet-tam")?.addEventListener("click", tamEkranYatay);
     document.getElementById("rez-ozet-rapor")?.addEventListener("click", excelRaporIndir);
-    document.addEventListener("fullscreenchange", () => {
-      const wrap = tamEkranWrap();
-      if (wrap && !document.fullscreenElement && wrap.classList.contains("rez-ozet-tam-ekran")) {
-        tamEkranKapat();
-      }
-    });
     window.addEventListener("resize", () => {
       const table = document.querySelector("#rez-ozet-tablo .rez-ozet-table");
       if (table) stickyBaslikOlcul(table);
