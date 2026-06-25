@@ -208,14 +208,14 @@
     if (toplam.TL > 0) parcalar.push('<span class="rez-ozet-para-item tl">' + window.APARTIM.para.formatTutar(toplam.TL, "TL") + "</span>");
     if (toplam.USD > 0) parcalar.push('<span class="rez-ozet-para-item usd">' + window.APARTIM.para.formatTutar(toplam.USD, "USD") + "</span>");
     if (toplam.EUR > 0) parcalar.push('<span class="rez-ozet-para-item eur">' + window.APARTIM.para.formatTutar(toplam.EUR, "EUR") + "</span>");
-    const ayir = parcalar.length ? '<span class="rez-ozet-para-ayrac">|</span>' : "";
     bar.innerHTML =
       '<div class="rez-ozet-para-ic">' +
-        parcalar.join('<span class="rez-ozet-para-ayrac">|</span>') +
-        ayir +
+        '<div class="rez-ozet-para-tutarlar">' +
+          parcalar.join('<span class="rez-ozet-para-ayrac">|</span>') +
+        "</div>" +
         '<span class="rez-ozet-para-toplam">Sezon ≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>" +
-        '<span class="rez-ozet-para-kur">(1$=' + window.APARTIM.para.formatKur(k.USD) + "₺ · 1€=" +
-          window.APARTIM.para.formatKur(k.EUR) + "₺" + kurTarih + ")</span>" +
+        '<span class="rez-ozet-para-kur">1$=' + window.APARTIM.para.formatKur(k.USD) + "₺ · 1€=" +
+          window.APARTIM.para.formatKur(k.EUR) + "₺" + kurTarih + "</span>" +
       "</div>";
   }
   function ayinGunSayisi(y, m) { return new Date(y, m + 1, 0).getDate(); }

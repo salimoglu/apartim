@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260627b" />
-  <link rel="stylesheet" href="css/style.css?v=20260830" />
+  <link rel="stylesheet" href="css/style.css?v=20260831" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -213,15 +213,29 @@
       <!-- TÜM REZERVASYONLAR -->
       <section id="tab-rezervasyonlar" class="tab-panel active">
         <div class="rez-ozet-wrap">
-          <div class="rez-ozet-ay-nav">
-            <button type="button" class="takvim-ay-btn" id="rez-ozet-yil-prev" aria-label="Önceki sezon">&#9664;</button>
-            <div class="rez-ozet-ay-baslik" id="rez-ozet-ay-baslik">—</div>
-            <button type="button" class="takvim-ay-btn" id="rez-ozet-yil-next" aria-label="Sonraki sezon">&#9654;</button>
-            <button type="button" class="rez-ozet-bugun-btn" id="rez-ozet-bugun">Bugün</button>
-            <button type="button" class="rez-ozet-tam-btn" id="rez-ozet-tam" title="Tam ekran yatay tablo">&#9974; Yatay</button>
-            <button type="button" class="rez-ozet-rapor-btn" id="rez-ozet-rapor" title="Excel raporu indir">&#128196; Raporla</button>
-          </div>
-          <div class="rez-ozet-para-bar" id="rez-ozet-para-bar"></div>
+          <header class="rez-ozet-ust">
+            <div class="rez-ozet-ust-icerik">
+              <div class="rez-ozet-sezon-nav">
+                <button type="button" class="rez-ozet-nav-btn" id="rez-ozet-yil-prev" aria-label="Önceki sezon">&#9664;</button>
+                <h2 class="rez-ozet-ay-baslik" id="rez-ozet-ay-baslik">—</h2>
+                <button type="button" class="rez-ozet-nav-btn" id="rez-ozet-yil-next" aria-label="Sonraki sezon">&#9654;</button>
+              </div>
+              <div class="rez-ozet-ust-alt">
+                <button type="button" class="rez-ozet-chip rez-ozet-bugun-btn" id="rez-ozet-bugun">Bugün</button>
+                <div class="rez-ozet-aksiyonlar">
+                  <button type="button" class="rez-ozet-chip rez-ozet-tam-btn" id="rez-ozet-tam" title="Tam ekran yatay tablo">
+                    <span class="rez-ozet-chip-ikon" aria-hidden="true">&#9974;</span>
+                    <span class="rez-ozet-chip-metin">Yatay</span>
+                  </button>
+                  <button type="button" class="rez-ozet-chip rez-ozet-rapor-btn" id="rez-ozet-rapor" title="Excel raporu indir">
+                    <span class="rez-ozet-chip-ikon" aria-hidden="true">&#128196;</span>
+                    <span class="rez-ozet-chip-metin">Rapor</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="rez-ozet-para-bar" id="rez-ozet-para-bar"></div>
+          </header>
           <div class="rez-ozet-scroll">
             <div id="rez-ozet-tablo">
               <div class="rez-bos">Yükleniyor...</div>
@@ -519,20 +533,20 @@
   <!-- BİLDİRİMLER -->
   <div class="toast-wrap" id="toast-wrap"></div>
 
-  <script src="js/version.js?v=20260830"></script>
+  <script src="js/version.js?v=20260831"></script>
   <script src="js/firebase.js?v=20260811"></script>
-  <script src="js/pwa-install.js?v=20260830"></script>
+  <script src="js/pwa-install.js?v=20260831"></script>
   <script src="js/avatar.js?v=20260811"></script>
   <script src="js/auth.js?v=20260811"></script>
   <script src="js/db.js?v=20260826"></script>
   <script src="js/para.js?v=20260812"></script>
   <script src="js/bina.js?v=20260829"></script>
   <script src="js/takvim.js?v=20260829"></script>
-  <script src="js/rez-ozet.js?v=20260827"></script>
+  <script src="js/rez-ozet.js?v=20260831"></script>
   <script src="js/rezervasyon.js?v=20260822"></script>
   <script src="js/daire.js?v=20260822"></script>
   <script src="js/tema.js?v=20260828"></script>
   <script src="js/ayarlar.js?v=20260819"></script>
-  <script src="js/app.js?v=20260830"></script>
+  <script src="js/app.js?v=20260831"></script>
 </body>
 </html>
