@@ -1586,8 +1586,8 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 .rez-ozet-hucre-tik:hover {
   filter: brightness(0.95);
 }
-.rez-ozet-tarih.rez-ozet-hucre-tik:hover {
-  background: var(--vurgu-soluk) !important;
+.rez-ozet-tarih {
+  cursor: default;
 }
 .rez-ozet-tik {
   cursor: pointer;

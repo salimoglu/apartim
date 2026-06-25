@@ -5,7 +5,7 @@
  */
 (function () {
   "use strict";
-  const APP = "1.0";
+  const APP = "1.1";
   window.APARTIM_VERSION = {
     APP,
     CACHE: "apartim-" + APP.replace(".", "-"),

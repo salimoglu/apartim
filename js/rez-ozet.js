@@ -447,9 +447,8 @@
 
   function tarihTdOlustur(tarih, rowspan) {
     const tdTarih = document.createElement("td");
-    tdTarih.className = "rez-ozet-tarih rez-ozet-hucre-tik";
+    tdTarih.className = "rez-ozet-tarih";
     tdTarih.dataset.tarih = tarih;
-    tdTarih.title = "Boş daireye yeni rezervasyon";
     tdTarih.innerHTML =
       '<span class="rez-ozet-tarih-gun">' + tarihGoster(tarih) + "</span>" +
       '<span class="rez-ozet-gun-ad">' + gunAdi(tarih) + "</span>";
@@ -625,15 +624,6 @@
     }
     window.APARTIM.rezervasyon.yeni({ daireId, girisOnseci: tarih });
     durum.seciliTarih = tarih;
-  }
-
-  function ilkBosDaire(tarih, daireler) {
-    const db = window.APARTIM.db;
-    if (!db) return null;
-    for (let i = 0; i < daireler.length; i++) {
-      if (db.daireGunDurumu(daireler[i].id, tarih).tip === "bos") return daireler[i].id;
-    }
-    return null;
   }
 
   function sonrakiOdenenHucre(td) {
@@ -832,15 +822,6 @@
         if (daireId && tarih) rezAcYeni(daireId, tarih);
         return;
       }
-      const tarihHucre = ev.target.closest(".rez-ozet-tarih");
-      if (tarihHucre) {
-        ev.stopPropagation();
-        const tarih = tarihHucre.closest("tr")?.dataset.tarih;
-        if (!tarih) return;
-        const daireId = ilkBosDaire(tarih, sonDaireler);
-        if (daireId) rezAcYeni(daireId, tarih);
-        else window.APARTIM.toast("Bu gün tüm daireler dolu", "uyari");
-      }
     });
 
     kapsayici.addEventListener("mouseover", (e) => {
@@ -939,8 +920,15 @@
 
     if (durum.buguneKaydir) {
       durum.buguneKaydir = false;
-      const row = table.querySelector(".rez-ozet-bugun");
-      if (row) scrollElemana(sc, row, true);
+      const bugun = window.APARTIM.db?.bugunISO?.();
+      if (bugun) {
+        durum.seciliTarih = bugun;
+        table.querySelectorAll(".rez-ozet-satir-secili").forEach((r) =>
+          r.classList.remove("rez-ozet-satir-secili"));
+        const rows = table.querySelectorAll('tr.rez-ozet-tr[data-tarih="' + bugun + '"]');
+        rows.forEach((r) => r.classList.add("rez-ozet-satir-secili"));
+        if (rows[0]) scrollElemana(sc, rows[0], true);
+      }
       korunanScroll = null;
       return;
     }
@@ -1055,7 +1043,9 @@
     const bugun = window.APARTIM.db?.bugunISO?.() || iso(n.getFullYear(), n.getMonth(), n.getDate());
     korunanScroll = null;
     durum.buguneKaydir = bugun >= bas && bugun <= bit;
-    if (!durum.buguneKaydir) {
+    if (durum.buguneKaydir) {
+      durum.seciliTarih = bugun;
+    } else {
       window.APARTIM.toast?.("Bugün sezon dışında (Haziran–Eylül)", "bilgi");
     }
     tabloCiz();
