@@ -1,14 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Doa">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Doğa">
   <defs>
-    <linearGradient id="doga-g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5eb3ff"/>
-      <stop offset="100%" stop-color="#1a3f7a"/>
+    <linearGradient id="doga-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a8e6cf"/>
+      <stop offset="100%" stop-color="#56ab91"/>
+    </linearGradient>
+    <linearGradient id="doga-hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7bc96f"/>
+      <stop offset="100%" stop-color="#3d8b37"/>
     </linearGradient>
   </defs>
-  <rect width="256" height="256" rx="48" fill="url(#doga-g)"/>
-  <circle cx="188" cy="72" r="28" fill="#fff" opacity=".9"/>
-  <polygon points="128,196 48,196 88,96 128,136 168,88 208,196" fill="#fff" opacity=".25"/>
-  <rect x="112" y="120" width="32" height="76" rx="6" fill="#fff" opacity=".85"/>
-  <circle cx="128" cy="88" r="36" fill="#fff" opacity=".9"/>
-  <circle cx="128" cy="88" r="20" fill="#1a3f7a" opacity=".2"/>
+  <rect width="256" height="256" rx="56" fill="url(#doga-sky)"/>
+  <circle cx="188" cy="68" r="24" fill="#fff3b0"/>
+  <circle cx="188" cy="68" r="18" fill="#ffd93d"/>
+  <path d="M0 170 Q64 130 128 150 T256 140 V256 H0Z" fill="url(#doga-hill)"/>
+  <path d="M0 190 Q80 160 160 180 T256 170 V256 H0Z" fill="#2d6a4f" opacity=".45"/>
+  <rect x="116" y="118" width="14" height="52" rx="7" fill="#8d5524"/>
+  <circle cx="123" cy="98" r="34" fill="#40916c"/>
+  <circle cx="103" cy="108" r="24" fill="#52b788"/>
+  <circle cx="143" cy="108" r="24" fill="#52b788"/>
+  <circle cx="123" cy="88" r="20" fill="#74c69d"/>
+  <circle cx="48" cy="156" r="6" fill="#ffe066"/>
+  <circle cx="68" cy="168" r="5" fill="#ff6b6b"/>
+  <circle cx="196" cy="162" r="6" fill="#ffe066"/>
 </svg>

@@ -1,14 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Deniz">
   <defs>
-    <linearGradient id="deniz-g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5eb3ff"/>
-      <stop offset="100%" stop-color="#1a3f7a"/>
+    <linearGradient id="deniz-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#56ccf2"/>
+      <stop offset="100%" stop-color="#2f80ed"/>
+    </linearGradient>
+    <linearGradient id="deniz-sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1abc9c"/>
+      <stop offset="100%" stop-color="#148f77"/>
+    </linearGradient>
+    <linearGradient id="deniz-sand" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe8b8"/>
+      <stop offset="100%" stop-color="#f4c978"/>
     </linearGradient>
   </defs>
-  <rect width="256" height="256" rx="48" fill="url(#deniz-g)"/>
-  <circle cx="72" cy="72" r="24" fill="#fff" opacity=".9"/>
-  <path d="M32 168 Q64 148 96 168 T160 168 T224 168 V208 H32Z" fill="#fff" opacity=".85"/>
-  <path d="M32 184 Q64 164 96 184 T160 184 T224 184 V208 H32Z" fill="#fff" opacity=".55"/>
-  <path d="M148 120 L188 196 H108Z" fill="#fff" opacity=".75"/>
-  <rect x="148" y="120" width="8" height="76" fill="#fff" opacity=".9"/>
+  <rect width="256" height="256" rx="56" fill="url(#deniz-sky)"/>
+  <circle cx="188" cy="72" r="26" fill="#fff4c2"/>
+  <circle cx="188" cy="72" r="20" fill="#ffd93d"/>
+  <path d="M0 156 Q32 142 64 156 T128 156 T192 156 T256 156 V256 H0Z" fill="url(#deniz-sea)"/>
+  <path d="M0 172 Q40 158 80 172 T160 172 T256 172 V256 H0Z" fill="#117a65" opacity=".45"/>
+  <path d="M0 188 Q48 174 96 188 T192 188 T256 188 V256 H0Z" fill="#fff" opacity=".12"/>
+  <path d="M0 148 Q64 132 128 148 T256 148 V168 H0Z" fill="url(#deniz-sand)"/>
+  <path d="M148 108 L196 188 H100Z" fill="#e74c3c"/>
+  <path d="M148 108 L196 188 H100Z" fill="#c0392b" opacity=".25"/>
+  <rect x="144" y="108" width="6" height="80" fill="#ecf0f1"/>
+  <ellipse cx="148" cy="188" rx="28" ry="6" fill="#000" opacity=".12"/>
 </svg>

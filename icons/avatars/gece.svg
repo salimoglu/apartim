@@ -1,19 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Gece">
   <defs>
-    <linearGradient id="gece-g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5eb3ff"/>
-      <stop offset="100%" stop-color="#1a3f7a"/>
+    <linearGradient id="gece-sky" x1="0" y1="0" x2="0.3" y2="1">
+      <stop offset="0%" stop-color="#1e3a5f"/>
+      <stop offset="100%" stop-color="#0c1620"/>
+    </linearGradient>
+    <linearGradient id="gece-moon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff9e6"/>
+      <stop offset="100%" stop-color="#f4d58d"/>
     </linearGradient>
   </defs>
-  <rect width="256" height="256" rx="48" fill="url(#gece-g)"/>
-  <path d="M156 64a56 56 0 1 0 56 56 44 44 0 0 1-56-56z" fill="#fff" opacity=".92"/>
-  <circle cx="64" cy="72" r="3" fill="#fff" opacity=".9"/>
-  <circle cx="88" cy="48" r="2" fill="#fff" opacity=".7"/>
-  <circle cx="192" cy="48" r="2.5" fill="#fff" opacity=".8"/>
-  <circle cx="208" cy="88" r="2" fill="#fff" opacity=".65"/>
-  <rect x="56" y="168" width="144" height="48" rx="8" fill="#fff" opacity=".2"/>
-  <rect x="72" y="152" width="20" height="16" rx="2" fill="#fff" opacity=".85"/>
-  <rect x="104" y="152" width="20" height="16" rx="2" fill="#fff" opacity=".85"/>
-  <rect x="136" y="152" width="20" height="16" rx="2" fill="#fff" opacity=".85"/>
-  <rect x="168" y="152" width="20" height="16" rx="2" fill="#fff" opacity=".85"/>
+  <rect width="256" height="256" rx="56" fill="url(#gece-sky)"/>
+  <circle cx="56" cy="72" r="2" fill="#fff" opacity=".85"/>
+  <circle cx="88" cy="48" r="1.5" fill="#fff" opacity=".7"/>
+  <circle cx="168" cy="56" r="2" fill="#fff" opacity=".9"/>
+  <circle cx="196" cy="88" r="1.5" fill="#fff" opacity=".65"/>
+  <circle cx="120" cy="40" r="1.5" fill="#fff" opacity=".75"/>
+  <circle cx="176" cy="76" r="34" fill="url(#gece-moon)"/>
+  <circle cx="188" cy="68" r="30" fill="url(#gece-sky)"/>
+  <rect x="56" y="148" width="144" height="72" rx="8" fill="#243446"/>
+  <rect x="56" y="148" width="144" height="12" rx="8" fill="#1f6f5c" opacity=".8"/>
+  <rect x="72" y="168" width="20" height="16" rx="2" fill="#ffd166"/>
+  <rect x="100" y="168" width="20" height="16" rx="2" fill="#8ecae6" opacity=".5"/>
+  <rect x="128" y="168" width="20" height="16" rx="2" fill="#ffd166"/>
+  <rect x="156" y="168" width="20" height="16" rx="2" fill="#8ecae6" opacity=".35"/>
+  <rect x="72" y="192" width="20" height="16" rx="2" fill="#8ecae6" opacity=".35"/>
+  <rect x="100" y="192" width="20" height="16" rx="2" fill="#ffd166"/>
+  <rect x="128" y="192" width="20" height="16" rx="2" fill="#ffd166"/>
+  <rect x="156" y="192" width="20" height="16" rx="2" fill="#8ecae6" opacity=".5"/>
+  <rect x="118" y="204" width="20" height="16" rx="2" fill="#1f6f5c"/>
 </svg>

@@ -1,13 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Da">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Dağ">
   <defs>
-    <linearGradient id="dag-g" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#5eb3ff"/>
-      <stop offset="100%" stop-color="#1a3f7a"/>
+    <linearGradient id="dag-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff9a76"/>
+      <stop offset="45%" stop-color="#c084fc"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+    <linearGradient id="dag-mtn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#64748b"/>
+      <stop offset="100%" stop-color="#334155"/>
     </linearGradient>
   </defs>
-  <rect width="256" height="256" rx="48" fill="url(#dag-g)"/>
-  <polygon points="128,48 48,196 128,156 208,196" fill="#fff" opacity=".9"/>
-  <polygon points="128,48 88,156 128,136 168,156" fill="#1a3f7a" opacity=".25"/>
-  <polygon points="168,96 208,196 128,196" fill="#fff" opacity=".55"/>
-  <circle cx="196" cy="68" r="18" fill="#fff" opacity=".85"/>
+  <rect width="256" height="256" rx="56" fill="url(#dag-sky)"/>
+  <circle cx="72" cy="80" r="16" fill="#ffe4bc" opacity=".85"/>
+  <path d="M0 210 L72 96 L128 168 L184 72 L256 190 V256 H0Z" fill="url(#dag-mtn)"/>
+  <path d="M72 96 L128 168 L184 72 L156 72 L128 120 L96 96 Z" fill="#475569" opacity=".55"/>
+  <path d="M184 72 L256 190 L220 190 L184 120 Z" fill="#1e293b" opacity=".35"/>
+  <path d="M168 88 L196 132 L184 132 L176 108 Z" fill="#f8fafc" opacity=".95"/>
+  <path d="M88 128 L108 156 L98 156 L92 142 Z" fill="#f8fafc" opacity=".75"/>
+  <ellipse cx="128" cy="228" rx="88" ry="8" fill="#000" opacity=".15"/>
 </svg>

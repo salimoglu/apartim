@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Apart ev">
+  <defs>
+    <linearGradient id="ev-bg" x1="0" y1="0" x2="0.2" y2="1">
+      <stop offset="0%" stop-color="#2a8a73"/>
+      <stop offset="55%" stop-color="#1f6f5c"/>
+      <stop offset="100%" stop-color="#0c1620"/>
+    </linearGradient>
+    <linearGradient id="ev-wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#d4a574"/>
+      <stop offset="100%" stop-color="#9a6840"/>
+    </linearGradient>
+    <linearGradient id="ev-roof" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#6b3a28"/>
+      <stop offset="100%" stop-color="#4a2518"/>
+    </linearGradient>
+    <linearGradient id="ev-glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dff4ff"/>
+      <stop offset="100%" stop-color="#7eb8e8"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#ev-bg)"/>
+  <ellipse cx="128" cy="228" rx="92" ry="10" fill="#000" opacity=".18"/>
+  <path d="M48 118 L128 62 L208 118 L198 128 L128 78 L58 128 Z" fill="url(#ev-roof)"/>
+  <rect x="72" y="118" width="112" height="96" rx="6" fill="url(#ev-wood)"/>
+  <rect x="88" y="134" width="28" height="24" rx="3" fill="url(#ev-glass)" stroke="#4a2518" stroke-width="2"/>
+  <rect x="124" y="134" width="28" height="24" rx="3" fill="url(#ev-glass)" stroke="#4a2518" stroke-width="2"/>
+  <rect x="160" y="134" width="28" height="24" rx="3" fill="url(#ev-glass)" stroke="#4a2518" stroke-width="2"/>
+  <rect x="88" y="168" width="28" height="24" rx="3" fill="url(#ev-glass)" stroke="#4a2518" stroke-width="2"/>
+  <rect x="124" y="168" width="28" height="24" rx="3" fill="url(#ev-glass)" stroke="#4a2518" stroke-width="2"/>
+  <rect x="160" y="168" width="28" height="24" rx="3" fill="url(#ev-glass)" stroke="#4a2518" stroke-width="2"/>
+  <rect x="114" y="192" width="28" height="22" rx="3" fill="#5e3820"/>
+  <circle cx="136" cy="203" r="2" fill="#f5d08a"/>
+</svg>

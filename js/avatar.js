@@ -5,18 +5,18 @@
 (function () {
   "use strict";
 
-  const V = "20260811";
+  const V = "1.2";
   const VARSAYILAN = "ev";
 
   const AVATARLAR = [
-    { id: "ev", etiket: "Apart ev", src: "icons/logo-ev.png" },
+    { id: "ev", etiket: "Apart ev", src: "icons/avatars/ev.svg" },
     { id: "apart", etiket: "Apart otel", src: "icons/avatars/apart.svg" },
-    { id: "kamp", etiket: "Kamp", src: "icons/avatars/kamp.svg" },
-    { id: "doga", etiket: "Doğa", src: "icons/avatars/doga.svg" },
     { id: "deniz", etiket: "Deniz", src: "icons/avatars/deniz.svg" },
+    { id: "doga", etiket: "Doğa", src: "icons/avatars/doga.svg" },
     { id: "dag", etiket: "Dağ", src: "icons/avatars/dag.svg" },
-    { id: "gece", etiket: "Gece", src: "icons/avatars/gece.svg" },
-    { id: "orman", etiket: "Orman", src: "icons/avatars/orman.svg" }
+    { id: "orman", etiket: "Orman", src: "icons/avatars/orman.svg" },
+    { id: "kamp", etiket: "Kamp", src: "icons/avatars/kamp.svg" },
+    { id: "gece", etiket: "Gece", src: "icons/avatars/gece.svg" }
   ];
 
   const byId = {};

@@ -1,7 +1,7 @@
 /* Apartım — basit cache-first service worker */
 /* Sürüm: js/version.js APP ile senkron (1.0 → 1.1 → 1.2 …) */
-const CACHE_VERSION = "apartim-1-1";
-const ASSET_V = "1.1";
+const CACHE_VERSION = "apartim-1-2";
+const ASSET_V = "1.2";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -26,6 +26,7 @@ const CORE_ASSETS = [
   "./icons/icon-256.png",
   "./icons/icon-512.png",
   "./icons/logo-ev.png?v=" + ASSET_V,
+  "./icons/avatars/ev.svg?v=" + ASSET_V,
   "./icons/avatars/apart.svg?v=" + ASSET_V,
   "./icons/avatars/kamp.svg?v=" + ASSET_V,
   "./icons/avatars/doga.svg?v=" + ASSET_V,
