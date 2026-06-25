@@ -1576,6 +1576,33 @@ html:not(.theme-light) .rez-ozet-odenen.manuel {
   font-size: 9px;
   font-weight: 700;
 }
+.rez-ozet-out-kalan-hucre {
+  font-size: 8px;
+  font-weight: 800;
+  color: #111827;
+  white-space: nowrap;
+}
+.rez-ozet-alt-bos {
+  padding: 0 2px !important;
+  height: 10px;
+  line-height: 10px;
+  font-size: 1px;
+  vertical-align: middle;
+}
+html:not(.theme-light) .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
+  background: #4a3f00 !important;
+  color: #ffe082;
+}
+html.theme-light .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
+  background: #fff9c4 !important;
+  color: #1a1a1a;
+}
+.rez-ozet-tr-turnover-out td {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+.rez-ozet-tr-turnover-in td {
+  border-top: none;
+}
 
 /* -------------------- 10. Temizlik -------------------- */
 .temizlik-wrap { display: flex; flex-direction: column; gap: 14px; }
