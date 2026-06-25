@@ -2,8 +2,8 @@
 (function () {
   "use strict";
   window.APARTIM_VERSION = {
-    CACHE: "apartim-v81-20260829",
-    ASSET: "20260829",
-    LABEL: "v81 · 20260829"
+    CACHE: "apartim-v82-20260830",
+    ASSET: "20260830",
+    LABEL: "v82 · 20260830"
   };
 })();
