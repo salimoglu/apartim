@@ -343,14 +343,16 @@
     );
   }
 
-  function checkoutHucreleriEkle(tr, rez, tarih, renk, ioVurgu) {
+  function checkoutHucreleriEkle(tr, rez, tarih, renk, ioVurgu, rowspan) {
     const rid = rezIdAl(rez);
     const bg = hucreBg(renk, ioVurgu);
+    const rs = rowspan > 1 ? rowspan : undefined;
     const tdG = document.createElement("td");
     tdG.className = "rez-ozet-sayi rez-ozet-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdG.style.background = bg;
     if (rid) tdG.dataset.rezId = rid;
     tdG.innerHTML = ioBadge("out", rid);
+    if (rs) tdG.rowSpan = rs;
     tr.appendChild(tdG);
 
     const tdKt = document.createElement("td");
@@ -358,12 +360,14 @@
     tdKt.style.background = bg;
     if (rid) tdKt.dataset.rezId = rid;
     tdKt.innerHTML = kaynakSimgeHtml(rez);
+    if (rs) tdKt.rowSpan = rs;
     tr.appendChild(tdKt);
 
     const tdF = document.createElement("td");
     tdF.className = "rez-ozet-sayi" + (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdF.style.background = bg;
     tdF.textContent = "—";
+    if (rs) tdF.rowSpan = rs;
     tr.appendChild(tdF);
 
     const tdO = document.createElement("td");
@@ -371,6 +375,7 @@
     tdO.style.background = bg;
     if (rid) tdO.dataset.rezId = rid;
     tdO.textContent = rezOutKalanMetin(rez) || "—";
+    if (rs) tdO.rowSpan = rs;
     tr.appendChild(tdO);
 
     const tdA = document.createElement("td");
@@ -379,16 +384,18 @@
     if (rid) tdA.dataset.rezId = rid;
     tdA.textContent = kisaAd(rez.misafirAdi, 11);
     tdA.title = rez.misafirAdi || "";
+    if (rs) tdA.rowSpan = rs;
     tr.appendChild(tdA);
   }
 
-  function checkinHucreleriEkle(tr, rez, tarih, renk, ioVurgu) {
+  function checkinHucreleriEkle(tr, rez, tarih, renk, ioVurgu, rowspan) {
     const rid = rezIdAl(rez);
     const bg = hucreBg(renk, ioVurgu);
     checkinHucreler(rez, tarih).forEach((c, ci) => {
       const td = hucreTdOlustur(
         c, rez, tarih, bg, rid, ci === 4 ? (rez.misafirAdi || "") : "", ioVurgu
       );
+      if (rowspan > 1) td.rowSpan = rowspan;
       tr.appendChild(td);
     });
   }
@@ -484,13 +491,11 @@
       return;
     }
     if (h.tip === "checkout") {
-      checkoutHucreleriEkle(trOut, h.rez, tarih, renk, true);
-      altBosHucreleriEkle(trIn, renk);
+      checkoutHucreleriEkle(trOut, h.rez, tarih, renk, true, 2);
       return;
     }
     if (h.tip === "checkin") {
-      altBosHucreleriEkle(trOut, renk);
-      checkinHucreleriEkle(trIn, h.rez, tarih, renk, true);
+      checkinHucreleriEkle(trOut, h.rez, tarih, renk, true, 2);
       return;
     }
     if (h.tip === "konak") {

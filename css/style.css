@@ -1353,10 +1353,10 @@ html.theme-light .rez-ozet-ay-ayrac td {
   --rez-cizgi: #6b7280;
   --rez-ozet-head1-h: 22px;
   --rez-col-tarih: 44px;
-  --rez-col-g: 16px;
-  --rez-col-kt: 20px;
-  --rez-col-fyt: 28px;
-  --rez-col-odn: 34px;
+  --rez-col-g: 18px;
+  --rez-col-kt: 18px;
+  --rez-col-fyt: 30px;
+  --rez-col-odn: 30px;
   --rez-col-ad: 46px;
   color: #111827;
 }
@@ -3028,10 +3028,10 @@ body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-baslik {
 body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-table {
   font-size: 9px;
   --rez-col-tarih: 42px;
-  --rez-col-g: 15px;
-  --rez-col-kt: 18px;
-  --rez-col-fyt: 26px;
-  --rez-col-odn: 32px;
+  --rez-col-g: 17px;
+  --rez-col-kt: 17px;
+  --rez-col-fyt: 28px;
+  --rez-col-odn: 28px;
   --rez-col-ad: 44px;
 }
 body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih-kose,
