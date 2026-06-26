@@ -395,6 +395,20 @@ body.ptr-cekiliyor { overscroll-behavior-y: contain; }
   width: 100%;
   margin: 0 auto;
 }
+@media (min-width: 721px) {
+  .content.content-rez-genis {
+    max-width: none;
+    margin: 0;
+  }
+  #tab-rezervasyonlar.active {
+    padding: 10px 10px 12px;
+  }
+}
+@media (min-width: 1200px) {
+  #tab-rezervasyonlar.active {
+    padding: 12px 14px 14px;
+  }
+}
 .tab-panel { display: none; padding: 16px; box-sizing: border-box; }
 .tab-panel.active {
   display: block;
@@ -1153,6 +1167,8 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  width: 100%;
+  min-width: 0;
 }
 .rez-ozet-ust {
   flex-shrink: 0;

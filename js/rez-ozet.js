@@ -1020,15 +1020,14 @@
   function tabloSutunOlcul(table, daireler) {
     const n = Math.max((daireler || sonDaireler || []).length, 1);
     const scroll = table.closest(".rez-ozet-scroll");
+    const panel = document.getElementById("tab-rezervasyonlar");
     const wrap = document.getElementById("rez-ozet-tablo");
     if (wrap) wrap.style.width = "100%";
 
     let genislik = scroll?.clientWidth || 0;
-    if (genislik < 80 && scroll?.parentElement) {
-      genislik = scroll.parentElement.clientWidth;
-    }
-    if (genislik < 80) {
-      genislik = Math.min(window.innerWidth, 1280);
+    if (genislik < 200 && panel) genislik = panel.clientWidth;
+    if (genislik < 200) {
+      genislik = document.querySelector(".content")?.clientWidth || window.innerWidth;
     }
 
     const mobilYatay = document.body.classList.contains("mobil-yatay-mod");

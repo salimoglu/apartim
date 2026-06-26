@@ -147,6 +147,7 @@
     if (ad !== "rezervasyonlar") {
       window.APARTIM.rezOzet?.tamEkranKapat?.();
     }
+    document.querySelector(".content")?.classList.toggle("content-rez-genis", ad === "rezervasyonlar");
     document.querySelectorAll(".tab-btn").forEach((b) =>
       b.classList.toggle("active", b.dataset.tab === ad));
     document.querySelectorAll(".tab-panel").forEach((p) =>
@@ -154,7 +155,8 @@
     if (ad === "rapor") raporCiz();
     if (ad === "rezervasyonlar") {
       window.APARTIM.rezOzet?.tabloCiz();
-      setTimeout(() => window.APARTIM.rezOzet?.sutunOlculYenile?.(), 100);
+      setTimeout(() => window.APARTIM.rezOzet?.sutunOlculYenile?.(), 50);
+      setTimeout(() => window.APARTIM.rezOzet?.sutunOlculYenile?.(), 300);
     }
     yatayModGuncelle();
   }
