@@ -1676,15 +1676,13 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   white-space: nowrap;
   vertical-align: middle !important;
   font-size: 8px;
+  color: #111827 !important;
 }
 .rez-ozet-odenen.bos {
-  color: var(--metin-soluk-2);
+  color: #111827 !important;
 }
 .rez-ozet-odenen.manuel {
   font-weight: 700;
-  color: #111827 !important;
-}
-html:not(.theme-light) .rez-ozet-odenen.manuel {
   color: #111827 !important;
 }
 .rez-ozet-odenen:hover:not(.duzenleniyor) {
@@ -2493,11 +2491,8 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rez-ozet-odenen.rez-ozet-kalan-ipucu {
   font-weight: 700;
-  color: #92400e !important;
+  color: #111827 !important;
   font-size: 8px;
-}
-html:not(.theme-light) .rez-ozet-odenen.rez-ozet-kalan-ipucu {
-  color: #fbbf24 !important;
 }
 .modal-box-kucuk {
   max-width: 360px;
