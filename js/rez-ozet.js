@@ -227,11 +227,11 @@
 
   function tarihGosterKisa(isoStr) {
     const p = isoStr.split("-");
-    return parseInt(p[2], 10) + "/" + parseInt(p[1], 10);
+    return p[2].padStart(2, "0") + "." + p[1].padStart(2, "0");
   }
 
   function gunAdiTablo(isoStr) {
-    return GUN_KISA[new Date(isoStr + "T12:00:00").getDay()].slice(0, 2);
+    return GUN_KISA[new Date(isoStr + "T12:00:00").getDay()];
   }
 
   function gunAdi(isoStr, kisa) {
@@ -1070,7 +1070,7 @@
     const telefon = mobilYatay || genislik < 640;
 
     if (telefon) {
-      const px = { birim: "px", tarih: 28, g: 16, kt: 16, fyt: 26, odn: 26, ad: 40 };
+      const px = { birim: "px", tarih: 36, g: 16, kt: 16, fyt: 26, odn: 26, ad: 40 };
       applyColGenislik(table, px);
       table.style.width = "100%";
       table.style.minWidth = (px.tarih + n * (px.g + px.kt + px.fyt + px.odn + px.ad)) + "px";
@@ -1078,7 +1078,7 @@
       return;
     }
 
-    const tarihPct = genislik < 960 ? 3.4 : 2.4;
+    const tarihPct = genislik < 960 ? 4.2 : 3.2;
     const odaPct = (100 - tarihPct) / n;
     const oran = { g: 8.5, kt: 8.5, fyt: 19, odn: 19, ad: 45 };
     applyColGenislik(table, {

@@ -1374,7 +1374,7 @@ html.theme-light .rez-ozet-ay-ayrac td {
   white-space: nowrap;
   --rez-cizgi: #6b7280;
   --rez-ozet-head1-h: 22px;
-  --rez-col-tarih: 30px;
+  --rez-col-tarih: 36px;
   --rez-col-g: 16px;
   --rez-col-kt: 16px;
   --rez-col-fyt: 26px;
@@ -1436,7 +1436,7 @@ html:not(.theme-light) .rez-ozet-table .rez-ozet-tarih-gun {
   color: #ffffff !important;
 }
 html:not(.theme-light) .rez-ozet-table .rez-ozet-gun-ad {
-  color: rgba(255, 255, 255, 0.78) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
 }
 html:not(.theme-light) .rez-ozet-haftasonu .rez-ozet-tarih {
   background: #243446 !important;
@@ -1451,7 +1451,7 @@ html.theme-light .rez-ozet-table .rez-ozet-tarih-gun {
   color: #111827 !important;
 }
 html.theme-light .rez-ozet-table .rez-ozet-gun-ad {
-  color: var(--metin-soluk) !important;
+  color: #374151 !important;
 }
 html.theme-light .rez-ozet-haftasonu .rez-ozet-tarih {
   background: #efe6d0 !important;
@@ -1569,21 +1569,27 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   z-index: 2;
   width: var(--rez-col-tarih);
   max-width: var(--rez-col-tarih);
-  padding: 1px 2px !important;
+  min-width: var(--rez-col-tarih);
+  padding: 2px 3px !important;
+  text-align: center;
 }
 .rez-ozet-tarih-gun {
   display: block;
   font-weight: 800;
-  font-size: 8px;
-  line-height: 1.1;
+  font-size: 10px;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
 }
 .rez-ozet-gun-ad {
   display: block;
-  font-size: 7px;
-  letter-spacing: 0;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
   white-space: nowrap;
-  line-height: 1.05;
-  opacity: 0.85;
+  line-height: 1.15;
+  opacity: 1;
+  text-transform: uppercase;
 }
 .rez-ozet-daire-baslik {
   text-align: center;
@@ -1738,7 +1744,18 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 }
 .rez-ozet-tr-bugun .rez-ozet-tarih,
 .rez-ozet-bugun .rez-ozet-tarih {
-  box-shadow: inset 3px 0 0 var(--vurgu);
+  box-shadow: inset 4px 0 0 var(--vurgu);
+}
+html:not(.theme-light) .rez-ozet-bugun .rez-ozet-tarih,
+html:not(.theme-light) .rez-ozet-tr-bugun .rez-ozet-tarih {
+  background: #1a3344 !important;
+}
+html.theme-light .rez-ozet-bugun .rez-ozet-tarih,
+html.theme-light .rez-ozet-tr-bugun .rez-ozet-tarih {
+  background: #dce8f5 !important;
+}
+html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
+  color: #0f172a !important;
 }
 .rez-ozet-io {
   display: inline-block;
@@ -2626,10 +2643,10 @@ html:not(.theme-light) .rez-kaynak-badge {
     padding: 5px 4px !important;
   }
   .rez-ozet-table .rez-ozet-tarih-gun {
-    font-size: 9px;
+    font-size: 11px;
   }
   .rez-ozet-table .rez-ozet-gun-ad {
-    font-size: 8px;
+    font-size: 9px;
   }
 }
 
