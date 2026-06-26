@@ -935,11 +935,18 @@
 
   function satirSec(tr) {
     if (!tr?.dataset.tarih) return;
-    durum.seciliTarih = tr.dataset.tarih;
+    const tarih = tr.dataset.tarih;
     const tbody = tr.parentElement;
+    if (durum.seciliTarih === tarih) {
+      durum.seciliTarih = null;
+      tbody?.querySelectorAll(".rez-ozet-satir-secili").forEach((r) =>
+        r.classList.remove("rez-ozet-satir-secili"));
+      return;
+    }
+    durum.seciliTarih = tarih;
     tbody?.querySelectorAll(".rez-ozet-satir-secili").forEach((r) =>
       r.classList.remove("rez-ozet-satir-secili"));
-    tbody?.querySelectorAll('tr.rez-ozet-tr[data-tarih="' + tr.dataset.tarih + '"]').forEach((r) =>
+    tbody?.querySelectorAll('tr.rez-ozet-tr[data-tarih="' + tarih + '"]').forEach((r) =>
       r.classList.add("rez-ozet-satir-secili"));
   }
 
