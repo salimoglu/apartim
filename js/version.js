@@ -1,7 +1,7 @@
 /* Apartım sürüm — sw.js ile senkron tutun */
 (function () {
   "use strict";
-  const APP = "1.5";
+  const APP = "1.6";
   window.APARTIM_VERSION = {
     APP,
     CACHE: "apartim-" + APP.replace(".", "-"),

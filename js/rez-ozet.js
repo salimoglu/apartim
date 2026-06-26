@@ -225,6 +225,11 @@
     return p[2] + "." + p[1] + "." + p[0];
   }
 
+  function tarihGosterKisa(isoStr) {
+    const p = isoStr.split("-");
+    return p[2] + "." + p[1];
+  }
+
   function gunAdi(isoStr, kisa) {
     const d = new Date(isoStr + "T12:00:00");
     return (kisa ? GUN_KISA : GUN_UZUN)[d.getDay()];
@@ -362,7 +367,7 @@
     tr.appendChild(tdF);
 
     const tdO = document.createElement("td");
-    tdO.className = "rez-ozet-sayi rez-ozet-out-kalan-hucre" + (ioVurgu ? " rez-ozet-io-hucre" : "");
+    tdO.className = "rez-ozet-sayi rez-ozet-odenen rez-ozet-out-kalan-hucre" + (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdO.style.background = bg;
     if (rid) tdO.dataset.rezId = rid;
     tdO.textContent = rezOutKalanMetin(rez) || "—";
@@ -450,8 +455,8 @@
     tdTarih.className = "rez-ozet-tarih";
     tdTarih.dataset.tarih = tarih;
     tdTarih.innerHTML =
-      '<span class="rez-ozet-tarih-gun">' + tarihGoster(tarih) + "</span>" +
-      '<span class="rez-ozet-gun-ad">' + gunAdi(tarih) + "</span>";
+      '<span class="rez-ozet-tarih-gun">' + tarihGosterKisa(tarih) + "</span>" +
+      '<span class="rez-ozet-gun-ad">' + gunAdi(tarih, true) + "</span>";
     if (rowspan > 1) tdTarih.rowSpan = rowspan;
     return tdTarih;
   }
@@ -539,7 +544,7 @@
   function checkinHucreler(rez, tarih) {
     const det = konakDetay(rez, tarih);
     return [
-      { cls: "rez-ozet-sayi rez-ozet-giris-hucre", html: ioBadge("in", rez.id) + '<span>' + det.g + '</span>' },
+      { cls: "rez-ozet-sayi rez-ozet-giris-hucre", html: ioBadge("in", rez.id) },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
       { type: "odn" },
@@ -752,9 +757,25 @@
     });
   }
 
+  function colgroupOlustur(daireler) {
+    const cg = document.createElement("colgroup");
+    const tarihCol = document.createElement("col");
+    tarihCol.className = "rez-ozet-col-tarih";
+    cg.appendChild(tarihCol);
+    daireler.forEach(() => {
+      ["g", "kt", "fyt", "odn", "ad"].forEach((tip) => {
+        const col = document.createElement("col");
+        col.className = "rez-ozet-col-" + tip;
+        cg.appendChild(col);
+      });
+    });
+    return cg;
+  }
+
   function theadOlustur(daireler) {
     const table = document.createElement("table");
     table.className = "rez-ozet-table";
+    table.appendChild(colgroupOlustur(daireler));
     const thead = document.createElement("thead");
     const tr1 = document.createElement("tr");
     tr1.className = "rez-ozet-tr-daire";

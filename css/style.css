@@ -1345,13 +1345,27 @@ html.theme-light .rez-ozet-ay-ayrac td {
 .rez-ozet-table {
   border-collapse: separate;
   border-spacing: 0;
+  table-layout: fixed;
+  width: 100%;
   font-size: 10px;
   min-width: 100%;
   white-space: nowrap;
   --rez-cizgi: #6b7280;
   --rez-ozet-head1-h: 22px;
+  --rez-col-tarih: 44px;
+  --rez-col-g: 16px;
+  --rez-col-kt: 20px;
+  --rez-col-fyt: 28px;
+  --rez-col-odn: 34px;
+  --rez-col-ad: 46px;
   color: #111827;
 }
+.rez-ozet-col-tarih { width: var(--rez-col-tarih); }
+.rez-ozet-col-g { width: var(--rez-col-g); }
+.rez-ozet-col-kt { width: var(--rez-col-kt); }
+.rez-ozet-col-fyt { width: var(--rez-col-fyt); }
+.rez-ozet-col-odn { width: var(--rez-col-odn); }
+.rez-ozet-col-ad { width: var(--rez-col-ad); }
 html:not(.theme-light) .rez-ozet-table {
   --rez-cizgi: #9aa3ad;
 }
@@ -1522,25 +1536,31 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   position: sticky;
   left: 0;
   z-index: 3;
-  min-width: 82px;
+  width: var(--rez-col-tarih);
+  max-width: var(--rez-col-tarih);
   font-weight: 800;
+  padding: 1px 2px !important;
 }
 .rez-ozet-tarih {
   position: sticky;
   left: 0;
   z-index: 2;
-  min-width: 82px;
+  width: var(--rez-col-tarih);
+  max-width: var(--rez-col-tarih);
+  padding: 1px 2px !important;
 }
 .rez-ozet-tarih-gun {
   display: block;
   font-weight: 800;
-  font-size: 10px;
+  font-size: 9px;
+  line-height: 1.15;
 }
 .rez-ozet-gun-ad {
   display: block;
-  font-size: 9px;
+  font-size: 8px;
   letter-spacing: 0;
   white-space: nowrap;
+  line-height: 1.1;
 }
 .rez-ozet-daire-baslik {
   text-align: center;
@@ -1555,22 +1575,22 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   font-weight: 700;
   color: #111827 !important;
   padding: 1px !important;
-  min-width: 20px;
+  overflow: hidden;
 }
 .rez-ozet-kategori-baslik {
   text-align: center;
   font-size: 8px;
   font-weight: 700;
   color: #111827 !important;
-  min-width: 24px;
   padding: 1px !important;
   letter-spacing: 0;
+  overflow: hidden;
 }
 .rez-ozet-kategori {
   text-align: center;
-  min-width: 24px;
   vertical-align: middle;
-  padding: 1px 2px !important;
+  padding: 1px 1px !important;
+  overflow: hidden;
 }
 .rez-ozet-kategori-simge {
   display: inline-block;
@@ -1581,26 +1601,24 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   text-align: center;
   font-size: 8px;
   font-weight: 700;
-  min-width: 52px;
+  overflow: hidden;
 }
 .rez-ozet-sayi {
   text-align: center;
   font-weight: 700;
-  min-width: 22px;
   font-size: 9px;
-  padding: 1px 2px !important;
+  padding: 1px 1px !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rez-ozet-ad {
-  max-width: 68px;
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 600;
-  min-width: 52px;
   font-size: 9px;
   padding: 1px 2px !important;
 }
 .rez-ozet-bos {
-  min-width: 20px;
   height: 18px;
   padding: 1px !important;
 }
@@ -1622,19 +1640,19 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 .rez-ozet-odenen {
   cursor: pointer;
   position: relative;
-  width: 52px;
-  max-width: 52px;
-  min-width: 52px !important;
+  width: auto;
+  max-width: none;
+  min-width: 0 !important;
   height: 18px;
   max-height: 18px;
   line-height: 18px;
-  padding: 0 2px !important;
+  padding: 0 1px !important;
   overflow: hidden;
   box-sizing: border-box;
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle !important;
-  font-size: 9px;
+  font-size: 8px;
 }
 .rez-ozet-odenen.bos {
   color: var(--metin-soluk-2);
@@ -1784,25 +1802,21 @@ html:not(.theme-light) .rez-ozet-odenen.manuel {
 }
 .rez-ozet-giris-hucre {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0;
-  line-height: 1.1;
+  justify-content: center;
   padding: 1px !important;
 }
 .rez-ozet-giris-hucre .rez-ozet-io {
-  font-size: 6px;
+  font-size: 7px;
   padding: 0 2px;
-}
-.rez-ozet-giris-hucre span:last-child {
-  font-size: 9px;
-  font-weight: 700;
 }
 .rez-ozet-out-kalan-hucre {
   font-size: 8px;
   font-weight: 800;
   color: #111827;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .rez-ozet-alt-bos {
   padding: 0 2px !important;
@@ -3012,11 +3026,18 @@ body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-baslik {
   font-size: 17px;
 }
 body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-table {
-  font-size: 10px;
+  font-size: 9px;
+  --rez-col-tarih: 42px;
+  --rez-col-g: 15px;
+  --rez-col-kt: 18px;
+  --rez-col-fyt: 26px;
+  --rez-col-odn: 32px;
+  --rez-col-ad: 44px;
 }
 body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih-kose,
 body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
-  min-width: 76px;
+  width: var(--rez-col-tarih);
+  max-width: var(--rez-col-tarih);
 }
 
 /* Tam ekran yatay tablo — native fullscreen + modal host */
