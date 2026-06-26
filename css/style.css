@@ -1312,6 +1312,7 @@ html.theme-light .rez-ozet-para-toplam {
   border: 1px solid var(--kenar);
   border-radius: var(--radius);
   background: var(--kart);
+  width: 100%;
 }
 .rez-ozet-yukleniyor {
   padding: 24px 16px;
@@ -1352,12 +1353,12 @@ html.theme-light .rez-ozet-ay-ayrac td {
   white-space: nowrap;
   --rez-cizgi: #6b7280;
   --rez-ozet-head1-h: 22px;
-  --rez-col-tarih: 44px;
-  --rez-col-g: 18px;
-  --rez-col-kt: 18px;
-  --rez-col-fyt: 30px;
-  --rez-col-odn: 30px;
-  --rez-col-ad: 46px;
+  --rez-col-tarih: 30px;
+  --rez-col-g: 16px;
+  --rez-col-kt: 16px;
+  --rez-col-fyt: 26px;
+  --rez-col-odn: 26px;
+  --rez-col-ad: 40px;
   color: #111827;
 }
 .rez-ozet-col-tarih { width: var(--rez-col-tarih); }
@@ -1552,15 +1553,16 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 .rez-ozet-tarih-gun {
   display: block;
   font-weight: 800;
-  font-size: 9px;
-  line-height: 1.15;
+  font-size: 8px;
+  line-height: 1.1;
 }
 .rez-ozet-gun-ad {
   display: block;
-  font-size: 8px;
+  font-size: 7px;
   letter-spacing: 0;
   white-space: nowrap;
-  line-height: 1.1;
+  line-height: 1.05;
+  opacity: 0.85;
 }
 .rez-ozet-daire-baslik {
   text-align: center;
@@ -2602,6 +2604,19 @@ html:not(.theme-light) .rez-ozet-odenen.rez-ozet-kalan-ipucu {
   }
 }
 
+@media (min-width: 960px) {
+  .rez-ozet-table .rez-ozet-daire-baslik {
+    font-size: 11px;
+    padding: 5px 4px !important;
+  }
+  .rez-ozet-table .rez-ozet-tarih-gun {
+    font-size: 9px;
+  }
+  .rez-ozet-table .rez-ozet-gun-ad {
+    font-size: 8px;
+  }
+}
+
 @media (max-width: 480px) {
   .takvim-grid { gap: 2px; }
   .takvim-hucre { padding: 2px; border-radius: 6px; }
@@ -3029,17 +3044,6 @@ body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-baslik {
 }
 body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-table {
   font-size: 9px;
-  --rez-col-tarih: 42px;
-  --rez-col-g: 17px;
-  --rez-col-kt: 17px;
-  --rez-col-fyt: 28px;
-  --rez-col-odn: 28px;
-  --rez-col-ad: 44px;
-}
-body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih-kose,
-body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-tarih {
-  width: var(--rez-col-tarih);
-  max-width: var(--rez-col-tarih);
 }
 
 /* Tam ekran yatay tablo — native fullscreen + modal host */

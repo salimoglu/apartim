@@ -227,7 +227,11 @@
 
   function tarihGosterKisa(isoStr) {
     const p = isoStr.split("-");
-    return p[2] + "." + p[1];
+    return parseInt(p[2], 10) + "/" + parseInt(p[1], 10);
+  }
+
+  function gunAdiTablo(isoStr) {
+    return GUN_KISA[new Date(isoStr + "T12:00:00").getDay()].slice(0, 2);
   }
 
   function gunAdi(isoStr, kisa) {
@@ -382,7 +386,7 @@
     tdA.className = "rez-ozet-ad rez-ozet-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdA.style.background = bg;
     if (rid) tdA.dataset.rezId = rid;
-    tdA.textContent = kisaAd(rez.misafirAdi, 11);
+    tdA.textContent = rez.misafirAdi || "";
     tdA.title = rez.misafirAdi || "";
     if (rs) tdA.rowSpan = rs;
     tr.appendChild(tdA);
@@ -408,7 +412,7 @@
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
       { type: "odn" },
-      { cls: "rez-ozet-ad", txt: kisaAd(det.misafir, 11) }
+      { cls: "rez-ozet-ad", txt: det.misafir || "" }
     ].forEach((c, ci) => {
       const td = hucreTdOlustur(
         c, rez, tarih, renk, rid, ci === 4 ? (det.misafir || "") : ""
@@ -463,7 +467,7 @@
     tdTarih.dataset.tarih = tarih;
     tdTarih.innerHTML =
       '<span class="rez-ozet-tarih-gun">' + tarihGosterKisa(tarih) + "</span>" +
-      '<span class="rez-ozet-gun-ad">' + gunAdi(tarih, true) + "</span>";
+      '<span class="rez-ozet-gun-ad">' + gunAdiTablo(tarih) + "</span>";
     if (rowspan > 1) tdTarih.rowSpan = rowspan;
     return tdTarih;
   }
@@ -553,7 +557,7 @@
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
       { type: "odn" },
-      { cls: "rez-ozet-ad", txt: kisaAd(det.misafir, 11) }
+      { cls: "rez-ozet-ad", txt: det.misafir || "" }
     ];
   }
 
@@ -787,7 +791,8 @@
     const kose = document.createElement("th");
     kose.className = "rez-ozet-tarih-kose";
     kose.rowSpan = 2;
-    kose.textContent = "Tarih";
+    kose.textContent = "G";
+    kose.title = "Tarih";
     tr1.appendChild(kose);
     daireler.forEach((d, i) => {
       const th = document.createElement("th");
@@ -820,7 +825,17 @@
   function tabloTamamla(wrap, table, daireler) {
     sonDaireler = daireler;
     stickyBaslikOlcul(table);
+    tabloScrollGozlem(table);
     scrollGeriYukleSonra(wrap, table);
+  }
+
+  function tabloScrollGozlem(table) {
+    if (typeof ResizeObserver === "undefined") return;
+    const scroll = table.closest(".rez-ozet-scroll");
+    if (!scroll || scroll.dataset.rezOzetRo) return;
+    scroll.dataset.rezOzetRo = "1";
+    const ro = new ResizeObserver(() => stickyBaslikOlcul(table));
+    ro.observe(scroll);
   }
 
   function etkilesimBagla(kapsayici) {
@@ -984,11 +999,58 @@
     });
   }
 
+  function tabloSutunOlcul(table, daireler) {
+    const n = Math.max((daireler || sonDaireler || []).length, 1);
+    const scroll = table.closest(".rez-ozet-scroll");
+    const genislik = scroll?.clientWidth || table.parentElement?.clientWidth || window.innerWidth;
+    const mobilYatay = document.body.classList.contains("mobil-yatay-mod");
+    const telefon = mobilYatay || genislik < 640;
+
+    let tarih, g, kt, fyt, odn, adMin, fontSize;
+
+    if (telefon) {
+      tarih = 28;
+      g = kt = 16;
+      fyt = odn = 26;
+      adMin = 40;
+      fontSize = mobilYatay ? 9 : 10;
+    } else if (genislik < 960) {
+      tarih = 32;
+      g = kt = 22;
+      fyt = odn = 38;
+      adMin = 56;
+      fontSize = 11;
+    } else {
+      const olcek = Math.min(1.55, genislik / 900);
+      tarih = 32;
+      g = kt = Math.round(22 * olcek);
+      fyt = odn = Math.round(40 * olcek);
+      adMin = Math.round(58 * olcek);
+      fontSize = genislik >= 1200 ? 12 : 11;
+    }
+
+    const sabit = tarih + n * (g + kt + fyt + odn);
+    const ad = telefon
+      ? adMin
+      : Math.max(adMin, Math.floor((genislik - sabit) / n));
+
+    table.style.setProperty("--rez-col-tarih", tarih + "px");
+    table.style.setProperty("--rez-col-g", g + "px");
+    table.style.setProperty("--rez-col-kt", kt + "px");
+    table.style.setProperty("--rez-col-fyt", fyt + "px");
+    table.style.setProperty("--rez-col-odn", odn + "px");
+    table.style.setProperty("--rez-col-ad", ad + "px");
+    table.style.fontSize = fontSize + "px";
+    table.style.width = "100%";
+    table.style.minWidth = "100%";
+  }
+
   function stickyBaslikOlcul(table) {
     requestAnimationFrame(() => {
       const tr1 = table.querySelector(".rez-ozet-tr-daire");
       if (!tr1) return;
       table.style.setProperty("--rez-ozet-head1-h", tr1.getBoundingClientRect().height + "px");
+      tabloSutunOlcul(table, sonDaireler);
     });
   }
 
