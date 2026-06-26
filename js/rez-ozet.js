@@ -605,10 +605,17 @@
     return td;
   }
 
+  function hucreTiklenebilirMi(c) {
+    if (!c || c.type === "odn") return false;
+    const cls = c.cls || "";
+    return cls.indexOf("rez-ozet-ad") >= 0 || cls.indexOf("rez-ozet-kategori") >= 0;
+  }
+
   function hucreTdOlustur(c, rez, tarih, renk, rid, misafirBaslik, ioVurgu) {
     if (c.type === "odn") return odnHucreTd(rez, tarih, renk, rid, ioVurgu);
     const td = document.createElement("td");
-    td.className = c.cls + " rez-ozet-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
+    td.className = c.cls + (hucreTiklenebilirMi(c) ? " rez-ozet-tik" : "") +
+      (ioVurgu ? " rez-ozet-io-hucre" : "");
     td.style.background = hucreBg(renk, ioVurgu);
     if (rid) td.dataset.rezId = rid;
     if (c.html) td.innerHTML = c.html;
@@ -658,6 +665,15 @@
 
   function odemeModal() { return document.getElementById("modal-odeme"); }
 
+  function odemeModalAc() {
+    tamEkranaModallariTasi(tamEkranAcikMi());
+    document.getElementById("modal-rez")?.classList.add("hidden");
+    const modal = odemeModal();
+    if (!modal) return null;
+    modal.classList.remove("hidden");
+    return modal;
+  }
+
   function odemeModalKapat() {
     odemeModal()?.classList.add("hidden");
     odemeDuzenleDurum = null;
@@ -679,16 +695,25 @@
   function odenenHucreDuzenle(hucre) {
     const rezId = hucre.dataset.rezId;
     const tarih = hucre.dataset.tarih;
-    if (!rezId || !tarih) return;
+    if (!rezId || !tarih) {
+      window.APARTIM.toast?.("Ödeme hücresi tanınmadı", "uyari");
+      return;
+    }
     durum.seciliTarih = tarih;
 
     const db = window.APARTIM.db;
     const rez = db?.durum.rezervasyonlar[rezId];
-    if (!rez) return;
+    if (!rez) {
+      window.APARTIM.toast?.("Rezervasyon bulunamadı", "uyari");
+      return;
+    }
 
     const info = db.rezervasyonOdenenGosterim(rez, tarih);
-    const modal = odemeModal();
-    if (!modal) return;
+    const modal = odemeModalAc();
+    if (!modal) {
+      window.APARTIM.toast?.("Ödeme formu yüklenemedi", "hata");
+      return;
+    }
 
     odemeDuzenleDurum = { rezId, tarih, hucre };
 
@@ -712,7 +737,6 @@
     }
     if (sel) sel.value = info.yontem || "elden";
 
-    modal.classList.remove("hidden");
     setTimeout(() => {
       inp?.focus({ preventScroll: true });
       inp?.select?.();
@@ -847,10 +871,15 @@
     kapsayici.addEventListener("click", (ev) => {
       const odenen = ev.target.closest(".rez-ozet-odenen");
       if (odenen && !odenen.classList.contains("duzenleniyor")) {
+        ev.preventDefault();
         ev.stopPropagation();
+        ev.stopImmediatePropagation();
         odenenHucreDuzenle(odenen);
-        return;
       }
+    }, true);
+
+    kapsayici.addEventListener("click", (ev) => {
+      if (ev.target.closest(".rez-ozet-odenen")) return;
       const tik = ev.target.closest(".rez-ozet-tik");
       if (tik) {
         ev.stopPropagation();
@@ -1471,6 +1500,7 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    tamEkranaModallariTasi(false);
     odemeModalBagla();
     etkilesimBagla(document.querySelector("#tab-rezervasyonlar .rez-ozet-scroll"));
     document.getElementById("rez-ozet-yil-prev")?.addEventListener("click", () => sezonGit(-1));
@@ -1481,6 +1511,15 @@
     window.addEventListener("resize", () => {
       const table = document.querySelector("#rez-ozet-tablo .rez-ozet-table");
       if (table) stickyBaslikOlcul(table);
+    });
+    document.addEventListener("fullscreenchange", () => {
+      if (document.fullscreenElement) return;
+      const wrap = tamEkranWrap();
+      if (wrap?.classList.contains("rez-ozet-tam-ekran")) {
+        tamEkranKapat();
+      } else {
+        tamEkranaModallariTasi(false);
+      }
     });
   });
 
