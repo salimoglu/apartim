@@ -825,6 +825,7 @@
   function tabloTamamla(wrap, table, daireler) {
     sonDaireler = daireler;
     stickyBaslikOlcul(table);
+    scheduleSutunOlcul(table, daireler);
     tabloScrollGozlem(table);
     scrollGeriYukleSonra(wrap, table);
   }
@@ -999,50 +1000,77 @@
     });
   }
 
+  function applyColGenislik(table, pct) {
+    const map = [
+      ["rez-ozet-col-tarih", pct.tarih, "--rez-col-tarih"],
+      ["rez-ozet-col-g", pct.g, "--rez-col-g"],
+      ["rez-ozet-col-kt", pct.kt, "--rez-col-kt"],
+      ["rez-ozet-col-fyt", pct.fyt, "--rez-col-fyt"],
+      ["rez-ozet-col-odn", pct.odn, "--rez-col-odn"],
+      ["rez-ozet-col-ad", pct.ad, "--rez-col-ad"]
+    ];
+    map.forEach(([cls, val, varName]) => {
+      const birim = pct.birim;
+      const w = val + birim;
+      table.querySelectorAll("col." + cls).forEach((c) => { c.style.width = w; });
+      table.style.setProperty(varName, w);
+    });
+  }
+
   function tabloSutunOlcul(table, daireler) {
     const n = Math.max((daireler || sonDaireler || []).length, 1);
     const scroll = table.closest(".rez-ozet-scroll");
-    const genislik = scroll?.clientWidth || table.parentElement?.clientWidth || window.innerWidth;
+    const wrap = document.getElementById("rez-ozet-tablo");
+    if (wrap) wrap.style.width = "100%";
+
+    let genislik = scroll?.clientWidth || 0;
+    if (genislik < 80 && scroll?.parentElement) {
+      genislik = scroll.parentElement.clientWidth;
+    }
+    if (genislik < 80) {
+      genislik = Math.min(window.innerWidth, 1280);
+    }
+
     const mobilYatay = document.body.classList.contains("mobil-yatay-mod");
     const telefon = mobilYatay || genislik < 640;
 
-    let tarih, g, kt, fyt, odn, adMin, fontSize;
-
     if (telefon) {
-      tarih = 28;
-      g = kt = 16;
-      fyt = odn = 26;
-      adMin = 40;
-      fontSize = mobilYatay ? 9 : 10;
-    } else if (genislik < 960) {
-      tarih = 32;
-      g = kt = 22;
-      fyt = odn = 38;
-      adMin = 56;
-      fontSize = 11;
-    } else {
-      const olcek = Math.min(1.55, genislik / 900);
-      tarih = 32;
-      g = kt = Math.round(22 * olcek);
-      fyt = odn = Math.round(40 * olcek);
-      adMin = Math.round(58 * olcek);
-      fontSize = genislik >= 1200 ? 12 : 11;
+      const px = { birim: "px", tarih: 28, g: 16, kt: 16, fyt: 26, odn: 26, ad: 40 };
+      applyColGenislik(table, px);
+      table.style.width = "100%";
+      table.style.minWidth = (px.tarih + n * (px.g + px.kt + px.fyt + px.odn + px.ad)) + "px";
+      table.style.fontSize = mobilYatay ? "9px" : "10px";
+      return;
     }
 
-    const sabit = tarih + n * (g + kt + fyt + odn);
-    const ad = telefon
-      ? adMin
-      : Math.max(adMin, Math.floor((genislik - sabit) / n));
-
-    table.style.setProperty("--rez-col-tarih", tarih + "px");
-    table.style.setProperty("--rez-col-g", g + "px");
-    table.style.setProperty("--rez-col-kt", kt + "px");
-    table.style.setProperty("--rez-col-fyt", fyt + "px");
-    table.style.setProperty("--rez-col-odn", odn + "px");
-    table.style.setProperty("--rez-col-ad", ad + "px");
-    table.style.fontSize = fontSize + "px";
+    const tarihPct = genislik < 960 ? 3.4 : 2.4;
+    const odaPct = (100 - tarihPct) / n;
+    const oran = { g: 8.5, kt: 8.5, fyt: 19, odn: 19, ad: 45 };
+    applyColGenislik(table, {
+      birim: "%",
+      tarih: tarihPct,
+      g: odaPct * oran.g / 100,
+      kt: odaPct * oran.kt / 100,
+      fyt: odaPct * oran.fyt / 100,
+      odn: odaPct * oran.odn / 100,
+      ad: odaPct * oran.ad / 100
+    });
     table.style.width = "100%";
     table.style.minWidth = "100%";
+    table.style.fontSize = genislik >= 1200 ? "12px" : "11px";
+  }
+
+  function sutunOlculYenile() {
+    const table = document.querySelector("#rez-ozet-tablo .rez-ozet-table");
+    if (table) tabloSutunOlcul(table, sonDaireler);
+  }
+
+  function scheduleSutunOlcul(table, daireler) {
+    const run = () => tabloSutunOlcul(table, daireler);
+    run();
+    requestAnimationFrame(run);
+    setTimeout(run, 60);
+    setTimeout(run, 250);
   }
 
   function stickyBaslikOlcul(table) {
@@ -1464,6 +1492,6 @@
   window.APARTIM.rezOzet = {
     tabloCiz, tabloCizPlanla, sezonGit, buguneGit, konumKoru, excelRaporIndir,
     yatayModGuncelle, tamEkranYatay, tamEkranKapat, tamEkranAcikMi,
-    tamEkranaModallariTasi, yonKilidiAc
+    tamEkranaModallariTasi, yonKilidiAc, sutunOlculYenile
   };
 })();

@@ -1314,6 +1314,11 @@ html.theme-light .rez-ozet-para-toplam {
   background: var(--kart);
   width: 100%;
 }
+#rez-ozet-tablo {
+  width: 100%;
+  min-width: 100%;
+  box-sizing: border-box;
+}
 .rez-ozet-yukleniyor {
   padding: 24px 16px;
   text-align: center;
@@ -1361,12 +1366,12 @@ html.theme-light .rez-ozet-ay-ayrac td {
   --rez-col-ad: 40px;
   color: #111827;
 }
-.rez-ozet-col-tarih { width: var(--rez-col-tarih); }
-.rez-ozet-col-g { width: var(--rez-col-g); }
-.rez-ozet-col-kt { width: var(--rez-col-kt); }
-.rez-ozet-col-fyt { width: var(--rez-col-fyt); }
-.rez-ozet-col-odn { width: var(--rez-col-odn); }
-.rez-ozet-col-ad { width: var(--rez-col-ad); }
+.rez-ozet-col-tarih { width: var(--rez-col-tarih, 2.4%); }
+.rez-ozet-col-g { width: var(--rez-col-g, 1.6%); }
+.rez-ozet-col-kt { width: var(--rez-col-kt, 1.6%); }
+.rez-ozet-col-fyt { width: var(--rez-col-fyt, 3.7%); }
+.rez-ozet-col-odn { width: var(--rez-col-odn, 3.7%); }
+.rez-ozet-col-ad { width: var(--rez-col-ad, 8.8%); }
 html:not(.theme-light) .rez-ozet-table {
   --rez-cizgi: #9aa3ad;
 }

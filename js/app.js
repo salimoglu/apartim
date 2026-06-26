@@ -154,6 +154,7 @@
     if (ad === "rapor") raporCiz();
     if (ad === "rezervasyonlar") {
       window.APARTIM.rezOzet?.tabloCiz();
+      setTimeout(() => window.APARTIM.rezOzet?.sutunOlculYenile?.(), 100);
     }
     yatayModGuncelle();
   }
