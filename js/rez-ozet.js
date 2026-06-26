@@ -348,7 +348,7 @@
     const bg = hucreBg(renk, ioVurgu);
     const rs = rowspan > 1 ? rowspan : undefined;
     const tdG = document.createElement("td");
-    tdG.className = "rez-ozet-sayi rez-ozet-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
+    tdG.className = "rez-ozet-sayi rez-ozet-io-rozet rez-ozet-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdG.style.background = bg;
     if (rid) tdG.dataset.rezId = rid;
     tdG.innerHTML = ioBadge("out", rid);
@@ -486,8 +486,8 @@
 
   function daireHucreleriCiftSatir(trOut, trIn, d, h, tarih, renk) {
     if (h.tip === "turnover") {
-      checkoutHucreleriEkle(trOut, h.cikis, tarih, renk, true);
-      checkinHucreleriEkle(trIn, h.giris, tarih, renk, true);
+      checkinHucreleriEkle(trOut, h.giris, tarih, renk, true);
+      checkoutHucreleriEkle(trIn, h.cikis, tarih, renk, true);
       return;
     }
     if (h.tip === "checkout") {
@@ -549,7 +549,7 @@
   function checkinHucreler(rez, tarih) {
     const det = konakDetay(rez, tarih);
     return [
-      { cls: "rez-ozet-sayi rez-ozet-giris-hucre", html: ioBadge("in", rez.id) },
+      { cls: "rez-ozet-sayi rez-ozet-io-rozet", html: ioBadge("in", rez.id) },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
       { type: "odn" },

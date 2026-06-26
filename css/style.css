@@ -1734,6 +1734,7 @@ html:not(.theme-light) .rez-ozet-odenen.manuel {
 .rez-ozet-io.out {
   background: #ffeb3b;
   color: #1a1a1a;
+  line-height: 1.2;
 }
 .rez-ozet-io-ad {
   font-weight: 600;
@@ -1800,16 +1801,6 @@ html:not(.theme-light) .rez-ozet-odenen.manuel {
 .rez-ozet-turnover-hucre {
   padding: 1px 2px !important;
 }
-.rez-ozet-giris-hucre {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1px !important;
-}
-.rez-ozet-giris-hucre .rez-ozet-io {
-  font-size: 7px;
-  padding: 0 2px;
-}
 .rez-ozet-out-kalan-hucre {
   font-size: 8px;
   font-weight: 800;
@@ -1835,6 +1826,17 @@ html.theme-light .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
 }
 .rez-ozet-table td.rez-ozet-io-hucre {
   color: #1a1a1a;
+}
+.rez-ozet-table td.rez-ozet-io-rozet {
+  line-height: 0;
+  font-size: 0;
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+}
+.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-io {
+  font-size: 7px;
+  line-height: 1.2;
+  vertical-align: middle;
 }
 .rez-ozet-tr-turnover-out td {
   border-bottom-color: rgba(0, 0, 0, 0.08);
