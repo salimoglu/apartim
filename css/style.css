@@ -2426,12 +2426,42 @@ html:not(.theme-light) .rez-kaynak-badge {
   color: #fff;
 }
 .rapor-mod-btn:hover:not(.active) { color: var(--metin); }
+.rapor-ust-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 .rapor-ay-nav {
   display: flex; align-items: center; justify-content: center; gap: 10px;
   background: var(--kart);
   border: 1px solid var(--kenar);
   border-radius: var(--radius);
   padding: 8px;
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.rapor-export-btn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius);
+  background: var(--kart);
+  color: var(--metin);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.rapor-export-btn:hover {
+  background: var(--kart-2);
+  border-color: var(--vurgu);
+  color: var(--vurgu);
 }
 .rapor-ay-baslik {
   font-family: "Bebas Neue", "Nunito", sans-serif;

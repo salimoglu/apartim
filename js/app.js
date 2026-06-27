@@ -216,6 +216,7 @@
     // Rapor butonları
     document.getElementById("rapor-prev")?.addEventListener("click", () => raporGit(-1));
     document.getElementById("rapor-next")?.addEventListener("click", () => raporGit(1));
+    document.getElementById("rapor-export")?.addEventListener("click", raporExportIndir);
     document.querySelectorAll(".rapor-mod-btn").forEach((b) => {
       b.addEventListener("click", () => raporModSec(b.dataset.mod));
     });
@@ -502,6 +503,138 @@
     raporCiz();
   }
 
+  function escHtml(s) {
+    return String(s || "").replace(/[&<>"]/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c]));
+  }
+
+  function raporPbMetin(tutar, pb) {
+    if (!tutar || tutar <= 0) return "—";
+    const para = window.APARTIM.para;
+    return para ? para.formatTutar(tutar, pb) : fmt(tutar) + " " + pb;
+  }
+
+  function raporGelirMetin(gelirPB) {
+    const parcalar = [];
+    if (gelirPB.TL > 0) parcalar.push(raporPbMetin(gelirPB.TL, "TL"));
+    if (gelirPB.USD > 0) parcalar.push(raporPbMetin(gelirPB.USD, "USD"));
+    if (gelirPB.EUR > 0) parcalar.push(raporPbMetin(gelirPB.EUR, "EUR"));
+    if (!parcalar.length) return "0 ₺";
+    const tlToplam = gelirPbToplamTL(gelirPB);
+    if (gelirPB.USD > 0 || gelirPB.EUR > 0 || parcalar.length > 1) {
+      return parcalar.join(" · ") + " | Toplam ≈ " + fmt(Math.round(tlToplam)) + " ₺";
+    }
+    return parcalar.join(" · ");
+  }
+
+  function raporExportDosyaAdi(r, yillik) {
+    const temiz = String(r.baslik || "rapor").replace(/[^\w\u00C0-\u024F\s-]/g, "").replace(/\s+/g, "-");
+    const onEk = yillik ? "Yillik" : "Aylik";
+    return "Apartim-Rapor-" + onEk + "-" + temiz + ".xls";
+  }
+
+  function raporExportHtml(r, yillik) {
+    const db = window.APARTIM.db;
+    const yontemler = db?.ODEME_YONTEMLERI || {
+      elden: "Elden", havale: "Hesaba havale", booking: "Booking", diger: "Diğer"
+    };
+    const modBaslik = yillik ? "Yıllık Rapor" : "Aylık Rapor";
+    const td = 'style="border:1px solid #666;padding:6px 8px;"';
+    const th = 'style="border:1px solid #666;padding:6px 8px;background:#1e2d3d;color:#fff;font-weight:700;"';
+    const bas = 'style="border:1px solid #666;padding:8px;background:#15202b;color:#fff;font-size:14px;font-weight:800;"';
+    const satirlar = [];
+
+    satirlar.push(
+      "<tr><td colspan=\"7\" " + bas + ">Apartım — " + escHtml(modBaslik) + " — " +
+      escHtml(r.baslik) + "</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Gelir (gece)</td><td colspan=\"6\" " + td + ">" +
+      escHtml(raporGelirMetin(r.gelirPB)) + "</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Toplam gece</td><td colspan=\"6\" " + td + ">" + r.toplamGece + " gece</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Doluluk</td><td colspan=\"6\" " + td + ">%" + Math.round(r.doluluk) + "</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Rezervasyon</td><td colspan=\"6\" " + td + ">" + r.rezSayisi + "</td></tr>"
+    );
+    satirlar.push("<tr><td colspan=\"7\" " + bas + ">Tahsilat (ödeme yöntemi)</td></tr>");
+    satirlar.push(
+      "<tr><th " + th + ">Yöntem</th><th " + th + ">TL</th><th " + th + ">USD</th><th " + th +
+      ">EUR</th><th colspan=\"3\" " + th + "></th></tr>"
+    );
+    Object.keys(yontemler).forEach((key) => {
+      const pb = r.tahsilatYontem[key] || { TL: 0, USD: 0, EUR: 0 };
+      if (!pb.TL && !pb.USD && !pb.EUR) return;
+      satirlar.push(
+        "<tr><td " + td + ">" + escHtml(yontemler[key]) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(pb.TL, "TL")) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(pb.USD, "USD")) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(pb.EUR, "EUR")) + "</td>" +
+        "<td colspan=\"3\" " + td + "></td></tr>"
+      );
+    });
+    satirlar.push("<tr><td colspan=\"7\" " + bas + ">Daire özeti</td></tr>");
+    satirlar.push(
+      "<tr><th " + th + ">Daire</th><th " + th + ">Gece</th><th " + th + ">Gelir TL</th><th " +
+      th + ">Gelir USD</th><th " + th + ">Gelir EUR</th><th " + th + ">Toplam ≈ TL</th><th " +
+      th + ">Doluluk</th></tr>"
+    );
+    r.daireler.forEach((d) => {
+      const o = r.daireOzet[d.id] || { gece: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
+      const doluluk = r.gunSayisi > 0 ? Math.round(o.gece * 100 / r.gunSayisi) : 0;
+      satirlar.push(
+        "<tr><td " + td + ">" + escHtml(d.ad) + "</td>" +
+        "<td " + td + ">" + o.gece + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(o.gelirPB.TL, "TL")) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(o.gelirPB.USD, "USD")) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(o.gelirPB.EUR, "EUR")) + "</td>" +
+        "<td " + td + ">" + fmt(Math.round(gelirPbToplamTL(o.gelirPB))) + " ₺</td>" +
+        "<td " + td + ">%" + doluluk + "</td></tr>"
+      );
+    });
+
+    return satirlar.join("");
+  }
+
+  function raporExportIndir() {
+    const db = window.APARTIM.db;
+    if (!db?.durum?.yuklendi) {
+      window.APARTIM.toast?.("Veriler henüz yüklenmedi", "uyari");
+      return;
+    }
+    try {
+      const yillik = raporDurum.mod === "yil";
+      const r = raporHesapla();
+      const govde = raporExportHtml(r, yillik);
+      const html =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
+        "<head><meta charset=\"UTF-8\"/>" +
+        "<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>" +
+        "<x:Name>Rapor</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>" +
+        "</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->" +
+        "<style>table{border-collapse:collapse;}td,th{mso-number-format:\"\\@\";}</style></head><body>" +
+        '<table border="0" cellspacing="0" cellpadding="0">' + govde + "</table></body></html>";
+
+      const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = raporExportDosyaAdi(r, yillik);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      window.APARTIM.toast?.("Rapor indirildi", "basari");
+    } catch (err) {
+      console.error("raporExportIndir", err);
+      window.APARTIM.toast?.("Rapor oluşturulamadı", "hata");
+    }
+  }
+
   let kurGuncellemeCalisti = false;
 
   async function dovizKurlariCanliGuncelle(zorla) {
@@ -536,6 +669,7 @@
   window.APARTIM.app = {
     sekmeSec,
     raporCiz,
+    raporExportIndir,
     yatayModMu,
     yatayModGuncelle,
     yonKilidiAc,
