@@ -1225,10 +1225,9 @@
     const g = Math.min(30, Math.max(24, Math.floor(odaBlokPx * 0.12)));
     const kt = g;
     const rem = odaBlokPx - 2 * g;
-    const ad = Math.floor(rem * 0.26);
-    const pay = rem - ad;
-    const fyt = Math.floor(pay / 2);
-    const odn = pay - fyt;
+    const fyt = Math.floor(rem / 3);
+    const odn = fyt;
+    const ad = rem - 2 * fyt;
     const tabloW = tarihPx + n * odaBlokPx;
 
     applyColGenislik(table, {
