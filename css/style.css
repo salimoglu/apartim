@@ -1483,9 +1483,9 @@ html.theme-light .rez-ozet-ay-ayrac td {
   padding-right: 2px !important;
 }
 .rez-ozet-tablo-masaustu td.rez-ozet-io-rozet .rez-ozet-io {
-  font-size: 8px;
-  padding: 1px 4px;
-  letter-spacing: 0.02em;
+  font-size: 7px;
+  padding: 1px 3px;
+  letter-spacing: 0;
   white-space: nowrap;
 }
 html:not(.theme-light) .rez-ozet-table {

@@ -1222,13 +1222,13 @@
     const MASAUSTU_ODA_HEDEF = 6;
     const tarihPx = genislik >= 1200 ? 42 : 38;
     const odaBlokPx = Math.max(76, (genislik - tarihPx) / MASAUSTU_ODA_HEDEF);
-    const oran = { g: 20, kt: 10, fyt: 18, odn: 22, ad: 30 };
-    const g = Math.floor(odaBlokPx * oran.g / 100);
-    const kt = Math.floor(odaBlokPx * oran.kt / 100);
-    const rem = odaBlokPx - g - kt;
-    const fyt = Math.floor(rem * oran.fyt / (oran.fyt + oran.odn + oran.ad));
-    const odn = Math.floor(rem * oran.odn / (oran.fyt + oran.odn + oran.ad));
-    const ad = rem - fyt - odn;
+    const g = Math.min(30, Math.max(24, Math.floor(odaBlokPx * 0.12)));
+    const kt = g;
+    const rem = odaBlokPx - 2 * g;
+    const ad = Math.floor(rem * 0.26);
+    const pay = rem - ad;
+    const fyt = Math.floor(pay / 2);
+    const odn = pay - fyt;
     const tabloW = tarihPx + n * odaBlokPx;
 
     applyColGenislik(table, {
