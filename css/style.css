@@ -1756,9 +1756,16 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle !important;
-  font-size: inherit;
   font-weight: 700;
   color: #111827 !important;
+}
+.rez-ozet-odenen.rez-ozet-out-kalan-hucre {
+  height: auto;
+  max-height: none;
+  line-height: 1.1;
+  white-space: normal;
+  overflow: visible;
+  padding: 1px 1px !important;
 }
 .rez-ozet-odenen.bos {
   color: #111827 !important;
@@ -1795,9 +1802,8 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   max-width: 100%;
   margin: 0;
   box-sizing: border-box;
-  font-size: 9px;
+  font: inherit;
   font-weight: 700;
-  font-family: inherit;
   text-align: center;
   line-height: 18px;
   padding: 0 1px;
@@ -1863,8 +1869,36 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   flex: 1 1 auto;
   max-width: 88px;
 }
+.rez-ozet-out-kalan-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  line-height: 1.05;
+  max-width: 100%;
+}
+.rez-ozet-out-kalan-etiket {
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  opacity: 0.9;
+}
+.rez-ozet-out-kalan-tutar {
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.rez-ozet-out-kalan-stack.rez-ozet-out-fazla .rez-ozet-out-kalan-etiket,
+.rez-ozet-out-kalan-stack.rez-ozet-out-fazla .rez-ozet-out-kalan-tutar {
+  color: #1565c0;
+}
 .rez-ozet-out-kalan {
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 800;
   color: #111827;
   white-space: nowrap;
@@ -1916,12 +1950,8 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   padding: 1px 2px !important;
 }
 .rez-ozet-out-kalan-hucre {
-  font-size: 8px;
   font-weight: 800;
   color: #111827;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 .rez-ozet-alt-bos {
   padding: 0 2px !important;
@@ -2642,11 +2672,6 @@ html:not(.theme-light) .rez-kaynak-badge {
   justify-content: flex-end;
   flex-wrap: nowrap;
   min-width: 0;
-}
-.rez-ozet-odenen.rez-ozet-kalan-ipucu {
-  font-weight: 700;
-  color: #111827 !important;
-  font-size: 8px;
 }
 .modal-box-kucuk {
   max-width: 360px;

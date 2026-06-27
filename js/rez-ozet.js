@@ -94,6 +94,34 @@
     return "Kalan " + formatKalanKisa(rez, 0);
   }
 
+  function rezOutKalanParca(rez) {
+    const db = window.APARTIM.db;
+    if (!db) return null;
+    const toplam = db.rezervasyonToplamTutar(rez);
+    if (toplam <= 0) return null;
+    const kalan = db.rezervasyonKalanHesapla(rez);
+    if (kalan < 0) {
+      return { etiket: "Fazla", tutar: formatKalanKisa(rez, -kalan), fazla: true };
+    }
+    return { etiket: "Kalan", tutar: formatKalanKisa(rez, kalan), fazla: false };
+  }
+
+  function rezOutKalanStackHtml(rez) {
+    const p = rezOutKalanParca(rez);
+    if (!p) return "";
+    const cls = p.fazla ? " rez-ozet-out-fazla" : "";
+    return (
+      '<span class="rez-ozet-out-kalan-stack' + cls + '" title="Toplam − ödenen">' +
+        '<span class="rez-ozet-out-kalan-etiket">' + esc(p.etiket) + "</span>" +
+        '<span class="rez-ozet-out-kalan-tutar">' + esc(p.tutar) + "</span>" +
+      "</span>"
+    );
+  }
+
+  function rezOutKalanHucreIcerik(rez) {
+    return rezOutKalanStackHtml(rez) || "—";
+  }
+
   function parseTutarGiris(val) {
     const s = String(val || "").trim().replace(/[^\d,.-]/g, "");
     if (!s) return null;
@@ -102,10 +130,7 @@
   }
 
   function rezOutKalanHtml(rez) {
-    const metin = rezervasyonBakiyeMetin(rez);
-    if (!metin) return "";
-    const cls = metin.indexOf("Fazla") === 0 ? " rez-ozet-out-fazla" : "";
-    return '<span class="rez-ozet-out-kalan' + cls + '" title="Toplam − ödenen">' + esc(metin) + "</span>";
+    return rezOutKalanStackHtml(rez);
   }
 
   function sezonBasBit(y) {
@@ -419,7 +444,7 @@
     tdO.className = "rez-ozet-sayi rez-ozet-odenen rez-ozet-out-kalan-hucre" + (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdO.style.background = bg;
     if (rid) tdO.dataset.rezId = rid;
-    tdO.textContent = rezOutKalanMetin(rez) || "—";
+    tdO.innerHTML = rezOutKalanHucreIcerik(rez);
     if (rs) tdO.rowSpan = rs;
     tr.appendChild(tdO);
 
@@ -724,9 +749,8 @@
 
   function rezCikisKalanHucreleriYenile(rezId, rez) {
     if (!rezId || !rez) return;
-    const metin = rezOutKalanMetin(rez) || "—";
     document.querySelectorAll('td.rez-ozet-out-kalan-hucre[data-rez-id="' + rezId + '"]')
-      .forEach((td) => { td.textContent = metin; });
+      .forEach((td) => { td.innerHTML = rezOutKalanHucreIcerik(rez); });
   }
 
   function odenenHucreyiYenile(hucre, rez) {
