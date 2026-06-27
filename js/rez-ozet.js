@@ -332,6 +332,16 @@
     return s.length > m ? s.slice(0, m - 1) + "…" : s;
   }
 
+  function telefonTabloMu() {
+    return document.body.classList.contains("mobil-yatay-mod") || window.innerWidth < 720;
+  }
+
+  function misafirTabloGoster(ad) {
+    const s = String(ad || "");
+    if (!s) return "";
+    return telefonTabloMu() ? kisaAd(s, 8) : s;
+  }
+
   function ioBadge(tip, rezId) {
     const lbl = tip === "in" ? "IN" : "OUT";
     return '<span class="rez-ozet-io ' + tip + ' rez-ozet-tik" data-rez-id="' + esc(rezId) + '">' + lbl + '</span>';
@@ -417,7 +427,7 @@
     tdA.className = "rez-ozet-ad rez-ozet-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdA.style.background = bg;
     if (rid) tdA.dataset.rezId = rid;
-    tdA.textContent = rez.misafirAdi || "";
+    tdA.textContent = misafirTabloGoster(rez.misafirAdi);
     tdA.title = rez.misafirAdi || "";
     if (rs) tdA.rowSpan = rs;
     tr.appendChild(tdA);
@@ -649,7 +659,9 @@
     if (rid) td.dataset.rezId = rid;
     if (c.html) td.innerHTML = c.html;
     else {
-      td.textContent = c.txt;
+      const goster = (c.cls && c.cls.indexOf("rez-ozet-ad") >= 0)
+        ? misafirTabloGoster(c.txt) : c.txt;
+      td.textContent = goster;
       if (misafirBaslik) td.title = misafirBaslik;
     }
     return td;
@@ -1133,10 +1145,10 @@
     }
 
     const mobilYatay = document.body.classList.contains("mobil-yatay-mod");
-    const telefon = mobilYatay || genislik < 640;
+    const telefon = mobilYatay || genislik < 720;
 
     if (telefon) {
-      const px = { birim: "px", tarih: 36, g: 16, kt: 16, fyt: 26, odn: 26, ad: 40 };
+      const px = { birim: "px", tarih: 34, g: 14, kt: 14, fyt: 24, odn: 36, ad: 28 };
       applyColGenislik(table, px);
       table.style.width = "100%";
       table.style.minWidth = (px.tarih + n * (px.g + px.kt + px.fyt + px.odn + px.ad)) + "px";
@@ -1146,7 +1158,9 @@
 
     const tarihPct = genislik < 960 ? 4.2 : 3.2;
     const odaPct = (100 - tarihPct) / n;
-    const oran = { g: 8.5, kt: 8.5, fyt: 19, odn: 19, ad: 45 };
+    const oran = genislik < 960
+      ? { g: 8, kt: 8, fyt: 17, odn: 22, ad: 37 }
+      : { g: 8.5, kt: 8.5, fyt: 19, odn: 20, ad: 41.5 };
     applyColGenislik(table, {
       birim: "%",
       tarih: tarihPct,

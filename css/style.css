@@ -1444,12 +1444,12 @@ html.theme-light .rez-ozet-ay-ayrac td {
   white-space: nowrap;
   --rez-cizgi: #6b7280;
   --rez-ozet-head1-h: 22px;
-  --rez-col-tarih: 36px;
-  --rez-col-g: 16px;
-  --rez-col-kt: 16px;
-  --rez-col-fyt: 26px;
-  --rez-col-odn: 26px;
-  --rez-col-ad: 40px;
+  --rez-col-tarih: 34px;
+  --rez-col-g: 14px;
+  --rez-col-kt: 14px;
+  --rez-col-fyt: 24px;
+  --rez-col-odn: 36px;
+  --rez-col-ad: 28px;
   color: #111827;
 }
 .rez-ozet-col-tarih { width: var(--rez-col-tarih, 2.4%); }
@@ -1745,9 +1745,8 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 .rez-ozet-odenen {
   cursor: pointer;
   position: relative;
-  width: auto;
-  max-width: none;
-  min-width: 0 !important;
+  max-width: var(--rez-col-odn);
+  min-width: 0;
   height: 18px;
   max-height: 18px;
   line-height: 18px;
@@ -1757,7 +1756,8 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle !important;
-  font-size: 8px;
+  font-size: inherit;
+  font-weight: 700;
   color: #111827 !important;
 }
 .rez-ozet-odenen.bos {
