@@ -2051,7 +2051,23 @@ html.theme-light .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
   font-size: 18px; padding: 4px 8px; border-radius: 6px;
 }
 .modal-close:hover { background: var(--kart-2); color: var(--metin); }
-.modal-body { padding: 16px 18px; overflow-y: auto; flex: 1; }
+.modal-body { padding: 16px 18px; overflow-y: auto; flex: 1; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+body.modal-acik {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+body.modal-acik .rez-ozet-scroll,
+body.modal-acik .content {
+  overflow: hidden !important;
+  touch-action: none;
+}
+body.modal-acik .modal-overlay:not(.hidden) {
+  touch-action: auto;
+}
+body.modal-acik .modal-box,
+body.modal-acik .modal-body {
+  touch-action: pan-y;
+}
 .modal-footer {
   padding: 12px 18px;
   border-top: 1px solid var(--kenar);

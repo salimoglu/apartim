@@ -108,9 +108,29 @@
     ptr?.classList.remove("ptr-hazir");
   }
 
+  function modalAcikMi() {
+    return !!document.querySelector(
+      ".modal-overlay:not(.hidden), .lock-screen:not(.hidden)"
+    );
+  }
+
+  function modalAcikGuncelle() {
+    document.body.classList.toggle("modal-acik", modalAcikMi());
+  }
+
+  function ptrDokunmaIptal(ev) {
+    if (modalAcikMi()) return true;
+    const hedef = ev.target;
+    if (hedef?.closest?.(
+      ".modal-overlay, .modal-box, .lock-screen, .lock-auth-panel, .ayar-menu:not(.hidden)"
+    )) return true;
+    return false;
+  }
+
   function cekerekYenileBagla() {
     document.addEventListener("touchstart", (e) => {
       if (e.touches.length !== 1 || yenilemeBekleniyor) return;
+      if (ptrDokunmaIptal(e)) return;
       ptrScrollEl = aktifScrollElemani();
       if (!scrollUstteMi(ptrScrollEl)) return;
       ptrBasY = e.touches[0].clientY;
@@ -120,6 +140,10 @@
 
     document.addEventListener("touchmove", (e) => {
       if (!ptrAktif || e.touches.length !== 1) return;
+      if (ptrDokunmaIptal(e) || modalAcikMi()) {
+        ptrSifirla();
+        return;
+      }
       if (!scrollUstteMi(ptrScrollEl)) {
         ptrSifirla();
         return;
@@ -687,6 +711,7 @@
     raporCiz,
     raporExportIndir,
     yatayModMu,
+    modalAcikGuncelle,
     yatayModGuncelle,
     yonKilidiAc,
     dovizKurlariCanliGuncelle,

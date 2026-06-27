@@ -337,14 +337,23 @@
     return y + "-" + m + "-" + g;
   }
 
+  function modalAcikGuncelle() {
+    window.APARTIM.app?.modalAcikGuncelle?.();
+  }
+
   function modalAc() {
+    window.APARTIM.rezOzet?.tamEkranaModallariTasi?.(
+      window.APARTIM.rezOzet?.tamEkranAcikMi?.() ?? false
+    );
     modal()?.classList.remove("hidden");
+    modalAcikGuncelle();
     setTimeout(() => ay().misafir?.focus({ preventScroll: true }), 80);
   }
   function modalKapat() {
     modal()?.classList.add("hidden");
     mevcutRezId = null;
     mevcutDaireId = null;
+    modalAcikGuncelle();
     const e = ay();
     if (e.uyari) { e.uyari.classList.add("hidden"); e.uyari.textContent = ""; }
   }

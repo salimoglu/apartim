@@ -700,12 +700,14 @@
     const modal = odemeModal();
     if (!modal) return null;
     modal.classList.remove("hidden");
+    window.APARTIM.app?.modalAcikGuncelle?.();
     return modal;
   }
 
   function odemeModalKapat() {
     odemeModal()?.classList.add("hidden");
     odemeDuzenleDurum = null;
+    window.APARTIM.app?.modalAcikGuncelle?.();
   }
 
   function rezCikisKalanHucreleriYenile(rezId, rez) {
@@ -967,6 +969,9 @@
 
     kapsayici.addEventListener("pointerdown", (e) => {
       if (e.pointerType === "mouse") return;
+      if (document.querySelector(
+        ".modal-overlay:not(.hidden), .lock-screen:not(.hidden)"
+      )) return;
       const tr = satirSecTiklenebilirMi(e.target);
       if (!tr) return;
       satirSec(tr);
