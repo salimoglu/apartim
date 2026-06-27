@@ -1,0 +1,8 @@
+{
+  "name": "apartim-tools",
+  "private": true,
+  "description": "Apartım geliştirici araçları",
+  "dependencies": {
+    "sharp": "^0.34.5"
+  }
+}
