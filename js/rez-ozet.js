@@ -88,8 +88,7 @@
     const kalan = db.rezervasyonKalanHesapla(rez);
     if (kalan < 0) return "Fazla " + formatKalanKisa(rez, -kalan);
     if (kalan > 0) return "Kalan " + formatKalanKisa(rez, kalan);
-    if (db.rezervasyonOdenenToplam(rez) > 0) return "Kapalı";
-    return "";
+    return "Kalan " + formatKalanKisa(rez, 0);
   }
 
   function parseTutarGiris(val) {
