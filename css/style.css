@@ -1258,8 +1258,8 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
 }
 .rez-ozet-nav-btn {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1267,20 +1267,22 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   border: 1px solid var(--kenar);
   border-radius: var(--radius-sm);
   color: var(--metin);
-  font-size: 14px;
+  font-size: 12px;
   cursor: pointer;
   transition: background var(--gecis);
 }
 .rez-ozet-nav-btn:hover { background: var(--zemin); }
 .rez-ozet-ay-baslik {
   margin: 0;
-  font-family: "Bebas Neue", "Nunito", sans-serif;
-  font-size: 18px;
-  letter-spacing: 1.5px;
+  font-family: "Nunito", sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
   flex: 1;
   text-align: center;
-  line-height: 1;
+  line-height: 1.1;
   color: var(--metin);
+  white-space: nowrap;
 }
 .rez-ozet-chip {
   display: inline-flex;
@@ -2666,13 +2668,13 @@ html:not(.theme-light) .rez-kaynak-badge {
     gap: 4px;
   }
   .rez-ozet-ay-baslik {
-    font-size: 15px;
-    letter-spacing: 0.5px;
+    font-size: 9px;
+    letter-spacing: 0.2px;
   }
   .rez-ozet-nav-btn {
-    width: 30px;
-    height: 30px;
-    font-size: 12px;
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
   }
   .rez-ozet-toolbar {
     gap: 4px;
@@ -2712,8 +2714,8 @@ html:not(.theme-light) .rez-kaynak-badge {
     max-width: 360px;
   }
   .rez-ozet-ay-baslik {
-    font-size: 18px;
-    letter-spacing: 1.5px;
+    font-size: 11px;
+    letter-spacing: 0.3px;
   }
   .rez-ozet-toolbar {
     flex: 1;
@@ -2743,8 +2745,8 @@ html:not(.theme-light) .rez-kaynak-badge {
 
 @media (min-width: 960px) {
   .rez-ozet-ay-baslik {
-    font-size: 20px;
-    letter-spacing: 2px;
+    font-size: 12px;
+    letter-spacing: 0.4px;
   }
   .rez-ozet-toolbar .rez-ozet-chip {
     padding: 6px 12px;
@@ -3198,7 +3200,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 
 body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-baslik {
-  font-size: 17px;
+  font-size: 10px;
 }
 body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-table {
   font-size: 9px;
