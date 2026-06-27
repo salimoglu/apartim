@@ -1188,6 +1188,7 @@
 
     if (wrap) wrap.style.width = "100%";
     table.classList.toggle("rez-ozet-tablo-telefon", telefon);
+    table.classList.toggle("rez-ozet-tablo-masaustu", !telefon);
 
     if (telefon) {
       const MOBIL_ODA_HEDEF = mobilYatay ? 5 : 3;
@@ -1218,23 +1219,31 @@
       return;
     }
 
-    const tarihPct = genislik < 960 ? 4.2 : 3.2;
-    const odaPct = (100 - tarihPct) / n;
-    const oran = genislik < 960
-      ? { g: 8, kt: 8, fyt: 17, odn: 22, ad: 37 }
-      : { g: 8.5, kt: 8.5, fyt: 19, odn: 20, ad: 41.5 };
+    const MASAUSTU_ODA_HEDEF = 6;
+    const tarihPx = genislik >= 1200 ? 42 : 38;
+    const odaBlokPx = Math.max(76, (genislik - tarihPx) / MASAUSTU_ODA_HEDEF);
+    const oran = { g: 20, kt: 10, fyt: 18, odn: 22, ad: 30 };
+    const g = Math.floor(odaBlokPx * oran.g / 100);
+    const kt = Math.floor(odaBlokPx * oran.kt / 100);
+    const rem = odaBlokPx - g - kt;
+    const fyt = Math.floor(rem * oran.fyt / (oran.fyt + oran.odn + oran.ad));
+    const odn = Math.floor(rem * oran.odn / (oran.fyt + oran.odn + oran.ad));
+    const ad = rem - fyt - odn;
+    const tabloW = tarihPx + n * odaBlokPx;
+
     applyColGenislik(table, {
-      birim: "%",
-      tarih: tarihPct,
-      g: odaPct * oran.g / 100,
-      kt: odaPct * oran.kt / 100,
-      fyt: odaPct * oran.fyt / 100,
-      odn: odaPct * oran.odn / 100,
-      ad: odaPct * oran.ad / 100
+      birim: "px",
+      tarih: tarihPx,
+      g,
+      kt,
+      fyt,
+      odn,
+      ad
     });
-    table.style.width = "100%";
-    table.style.minWidth = "100%";
-    table.style.maxWidth = "";
+    if (wrap) wrap.style.width = tabloW + "px";
+    table.style.width = tabloW + "px";
+    table.style.minWidth = tabloW + "px";
+    table.style.maxWidth = tabloW + "px";
     table.style.fontSize = genislik >= 1200 ? "12px" : "11px";
   }
 

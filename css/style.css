@@ -1409,6 +1409,10 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   width: auto;
   min-width: 100%;
 }
+#rez-ozet-tablo:has(.rez-ozet-tablo-masaustu) {
+  width: auto;
+  min-width: 100%;
+}
 .rez-ozet-yukleniyor {
   padding: 24px 16px;
   text-align: center;
@@ -1472,6 +1476,17 @@ html.theme-light .rez-ozet-ay-ayrac td {
 }
 .rez-ozet-tablo-telefon .rez-ozet-out-kalan-etiket {
   font-size: 8px;
+}
+.rez-ozet-tablo-masaustu td.rez-ozet-io-rozet {
+  overflow: visible;
+  padding-left: 2px !important;
+  padding-right: 2px !important;
+}
+.rez-ozet-tablo-masaustu td.rez-ozet-io-rozet .rez-ozet-io {
+  font-size: 8px;
+  padding: 1px 4px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 html:not(.theme-light) .rez-ozet-table {
   --rez-cizgi: #9aa3ad;
