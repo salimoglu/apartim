@@ -1147,10 +1147,19 @@
       ["rez-ozet-col-odn", pct.odn, "--rez-col-odn"],
       ["rez-ozet-col-ad", pct.ad, "--rez-col-ad"]
     ];
+    const sabitPx = pct.birim === "px";
     map.forEach(([cls, val, varName]) => {
-      const birim = pct.birim;
-      const w = val + birim;
-      table.querySelectorAll("col." + cls).forEach((c) => { c.style.width = w; });
+      const w = val + pct.birim;
+      table.querySelectorAll("col." + cls).forEach((c) => {
+        c.style.width = w;
+        if (sabitPx) {
+          c.style.minWidth = w;
+          c.style.maxWidth = w;
+        } else {
+          c.style.minWidth = "";
+          c.style.maxWidth = "";
+        }
+      });
       table.style.setProperty(varName, w);
     });
   }
@@ -1160,7 +1169,6 @@
     const scroll = table.closest(".rez-ozet-scroll");
     const panel = document.getElementById("tab-rezervasyonlar");
     const wrap = document.getElementById("rez-ozet-tablo");
-    if (wrap) wrap.style.width = "100%";
 
     let genislik = scroll?.clientWidth || 0;
     if (genislik < 200 && panel) genislik = panel.clientWidth;
@@ -1171,11 +1179,17 @@
     const mobilYatay = document.body.classList.contains("mobil-yatay-mod");
     const telefon = mobilYatay || genislik < 720;
 
+    if (wrap) wrap.style.width = telefon ? "max-content" : "100%";
+    table.classList.toggle("rez-ozet-tablo-telefon", telefon);
+
     if (telefon) {
       const px = { birim: "px", tarih: 34, g: 14, kt: 14, fyt: 24, odn: 36, ad: 28 };
+      const odaBlok = px.g + px.kt + px.fyt + px.odn + px.ad;
+      const tabloW = px.tarih + n * odaBlok;
       applyColGenislik(table, px);
-      table.style.width = "100%";
-      table.style.minWidth = (px.tarih + n * (px.g + px.kt + px.fyt + px.odn + px.ad)) + "px";
+      table.style.width = tabloW + "px";
+      table.style.minWidth = tabloW + "px";
+      table.style.maxWidth = tabloW + "px";
       table.style.fontSize = mobilYatay ? "9px" : "10px";
       return;
     }
@@ -1196,6 +1210,7 @@
     });
     table.style.width = "100%";
     table.style.minWidth = "100%";
+    table.style.maxWidth = "";
     table.style.fontSize = genislik >= 1200 ? "12px" : "11px";
   }
 
