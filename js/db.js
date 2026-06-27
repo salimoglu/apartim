@@ -42,6 +42,30 @@
     document.dispatchEvent(new CustomEvent("apartim:" + olay, { detail: veri }));
   }
 
+  let fbIlkSenkronBitti = false;
+  let fbIlkSenkronTimer = null;
+  let fbIlkDaireler = false;
+  let fbIlkRez = false;
+
+  function fbYuklemeDurumuGuncelle() {
+    if (fbIlkDaireler && fbIlkRez) durum.yuklendi = true;
+  }
+
+  function veriDegistiBildir(sebep) {
+    if (window.APARTIM.firebaseAktif && !fbIlkSenkronBitti) {
+      fbYuklemeDurumuGuncelle();
+      clearTimeout(fbIlkSenkronTimer);
+      fbIlkSenkronTimer = setTimeout(() => {
+        fbIlkSenkronBitti = true;
+        fbYuklemeDurumuGuncelle();
+        bildir("veri-degisti", { sebep: "ilk-senkron" });
+      }, 150);
+      return;
+    }
+    fbYuklemeDurumuGuncelle();
+    bildir("veri-degisti", { sebep });
+  }
+
   // ---------- Tarih yardımcıları ----------
   function tarihNormal(s) {
     if (!s) return "";
@@ -494,6 +518,11 @@
 
   function kullaniciHazir(kullanici) {
     kullaniciUid = kullanici.uid;
+    fbIlkSenkronBitti = false;
+    fbIlkDaireler = false;
+    fbIlkRez = false;
+    durum.yuklendi = false;
+    clearTimeout(fbIlkSenkronTimer);
     profilAvatarYukle(kullanici);
     if (window.APARTIM.firebaseAktif) {
       fbRef = window.APARTIM.fbDb.ref("apartim/kullanicilar/" + kullaniciUid);
@@ -520,34 +549,35 @@
       fbRef.child("daireler").on("value", (snap) => {
         durum.daireler = snap.val() || {};
         dairelerSeedEt();
-        durum.yuklendi = true;
-        bildir("veri-degisti", { sebep: "daireler" });
+        fbIlkDaireler = true;
+        fbYuklemeDurumuGuncelle();
+        veriDegistiBildir("daireler");
         window.APARTIM.syncDurum("aktif");
       }, () => window.APARTIM.syncDurum("hata"));
 
-      // Rezervasyonlar
       fbRef.child("rezervasyonlar").on("value", (snap) => {
         durum.rezervasyonlar = rezervasyonlariNormalize(snap.val() || {});
-        bildir("veri-degisti", { sebep: "rezervasyonlar" });
+        fbIlkRez = true;
+        fbYuklemeDurumuGuncelle();
+        veriDegistiBildir("rezervasyonlar");
       });
 
-      // Temizlik kayıtları
       fbRef.child("temizlik-kayit").on("value", (snap) => {
         durum.temizlikKayit = snap.val() || {};
-        bildir("veri-degisti", { sebep: "temizlik-kayit" });
+        veriDegistiBildir("temizlik-kayit");
       });
 
       fbRef.child("musteri-kaynaklari").on("value", (snap) => {
         durum.musteriKaynaklari = snap.val() || {};
         musteriKaynaklariSeedEt();
-        bildir("veri-degisti", { sebep: "musteri-kaynaklari" });
+        veriDegistiBildir("musteri-kaynaklari");
       });
 
       fbRef.child("doviz-kurlari").on("value", (snap) => {
         const v = snap.val();
         if (v) durum.dovizKurlari = dovizKurlariNorm(v);
         dovizKurlariSenkron();
-        bildir("veri-degisti", { sebep: "doviz-kurlari" });
+        veriDegistiBildir("doviz-kurlari");
       });
     } else {
       profilAvatarYukle(kullanici);

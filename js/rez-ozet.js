@@ -1168,10 +1168,10 @@
 
   function scheduleSutunOlcul(table, daireler) {
     const run = () => tabloSutunOlcul(table, daireler);
-    run();
-    requestAnimationFrame(run);
-    setTimeout(run, 60);
-    setTimeout(run, 250);
+    requestAnimationFrame(() => {
+      run();
+      requestAnimationFrame(run);
+    });
   }
 
   function stickyBaslikOlcul(table) {
