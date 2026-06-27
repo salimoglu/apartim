@@ -863,10 +863,19 @@
     ro.observe(scroll);
   }
 
+  function satirSecTiklenebilirMi(target) {
+    if (target.closest(".rez-ozet-odenen, .rez-ozet-tik, .rez-ozet-bos, .rez-ozet-hucre-tik")) return null;
+    const tr = target.closest("tbody tr.rez-ozet-tr");
+    if (!tr?.dataset.tarih) return null;
+    if (target.closest(".rez-ozet-tarih") || tr.dataset.tarih) return tr;
+    return null;
+  }
+
   function etkilesimBagla(kapsayici) {
     if (!kapsayici || kapsayici.dataset.rezOzetBagli) return;
     kapsayici.dataset.rezOzetBagli = "1";
     scrollKapsayici = kapsayici;
+    let satirSecDokunmaYapildi = false;
 
     kapsayici.addEventListener("click", (ev) => {
       const odenen = ev.target.closest(".rez-ozet-odenen");
@@ -918,18 +927,20 @@
     });
 
     kapsayici.addEventListener("pointerdown", (e) => {
-      if (e.target.closest(".rez-ozet-odenen, .rez-ozet-tik, .rez-ozet-bos, .rez-ozet-hucre-tik")) return;
-      const tr = e.target.closest("tbody tr.rez-ozet-tr");
-      if (!tr || e.pointerType === "mouse") return;
+      if (e.pointerType === "mouse") return;
+      const tr = satirSecTiklenebilirMi(e.target);
+      if (!tr) return;
       satirSec(tr);
-    });
+      satirSecDokunmaYapildi = true;
+    }, { passive: true });
 
     kapsayici.addEventListener("click", (e) => {
-      const tr = e.target.closest("tbody tr.rez-ozet-tr");
-      if (!tr) return;
-      if (e.target.closest(".rez-ozet-odenen")) return;
-      if (e.target.closest(".rez-ozet-bos") || e.target.closest(".rez-ozet-tik")) return;
-      if (e.target.closest(".rez-ozet-tarih") || tr.dataset.tarih) satirSec(tr);
+      if (satirSecDokunmaYapildi) {
+        satirSecDokunmaYapildi = false;
+        return;
+      }
+      const tr = satirSecTiklenebilirMi(e.target);
+      if (tr) satirSec(tr);
     });
   }
 

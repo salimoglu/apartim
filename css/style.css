@@ -1658,7 +1658,9 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   filter: brightness(0.95);
 }
 .rez-ozet-tarih {
-  cursor: default;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .rez-ozet-tik {
   cursor: pointer;
