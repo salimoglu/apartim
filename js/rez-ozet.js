@@ -179,10 +179,17 @@
     return document.getElementById("tab-rezervasyonlar")?.classList.contains("active");
   }
 
+  let tabloIlkCizim = true;
+
   function tabloCizPlanla() {
     if (!tabloSekmesiAcikMi()) return;
     clearTimeout(tabloTimer);
-    tabloTimer = setTimeout(tabloCiz, 80);
+    if (tabloIlkCizim) {
+      tabloIlkCizim = false;
+      tabloCiz();
+      return;
+    }
+    tabloTimer = setTimeout(tabloCiz, 50);
   }
 
   /** Daire × gün durum haritası — tablo çiziminde tekrarlı db sorgusunu önler */
@@ -1179,18 +1186,30 @@
     const mobilYatay = document.body.classList.contains("mobil-yatay-mod");
     const telefon = mobilYatay || genislik < 720;
 
-    if (wrap) wrap.style.width = telefon ? "max-content" : "100%";
+    if (wrap) wrap.style.width = "100%";
     table.classList.toggle("rez-ozet-tablo-telefon", telefon);
 
     if (telefon) {
-      const px = { birim: "px", tarih: 34, g: 14, kt: 14, fyt: 24, odn: 36, ad: 28 };
-      const odaBlok = px.g + px.kt + px.fyt + px.odn + px.ad;
-      const tabloW = px.tarih + n * odaBlok;
-      applyColGenislik(table, px);
-      table.style.width = tabloW + "px";
-      table.style.minWidth = tabloW + "px";
-      table.style.maxWidth = tabloW + "px";
-      table.style.fontSize = mobilYatay ? "9px" : "10px";
+      const tarihPx = 36;
+      const oran = { g: 8, kt: 8, fyt: 18, odn: 32, ad: 34 };
+      const minOdaBlok = 112;
+      const tabloMin = tarihPx + n * minOdaBlok;
+      const tabloW = Math.max(genislik, tabloMin);
+      const tarihOran = (tarihPx / tabloW) * 100;
+      const odaBlokOran = (100 - tarihOran) / n;
+      applyColGenislik(table, {
+        birim: "%",
+        tarih: tarihOran,
+        g: odaBlokOran * oran.g / 100,
+        kt: odaBlokOran * oran.kt / 100,
+        fyt: odaBlokOran * oran.fyt / 100,
+        odn: odaBlokOran * oran.odn / 100,
+        ad: odaBlokOran * oran.ad / 100
+      });
+      table.style.width = "100%";
+      table.style.minWidth = tabloMin + "px";
+      table.style.maxWidth = "";
+      table.style.fontSize = mobilYatay ? "10px" : "11px";
       return;
     }
 

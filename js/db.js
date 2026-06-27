@@ -59,7 +59,7 @@
         fbIlkSenkronBitti = true;
         fbYuklemeDurumuGuncelle();
         bildir("veri-degisti", { sebep: "ilk-senkron" });
-      }, 150);
+      }, 16);
       return;
     }
     fbYuklemeDurumuGuncelle();
@@ -543,7 +543,14 @@
         son: firebase.database.ServerValue.TIMESTAMP
       };
       if (kullanici.avatarId) profilPatch.avatarId = kullanici.avatarId;
-      fbRef.child("profil").update(profilPatch).catch(() => {});
+      const profilGuncelle = () => {
+        fbRef?.child("profil").update(profilPatch).catch(() => {});
+      };
+      if (typeof requestIdleCallback === "function") {
+        requestIdleCallback(profilGuncelle, { timeout: 3000 });
+      } else {
+        setTimeout(profilGuncelle, 300);
+      }
 
       // Daireler
       fbRef.child("daireler").on("value", (snap) => {
@@ -562,23 +569,29 @@
         veriDegistiBildir("rezervasyonlar");
       });
 
-      fbRef.child("temizlik-kayit").on("value", (snap) => {
-        durum.temizlikKayit = snap.val() || {};
-        veriDegistiBildir("temizlik-kayit");
-      });
-
-      fbRef.child("musteri-kaynaklari").on("value", (snap) => {
-        durum.musteriKaynaklari = snap.val() || {};
-        musteriKaynaklariSeedEt();
-        veriDegistiBildir("musteri-kaynaklari");
-      });
-
-      fbRef.child("doviz-kurlari").on("value", (snap) => {
-        const v = snap.val();
-        if (v) durum.dovizKurlari = dovizKurlariNorm(v);
-        dovizKurlariSenkron();
-        veriDegistiBildir("doviz-kurlari");
-      });
+      const ikincilDinleyicileriBagla = () => {
+        if (!fbRef) return;
+        fbRef.child("temizlik-kayit").on("value", (snap) => {
+          durum.temizlikKayit = snap.val() || {};
+          veriDegistiBildir("temizlik-kayit");
+        });
+        fbRef.child("musteri-kaynaklari").on("value", (snap) => {
+          durum.musteriKaynaklari = snap.val() || {};
+          musteriKaynaklariSeedEt();
+          veriDegistiBildir("musteri-kaynaklari");
+        });
+        fbRef.child("doviz-kurlari").on("value", (snap) => {
+          const v = snap.val();
+          if (v) durum.dovizKurlari = dovizKurlariNorm(v);
+          dovizKurlariSenkron();
+          veriDegistiBildir("doviz-kurlari");
+        });
+      };
+      if (typeof requestIdleCallback === "function") {
+        requestIdleCallback(ikincilDinleyicileriBagla, { timeout: 2500 });
+      } else {
+        setTimeout(ikincilDinleyicileriBagla, 400);
+      }
     } else {
       profilAvatarYukle(kullanici);
       const v = window.APARTIM.yerelOku();

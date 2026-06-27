@@ -159,11 +159,16 @@
 
     auth.getRedirectResult().catch(() => {});
 
+    const oturumAc = (kullanici) => {
+      window.APARTIM.syncDurum("aktif");
+      uygulamaAc(firebaseKullaniciBilgi(kullanici));
+    };
+
+    if (auth.currentUser) oturumAc(auth.currentUser);
+
     auth.onAuthStateChanged((kullanici) => {
-      if (kullanici) {
-        window.APARTIM.syncDurum("aktif");
-        uygulamaAc(firebaseKullaniciBilgi(kullanici));
-      } else {
+      if (kullanici) oturumAc(kullanici);
+      else {
         window.APARTIM.syncDurum("");
         uygulamaKilitle();
       }
