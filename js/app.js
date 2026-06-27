@@ -154,7 +154,11 @@
       p.classList.toggle("active", p.id === "tab-" + ad));
     if (ad === "rapor") raporCiz();
     if (ad === "rezervasyonlar") {
-      window.APARTIM.rezOzet?.tabloCiz();
+      if (window.APARTIM.rezOzet?.rezSekmeAc) {
+        window.APARTIM.rezOzet.rezSekmeAc();
+      } else {
+        window.APARTIM.rezOzet?.tabloCiz();
+      }
       setTimeout(() => window.APARTIM.rezOzet?.sutunOlculYenile?.(), 50);
       setTimeout(() => window.APARTIM.rezOzet?.sutunOlculYenile?.(), 300);
     }

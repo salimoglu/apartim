@@ -30,7 +30,8 @@
     sezonYil: new Date().getFullYear(),
     seciliTarih: null,
     pendingOdenenFocus: null,
-    buguneKaydir: false
+    buguneKaydir: false,
+    ayKaydir: null
   };
 
   let renderToken = 0;
@@ -126,6 +127,21 @@
 
   function varsayilanSezonYil() {
     return new Date().getFullYear();
+  }
+
+  /** Sezon içindeyse o ay, değilse ilk ay (Haziran). */
+  function aktifAyaHedefAy() {
+    const ay = new Date().getMonth();
+    if (ay >= SEZON_BAS_AY && ay <= SEZON_BIT_AY) return ay;
+    return SEZON_BAS_AY;
+  }
+
+  function rezSekmeAc() {
+    durum.sezonYil = varsayilanSezonYil();
+    korunanScroll = null;
+    durum.buguneKaydir = false;
+    durum.ayKaydir = aktifAyaHedefAy();
+    tabloCiz();
   }
 
   function tabloSekmesiAcikMi() {
@@ -1025,6 +1041,17 @@
       return;
     }
 
+    if (durum.ayKaydir != null) {
+      const hedefAy = durum.ayKaydir;
+      const aySatir = table.querySelector('tr.rez-ozet-ay-ayrac[data-ay="' + hedefAy + '"]');
+      if (aySatir) {
+        durum.ayKaydir = null;
+        scrollElemana(sc, aySatir, false);
+        korunanScroll = null;
+        return;
+      }
+    }
+
     if (korunanScroll != null && korunanScroll > 0) {
       sc.scrollTop = korunanScroll;
       return;
@@ -1207,6 +1234,7 @@
     const { bas, bit } = sezonBasBit(durum.sezonYil);
     const bugun = window.APARTIM.db?.bugunISO?.() || iso(n.getFullYear(), n.getMonth(), n.getDate());
     korunanScroll = null;
+    durum.ayKaydir = null;
     durum.buguneKaydir = bugun >= bas && bugun <= bit;
     if (durum.buguneKaydir) {
       durum.seciliTarih = bugun;
@@ -1546,7 +1574,7 @@
   document.addEventListener("apartim:gun-degisti", tabloCizPlanla);
 
   window.APARTIM.rezOzet = {
-    tabloCiz, tabloCizPlanla, sezonGit, buguneGit, konumKoru, excelRaporIndir,
+    tabloCiz, tabloCizPlanla, rezSekmeAc, sezonGit, buguneGit, konumKoru, excelRaporIndir,
     yatayModGuncelle, tamEkranYatay, tamEkranKapat, tamEkranAcikMi,
     tamEkranaModallariTasi, yonKilidiAc, sutunOlculYenile
   };
