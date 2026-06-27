@@ -49,6 +49,27 @@
     return out;
   }
 
+  function depoKey(uid) {
+    return "apartim-avatar-" + (uid || "");
+  }
+
+  function depoOku(uid) {
+    if (!uid) return null;
+    try {
+      const id = localStorage.getItem(depoKey(uid));
+      return id && byId[id] ? id : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function depoYaz(uid, avatarId) {
+    if (!uid || !avatarId || !byId[avatarId]) return;
+    try {
+      localStorage.setItem(depoKey(uid), avatarId);
+    } catch (e) {}
+  }
+
   window.APARTIM.avatar = {
     VERSIYON: V,
     VARSAYILAN,
@@ -57,6 +78,8 @@
     coz,
     guncelle,
     kullaniciyaEkle,
+    depoOku,
+    depoYaz,
     seciciAc,
     seciciKapat
   };

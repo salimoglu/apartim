@@ -468,26 +468,43 @@
   }
 
   function profilAvatarKaydet(avatarId) {
-    if (!kullaniciUid || !avatarId) return Promise.resolve();
+    const uid = kullaniciUid || window.APARTIM.kullanici?.uid;
+    if (!uid || !avatarId) return Promise.resolve();
     window.APARTIM.kullanici = Object.assign({}, window.APARTIM.kullanici || {}, { avatarId });
     profilAvatarUygula(window.APARTIM.kullanici);
+    if (window.APARTIM.avatar?.depoYaz) {
+      window.APARTIM.avatar.depoYaz(uid, avatarId);
+    } else {
+      try { localStorage.setItem("apartim-avatar-" + uid, avatarId); } catch (e) {}
+    }
     if (window.APARTIM.firebaseAktif && fbRef) {
       return fbRef.child("profil").update({ avatarId }).catch(() => {});
     }
-    try {
-      localStorage.setItem("apartim-avatar-" + kullaniciUid, avatarId);
-    } catch (e) {}
     return Promise.resolve();
+  }
+
+  function profilAvatarYukle(kullanici) {
+    const uid = kullanici?.uid;
+    if (!uid) return;
+    const yerel = window.APARTIM.avatar?.depoOku?.(uid);
+    if (yerel) {
+      profilAvatarUygula(Object.assign({}, kullanici, { avatarId: yerel }));
+    }
   }
 
   function kullaniciHazir(kullanici) {
     kullaniciUid = kullanici.uid;
+    profilAvatarYukle(kullanici);
     if (window.APARTIM.firebaseAktif) {
       fbRef = window.APARTIM.fbDb.ref("apartim/kullanicilar/" + kullaniciUid);
       fbRef.child("profil").once("value", (snap) => {
         const p = snap.val() || {};
+        const yerel = window.APARTIM.avatar?.depoOku?.(kullaniciUid);
         if (p.avatarId) {
           profilAvatarUygula(Object.assign({}, kullanici, { avatarId: p.avatarId }));
+          window.APARTIM.avatar?.depoYaz?.(kullaniciUid, p.avatarId);
+        } else if (yerel) {
+          fbRef.child("profil").update({ avatarId: yerel }).catch(() => {});
         }
       });
       const profilPatch = {
@@ -533,10 +550,7 @@
         bildir("veri-degisti", { sebep: "doviz-kurlari" });
       });
     } else {
-      try {
-        const aid = localStorage.getItem("apartim-avatar-" + kullanici.uid);
-        if (aid) profilAvatarUygula(Object.assign({}, kullanici, { avatarId: aid }));
-      } catch (e) {}
+      profilAvatarYukle(kullanici);
       const v = window.APARTIM.yerelOku();
       durum.daireler = v.daireler || {};
       durum.rezervasyonlar = rezervasyonlariNormalize(v.rezervasyonlar || {});

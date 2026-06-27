@@ -69,7 +69,7 @@
 
   // Kullanıcı etiketini auth sonrası doldur
   document.addEventListener("apartim:auth-hazir", (e) => {
-    const d = e.detail || {};
+    const d = window.APARTIM.kullanici || e.detail || {};
     const etiket = d.kullaniciAdi
       ? "@" + d.kullaniciAdi
       : (d.ad || d.eposta || "");
