@@ -506,8 +506,8 @@
 
   function daireHucreleriCiftSatir(trOut, trIn, d, h, tarih, renk) {
     if (h.tip === "turnover") {
-      checkinHucreleriEkle(trOut, h.giris, tarih, renk, true);
-      checkoutHucreleriEkle(trIn, h.cikis, tarih, renk, true);
+      checkoutHucreleriEkle(trOut, h.cikis, tarih, renk, true);
+      checkinHucreleriEkle(trIn, h.giris, tarih, renk, true);
       return;
     }
     if (h.tip === "checkout") {
