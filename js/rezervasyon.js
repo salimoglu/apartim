@@ -23,6 +23,9 @@
     ucretLabel: document.getElementById("rez-ucret-label"),
     paraBirimi: document.getElementById("rez-para-birimi"),
     ucretGrup: document.getElementById("rez-ucret-grup"),
+    toplamAnlasma: document.getElementById("rez-toplam-anlasma"),
+    toplamAnlasmaLabel: document.getElementById("rez-toplam-anlasma-label"),
+    toplamBolBtn: document.getElementById("rez-toplam-bol"),
     tekFiyatToggle: document.getElementById("rez-tek-fiyat"),
     tarihFiyatGrup: document.getElementById("rez-tarih-fiyat-grup"),
     tarihFiyatListe: document.getElementById("rez-tarih-fiyat-liste"),
@@ -58,11 +61,79 @@
   }
 
   function ucretEtiketGuncelle() {
+    const pb = seciliParaBirimi();
     const lbl = ay().ucretLabel;
-    if (lbl) lbl.textContent = "Gecelik ücret (" + seciliParaBirimi() + ") *";
+    if (lbl) lbl.textContent = "Gecelik ücret (" + pb + ") *";
+    const anlasmaLbl = ay().toplamAnlasmaLabel;
+    if (anlasmaLbl) anlasmaLbl.textContent = "Anlaşılan toplam (" + pb + ")";
     document.querySelectorAll(".rez-tarih-pb").forEach((el) => {
       el.textContent = paraSimge();
     });
+  }
+
+  function fiyatYuvarla(n) {
+    return Math.round(Number(n) * 100) / 100;
+  }
+
+  function fiyatEsitMi(a, b) {
+    return Math.abs(fiyatYuvarla(a) - fiyatYuvarla(b)) < 0.005;
+  }
+
+  /** Toplam tutarı gece sayısına eşit böler; kuruş farkı son gecelere eklenir. */
+  function toplamGeceyeBol(toplam, adet) {
+    const kurus = Math.round(Number(toplam) * 100);
+    if (!Number.isFinite(kurus) || kurus <= 0 || adet <= 0) return null;
+    const baz = Math.floor(kurus / adet);
+    const fazla = kurus % adet;
+    const out = [];
+    for (let i = 0; i < adet; i++) {
+      const ek = i >= adet - fazla ? 1 : 0;
+      out.push((baz + ek) / 100);
+    }
+    return out;
+  }
+
+  function toplamAnlasmaSenkron(rez) {
+    const inp = ay().toplamAnlasma;
+    if (!inp) return;
+    if (rez) {
+      const { toplam } = tutarHesapla(rez);
+      if (toplam > 0) alanYaz(inp, fiyatYuvarla(toplam));
+      else alanYaz(inp, "");
+    } else {
+      alanYaz(inp, "");
+    }
+  }
+
+  function toplamAnlasmaUygula() {
+    const e = ay();
+    const toplam = Number(e.toplamAnlasma?.value);
+    const tarihler = geceTarihleriAl();
+    if (!tarihler.length) {
+      uyariGoster("Önce giriş ve çıkış tarihi seçin.");
+      return;
+    }
+    if (!Number.isFinite(toplam) || toplam <= 0) {
+      uyariGoster("Geçerli bir toplam tutar girin.");
+      return;
+    }
+    const parcalar = toplamGeceyeBol(toplam, tarihler.length);
+    if (!parcalar) {
+      uyariGoster("Toplam tutar geceye bölünemedi.");
+      return;
+    }
+    const fiyatlar = {};
+    tarihler.forEach((t, i) => { fiyatlar[t] = parcalar[i]; });
+    const hepsiAyni = parcalar.every((v) => fiyatEsitMi(v, parcalar[0]));
+    if (hepsiAyni) {
+      tekFiyatModuGoster(true);
+      alanYaz(e.ucret, parcalar[0]);
+    } else {
+      tekFiyatModuGoster(false);
+      tarihFiyatListeCiz(fiyatlar);
+    }
+    uyariGoster("");
+    toplamHesapla();
   }
 
   function tarihGoster(iso) {
@@ -139,7 +210,7 @@
       satir.dataset.tarih = t;
       satir.innerHTML =
         '<span class="rez-tarih-etiket">' + esc(tarihGoster(t)) + "</span>" +
-        '<input type="number" class="field-input rez-tarih-ucret" min="0" step="50" value="' +
+        '<input type="number" class="field-input rez-tarih-ucret" min="0" step="0.01" value="' +
         (mevcut[t] != null ? mevcut[t] : u) + '" aria-label="' + esc(tarihGoster(t)) + ' fiyat" />' +
         '<span class="rez-tarih-pb">' + paraSimge() + "</span>";
       satir.querySelector("input").addEventListener("input", toplamHesapla);
@@ -371,6 +442,7 @@
       if (e.paraBirimi) e.paraBirimi.value = "TL";
       ucretEtiketGuncelle();
       tekFiyatModuGoster(true);
+      toplamAnlasmaSenkron();
       alanYaz(e.notlar, "");
       e.btnSil?.classList.add("hidden");
       uyariGoster("");
@@ -414,6 +486,12 @@
       e.btnSil?.classList.remove("hidden");
       uyariGoster("");
       toplamHesapla();
+      toplamAnlasmaSenkron({
+        giris: e.giris.value,
+        cikis: e.cikis.value,
+        gunlukUcret: Number(e.ucret?.value) || varsayilanUcret(),
+        tarihFiyatlari: tekFiyatModu ? null : tarihFiyatlariOku()
+      });
       window.APARTIM.rezOzet?.konumKoru?.(rez.giris);
       modalAc();
     } catch (err) {
@@ -672,6 +750,13 @@
       toplamHesapla();
     });
     e.tekFiyatToggle?.addEventListener("change", () => tekFiyatModuGoster(e.tekFiyatToggle.checked));
+    e.toplamBolBtn?.addEventListener("click", toplamAnlasmaUygula);
+    e.toplamAnlasma?.addEventListener("keydown", (ev) => {
+      if (ev.key === "Enter") {
+        ev.preventDefault();
+        toplamAnlasmaUygula();
+      }
+    });
     e.giris?.addEventListener("change", tarihDegisti);
     document.getElementById("rez-yeni-btn")?.addEventListener("click", () => yeni({}));
     document.getElementById("cikis-close")?.addEventListener("click", cikisKapat);

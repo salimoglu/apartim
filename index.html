@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=20260615" />
   <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=20260615" />
   <link rel="manifest" href="manifest.json?v=20260627b" />
-  <link rel="stylesheet" href="css/style.css?v=2.5" />
+  <link rel="stylesheet" href="css/style.css?v=2.6" />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
 
   <script>
@@ -330,7 +330,7 @@
         <div class="field-row rez-ucret-para-satir">
           <div class="field-group rez-ucret-grup" id="rez-ucret-grup">
             <label class="field-label" for="rez-ucret" id="rez-ucret-label">Gecelik ücret (TL) *</label>
-            <input type="number" id="rez-ucret" class="field-input" min="0" step="50" placeholder="1500" />
+            <input type="number" id="rez-ucret" class="field-input" min="0" step="0.01" placeholder="1500" />
           </div>
           <div class="field-group rez-para-grup">
             <label class="field-label" for="rez-para-birimi">Para birimi</label>
@@ -341,6 +341,14 @@
             </select>
           </div>
         </div>
+        <div class="field-row rez-toplam-anlasma-satir">
+          <div class="field-group rez-toplam-anlasma-grup">
+            <label class="field-label" for="rez-toplam-anlasma" id="rez-toplam-anlasma-label">Anlaşılan toplam (TL)</label>
+            <input type="number" id="rez-toplam-anlasma" class="field-input" min="0" step="0.01" placeholder="190" />
+          </div>
+          <button type="button" class="btn-secondary rez-toplam-bol-btn" id="rez-toplam-bol">Geceye böl</button>
+        </div>
+        <p class="rez-fiyat-ipucu" id="rez-toplam-anlasma-ipucu">Pazarlık toplamını girin; gece fiyatlarına eşit bölünür (ör. 3 gece 190 → 63,33 + 63,33 + 63,34).</p>
         <div class="field-group rez-tarih-fiyat-grup hidden" id="rez-tarih-fiyat-grup">
           <label class="field-label">Gece başına fiyat</label>
           <div id="rez-tarih-fiyat-liste" class="rez-tarih-fiyat-liste"></div>
@@ -534,20 +542,20 @@
   <!-- BİLDİRİMLER -->
   <div class="toast-wrap" id="toast-wrap"></div>
 
-  <script src="js/version.js?v=2.5"></script>
+  <script src="js/version.js?v=2.6"></script>
   <script src="js/firebase.js?v=20260811"></script>
-  <script src="js/pwa-install.js?v=2.5"></script>
-  <script src="js/avatar.js?v=2.5"></script>
+  <script src="js/pwa-install.js?v=2.6"></script>
+  <script src="js/avatar.js?v=2.6"></script>
   <script src="js/auth.js?v=20260811"></script>
   <script src="js/db.js?v=20260826"></script>
   <script src="js/para.js?v=20260812"></script>
   <script src="js/bina.js?v=20260829"></script>
   <script src="js/takvim.js?v=20260829"></script>
-  <script src="js/rez-ozet.js?v=2.5"></script>
-  <script src="js/rezervasyon.js?v=20260822"></script>
+  <script src="js/rez-ozet.js?v=2.6"></script>
+  <script src="js/rezervasyon.js?v=2.6"></script>
   <script src="js/daire.js?v=20260822"></script>
   <script src="js/tema.js?v=20260828"></script>
   <script src="js/ayarlar.js?v=20260819"></script>
-  <script src="js/app.js?v=2.5"></script>
+  <script src="js/app.js?v=2.6"></script>
 </body>
 </html>

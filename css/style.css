@@ -2260,6 +2260,21 @@ html:not(.theme-light) .rez-kaynak-badge {
   color: var(--metin-soluk);
 }
 .rez-ucret-para-satir { align-items: flex-end; }
+.rez-toplam-anlasma-satir {
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+.rez-toplam-anlasma-grup {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.rez-toplam-bol-btn {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  margin-bottom: 1px;
+  min-height: 42px;
+}
 .rez-para-grup { flex: 0 0 120px; min-width: 100px; }
 .rez-fiyat-ipucu {
   font-size: 11px;
