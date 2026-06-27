@@ -87,7 +87,7 @@
     if (toplam <= 0) return "";
     const kalan = db.rezervasyonKalanHesapla(rez);
     if (kalan < 0) return "Fazla " + formatKalanKisa(rez, -kalan);
-    if (kalan > 0) return "Kln " + formatKalanKisa(rez, kalan);
+    if (kalan > 0) return "Kalan " + formatKalanKisa(rez, kalan);
     if (db.rezervasyonOdenenToplam(rez) > 0) return "Kapalı";
     return "";
   }
@@ -613,10 +613,8 @@
       td.textContent = odenenHucreGoster(rez, info);
       td.title = odenenHucreBaslik(rez, info);
     } else {
-      const kln = rezervasyonBakiyeMetin(rez);
-      td.textContent = kln || "—";
-      td.title = kln ? "Toplam kalan · ödeme girmek için tıklayın" : "Ödeme girmek için tıklayın";
-      if (kln) td.classList.add("rez-ozet-kalan-ipucu");
+      td.textContent = "—";
+      td.title = "Ödeme girmek için tıklayın";
     }
     return td;
   }
@@ -695,6 +693,13 @@
     odemeDuzenleDurum = null;
   }
 
+  function rezCikisKalanHucreleriYenile(rezId, rez) {
+    if (!rezId || !rez) return;
+    const metin = rezOutKalanMetin(rez) || "—";
+    document.querySelectorAll('td.rez-ozet-out-kalan-hucre[data-rez-id="' + rezId + '"]')
+      .forEach((td) => { td.textContent = metin; });
+  }
+
   function odenenHucreyiYenile(hucre, rez) {
     const db = window.APARTIM.db;
     const tarih = hucre.dataset.tarih;
@@ -704,6 +709,7 @@
     hucre.title = odenenHucreBaslik(rez, info);
     hucre.classList.toggle("manuel", info.manuel);
     hucre.classList.toggle("bos", !info.manuel);
+    hucre.classList.remove("rez-ozet-kalan-ipucu");
     if (info.manuel) hucre.dataset.yontem = info.yontem;
     else delete hucre.dataset.yontem;
   }
@@ -785,7 +791,9 @@
 
     try {
       await db.rezervasyonOdenenHucreKaydet(ctx.rezId, ctx.tarih, kayit);
-      odenenHucreyiYenile(ctx.hucre, rez);
+      const guncel = db.durum.rezervasyonlar[ctx.rezId] || rez;
+      odenenHucreyiYenile(ctx.hucre, guncel);
+      rezCikisKalanHucreleriYenile(ctx.rezId, guncel);
       odemeModalKapat();
     } catch (err) {
       window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
