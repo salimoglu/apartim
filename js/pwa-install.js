@@ -125,10 +125,17 @@
     document.getElementById("install-btn")?.addEventListener("click", yukleTikla);
 
     if ("serviceWorker" in navigator) {
-      const swV = window.APARTIM_VERSION?.ASSET || Date.now();
-      navigator.serviceWorker.register("./sw.js?v=" + swV).catch((err) => {
-        console.warn("SW kayıt hatası:", err);
-      });
+      const swKayit = () => {
+        const swV = window.APARTIM_VERSION?.ASSET || Date.now();
+        navigator.serviceWorker.register("./sw.js?v=" + swV).catch((err) => {
+          console.warn("SW kayıt hatası:", err);
+        });
+      };
+      if (typeof requestIdleCallback === "function") {
+        requestIdleCallback(swKayit, { timeout: 5000 });
+      } else {
+        window.addEventListener("load", () => setTimeout(swKayit, 800), { once: true });
+      }
       navigator.serviceWorker.addEventListener("controllerchange", () => {
         if (!window.APARTIM_SW_RELOAD) return;
         window.APARTIM_SW_RELOAD = false;

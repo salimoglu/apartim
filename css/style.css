@@ -1215,21 +1215,30 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   overflow: hidden;
 }
 .rez-ozet-ust-icerik {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px 8px;
   padding: 6px 10px;
 }
+.rez-ozet-sezon-nav {
+  grid-column: 1;
+  min-width: 0;
+}
+.rez-ozet-para-bar {
+  grid-column: 2;
+  min-width: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
 .rez-ozet-toolbar {
+  grid-column: 3;
   display: flex;
   align-items: center;
-  flex: 1;
-  min-width: 0;
+  flex-shrink: 0;
+  gap: 4px;
   line-height: 1;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  flex-wrap: nowrap;
 }
 .rez-ozet-toolbar .rez-ozet-chip {
   padding: 4px 8px;
@@ -1242,14 +1251,14 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
 .rez-ozet-toolbar .rez-ozet-chip-ikon {
   font-size: 11px;
 }
-.rez-ozet-toolbar .rez-ozet-para-ic {
+.rez-ozet-para-bar .rez-ozet-para-ic {
   font-size: 9px;
   line-height: 1;
 }
-.rez-ozet-toolbar .rez-ozet-para-kur {
+.rez-ozet-para-bar .rez-ozet-para-kur {
   font-size: 8px;
 }
-.rez-ozet-toolbar::-webkit-scrollbar { display: none; }
+
 .rez-ozet-sezon-nav {
   display: flex;
   align-items: center;
@@ -1329,20 +1338,16 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   color: #fff;
 }
 .rez-ozet-para-bar {
-  flex: 1;
-  min-width: 0;
-  padding: 0;
-  background: transparent;
-  border: none;
-}
 .rez-ozet-para-ic {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
+  justify-content: flex-end;
   gap: 5px;
   font-size: 11px;
   white-space: nowrap;
   min-width: 0;
+  overflow: hidden;
 }
 .rez-ozet-para-item { font-weight: 800; flex-shrink: 0; }
 .rez-ozet-para-item.tl { color: var(--basari); }
@@ -2662,8 +2667,22 @@ html:not(.theme-light) .rez-kaynak-badge {
   }
   .rez-ozet-wrap { gap: 4px; }
   .rez-ozet-ust-icerik {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
     padding: 5px 8px;
-    gap: 4px;
+    gap: 4px 6px;
+  }
+  .rez-ozet-sezon-nav {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  .rez-ozet-para-bar {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .rez-ozet-toolbar {
+    grid-column: 2;
+    grid-row: 2;
   }
   .rez-ozet-ay-baslik {
     font-size: 15px;
@@ -2682,11 +2701,11 @@ html:not(.theme-light) .rez-kaynak-badge {
     font-size: 8px;
   }
   .rez-ozet-chip-metin { display: none; }
-  .rez-ozet-toolbar .rez-ozet-para-ic {
+  .rez-ozet-para-bar .rez-ozet-para-ic {
     font-size: 8px;
-    overflow-x: auto;
+    overflow: hidden;
   }
-  .rez-ozet-toolbar .rez-ozet-para-kur { font-size: 7px; }
+  .rez-ozet-para-bar .rez-ozet-para-kur { font-size: 7px; }
   .rapor-daire-satir { grid-template-columns: 1fr 60px 80px; }
   .rapor-daire-satir .gece-val { display: none; }
   .bina-baslik h2 { font-size: 22px; }
@@ -2701,25 +2720,27 @@ html:not(.theme-light) .rez-kaynak-badge {
 
 @media (min-width: 721px) {
   .rez-ozet-ust-icerik {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    gap: 8px 12px;
     padding: 6px 12px;
   }
   .rez-ozet-sezon-nav {
-    flex: 0 1 auto;
+    grid-column: 1;
+    grid-row: auto;
     max-width: 360px;
+  }
+  .rez-ozet-para-bar {
+    grid-column: 2;
+    grid-row: auto;
+  }
+  .rez-ozet-toolbar {
+    grid-column: 3;
+    grid-row: auto;
   }
   .rez-ozet-ay-baslik {
     font-size: 18px;
     letter-spacing: 1.5px;
-  }
-  .rez-ozet-toolbar {
-    flex: 1;
-    justify-content: flex-end;
-    overflow: hidden;
-    overflow-x: auto;
   }
   .rez-ozet-toolbar .rez-ozet-chip {
     padding: 5px 11px;
@@ -2732,11 +2753,10 @@ html:not(.theme-light) .rez-kaynak-badge {
     font-size: 12px;
   }
   .rez-ozet-chip-metin { display: inline; }
-  .rez-ozet-toolbar .rez-ozet-para-ic {
+  .rez-ozet-para-bar .rez-ozet-para-ic {
     font-size: 12px;
-    overflow-x: auto;
   }
-  .rez-ozet-toolbar .rez-ozet-para-kur {
+  .rez-ozet-para-bar .rez-ozet-para-kur {
     font-size: 10px;
   }
 }
@@ -2753,10 +2773,10 @@ html:not(.theme-light) .rez-kaynak-badge {
   .rez-ozet-toolbar .rez-ozet-chip-ikon {
     font-size: 13px;
   }
-  .rez-ozet-toolbar .rez-ozet-para-ic {
+  .rez-ozet-para-bar .rez-ozet-para-ic {
     font-size: 13px;
   }
-  .rez-ozet-toolbar .rez-ozet-para-kur {
+  .rez-ozet-para-bar .rez-ozet-para-kur {
     font-size: 11px;
   }
   .rez-ozet-table .rez-ozet-daire-baslik {
@@ -3142,11 +3162,19 @@ html:not(.theme-light) .rez-kaynak-badge {
   }
   body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ust-icerik {
     padding: 3px 6px;
-    flex-direction: row;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto;
     gap: 6px;
   }
+  body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-sezon-nav {
+    grid-column: 1;
+  }
+  body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-para-bar {
+    grid-column: 2;
+  }
   body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-toolbar {
-    flex: 1;
+    grid-column: 3;
+    flex: none;
     min-width: 0;
   }
   body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-scroll {

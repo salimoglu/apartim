@@ -1168,10 +1168,10 @@
 
   function scheduleSutunOlcul(table, daireler) {
     const run = () => tabloSutunOlcul(table, daireler);
-    run();
-    requestAnimationFrame(run);
-    setTimeout(run, 60);
-    setTimeout(run, 250);
+    requestAnimationFrame(() => {
+      run();
+      requestAnimationFrame(run);
+    });
   }
 
   function stickyBaslikOlcul(table) {
@@ -1584,7 +1584,6 @@
     document.getElementById("rez-ozet-yil-next")?.addEventListener("click", () => sezonGit(1));
     document.getElementById("rez-ozet-bugun")?.addEventListener("click", buguneGit);
     document.getElementById("rez-ozet-tam")?.addEventListener("click", tamEkranYatay);
-    document.getElementById("rez-ozet-rapor")?.addEventListener("click", excelRaporIndir);
     window.addEventListener("resize", () => {
       const table = document.querySelector("#rez-ozet-tablo .rez-ozet-table");
       if (table) stickyBaslikOlcul(table);
