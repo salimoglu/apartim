@@ -1190,25 +1190,30 @@
     table.classList.toggle("rez-ozet-tablo-telefon", telefon);
 
     if (telefon) {
+      const MOBIL_ODA_HEDEF = 5;
       const tarihPx = 36;
-      const oran = { g: 8, kt: 8, fyt: 18, odn: 32, ad: 34 };
-      const minOdaBlok = 112;
-      const tabloMin = tarihPx + n * minOdaBlok;
-      const tabloW = Math.max(genislik, tabloMin);
-      const tarihOran = (tarihPx / tabloW) * 100;
-      const odaBlokOran = (100 - tarihOran) / n;
+      const odaBlokPx = Math.max(58, (genislik - tarihPx) / MOBIL_ODA_HEDEF);
+      const g = Math.max(10, Math.floor(odaBlokPx * 0.14));
+      const kt = g;
+      const rem = odaBlokPx - 2 * g;
+      const fyt = Math.floor(rem / 3);
+      const odn = fyt;
+      const ad = rem - 2 * fyt;
+      const tabloW = tarihPx + n * odaBlokPx;
+
       applyColGenislik(table, {
-        birim: "%",
-        tarih: tarihOran,
-        g: odaBlokOran * oran.g / 100,
-        kt: odaBlokOran * oran.kt / 100,
-        fyt: odaBlokOran * oran.fyt / 100,
-        odn: odaBlokOran * oran.odn / 100,
-        ad: odaBlokOran * oran.ad / 100
+        birim: "px",
+        tarih: tarihPx,
+        g,
+        kt,
+        fyt,
+        odn,
+        ad
       });
-      table.style.width = "100%";
-      table.style.minWidth = tabloMin + "px";
-      table.style.maxWidth = "";
+      if (wrap) wrap.style.width = tabloW + "px";
+      table.style.width = tabloW + "px";
+      table.style.minWidth = tabloW + "px";
+      table.style.maxWidth = tabloW + "px";
       table.style.fontSize = mobilYatay ? "10px" : "11px";
       return;
     }
