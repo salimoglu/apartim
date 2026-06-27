@@ -27,12 +27,15 @@
   const DAIRE_RENK_YEDEK = ["#ffcdd2", "#c8e6c9", "#bbdefb", "#fff9c4", "#e1bee7", "#ffe0b2", "#b2dfdb"];
 
   const durum = {
-    sezonYil: new Date().getFullYear(),
     seciliTarih: null,
     pendingOdenenFocus: null,
     buguneKaydir: false,
     ayKaydir: null
   };
+
+  function sezonYil() {
+    return window.APARTIM.gorunum?.seciliYil?.() ?? new Date().getFullYear();
+  }
 
   let renderToken = 0;
   let tabloTimer = null;
@@ -125,18 +128,22 @@
   }
 
   function varsayilanSezonYil() {
-    return new Date().getFullYear();
+    return window.APARTIM.gorunum?.gercekYil?.() ?? new Date().getFullYear();
   }
 
   /** Sezon içindeyse o ay, değilse ilk ay (Haziran). */
   function aktifAyaHedefAy() {
+    const gor = window.APARTIM.gorunum;
+    if (gor?.arsivModu?.()) {
+      const bugun = gor.bugunISO();
+      return Number(bugun.slice(5, 7)) - 1;
+    }
     const ay = new Date().getMonth();
     if (ay >= SEZON_BAS_AY && ay <= SEZON_BIT_AY) return ay;
     return SEZON_BAS_AY;
   }
 
   function rezSekmeAc() {
-    durum.sezonYil = varsayilanSezonYil();
     korunanScroll = null;
     durum.buguneKaydir = false;
     durum.ayKaydir = aktifAyaHedefAy();
@@ -1173,7 +1180,7 @@
       return;
     }
 
-    const y = durum.sezonYil;
+    const y = sezonYil();
     const myToken = ++renderToken;
     if (baslik) baslik.textContent = "Haziran – Eylül " + y;
 
@@ -1185,7 +1192,7 @@
     if (!gunler.length) return;
 
     const { bas, bit } = sezonBasBit(y);
-    const bugun = db.bugunISO();
+    const bugun = window.APARTIM.gorunum?.bugunISO?.() || db.bugunISO();
     const colSpan = 1 + daireler.length * 5;
 
     paraOzetCiz(y);
@@ -1230,16 +1237,19 @@
   }
 
   function sezonGit(yon) {
-    durum.sezonYil += yon;
+    const y = sezonYil() + yon;
+    window.APARTIM.gorunum?.yilSec?.(y);
     korunanScroll = null;
     tabloCiz();
   }
 
   function buguneGit() {
-    const n = new Date();
-    durum.sezonYil = varsayilanSezonYil();
-    const { bas, bit } = sezonBasBit(durum.sezonYil);
-    const bugun = window.APARTIM.db?.bugunISO?.() || iso(n.getFullYear(), n.getMonth(), n.getDate());
+    window.APARTIM.gorunum?.yilSec?.(varsayilanSezonYil());
+    const y = sezonYil();
+    const { bas, bit } = sezonBasBit(y);
+    const bugun = window.APARTIM.gorunum?.bugunISO?.() ||
+      window.APARTIM.db?.bugunISO?.() ||
+      iso(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
     korunanScroll = null;
     durum.ayKaydir = null;
     durum.buguneKaydir = bugun >= bas && bugun <= bit;
@@ -1422,11 +1432,11 @@
     }
 
     try {
-      const y = durum.sezonYil;
+      const y = sezonYil();
       const daireler = dairelerOzetSirasi(db);
       const gunler = sezonGunleri(y);
       const { bas, bit } = sezonBasBit(y);
-      const bugun = db.bugunISO();
+      const bugun = window.APARTIM.gorunum?.bugunISO?.() || db.bugunISO();
       const harita = gunHaritasiOlustur(db, daireler, bas, bit);
 
       const tabloGovde = excelRaporHtml(y, daireler, gunler, harita, bugun);
@@ -1575,6 +1585,8 @@
       }
     });
   });
+
+  document.addEventListener("apartim:gorunum-degisti", tabloCizPlanla);
 
   document.addEventListener("apartim:veri-degisti", tabloCizPlanla);
 

@@ -241,6 +241,40 @@ body.ptr-cekiliyor { overscroll-behavior-y: contain; }
 .topbar-right {
   display: flex; align-items: center; gap: 8px;
 }
+.gorunum-yil-wrap {
+  display: flex; align-items: center; gap: 6px;
+}
+.gorunum-yil-label {
+  font-size: 11px; font-weight: 700; color: var(--metin-soluk);
+  letter-spacing: 0.5px; text-transform: uppercase;
+}
+.gorunum-yil-select {
+  background: var(--kart);
+  border: 1px solid var(--kenar);
+  color: var(--metin);
+  border-radius: var(--radius-sm);
+  padding: 4px 8px;
+  font-size: 13px; font-weight: 700;
+  min-width: 88px;
+  cursor: pointer;
+}
+.gorunum-banner {
+  background: var(--vurgu-soluk);
+  border-bottom: 1px solid var(--kenar);
+  padding: 8px 16px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; flex-wrap: wrap;
+  font-size: 13px; color: var(--metin);
+}
+.gorunum-banner.hidden { display: none; }
+.gorunum-banner-metin { font-weight: 700; }
+.gorunum-banner-btn {
+  background: var(--vurgu); color: #fff;
+  border: none; border-radius: var(--radius-sm);
+  padding: 5px 12px; font-size: 12px; font-weight: 700;
+  cursor: pointer;
+}
+.gorunum-banner-btn:hover { background: var(--vurgu-2); }
 .sync-durum {
   width: 8px; height: 8px; border-radius: 50%;
   background: var(--metin-soluk-2);

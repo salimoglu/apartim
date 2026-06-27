@@ -30,6 +30,14 @@
     if (el) el.textContent = AY_ADLARI[durum.ay] + " " + durum.yil;
   }
 
+  function gorunumdenSenkron() {
+    const gor = window.APARTIM.gorunum;
+    if (!gor) return;
+    durum.yil = gor.seciliYil();
+    const bugun = gor.bugunISO();
+    durum.ay = Number(bugun.slice(5, 7)) - 1;
+  }
+
   function ayGit(yon) {
     let y = durum.yil;
     let m = durum.ay + yon;
@@ -37,6 +45,7 @@
     else if (m > 11) { m = 0; y++; }
     durum.yil = y;
     durum.ay = m;
+    window.APARTIM.gorunum?.yilSec?.(y);
     ayBaslikGuncelle();
     kartlariCiz();
   }
@@ -62,7 +71,7 @@
     const sonGun = new Date(y, m + 1, 0).getDate();
     let hafGun = ilk.getDay() - 1;
     if (hafGun < 0) hafGun = 6;
-    const bg = db.bugunISO();
+    const bg = window.APARTIM.gorunum?.bugunISO?.() || db.bugunISO();
     const oncekiSon = new Date(y, m, 0).getDate();
 
     let html = '<div class="mini-takvim"><div class="mini-takvim-baslik">';
@@ -213,13 +222,16 @@
     document.getElementById("bina-ay-prev")?.addEventListener("click", () => ayGit(-1));
     document.getElementById("bina-ay-next")?.addEventListener("click", () => ayGit(1));
     document.getElementById("bina-ay-bugun")?.addEventListener("click", () => {
-      const b = new Date();
-      durum.yil = b.getFullYear();
-      durum.ay = b.getMonth();
+      window.APARTIM.gorunum?.yilSec?.(window.APARTIM.gorunum?.gercekYil?.() ?? new Date().getFullYear());
+      gorunumdenSenkron();
       binayiCiz();
     });
+    gorunumdenSenkron();
   });
-
+  document.addEventListener("apartim:gorunum-degisti", () => {
+    gorunumdenSenkron();
+    binayiCiz();
+  });
   document.addEventListener("apartim:veri-degisti", guncelle);
   document.addEventListener("apartim:gun-degisti", guncelle);
 

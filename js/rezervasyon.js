@@ -275,6 +275,8 @@
     return Number(n || 0).toLocaleString("tr-TR");
   }
   function bugunISO() {
+    const gor = window.APARTIM.gorunum;
+    if (gor?.bugunISO) return gor.bugunISO();
     const db = window.APARTIM.db;
     if (db && typeof db.bugunISO === "function") return db.bugunISO();
     const d = new Date();
@@ -614,7 +616,7 @@
     const rez = window.APARTIM.db.durum.rezervasyonlar[cikisRezId];
     if (!rez) return cikisKapat();
     try {
-      const bg = bugunISO();
+      const bg = window.APARTIM.db.bugunISO();
       const yeniCikis = bg > rez.giris ? bg : gunEkle(rez.giris, 1);
       await window.APARTIM.db.rezervasyonGuncelle(cikisRezId, { cikis: yeniCikis });
       window.APARTIM.toast("Çıkış tamamlandı", "basari");

@@ -20,9 +20,16 @@
   function ayOlustur(daireId, yil, ay) {
     durum.daireId = daireId;
     if (yil == null || ay == null) {
-      const b = bugun();
-      durum.yil = b.getFullYear();
-      durum.ay = b.getMonth();
+      const gor = window.APARTIM.gorunum;
+      if (gor) {
+        durum.yil = gor.seciliYil();
+        const bugun = gor.bugunISO();
+        durum.ay = Number(bugun.slice(5, 7)) - 1;
+      } else {
+        const b = bugun();
+        durum.yil = b.getFullYear();
+        durum.ay = b.getMonth();
+      }
     } else {
       durum.yil = yil;
       durum.ay = ay;
@@ -35,12 +42,21 @@
     if (m < 0) { m = 11; y--; }
     else if (m > 11) { m = 0; y++; }
     durum.yil = y; durum.ay = m;
+    window.APARTIM.gorunum?.yilSec?.(y);
     ciz();
   }
   function bugunYap() {
-    const b = bugun();
-    durum.yil = b.getFullYear();
-    durum.ay = b.getMonth();
+    window.APARTIM.gorunum?.yilSec?.(window.APARTIM.gorunum?.gercekYil?.() ?? new Date().getFullYear());
+    const gor = window.APARTIM.gorunum;
+    if (gor) {
+      durum.yil = gor.seciliYil();
+      const bugun = gor.bugunISO();
+      durum.ay = Number(bugun.slice(5, 7)) - 1;
+    } else {
+      const b = bugun();
+      durum.yil = b.getFullYear();
+      durum.ay = b.getMonth();
+    }
     ciz();
   }
 
@@ -450,7 +466,7 @@
 
     const db = window.APARTIM.db;
     const daire = db ? db.daireGetir(durum.daireId) : null;
-    const bg = db ? db.bugunISO() : "";
+    const bg = window.APARTIM.gorunum?.bugunISO?.() || (db ? db.bugunISO() : "");
 
     for (let d = 1; d <= sonGun; d++) {
       const isoT = iso(durum.yil, durum.ay, d);
@@ -540,6 +556,17 @@
     document.getElementById("takvim-prev")?.addEventListener("click", () => git(-1));
     document.getElementById("takvim-next")?.addEventListener("click", () => git(1));
     document.getElementById("takvim-bugun")?.addEventListener("click", bugunYap);
+  });
+  document.addEventListener("apartim:gorunum-degisti", () => {
+    if (durum.daireId) {
+      const gor = window.APARTIM.gorunum;
+      if (gor) {
+        durum.yil = gor.seciliYil();
+        const bugun = gor.bugunISO();
+        durum.ay = Number(bugun.slice(5, 7)) - 1;
+      }
+      ciz();
+    }
   });
   document.addEventListener("apartim:veri-degisti", () => {
     if (durum.daireId) ciz();

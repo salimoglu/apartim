@@ -224,6 +224,7 @@
     yatayModBagla();
     cekerekYenileBagla();
     versiyonGoster();
+    raporGorunumdenSenkron();
     sekmeSec("rezervasyonlar");
   });
 
@@ -482,6 +483,14 @@
     });
   }
 
+  function raporGorunumdenSenkron() {
+    const gor = window.APARTIM.gorunum;
+    if (!gor) return;
+    raporDurum.yil = gor.seciliYil();
+    const bugun = gor.bugunISO();
+    raporDurum.ay = Number(bugun.slice(5, 7)) - 1;
+  }
+
   function raporGit(yon) {
     if (raporDurum.mod === "yil") {
       raporDurum.yil += yon;
@@ -492,6 +501,7 @@
       raporDurum.yil = y;
       raporDurum.ay = m;
     }
+    window.APARTIM.gorunum?.yilSec?.(raporDurum.yil);
     raporCiz();
   }
 
@@ -502,6 +512,12 @@
       b.classList.toggle("active", b.dataset.mod === mod));
     raporCiz();
   }
+
+  document.addEventListener("apartim:gorunum-degisti", (e) => {
+    raporDurum.yil = e.detail?.yil ?? window.APARTIM.gorunum?.seciliYil?.() ?? raporDurum.yil;
+    if (raporDurum.mod === "ay") raporGorunumdenSenkron();
+    raporCiz();
+  });
 
   function escHtml(s) {
     return String(s || "").replace(/[&<>"]/g, (c) =>
