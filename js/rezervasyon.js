@@ -25,7 +25,6 @@
     ucretGrup: document.getElementById("rez-ucret-grup"),
     toplamAnlasma: document.getElementById("rez-toplam-anlasma"),
     toplamAnlasmaLabel: document.getElementById("rez-toplam-anlasma-label"),
-    toplamBolBtn: document.getElementById("rez-toplam-bol"),
     tekFiyatToggle: document.getElementById("rez-tek-fiyat"),
     tarihFiyatGrup: document.getElementById("rez-tarih-fiyat-grup"),
     tarihFiyatListe: document.getElementById("rez-tarih-fiyat-liste"),
@@ -66,9 +65,22 @@
     if (lbl) lbl.textContent = "Gecelik ücret (" + pb + ") *";
     const anlasmaLbl = ay().toplamAnlasmaLabel;
     if (anlasmaLbl) anlasmaLbl.textContent = "Anlaşılan toplam (" + pb + ")";
+    const ipucu = document.getElementById("rez-toplam-anlasma-ipucu");
+    if (ipucu) {
+      ipucu.textContent =
+        "Pazarlık toplamını girin; gece fiyatlarına otomatik eşit bölünür (" +
+        pb + ", örn. 3 gece 190 → 63,33 + 63,33 + 63,34).";
+    }
     document.querySelectorAll(".rez-tarih-pb").forEach((el) => {
       el.textContent = paraSimge();
     });
+  }
+
+  let anlasmaBolTimer = null;
+
+  function toplamAnlasmaOtomatik() {
+    clearTimeout(anlasmaBolTimer);
+    anlasmaBolTimer = setTimeout(() => toplamAnlasmaUygula({ sessiz: true }), 350);
   }
 
   function fiyatYuvarla(n) {
@@ -105,16 +117,22 @@
     }
   }
 
-  function toplamAnlasmaUygula() {
+  function toplamAnlasmaUygula(opts) {
+    const sessiz = opts?.sessiz;
     const e = ay();
-    const toplam = Number(e.toplamAnlasma?.value);
+    const raw = e.toplamAnlasma?.value;
+    if (raw === "" || raw == null) {
+      if (!sessiz) uyariGoster("");
+      return;
+    }
+    const toplam = Number(raw);
     const tarihler = geceTarihleriAl();
     if (!tarihler.length) {
-      uyariGoster("Önce giriş ve çıkış tarihi seçin.");
+      if (!sessiz) uyariGoster("Önce giriş ve çıkış tarihi seçin.");
       return;
     }
     if (!Number.isFinite(toplam) || toplam <= 0) {
-      uyariGoster("Geçerli bir toplam tutar girin.");
+      if (!sessiz) uyariGoster("Geçerli bir toplam tutar girin.");
       return;
     }
     const parcalar = toplamGeceyeBol(toplam, tarihler.length);
@@ -258,7 +276,11 @@
     if (!tekFiyatModu) {
       tarihFiyatListeCiz(tarihFiyatlariOku());
     }
-    toplamHesapla();
+    if (ay().toplamAnlasma?.value) {
+      toplamAnlasmaUygula({ sessiz: true });
+    } else {
+      toplamHesapla();
+    }
   }
 
   function tutarHesapla(rez) {
@@ -749,16 +771,12 @@
     e.paraBirimi?.addEventListener("change", () => {
       ucretEtiketGuncelle();
       if (!tekFiyatModu) tarihFiyatListeCiz(tarihFiyatlariOku());
-      toplamHesapla();
+      if (e.toplamAnlasma?.value) toplamAnlasmaUygula({ sessiz: true });
+      else toplamHesapla();
     });
     e.tekFiyatToggle?.addEventListener("change", () => tekFiyatModuGoster(e.tekFiyatToggle.checked));
-    e.toplamBolBtn?.addEventListener("click", toplamAnlasmaUygula);
-    e.toplamAnlasma?.addEventListener("keydown", (ev) => {
-      if (ev.key === "Enter") {
-        ev.preventDefault();
-        toplamAnlasmaUygula();
-      }
-    });
+    e.toplamAnlasma?.addEventListener("input", toplamAnlasmaOtomatik);
+    e.toplamAnlasma?.addEventListener("change", () => toplamAnlasmaUygula({ sessiz: true }));
     e.giris?.addEventListener("change", tarihDegisti);
     document.getElementById("rez-yeni-btn")?.addEventListener("click", () => yeni({}));
     document.getElementById("cikis-close")?.addEventListener("click", cikisKapat);
