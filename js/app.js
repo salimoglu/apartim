@@ -177,13 +177,14 @@
     document.querySelectorAll(".tab-panel").forEach((p) =>
       p.classList.toggle("active", p.id === "tab-" + ad));
     if (ad === "rapor") raporCiz();
-    if (ad === "bina") window.APARTIM.bina?.ciz();
     if (ad === "rezervasyonlar") {
       if (window.APARTIM.rezOzet?.rezSekmeAc) {
         window.APARTIM.rezOzet.rezSekmeAc();
       } else {
         window.APARTIM.rezOzet?.tabloCiz();
       }
+      setTimeout(() => window.APARTIM.rezOzet?.sutunOlculYenile?.(), 50);
+      setTimeout(() => window.APARTIM.rezOzet?.sutunOlculYenile?.(), 300);
     }
     yatayModGuncelle();
   }
@@ -248,19 +249,17 @@
     cekerekYenileBagla();
     versiyonGoster();
     raporGorunumdenSenkron();
+    sekmeSec("rezervasyonlar");
   });
 
-  let ilkSekmeAcildi = false;
+  // ---- Veri hazır olduğunda bina çiz ----
   document.addEventListener("apartim:auth-hazir", () => {
-    if (!ilkSekmeAcildi) {
-      ilkSekmeAcildi = true;
-      sekmeSec("rezervasyonlar");
-    }
+    if (window.APARTIM.bina) window.APARTIM.bina.ciz();
   });
-
-  // ---- Veri hazır olduğunda (bina sekmesi açılınca çizilir) ----
 
   document.addEventListener("apartim:veri-degisti", () => {
+    window.APARTIM.bina?.guncelle();
+    window.APARTIM.rezOzet?.tabloCizPlanla?.();
     const aktifRapor = document.getElementById("tab-rapor")?.classList.contains("active");
     if (aktifRapor) raporCiz();
   });
@@ -704,12 +703,7 @@
     if (kurGuncellemeCalisti) return;
     if (!window.APARTIM.db?.durum?.yuklendi) return;
     kurGuncellemeCalisti = true;
-    const baslat = () => dovizKurlariCanliGuncelle(false).catch(() => {});
-    if (typeof requestIdleCallback === "function") {
-      requestIdleCallback(baslat, { timeout: 4000 });
-    } else {
-      setTimeout(baslat, 2500);
-    }
+    dovizKurlariCanliGuncelle(false).catch(() => {});
   });
 
   window.APARTIM.app = {

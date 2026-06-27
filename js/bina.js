@@ -213,12 +213,7 @@
     kartlariCiz();
   }
 
-  function binaSekmesiAcikMi() {
-    return document.getElementById("tab-bina")?.classList.contains("active");
-  }
-
   function guncelle() {
-    if (!binaSekmesiAcikMi()) return;
     ayBaslikGuncelle();
     kartlariCiz();
   }
