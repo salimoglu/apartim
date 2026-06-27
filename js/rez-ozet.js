@@ -230,12 +230,21 @@
     if (toplam.TL > 0) parcalar.push('<span class="rez-ozet-para-item tl">' + window.APARTIM.para.formatTutar(toplam.TL, "TL") + "</span>");
     if (toplam.USD > 0) parcalar.push('<span class="rez-ozet-para-item usd">' + window.APARTIM.para.formatTutar(toplam.USD, "USD") + "</span>");
     if (toplam.EUR > 0) parcalar.push('<span class="rez-ozet-para-item eur">' + window.APARTIM.para.formatTutar(toplam.EUR, "EUR") + "</span>");
+    const sadeceTl = toplam.TL > 0 && toplam.USD === 0 && toplam.EUR === 0;
+    let tutarHtml;
+    if (sadeceTl) {
+      tutarHtml = parcalar[0];
+    } else if (parcalar.length) {
+      tutarHtml = parcalar.join('<span class="rez-ozet-para-ayrac">·</span>') +
+        '<span class="rez-ozet-para-ayrac">·</span>' +
+        '<span class="rez-ozet-para-toplam">≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>";
+    } else {
+      tutarHtml = '<span class="rez-ozet-para-toplam">≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>";
+    }
     bar.innerHTML =
       '<div class="rez-ozet-para-ic">' +
-        '<div class="rez-ozet-para-tutarlar">' +
-          parcalar.join('<span class="rez-ozet-para-ayrac">|</span>') +
-        "</div>" +
-        '<span class="rez-ozet-para-toplam">Sezon ≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>" +
+        tutarHtml +
+        '<span class="rez-ozet-para-ayrac">·</span>' +
         '<span class="rez-ozet-para-kur">1$=' + window.APARTIM.para.formatKur(k.USD) + "₺ · 1€=" +
           window.APARTIM.para.formatKur(k.EUR) + "₺" + kurTarih + "</span>" +
       "</div>";
