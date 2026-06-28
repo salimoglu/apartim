@@ -1747,11 +1747,15 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   text-overflow: ellipsis;
 }
 .rez-ozet-ad {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  overflow: visible;
   font-weight: 600;
   font-size: 9px;
+  line-height: 1.25;
   padding: 1px 2px !important;
+  vertical-align: middle;
 }
 .rez-ozet-bos {
   height: 18px;
@@ -1951,16 +1955,15 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   opacity: 0.7;
 }
 .rez-ozet-turnover-birlesik {
-  padding: 1px 4px !important;
-  overflow: hidden;
+  overflow: visible;
   text-align: left;
   vertical-align: middle;
 }
 .rez-ozet-turnover-satir {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 5px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   min-width: 0;
   width: 100%;
   line-height: 1.2;
@@ -1994,14 +1997,16 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   white-space: nowrap;
 }
 .rez-ozet-turnover-ad {
-  flex: 1 1 auto;
+  flex: 1 1 3em;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   font-weight: 600;
   font-size: 9px;
   color: #1a1a1a !important;
-  white-space: nowrap;
+  line-height: 1.25;
 }
 .rez-ozet-tablo-telefon .rez-ozet-turnover-io .rez-ozet-io {
   font-size: 6px;

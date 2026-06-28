@@ -344,9 +344,7 @@
   }
 
   function misafirTabloGoster(ad) {
-    const s = String(ad || "");
-    if (!s) return "";
-    return telefonTabloMu() ? kisaAd(s, 8) : s;
+    return String(ad || "");
   }
 
   function ioBadge(tip, rezId) {
