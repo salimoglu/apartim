@@ -1968,6 +1968,14 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   width: 100%;
   line-height: 1.2;
 }
+.rez-ozet-turnover-io .rez-ozet-io-sep {
+  font-size: 8px;
+  font-weight: 700;
+  color: #1a1a1a;
+  opacity: 0.65;
+  padding: 0 1px;
+  line-height: 1;
+}
 .rez-ozet-turnover-io {
   display: inline-flex;
   align-items: center;

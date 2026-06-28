@@ -384,6 +384,7 @@
       '<div class="rez-ozet-turnover-satir">' +
         '<span class="rez-ozet-turnover-io">' +
           gOutHtml(cikisRid) +
+          '<span class="rez-ozet-io-sep">/</span>' +
           gInHtml(girisRid) +
           '<span class="rez-ozet-g-sayi">1</span>' +
         "</span>" +
@@ -1358,7 +1359,7 @@
   function excelDaireHucreleri(h, tarih) {
     if (h.tip === "turnover") {
       const det = konakDetay(h.giris, tarih);
-      const txt = "OUT · IN · 1 · " + det.kategori + " · " + formatHucreFiyat(h.giris, det.prc) +
+      const txt = "OUT / IN · 1 · " + det.kategori + " · " + formatHucreFiyat(h.giris, det.prc) +
         (det.misafir ? " · " + det.misafir : "");
       return { birlesik: txt };
     }
