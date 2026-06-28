@@ -108,42 +108,40 @@
     const url = URL.createObjectURL(blob);
     const urlKaldir = () => setTimeout(() => URL.revokeObjectURL(url), secenek.urlSureMs || 180000);
 
-    if (mobilCihazMi() && navigator.share) {
-      try {
-        const file = new File([blob], dosyaAdi, { type: blob.type || "application/octet-stream" });
-        const paylas = { files: [file], title: secenek.baslik || dosyaAdi };
-        if (!navigator.canShare || navigator.canShare(paylas)) {
-          await navigator.share(paylas);
-          urlKaldir();
-          window.APARTIM.toast?.(secenek.mobilPaylasMesaj || "Rapor paylaşıldı", "basari");
-          return;
-        }
-      } catch (err) {
-        if (err && err.name === "AbortError") {
-          urlKaldir();
-          return;
-        }
-      }
-    }
-
     if (mobilCihazMi()) {
-      let acildi = false;
-      try {
-        acildi = !!window.open(url, "_blank");
-      } catch (e) { /* yoksay */ }
-      if (!acildi) {
-        const a = document.createElement("a");
-        a.href = url;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+      if (navigator.share) {
+        try {
+          const mime = blob.type || "application/vnd.ms-excel";
+          const file = new File([blob], dosyaAdi, { type: mime });
+          const paylas = { files: [file], title: secenek.baslik || dosyaAdi };
+          if (!navigator.canShare || navigator.canShare(paylas)) {
+            await navigator.share(paylas);
+            urlKaldir();
+            window.APARTIM.toast?.(
+              secenek.mobilPaylasMesaj || "Excel, Numbers veya Sheets ile açın",
+              "bilgi"
+            );
+            return;
+          }
+        } catch (err) {
+          if (err && err.name === "AbortError") {
+            urlKaldir();
+            return;
+          }
+        }
       }
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = dosyaAdi;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
       urlKaldir();
       window.APARTIM.toast?.(
-        secenek.mobilAcMesaj || "Rapor açıldı — okuyabilir veya paylaş menüsünden kaydedebilirsiniz",
-        "bilgi"
+        secenek.mobilIndirMesaj || "Rapor indirildi — Dosyalar'dan Excel ile açın",
+        "basari"
       );
       return;
     }

@@ -1508,18 +1508,15 @@
         "<style>table{border-collapse:collapse;width:100%;}td,th{mso-number-format:\"\\@\";font-size:11px;padding:2px 4px;border:1px solid #ccc;}</style></head><body>" +
         '<table border="0" cellspacing="0" cellpadding="0">' + tabloGovde + "</table></body></html>";
 
-      const mobil = window.APARTIM.mobilCihazMi?.();
-      const dosyaAdi = mobil
-        ? "Apartim-Rezervasyon-" + y + "-Haziran-Eylul.html"
-        : "Apartim-Rezervasyon-" + y + "-Haziran-Eylul.xls";
-      const mime = mobil ? "text/html;charset=utf-8" : "application/vnd.ms-excel;charset=utf-8";
-      const blob = new Blob(["\ufeff" + html], { type: mime });
+      const dosyaAdi = "Apartim-Rezervasyon-" + y + "-Haziran-Eylul.xls";
+      const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
 
       if (window.APARTIM.dosyaIndir) {
         await window.APARTIM.dosyaIndir(blob, dosyaAdi, {
           baslik: "Apartım rezervasyon raporu",
           basariMesaj: "Excel raporu indirildi",
-          mobilAcMesaj: "Rapor açıldı — tabloda okuyabilir veya paylaş ile kaydedebilirsiniz"
+          mobilPaylasMesaj: "Excel veya Numbers seçin — düzenleyebilirsiniz",
+          mobilIndirMesaj: "Excel dosyası indirildi — Dosyalar'dan açın"
         });
         return;
       }

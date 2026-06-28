@@ -659,18 +659,15 @@
         "<style>table{border-collapse:collapse;width:100%;}td,th{mso-number-format:\"\\@\";font-size:11px;padding:2px 4px;border:1px solid #ccc;}</style></head><body>" +
         '<table border="0" cellspacing="0" cellpadding="0">' + govde + "</table></body></html>";
 
-      const mobil = window.APARTIM.mobilCihazMi?.();
-      const dosyaAdi = mobil
-        ? raporExportDosyaAdi(r, yillik).replace(/\.xls$/i, ".html")
-        : raporExportDosyaAdi(r, yillik);
-      const mime = mobil ? "text/html;charset=utf-8" : "application/vnd.ms-excel;charset=utf-8";
-      const blob = new Blob(["\ufeff" + html], { type: mime });
+      const dosyaAdi = raporExportDosyaAdi(r, yillik);
+      const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
 
       if (window.APARTIM.dosyaIndir) {
         await window.APARTIM.dosyaIndir(blob, dosyaAdi, {
           baslik: "Apartım rapor",
           basariMesaj: "Rapor indirildi",
-          mobilAcMesaj: "Rapor açıldı — tabloda okuyabilir veya paylaş ile kaydedebilirsiniz"
+          mobilPaylasMesaj: "Excel veya Numbers seçin — düzenleyebilirsiniz",
+          mobilIndirMesaj: "Excel dosyası indirildi — Dosyalar'dan açın"
         });
         return;
       }
