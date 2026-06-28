@@ -1,7 +1,7 @@
 /* Apartım — basit cache-first service worker */
 /* Sürüm: js/version.js APP ile senkron (1.0 → 1.1 → 1.2 …) */
 const CACHE_VERSION = "apartim-2-57";
-const ASSET_V = "2.46";
+const ASSET_V = "2.57";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -92,7 +92,11 @@ self.addEventListener("fetch", (event) => {
     event.respondWith(networkFirstThenCache(event.request));
     return;
   }
-  if (/\.(js|css|png|svg|json|ico|webp)$/i.test(url.pathname) || url.pathname.includes("/icons/")) {
+  if (/\.(js|css)$/i.test(url.pathname)) {
+    event.respondWith(networkFirstThenCache(event.request));
+    return;
+  }
+  if (/\.(png|svg|json|ico|webp)$/i.test(url.pathname) || url.pathname.includes("/icons/")) {
     event.respondWith(cacheFirstThenNetwork(event.request));
     return;
   }

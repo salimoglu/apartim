@@ -1,4 +1,4 @@
-/* Apartım sürüm — sw.js ile senkron tutun */
+/* Apartım sürüm — sw.js + index.html ?v= için: node tools/sync-version.cjs */
 (function () {
   "use strict";
   const APP = "2.57";

@@ -11,4 +11,4 @@ Kullanıcı apartim projesinde anlamlı değişiklikler tamamlandığında (öze
 2. `git push origin main` çalıştır.
 3. Push için kullanıcıdan ayrıca onay isteme — kullanıcı "push et" demese de deploy edilebilir değişikliklerden sonra push yap.
 
-Sürüm numarasını `js/version.js`, `sw.js` ve `index.html` query string'lerinde senkron tut.
+Sürüm numarasını `js/version.js` içinde güncelle, ardından `node tools/sync-version.cjs` çalıştır (index.html ?v= ve sw.js CACHE/ASSET senkronu).
