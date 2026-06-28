@@ -2039,13 +2039,22 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 .rez-ozet-tablo-telefon .rez-ozet-g-turnover .rez-ozet-g-sayi {
   font-size: 10px;
 }
-html:not(.theme-light) .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih,
-html.theme-light .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
+.rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
   background: #ffeb3b !important;
-  color: #1a1a1a;
+  color: #1a1a1a !important;
 }
-html:not(.theme-light) .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-gun-ad {
-  color: #374151;
+.rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih-gun {
+  color: #1a1a1a !important;
+}
+.rez-ozet-tr.rez-ozet-io-gun .rez-ozet-gun-ad {
+  color: #374151 !important;
+}
+.rez-ozet-table tbody tr.rez-ozet-io-gun.rez-ozet-satir-hover .rez-ozet-tarih,
+.rez-ozet-table tbody tr.rez-ozet-io-gun.rez-ozet-satir-secili .rez-ozet-tarih,
+.rez-ozet-tr.rez-ozet-io-gun.rez-ozet-bugun .rez-ozet-tarih,
+.rez-ozet-tr.rez-ozet-io-gun.rez-ozet-tr-bugun .rez-ozet-tarih {
+  background: #ffeb3b !important;
+  color: #1a1a1a !important;
 }
 .rez-ozet-table td.rez-ozet-io-hucre {
   color: #1a1a1a;
