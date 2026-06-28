@@ -367,13 +367,17 @@
     return ioBadge("in", rezId);
   }
 
-  function gCheckinHtml(rezId) {
+  function gInGunHtml(rezId, gun) {
     return (
-      '<span class="rez-ozet-g-stack">' +
-        gInHtml(rezId) +
-        '<span class="rez-ozet-g-sayi">1</span>' +
+      '<span class="rez-ozet-io in rez-ozet-tik" data-rez-id="' + esc(rezId) + '">' +
+        "IN" +
+        '<span class="rez-ozet-io-gun-no">' + esc(String(gun)) + "</span>" +
       "</span>"
     );
+  }
+
+  function gCheckinHtml(rezId) {
+    return gInGunHtml(rezId, 1);
   }
 
   function turnoverSatirHtml(cikis, giris, tarih) {
@@ -415,10 +419,10 @@
     const rid = rezIdAl(rez);
     const bg = hucreBg(renk, ioVurgu);
     const tdG = document.createElement("td");
-    tdG.className = "rez-ozet-sayi rez-ozet-io-rozet rez-ozet-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
+    tdG.className = "rez-ozet-sayi rez-ozet-io-rozet" + (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdG.style.background = bg;
     if (rid) tdG.dataset.rezId = rid;
-    tdG.innerHTML = gOutHtml(rid);
+    tdG.innerHTML = '<span class="rez-ozet-io-orta">' + gOutHtml(rid) + "</span>";
     tr.appendChild(tdG);
 
     const tdKt = document.createElement("td");

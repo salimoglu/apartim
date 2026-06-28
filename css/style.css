@@ -2077,6 +2077,16 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   letter-spacing: -0.02em;
   flex-shrink: 0;
 }
+.rez-ozet-io .rez-ozet-io-gun-no::before {
+  content: "·";
+  margin: 0 1px;
+  font-weight: 700;
+  opacity: 0.55;
+}
+.rez-ozet-io .rez-ozet-io-gun-no {
+  font-weight: 800;
+  line-height: 1;
+}
 .rez-ozet-table td.rez-ozet-io-rozet {
   overflow: visible !important;
   text-overflow: clip;
@@ -2084,6 +2094,13 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   font-size: inherit;
   min-width: 44px;
   padding: 2px 3px !important;
+  text-align: center !important;
+  vertical-align: middle;
+}
+.rez-ozet-io-orta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-sayi {
   font-size: 12px;
