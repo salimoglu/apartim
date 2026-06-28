@@ -570,61 +570,74 @@
   function raporExportDosyaAdi(r, yillik) {
     const temiz = String(r.baslik || "rapor").replace(/[^\w\u00C0-\u024F\s-]/g, "").replace(/\s+/g, "-");
     const onEk = yillik ? "Yillik" : "Aylik";
-    return "Apartim-Rapor-" + onEk + "-" + temiz + ".xlsx";
+    return "Apartim-Rapor-" + onEk + "-" + temiz + ".xls";
   }
 
-  function raporExportSheet(r, yillik) {
+  function raporExportHtml(r, yillik) {
     const db = window.APARTIM.db;
     const yontemler = db?.ODEME_YONTEMLERI || {
       elden: "Elden", havale: "Hesaba havale", booking: "Booking", diger: "Diğer"
     };
     const modBaslik = yillik ? "Yıllık Rapor" : "Aylık Rapor";
-    const rows = [];
-    const merges = [];
-    let ri = 0;
+    const td = 'style="border:1px solid #666;padding:6px 8px;"';
+    const th = 'style="border:1px solid #666;padding:6px 8px;background:#1e2d3d;color:#fff;font-weight:700;"';
+    const bas = 'style="border:1px solid #666;padding:8px;background:#15202b;color:#fff;font-size:14px;font-weight:800;"';
+    const satirlar = [];
 
-    function satirEkle(cells, birlestir) {
-      rows.push(cells);
-      if (birlestir === "tam") merges.push({ s: { r: ri, c: 0 }, e: { r: ri, c: 6 } });
-      else if (birlestir === "deger") merges.push({ s: { r: ri, c: 1 }, e: { r: ri, c: 6 } });
-      ri++;
-    }
-
-    satirEkle(["Apartım — " + modBaslik + " — " + (r.baslik || ""), "", "", "", "", "", ""], "tam");
-    satirEkle(["Gelir (gece)", raporGelirMetin(r.gelirPB), "", "", "", "", ""], "deger");
-    satirEkle(["Toplam gece", r.toplamGece + " gece", "", "", "", "", ""], "deger");
-    satirEkle(["Doluluk", "%" + Math.round(r.doluluk), "", "", "", "", ""], "deger");
-    satirEkle(["Rezervasyon", String(r.rezSayisi), "", "", "", "", ""], "deger");
-    satirEkle(["Tahsilat (ödeme yöntemi)", "", "", "", "", "", ""], "tam");
-    satirEkle(["Yöntem", "TL", "USD", "EUR", "", "", ""]);
+    satirlar.push(
+      "<tr><td colspan=\"7\" " + bas + ">Apartım — " + escHtml(modBaslik) + " — " +
+      escHtml(r.baslik) + "</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Gelir (gece)</td><td colspan=\"6\" " + td + ">" +
+      escHtml(raporGelirMetin(r.gelirPB)) + "</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Toplam gece</td><td colspan=\"6\" " + td + ">" + r.toplamGece + " gece</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Doluluk</td><td colspan=\"6\" " + td + ">%" + Math.round(r.doluluk) + "</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Rezervasyon</td><td colspan=\"6\" " + td + ">" + r.rezSayisi + "</td></tr>"
+    );
+    satirlar.push("<tr><td colspan=\"7\" " + bas + ">Tahsilat (ödeme yöntemi)</td></tr>");
+    satirlar.push(
+      "<tr><th " + th + ">Yöntem</th><th " + th + ">TL</th><th " + th + ">USD</th><th " + th +
+      ">EUR</th><th colspan=\"3\" " + th + "></th></tr>"
+    );
     Object.keys(yontemler).forEach((key) => {
       const pb = r.tahsilatYontem[key] || { TL: 0, USD: 0, EUR: 0 };
       if (!pb.TL && !pb.USD && !pb.EUR) return;
-      satirEkle([
-        yontemler[key],
-        raporPbMetin(pb.TL, "TL"),
-        raporPbMetin(pb.USD, "USD"),
-        raporPbMetin(pb.EUR, "EUR"),
-        "", "", ""
-      ]);
+      satirlar.push(
+        "<tr><td " + td + ">" + escHtml(yontemler[key]) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(pb.TL, "TL")) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(pb.USD, "USD")) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(pb.EUR, "EUR")) + "</td>" +
+        "<td colspan=\"3\" " + td + "></td></tr>"
+      );
     });
-    satirEkle(["Daire özeti", "", "", "", "", "", ""], "tam");
-    satirEkle(["Daire", "Gece", "Gelir TL", "Gelir USD", "Gelir EUR", "Toplam ≈ TL", "Doluluk"]);
+    satirlar.push("<tr><td colspan=\"7\" " + bas + ">Daire özeti</td></tr>");
+    satirlar.push(
+      "<tr><th " + th + ">Daire</th><th " + th + ">Gece</th><th " + th + ">Gelir TL</th><th " +
+      th + ">Gelir USD</th><th " + th + ">Gelir EUR</th><th " + th + ">Toplam ≈ TL</th><th " +
+      th + ">Doluluk</th></tr>"
+    );
     r.daireler.forEach((d) => {
       const o = r.daireOzet[d.id] || { gece: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
       const doluluk = r.gunSayisi > 0 ? Math.round(o.gece * 100 / r.gunSayisi) : 0;
-      satirEkle([
-        d.ad,
-        o.gece,
-        raporPbMetin(o.gelirPB.TL, "TL"),
-        raporPbMetin(o.gelirPB.USD, "USD"),
-        raporPbMetin(o.gelirPB.EUR, "EUR"),
-        fmt(Math.round(gelirPbToplamTL(o.gelirPB))) + " ₺",
-        "%" + doluluk
-      ]);
+      satirlar.push(
+        "<tr><td " + td + ">" + escHtml(d.ad) + "</td>" +
+        "<td " + td + ">" + o.gece + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(o.gelirPB.TL, "TL")) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(o.gelirPB.USD, "USD")) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(o.gelirPB.EUR, "EUR")) + "</td>" +
+        "<td " + td + ">" + fmt(Math.round(gelirPbToplamTL(o.gelirPB))) + " ₺</td>" +
+        "<td " + td + ">%" + doluluk + "</td></tr>"
+      );
     });
 
-    return { aoa: rows, merges };
+    return satirlar.join("");
   }
 
   async function raporExportIndir() {
@@ -633,22 +646,27 @@
       window.APARTIM.toast?.("Veriler henüz yüklenmedi", "uyari");
       return;
     }
-    if (!window.XLSX || !window.APARTIM.xlsxBlob) {
-      window.APARTIM.toast?.("Excel modülü yüklenemedi — sayfayı yenileyin", "hata");
-      return;
-    }
     try {
       const yillik = raporDurum.mod === "yil";
       const r = raporHesapla();
-      const { aoa, merges } = raporExportSheet(r, yillik);
+      const govde = raporExportHtml(r, yillik);
+      const html =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
+        "<head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>" +
+        "<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>" +
+        "<x:Name>Rapor</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>" +
+        "</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->" +
+        "<style>table{border-collapse:collapse;width:100%;}td,th{mso-number-format:\"\\@\";font-size:11px;padding:2px 4px;border:1px solid #ccc;}</style></head><body>" +
+        '<table border="0" cellspacing="0" cellpadding="0">' + govde + "</table></body></html>";
+
       const dosyaAdi = raporExportDosyaAdi(r, yillik);
-      const blob = window.APARTIM.xlsxBlob(aoa, "Rapor", merges);
+      const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
 
       if (window.APARTIM.dosyaIndir) {
         await window.APARTIM.dosyaIndir(blob, dosyaAdi, {
           baslik: "Apartım rapor",
           basariMesaj: "Rapor indirildi",
-          mobilPaylasMesaj: "Excel uygulamasını seçin — düzenleyebilirsiniz",
+          mobilPaylasMesaj: "Excel veya Numbers seçin — düzenleyebilirsiniz",
           mobilIndirMesaj: "Excel dosyası indirildi — Dosyalar'dan açın"
         });
         return;
