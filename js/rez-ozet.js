@@ -1323,18 +1323,8 @@
   }
 
   function buguneGit() {
-    window.APARTIM.gorunum?.yilSec?.(varsayilanSezonYil());
-    const y = sezonYil();
-    const { bas, bit } = sezonBasBit(y);
-    const bugun = window.APARTIM.gorunum?.bugunISO?.() ||
-      window.APARTIM.db?.bugunISO?.() ||
-      iso(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
-    korunanScroll = null;
-    durum.ayKaydir = null;
-    durum.buguneKaydir = bugun >= bas && bugun <= bit;
-    if (durum.buguneKaydir) {
-      durum.seciliTarih = bugun;
-    } else {
+    const ortalandi = buguneOrtalaAyarla();
+    if (!ortalandi) {
       window.APARTIM.toast?.("Bugün sezon dışında (Haziran–Eylül)", "bilgi");
     }
     tabloCiz();
