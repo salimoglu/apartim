@@ -26,8 +26,7 @@
     { id: "oda-2", ad: "2. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 2 },
     { id: "oda-3", ad: "3. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 3 },
     { id: "oda-4", ad: "4. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 4 },
-    { id: "oda-5", ad: "5. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 5 },
-    { id: "oda-6", ad: "6. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 6 }
+    { id: "oda-5", ad: "5. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 5 }
   ];
 
   const durum = {
@@ -444,6 +443,11 @@
 
   function dairelerSeedEt() {
     let degisti = false;
+    if (durum.daireler["oda-6"]) {
+      delete durum.daireler["oda-6"];
+      degisti = true;
+      if (fbRef) fbRef.child("daireler/oda-6").remove().catch(() => {});
+    }
     SABIT_DAIRELER.forEach((tanim) => {
       if (!durum.daireler[tanim.id]) {
         durum.daireler[tanim.id] = {
