@@ -1979,6 +1979,14 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   font-size: 10px;
   font-weight: 800;
 }
+.rez-ozet-turnover-kt {
+  flex-shrink: 0;
+  font-size: 9px;
+  line-height: 1;
+}
+.rez-ozet-turnover-kt .rez-ozet-kategori-simge {
+  font-size: 9px;
+}
 .rez-ozet-turnover-fyt {
   flex-shrink: 0;
   font-weight: 700;
@@ -2004,18 +2012,13 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   font-size: 9px;
 }
 .rez-ozet-tablo-telefon .rez-ozet-turnover-fyt,
-.rez-ozet-tablo-telefon .rez-ozet-turnover-ad {
+.rez-ozet-tablo-telefon .rez-ozet-turnover-ad,
+.rez-ozet-tablo-telefon .rez-ozet-turnover-kt .rez-ozet-kategori-simge {
   font-size: 8px;
 }
 .rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-turnover-fyt,
 .rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-turnover-ad {
   color: #1a1a1a !important;
-}
-.rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-turnover-io .rez-ozet-io.in,
-.rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-turnover-io .rez-ozet-io.out {
-  background: #ffffff;
-  color: #1a1a1a !important;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
 .rez-ozet-turnover-kompakt,
 .rez-ozet-io-satir {
@@ -2122,7 +2125,7 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 }
 .rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-io.in,
 .rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-io.out {
-  background: #ffffff;
+  background: #ffeb3b !important;
   color: #1a1a1a !important;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
