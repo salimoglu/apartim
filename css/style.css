@@ -1487,7 +1487,6 @@ html.theme-light .rez-ozet-ay-ayrac td {
 }
 .rez-ozet-tablo-masaustu td.rez-ozet-io-rozet .rez-ozet-io {
   font-size: 7px;
-  padding: 1px 3px;
   letter-spacing: 0;
   white-space: nowrap;
 }
@@ -1873,21 +1872,23 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   color: #0f172a !important;
 }
 .rez-ozet-io {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-weight: 800;
   font-size: 7px;
   letter-spacing: 0;
-  padding: 0 3px;
+  padding: 2px 4px;
   border-radius: 2px;
-  line-height: 1.35;
+  line-height: 1;
   vertical-align: middle;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 .rez-ozet-io.in,
 .rez-ozet-io.out {
   background: #ffeb3b;
   color: #1a1a1a;
-  line-height: 1.2;
 }
 .rez-ozet-io-ad {
   font-weight: 600;
@@ -1972,8 +1973,6 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 }
 .rez-ozet-turnover-io .rez-ozet-io {
   font-size: 7px;
-  padding: 0 3px;
-  line-height: 1.25;
 }
 .rez-ozet-turnover-io .rez-ozet-g-sayi {
   font-size: 10px;
@@ -2006,7 +2005,7 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 }
 .rez-ozet-tablo-telefon .rez-ozet-turnover-io .rez-ozet-io {
   font-size: 6px;
-  padding: 0 2px;
+  padding: 2px 3px;
 }
 .rez-ozet-tablo-telefon .rez-ozet-turnover-io .rez-ozet-g-sayi {
   font-size: 9px;
@@ -2091,21 +2090,17 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 }
 .rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-io {
   font-size: 8px;
-  line-height: 1.2;
-  vertical-align: middle;
-  padding: 1px 4px;
   flex-shrink: 0;
 }
 .rez-ozet-g-turnover .rez-ozet-io {
   font-size: 7px;
-  padding: 1px 3px;
 }
 .rez-ozet-tablo-telefon td.rez-ozet-io-rozet {
   min-width: 38px;
 }
 .rez-ozet-tablo-telefon .rez-ozet-g-turnover .rez-ozet-io {
   font-size: 6px;
-  padding: 0 2px;
+  padding: 2px 3px;
 }
 .rez-ozet-tablo-telefon .rez-ozet-g-turnover .rez-ozet-g-sayi {
   font-size: 10px;
