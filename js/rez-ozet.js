@@ -1191,7 +1191,7 @@
     table.classList.toggle("rez-ozet-tablo-masaustu", !telefon);
 
     if (telefon) {
-      const MOBIL_ODA_HEDEF = mobilYatay ? 5 : 3;
+      const MOBIL_ODA_HEDEF = 5;
       const tarihPx = 36;
       const odaBlokPx = Math.max(58, (genislik - tarihPx) / MOBIL_ODA_HEDEF);
       const g = Math.max(10, Math.floor(odaBlokPx * 0.14));
@@ -1219,7 +1219,7 @@
       return;
     }
 
-    const MASAUSTU_ODA_HEDEF = 6;
+    const MASAUSTU_ODA_HEDEF = 5;
     const tarihPx = genislik >= 1200 ? 42 : 38;
     const odaBlokPx = Math.max(76, (genislik - tarihPx) / MASAUSTU_ODA_HEDEF);
     const g = Math.min(30, Math.max(24, Math.floor(odaBlokPx * 0.12)));
