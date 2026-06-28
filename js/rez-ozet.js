@@ -1483,7 +1483,7 @@
     return satirlar.join("");
   }
 
-  function excelRaporIndir() {
+  async function excelRaporIndir() {
     const db = window.APARTIM.db;
     if (!db?.durum.yuklendi) {
       window.APARTIM.toast?.("Veriler henüz yüklenmedi", "uyari");
@@ -1501,22 +1501,37 @@
       const tabloGovde = excelRaporHtml(y, daireler, gunler, harita, bugun);
       const html =
         '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
-        "<head><meta charset=\"UTF-8\"/>" +
+        "<head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>" +
         "<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>" +
         "<x:Name>Rezervasyon</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>" +
         "</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->" +
-        "<style>table{border-collapse:collapse;}td,th{mso-number-format:\"\\@\";}</style></head><body>" +
+        "<style>table{border-collapse:collapse;width:100%;}td,th{mso-number-format:\"\\@\";font-size:11px;padding:2px 4px;border:1px solid #ccc;}</style></head><body>" +
         '<table border="0" cellspacing="0" cellpadding="0">' + tabloGovde + "</table></body></html>";
 
-      const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const mobil = window.APARTIM.mobilCihazMi?.();
+      const dosyaAdi = mobil
+        ? "Apartim-Rezervasyon-" + y + "-Haziran-Eylul.html"
+        : "Apartim-Rezervasyon-" + y + "-Haziran-Eylul.xls";
+      const mime = mobil ? "text/html;charset=utf-8" : "application/vnd.ms-excel;charset=utf-8";
+      const blob = new Blob(["\ufeff" + html], { type: mime });
+
+      if (window.APARTIM.dosyaIndir) {
+        await window.APARTIM.dosyaIndir(blob, dosyaAdi, {
+          baslik: "Apartım rezervasyon raporu",
+          basariMesaj: "Excel raporu indirildi",
+          mobilAcMesaj: "Rapor açıldı — tabloda okuyabilir veya paylaş ile kaydedebilirsiniz"
+        });
+        return;
+      }
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "Apartim-Rezervasyon-" + y + "-Haziran-Eylul.xls";
+      a.download = dosyaAdi;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      URL.revokeObjectURL(url);
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
       window.APARTIM.toast?.("Excel raporu indirildi", "basari");
     } catch (err) {
       console.error("excelRaporIndir", err);
