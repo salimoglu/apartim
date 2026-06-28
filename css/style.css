@@ -2004,13 +2004,13 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 .rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-sayi {
   font-size: 11px;
 }
-html:not(.theme-light) .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
-  background: #6b5200 !important;
-  color: #ffe566;
-}
+html:not(.theme-light) .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih,
 html.theme-light .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
-  background: #e6a817 !important;
+  background: #ffeb3b !important;
   color: #1a1a1a;
+}
+html:not(.theme-light) .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-gun-ad {
+  color: #374151;
 }
 .rez-ozet-table td.rez-ozet-io-hucre {
   color: #1a1a1a;

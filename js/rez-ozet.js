@@ -15,7 +15,7 @@
   const SEZON_BIT_AY = 8;
   const CHUNK_GUN = 14;
 
-  const IO_HUCRE_RENK = "#e6a817";
+  const IO_HUCRE_RENK = "#ffeb3b";
 
   const DAIRE_RENK = {
     "ust": "#ffcdd2",
@@ -350,11 +350,25 @@
     return ioBadge("out", rezId);
   }
 
+  function gInHtml(rezId) {
+    return ioBadge("in", rezId);
+  }
+
+  function gCheckinHtml(rezId) {
+    return (
+      '<span class="rez-ozet-g-stack">' +
+        gInHtml(rezId) +
+        '<span class="rez-ozet-g-sayi">1</span>' +
+      "</span>"
+    );
+  }
+
   function gTurnoverHtml(cikisRid, girisRid) {
     return (
       '<span class="rez-ozet-g-stack">' +
         gOutHtml(cikisRid) +
-        '<span class="rez-ozet-g-sayi rez-ozet-tik" data-rez-id="' + esc(girisRid) + '">1</span>' +
+        gInHtml(girisRid) +
+        '<span class="rez-ozet-g-sayi">1</span>' +
       "</span>"
     );
   }
@@ -552,8 +566,9 @@
 
   function checkinHucreler(rez, tarih) {
     const det = konakDetay(rez, tarih);
+    const rid = rezIdAl(rez);
     return [
-      { cls: "rez-ozet-sayi", txt: String(det.g) },
+      { cls: "rez-ozet-sayi rez-ozet-io-rozet", html: gCheckinHtml(rid) },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
       { type: "odn" },
@@ -1335,7 +1350,7 @@
       const det = konakDetay(h.giris, tarih);
       return {
         hucreler: [
-          "OUT · 1",
+          "OUT · IN · 1",
           det.kategori,
           formatHucreFiyat(h.giris, det.prc),
           rezOutKalanMetin(h.cikis) || "",
@@ -1361,7 +1376,7 @@
       const det = konakDetay(h.rez, tarih);
       return {
         hucreler: [
-          String(det.g),
+          "IN · 1",
           det.kategori,
           formatHucreFiyat(h.rez, det.prc),
           excelOdemeGoster(h.rez, det.odenenInfo),
