@@ -107,13 +107,9 @@
     lockAcik = false;
     lockScreen.classList.add("hidden");
     app.classList.remove("hidden");
-    const kayitliAvatar = window.APARTIM.avatar?.depoOku?.(kullanici.uid);
-    const birlesik = kayitliAvatar
-      ? Object.assign({}, kullanici, { avatarId: kayitliAvatar })
-      : kullanici;
     const k = window.APARTIM.avatar
-      ? window.APARTIM.avatar.kullaniciyaEkle(birlesik)
-      : birlesik;
+      ? window.APARTIM.avatar.kullaniciyaEkle(kullanici)
+      : kullanici;
     window.APARTIM.kullanici = k;
     document.dispatchEvent(new CustomEvent("apartim:auth-hazir", { detail: k }));
   }

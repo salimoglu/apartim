@@ -70,6 +70,13 @@
     } catch (e) {}
   }
 
+  function depoSil(uid) {
+    if (!uid) return;
+    try {
+      localStorage.removeItem(depoKey(uid));
+    } catch (e) {}
+  }
+
   window.APARTIM.avatar = {
     VERSIYON: V,
     VARSAYILAN,
@@ -80,6 +87,7 @@
     kullaniciyaEkle,
     depoOku,
     depoYaz,
+    depoSil,
     seciciAc,
     seciciKapat
   };

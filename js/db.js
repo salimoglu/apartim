@@ -480,12 +480,22 @@
   let kullaniciUid = null;
   let fbRef = null; // ana ref
   let yerelAktif = !window.APARTIM.firebaseAktif;
+  let profilAvatarListener = null;
+
+  function profilAvatarDinlemeyiKaldir() {
+    if (profilAvatarListener && fbRef) {
+      fbRef.child("profil").off("value", profilAvatarListener);
+      profilAvatarListener = null;
+    }
+  }
 
   function profilAvatarUygula(kullanici) {
     if (!window.APARTIM.kullanici || !kullanici) return;
-    window.APARTIM.kullanici = Object.assign({}, window.APARTIM.kullanici, {
-      avatarId: kullanici.avatarId || window.APARTIM.kullanici.avatarId
-    });
+    const patch = {};
+    if (Object.prototype.hasOwnProperty.call(kullanici, "avatarId")) {
+      patch.avatarId = kullanici.avatarId || null;
+    }
+    window.APARTIM.kullanici = Object.assign({}, window.APARTIM.kullanici, patch);
     if (window.APARTIM.avatar) {
       window.APARTIM.kullanici = window.APARTIM.avatar.kullaniciyaEkle(window.APARTIM.kullanici);
       window.APARTIM.avatar.guncelle(
@@ -493,6 +503,35 @@
         window.APARTIM.kullanici
       );
     }
+  }
+
+  function profilAvatarFirebaseUygula(p) {
+    const uid = kullaniciUid || window.APARTIM.kullanici?.uid;
+    if (!uid) return;
+    const avatarId = p && p.avatarId ? p.avatarId : null;
+    if (avatarId) {
+      profilAvatarUygula({ avatarId });
+      window.APARTIM.avatar?.depoYaz?.(uid, avatarId);
+      return;
+    }
+    const yerel = window.APARTIM.avatar?.depoOku?.(uid);
+    if (yerel && fbRef) {
+      fbRef.child("profil").update({ avatarId: yerel }).catch(() => {});
+      return;
+    }
+    if (yerel && window.APARTIM.avatar?.depoSil) {
+      window.APARTIM.avatar.depoSil(uid);
+    }
+    profilAvatarUygula({ avatarId: null });
+  }
+
+  function profilAvatarFirebaseBagla() {
+    if (!window.APARTIM.firebaseAktif || !fbRef) return;
+    profilAvatarDinlemeyiKaldir();
+    profilAvatarListener = (snap) => {
+      profilAvatarFirebaseUygula(snap.val() || {});
+    };
+    fbRef.child("profil").on("value", profilAvatarListener);
   }
 
   function profilAvatarKaydet(avatarId) {
@@ -513,15 +552,16 @@
 
   function profilAvatarYukle(kullanici) {
     const uid = kullanici?.uid;
-    if (!uid) return;
+    if (!uid || window.APARTIM.firebaseAktif) return;
     const yerel = window.APARTIM.avatar?.depoOku?.(uid);
     if (yerel) {
-      profilAvatarUygula(Object.assign({}, kullanici, { avatarId: yerel }));
+      profilAvatarUygula({ avatarId: yerel });
     }
   }
 
   function kullaniciHazir(kullanici) {
     kullaniciUid = kullanici.uid;
+    profilAvatarDinlemeyiKaldir();
     fbIlkSenkronBitti = false;
     fbIlkDaireler = false;
     fbIlkRez = false;
@@ -530,23 +570,13 @@
     profilAvatarYukle(kullanici);
     if (window.APARTIM.firebaseAktif) {
       fbRef = window.APARTIM.fbDb.ref("apartim/kullanicilar/" + kullaniciUid);
-      fbRef.child("profil").once("value", (snap) => {
-        const p = snap.val() || {};
-        const yerel = window.APARTIM.avatar?.depoOku?.(kullaniciUid);
-        if (p.avatarId) {
-          profilAvatarUygula(Object.assign({}, kullanici, { avatarId: p.avatarId }));
-          window.APARTIM.avatar?.depoYaz?.(kullaniciUid, p.avatarId);
-        } else if (yerel) {
-          fbRef.child("profil").update({ avatarId: yerel }).catch(() => {});
-        }
-      });
+      profilAvatarFirebaseBagla();
       const profilPatch = {
         ad: kullanici.ad || "",
         kullaniciAdi: kullanici.kullaniciAdi || "",
         eposta: kullanici.eposta || "",
         son: firebase.database.ServerValue.TIMESTAMP
       };
-      if (kullanici.avatarId) profilPatch.avatarId = kullanici.avatarId;
       const profilGuncelle = () => {
         fbRef?.child("profil").update(profilPatch).catch(() => {});
       };
