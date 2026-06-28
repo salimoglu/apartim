@@ -181,10 +181,26 @@
     return SEZON_BAS_AY;
   }
 
-  function rezSekmeAc() {
+  function buguneOrtalaAyarla() {
+    window.APARTIM.gorunum?.yilSec?.(varsayilanSezonYil());
+    const y = sezonYil();
+    const { bas, bit } = sezonBasBit(y);
+    const bugun = window.APARTIM.gorunum?.bugunISO?.() ||
+      window.APARTIM.db?.bugunISO?.() ||
+      iso(new Date().getFullYear(), new Date().getMonth(), new Date().getDate());
     korunanScroll = null;
-    durum.buguneKaydir = false;
-    durum.ayKaydir = aktifAyaHedefAy();
+    durum.ayKaydir = null;
+    durum.buguneKaydir = bugun >= bas && bugun <= bit;
+    if (durum.buguneKaydir) {
+      durum.seciliTarih = bugun;
+    } else {
+      durum.ayKaydir = aktifAyaHedefAy();
+    }
+    return durum.buguneKaydir;
+  }
+
+  function rezSekmeAc() {
+    buguneOrtalaAyarla();
     tabloCiz();
   }
 
@@ -193,6 +209,7 @@
   }
 
   let tabloIlkCizim = true;
+  let sayfaIlkOrtala = true;
 
   function tabloCizPlanla() {
     if (!tabloSekmesiAcikMi()) return;
@@ -1088,6 +1105,7 @@
   }
 
   function scrollGeriYukleSonra(wrap, table) {
+    const hedefTarih = durum.seciliTarih;
     requestAnimationFrame(() => {
       scrollGeriYukle(wrap, table);
       requestAnimationFrame(() => scrollGeriYukle(wrap, table));
@@ -1095,6 +1113,12 @@
         scrollGeriYukle(wrap, table);
         korunanScroll = null;
       }, 0);
+      setTimeout(() => {
+        if (!hedefTarih) return;
+        const sc = scrollKapsayici || document.querySelector(".rez-ozet-scroll");
+        const row = table.querySelector('tr.rez-ozet-tr[data-tarih="' + hedefTarih + '"]');
+        if (sc && row) scrollElemana(sc, row, true);
+      }, 120);
     });
   }
 
@@ -1249,6 +1273,11 @@
 
     const harita = gunHaritasiOlustur(db, daireler, bas, bit);
     if (myToken !== renderToken) return;
+
+    if (sayfaIlkOrtala && tabloSekmesiAcikMi()) {
+      sayfaIlkOrtala = false;
+      if (!durum.buguneKaydir) buguneOrtalaAyarla();
+    }
 
     const table = theadOlustur(daireler);
     const tbody = document.createElement("tbody");
