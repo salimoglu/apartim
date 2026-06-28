@@ -243,44 +243,6 @@
     return all;
   }
 
-  function paraOzetCiz(y) {
-    const bar = document.getElementById("rez-ozet-para-bar");
-    if (!bar || !window.APARTIM.para) return;
-    const db = window.APARTIM.db;
-    if (!db || !db.durum.yuklendi) {
-      bar.innerHTML = "";
-      return;
-    }
-    const { bas, bitHaric } = sezonBasBit(y);
-    const { toplam, tlToplam } = window.APARTIM.para.aralikToplamlari(db, bas, bitHaric);
-    const k = window.APARTIM.para.kurlariGetir();
-    const meta = window.APARTIM.para.kurMetaGetir();
-    const kurTarih = meta.guncelleme
-      ? " · " + window.APARTIM.para.formatKurTarihi(meta.guncelleme)
-      : "";
-    const parcalar = [];
-    if (toplam.TL > 0) parcalar.push('<span class="rez-ozet-para-item tl">' + window.APARTIM.para.formatTutar(toplam.TL, "TL") + "</span>");
-    if (toplam.USD > 0) parcalar.push('<span class="rez-ozet-para-item usd">' + window.APARTIM.para.formatTutar(toplam.USD, "USD") + "</span>");
-    if (toplam.EUR > 0) parcalar.push('<span class="rez-ozet-para-item eur">' + window.APARTIM.para.formatTutar(toplam.EUR, "EUR") + "</span>");
-    const sadeceTl = toplam.TL > 0 && toplam.USD === 0 && toplam.EUR === 0;
-    let tutarHtml;
-    if (sadeceTl) {
-      tutarHtml = parcalar[0];
-    } else if (parcalar.length) {
-      tutarHtml = parcalar.join('<span class="rez-ozet-para-ayrac">·</span>') +
-        '<span class="rez-ozet-para-ayrac">·</span>' +
-        '<span class="rez-ozet-para-toplam">≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>";
-    } else {
-      tutarHtml = '<span class="rez-ozet-para-toplam">≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>";
-    }
-    bar.innerHTML =
-      '<div class="rez-ozet-para-ic">' +
-        tutarHtml +
-        '<span class="rez-ozet-para-ayrac">·</span>' +
-        '<span class="rez-ozet-para-kur">1$=' + window.APARTIM.para.formatKur(k.USD) + "₺ · 1€=" +
-          window.APARTIM.para.formatKur(k.EUR) + "₺" + kurTarih + "</span>" +
-      "</div>";
-  }
   function ayinGunSayisi(y, m) { return new Date(y, m + 1, 0).getDate(); }
 
   function tarihGoster(isoStr) {
