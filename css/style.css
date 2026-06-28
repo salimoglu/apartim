@@ -2179,11 +2179,6 @@ body.modal-acik .modal-body {
 }
 
 .field-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px; }
-.field-check {
-  display: flex; align-items: center; gap: 10px;
-  margin: 12px 0 4px; font-size: 14px; color: var(--metin); cursor: pointer;
-}
-.field-check input { width: 18px; height: 18px; accent-color: var(--vurgu); }
 .field-label {
   font-size: 12px; font-weight: 700; color: var(--metin-soluk);
   text-transform: uppercase; letter-spacing: 0.5px;
