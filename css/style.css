@@ -1949,6 +1949,74 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   flex-shrink: 0;
   opacity: 0.7;
 }
+.rez-ozet-turnover-birlesik {
+  padding: 1px 4px !important;
+  overflow: hidden;
+  text-align: left;
+  vertical-align: middle;
+}
+.rez-ozet-turnover-satir {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: nowrap;
+  min-width: 0;
+  width: 100%;
+  line-height: 1.2;
+}
+.rez-ozet-turnover-io {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.rez-ozet-turnover-io .rez-ozet-io {
+  font-size: 7px;
+  padding: 0 3px;
+  line-height: 1.25;
+}
+.rez-ozet-turnover-io .rez-ozet-g-sayi {
+  font-size: 10px;
+  font-weight: 800;
+}
+.rez-ozet-turnover-fyt {
+  flex-shrink: 0;
+  font-weight: 700;
+  font-size: 9px;
+  color: #1a1a1a !important;
+  white-space: nowrap;
+}
+.rez-ozet-turnover-ad {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
+  font-size: 9px;
+  color: #1a1a1a !important;
+  white-space: nowrap;
+}
+.rez-ozet-tablo-telefon .rez-ozet-turnover-io .rez-ozet-io {
+  font-size: 6px;
+  padding: 0 2px;
+}
+.rez-ozet-tablo-telefon .rez-ozet-turnover-io .rez-ozet-g-sayi {
+  font-size: 9px;
+}
+.rez-ozet-tablo-telefon .rez-ozet-turnover-fyt,
+.rez-ozet-tablo-telefon .rez-ozet-turnover-ad {
+  font-size: 8px;
+}
+.rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-turnover-fyt,
+.rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-turnover-ad {
+  color: #1a1a1a !important;
+}
+.rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-turnover-io .rez-ozet-io.in,
+.rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-turnover-io .rez-ozet-io.out {
+  background: #ffffff;
+  color: #1a1a1a !important;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
 .rez-ozet-turnover-kompakt,
 .rez-ozet-io-satir {
   display: flex;
