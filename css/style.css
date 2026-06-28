@@ -1990,19 +1990,54 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   vertical-align: middle;
+  flex-wrap: nowrap;
+  max-width: 100%;
+}
+.rez-ozet-g-turnover {
+  gap: 2px;
 }
 .rez-ozet-g-sayi {
   display: inline-block;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 800;
   color: #111827;
-  line-height: 1.2;
+  line-height: 1.15;
   letter-spacing: -0.02em;
+  flex-shrink: 0;
+}
+.rez-ozet-table td.rez-ozet-io-rozet {
+  overflow: visible !important;
+  text-overflow: clip;
+  line-height: 1.15;
+  font-size: inherit;
+  min-width: 44px;
+  padding: 2px 3px !important;
 }
 .rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-sayi {
-  font-size: 11px;
+  font-size: 12px;
+}
+.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-io {
+  font-size: 8px;
+  line-height: 1.2;
+  vertical-align: middle;
+  padding: 1px 4px;
+  flex-shrink: 0;
+}
+.rez-ozet-g-turnover .rez-ozet-io {
+  font-size: 7px;
+  padding: 1px 3px;
+}
+.rez-ozet-tablo-telefon td.rez-ozet-io-rozet {
+  min-width: 38px;
+}
+.rez-ozet-tablo-telefon .rez-ozet-g-turnover .rez-ozet-io {
+  font-size: 6px;
+  padding: 0 2px;
+}
+.rez-ozet-tablo-telefon .rez-ozet-g-turnover .rez-ozet-g-sayi {
+  font-size: 10px;
 }
 html:not(.theme-light) .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih,
 html.theme-light .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
@@ -2014,17 +2049,6 @@ html:not(.theme-light) .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-gun-ad {
 }
 .rez-ozet-table td.rez-ozet-io-hucre {
   color: #1a1a1a;
-}
-.rez-ozet-table td.rez-ozet-io-rozet {
-  line-height: 0;
-  font-size: 0;
-  padding-top: 2px !important;
-  padding-bottom: 2px !important;
-}
-.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-io {
-  font-size: 7px;
-  line-height: 1.2;
-  vertical-align: middle;
 }
 
 /* -------------------- 10. Temizlik -------------------- */
