@@ -1256,8 +1256,6 @@
     const bugun = window.APARTIM.gorunum?.bugunISO?.() || db.bugunISO();
     const colSpan = 1 + daireler.length * 5;
 
-    paraOzetCiz(y);
-
     const harita = gunHaritasiOlustur(db, daireler, bas, bit);
     if (myToken !== renderToken) return;
 
