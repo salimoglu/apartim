@@ -111,7 +111,10 @@
     if (mobilCihazMi()) {
       if (navigator.share) {
         try {
-          const mime = blob.type || "application/vnd.ms-excel";
+          const mime = blob.type ||
+          (/\.xlsx$/i.test(dosyaAdi)
+            ? "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            : "application/vnd.ms-excel");
           const file = new File([blob], dosyaAdi, { type: mime });
           const paylas = { files: [file], title: secenek.baslik || dosyaAdi };
           if (!navigator.canShare || navigator.canShare(paylas)) {

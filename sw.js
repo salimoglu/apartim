@@ -1,13 +1,16 @@
 /* Apartım — basit cache-first service worker */
 /* Sürüm: js/version.js APP ile senkron (1.0 → 1.1 → 1.2 …) */
-const CACHE_VERSION = "apartim-2-27";
-const ASSET_V = "2.41";
+const CACHE_VERSION = "apartim-2-42";
+const ASSET_V = "2.42";
+const SHEETJS_URL = "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js";
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
   "./js/version.js?v=" + ASSET_V,
   "./css/style.css?v=" + ASSET_V,
+  SHEETJS_URL,
+  "./js/xlsx-indir.js?v=" + ASSET_V,
   "./js/firebase.js?v=" + ASSET_V,
   "./js/avatar.js?v=" + ASSET_V,
   "./js/pwa-install.js?v=" + ASSET_V,

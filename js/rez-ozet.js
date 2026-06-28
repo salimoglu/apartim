@@ -1342,29 +1342,6 @@
     return n ? " · Not: " + n : "";
   }
 
-  const XL = {
-    cizgi: "#6b7280",
-    tarihBg: "#1e2d3d",
-    tarihHaftaSonu: "#243446",
-    hucreYazi: "#111827",
-    ayAyiriciBg: "#1a2633",
-    ayAyiriciYazi: "#ffffff",
-    thKose: "padding:3px 6px;background:#1e2d3d;color:#ffffff;font-weight:800;font-size:10px;border:1px solid #6b7280;text-align:center;white-space:nowrap;",
-    thDaire: (bg) => "padding:3px 6px;background:" + bg + ";font-weight:800;font-size:10px;color:#111827;text-align:center;border:1px solid #6b7280;white-space:nowrap;",
-    thMini: (bg) => "padding:2px 3px;background:" + bg + ";font-size:9px;font-weight:700;color:#111827;border:1px solid #6b7280;text-align:center;",
-    tdTarih: (haftaSonu) => "padding:2px 4px;background:" + (haftaSonu ? "#243446" : "#1e2d3d") +
-      ";color:#ffffff;font-size:10px;border:1px solid #6b7280;vertical-align:middle;white-space:nowrap;",
-    tdHucre: (bg) => "padding:1px 3px;background:" + bg + ";color:#111827;font-size:10px;border:1px solid #6b7280;vertical-align:middle;text-align:center;white-space:nowrap;",
-    tdAyAyirici: "padding:5px 8px;background:#1a2633;color:#ffffff;font-weight:300;font-size:11px;letter-spacing:1px;text-align:center;border:1px solid #6b7280;",
-    tdBirlesik: (bg) => "padding:2px 4px;background:" + bg + ";color:#111827;font-size:10px;border:1px solid #6b7280;vertical-align:middle;text-align:left;white-space:nowrap;",
-    tdNot: (bg) => "padding:2px 4px;background:" + bg + ";color:#374151;font-size:9px;border:1px solid #6b7280;vertical-align:middle;text-align:left;white-space:normal;min-width:80px;"
-  };
-
-  function xlHucre(metin, stil, colspan) {
-    const cs = colspan ? ' colspan="' + colspan + '"' : "";
-    return '<td' + cs + ' style="' + stil + '">' + esc(metin) + "</td>";
-  }
-
   function excelDaireHucreleri(h, tarih) {
     if (h.tip === "turnover") {
       const det = konakDetay(h.giris, tarih);
@@ -1424,63 +1401,76 @@
     return gelir + "  —  Sezon toplam ≈ " + fmt(Math.round(tlToplam)) + " ₺";
   }
 
-  function excelRaporHtml(y, daireler, gunler, harita, bugun) {
-    const colSpan = 1 + daireler.length * XL_DAIRE_COL;
-    const satirlar = [];
+  function excelRaporBosSatir(cols) {
+    return new Array(cols).fill("");
+  }
 
-    satirlar.push(
-      '<tr><td colspan="' + colSpan + '" style="padding:8px 10px;background:#15202b;color:#ffffff;font-size:14px;font-weight:800;border:1px solid #6b7280;">' +
-        esc("APARTIM — Rezervasyon Özeti · Haziran – Eylül " + y) + "</td></tr>"
-    );
-    satirlar.push(
-      '<tr><td colspan="' + colSpan + '" style="padding:6px 10px;background:#1e2d3d;color:#ffffff;font-size:11px;border:1px solid #6b7280;">' +
-        esc(excelSezonOzetMetni(y)) + "</td></tr>"
-    );
+  function excelRaporAoA(y, daireler, gunler, harita) {
+    const cols = 1 + daireler.length * XL_DAIRE_COL;
+    const rows = [];
+    const merges = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: cols - 1 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: cols - 1 } }
+    ];
 
-    let h1 = '<td rowspan="2" style="' + XL.thKose + '">Tarih</td>';
+    const baslik = excelRaporBosSatir(cols);
+    baslik[0] = "APARTIM — Rezervasyon Özeti · Haziran – Eylül " + y;
+    rows.push(baslik);
+
+    const ozet = excelRaporBosSatir(cols);
+    ozet[0] = excelSezonOzetMetni(y);
+    rows.push(ozet);
+
+    const h1 = excelRaporBosSatir(cols);
+    h1[0] = "Tarih";
     daireler.forEach((d, i) => {
-      h1 += xlHucre(daireBaslik(d), XL.thDaire(daireRenk(d, i)), XL_DAIRE_COL);
+      h1[1 + i * XL_DAIRE_COL] = daireBaslik(d);
     });
-    satirlar.push("<tr>" + h1 + "</tr>");
+    rows.push(h1);
 
-    let h2 = "";
+    const h2 = excelRaporBosSatir(cols);
     daireler.forEach((d, i) => {
-      const renk = daireRenk(d, i);
-      ["G", "Kt", "Fyt", "Ödn", "Ad", "Not"].forEach((lbl) => {
-        h2 += xlHucre(lbl, XL.thMini(renk));
+      const base = 1 + i * XL_DAIRE_COL;
+      ["G", "Kt", "Fyt", "Ödn", "Ad", "Not"].forEach((lbl, j) => {
+        h2[base + j] = lbl;
       });
     });
-    satirlar.push("<tr>" + h2 + "</tr>");
+    rows.push(h2);
+
+    daireler.forEach((d, i) => {
+      const c0 = 1 + i * XL_DAIRE_COL;
+      merges.push({ s: { r: 2, c: c0 }, e: { r: 2, c: c0 + XL_DAIRE_COL - 1 } });
+    });
 
     let oncekiAy = -1;
     gunler.forEach(({ tarih, ay }) => {
-      const gun = Number(tarih.slice(8, 10));
-      const haftaSonu = new Date(y, ay, gun - 1).getDay();
-      const hs = haftaSonu === 0 || haftaSonu === 6;
-
       if (ay !== oncekiAy) {
-        satirlar.push("<tr>" + xlHucre(AY_ADLARI[ay] + " " + y, XL.tdAyAyirici, colSpan) + "</tr>");
+        const ayRow = excelRaporBosSatir(cols);
+        ayRow[0] = AY_ADLARI[ay] + " " + y;
+        rows.push(ayRow);
+        merges.push({ s: { r: rows.length - 1, c: 0 }, e: { r: rows.length - 1, c: cols - 1 } });
         oncekiAy = ay;
       }
-
-      let satir = xlHucre(tarihGoster(tarih) + " " + gunAdi(tarih, true), XL.tdTarih(hs));
+      const satir = excelRaporBosSatir(cols);
+      satir[0] = tarihGoster(tarih) + " " + gunAdi(tarih, true);
+      const rowIdx = rows.length;
       daireler.forEach((d, di) => {
+        const base = 1 + di * XL_DAIRE_COL;
         const h = gunDurumuHarita(harita, d.id, tarih);
-        const renk = daireRenk(d, di);
         const hucre = excelDaireHucreleri(h, tarih);
         if (hucre.birlesik) {
-          satir += xlHucre(hucre.birlesik, XL.tdBirlesik(renk), XL_DAIRE_COL);
+          satir[base] = hucre.birlesik;
+          merges.push({ s: { r: rowIdx, c: base }, e: { r: rowIdx, c: base + XL_DAIRE_COL - 1 } });
         } else {
           hucre.hucreler.forEach((txt, ci) => {
-            const stil = ci === 5 ? XL.tdNot(renk) : XL.tdHucre(renk);
-            satir += xlHucre(txt, stil);
+            satir[base + ci] = txt;
           });
         }
       });
-      satirlar.push("<tr>" + satir + "</tr>");
+      rows.push(satir);
     });
 
-    return satirlar.join("");
+    return { aoa: rows, merges };
   }
 
   async function excelRaporIndir() {
@@ -1489,33 +1479,26 @@
       window.APARTIM.toast?.("Veriler henüz yüklenmedi", "uyari");
       return;
     }
+    if (!window.XLSX || !window.APARTIM.xlsxBlob) {
+      window.APARTIM.toast?.("Excel modülü yüklenemedi — sayfayı yenileyin", "hata");
+      return;
+    }
 
     try {
       const y = sezonYil();
       const daireler = dairelerOzetSirasi(db);
       const gunler = sezonGunleri(y);
       const { bas, bit } = sezonBasBit(y);
-      const bugun = window.APARTIM.gorunum?.bugunISO?.() || db.bugunISO();
       const harita = gunHaritasiOlustur(db, daireler, bas, bit);
-
-      const tabloGovde = excelRaporHtml(y, daireler, gunler, harita, bugun);
-      const html =
-        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
-        "<head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>" +
-        "<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>" +
-        "<x:Name>Rezervasyon</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>" +
-        "</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->" +
-        "<style>table{border-collapse:collapse;width:100%;}td,th{mso-number-format:\"\\@\";font-size:11px;padding:2px 4px;border:1px solid #ccc;}</style></head><body>" +
-        '<table border="0" cellspacing="0" cellpadding="0">' + tabloGovde + "</table></body></html>";
-
-      const dosyaAdi = "Apartim-Rezervasyon-" + y + "-Haziran-Eylul.xls";
-      const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const { aoa, merges } = excelRaporAoA(y, daireler, gunler, harita);
+      const blob = window.APARTIM.xlsxBlob(aoa, "Rezervasyon", merges);
+      const dosyaAdi = "Apartim-Rezervasyon-" + y + "-Haziran-Eylul.xlsx";
 
       if (window.APARTIM.dosyaIndir) {
         await window.APARTIM.dosyaIndir(blob, dosyaAdi, {
           baslik: "Apartım rezervasyon raporu",
           basariMesaj: "Excel raporu indirildi",
-          mobilPaylasMesaj: "Excel veya Numbers seçin — düzenleyebilirsiniz",
+          mobilPaylasMesaj: "Excel uygulamasını seçin — düzenleyebilirsiniz",
           mobilIndirMesaj: "Excel dosyası indirildi — Dosyalar'dan açın"
         });
         return;
