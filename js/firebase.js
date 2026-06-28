@@ -38,6 +38,11 @@
       firebase.initializeApp(APARTIM_CONFIG);
       window.APARTIM.fbAuth = firebase.auth();
       window.APARTIM.fbDb = firebase.database();
+      try {
+        window.APARTIM.fbFunctions = firebase.app().functions("europe-west1");
+      } catch (e) {
+        console.warn("Firebase Functions yüklenemedi:", e);
+      }
       // Local persistence
       try {
         window.APARTIM.fbAuth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);

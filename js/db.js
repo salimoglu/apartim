@@ -495,6 +495,27 @@
     }
   }
 
+  function profilRaporAyarKaydet(eposta, aktif) {
+    if (!fbRef) return Promise.resolve();
+    return fbRef.child("profil").update({
+      raporEposta: String(eposta || "").trim(),
+      raporPazarAktif: aktif !== false
+    }).catch(() => {});
+  }
+
+  function profilRaporAyarOku() {
+    if (!fbRef) {
+      return Promise.resolve({ raporEposta: "", raporPazarAktif: true });
+    }
+    return fbRef.child("profil").once("value").then((snap) => {
+      const p = snap.val() || {};
+      return {
+        raporEposta: p.raporEposta || "",
+        raporPazarAktif: p.raporPazarAktif !== false
+      };
+    }).catch(() => ({ raporEposta: "", raporPazarAktif: true }));
+  }
+
   function profilAvatarKaydet(avatarId) {
     const uid = kullaniciUid || window.APARTIM.kullanici?.uid;
     if (!uid || !avatarId) return Promise.resolve();
@@ -961,6 +982,8 @@
     musteriKaynagiEkle,
     musteriKaynagiSil,
     profilAvatarKaydet,
+    profilRaporAyarKaydet,
+    profilRaporAyarOku,
     VARSAYILAN_MUSTERI_KAYNAKLARI,
     KATEGORI_SIMGELER,
     SABIT_DAIRELER
