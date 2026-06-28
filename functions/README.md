@@ -1,47 +1,45 @@
-# Haftalık Pazar rapor e-postası (Cloud Functions)
+# Haftalık Pazar rapor e-postası
 
-Sezon boyunca (Haziran–Eylül) her **Pazar 08:00** (Europe/Istanbul) rezervasyon özeti `.xls` ek olarak gönderilir.
+Kullanıcılar uygulamada **yalnızca alıcı e-posta adresini** girer.  
+Gönderim **SendGrid** ile yapılır — **bir kez** siz (uygulama sahibi) API anahtarı ayarlarsınız.
 
-## Kurulum (bir kez)
+## Kurulum (bir kez — sizin)
 
-### 1. SMTP secrets (Gmail örneği)
+### 1. SendGrid hesabı
 
-Proje kökünde:
+1. [sendgrid.com](https://sendgrid.com) → ücretsiz hesap  
+2. **Settings → Sender Authentication → Verify a Single Sender**  
+   → Gmail adresinizi doğrulayın (gelen maildeki linke tıklayın)  
+3. **Settings → API Keys → Create API Key** → Full Access veya Mail Send  
+   → `SG.xxxx...` anahtarını kopyalayın
 
-```powershell
-cd functions
-npm install
-cd ..
+### 2. Firebase secrets (Notepad + dosyadan — yapıştırma sorunu yok)
 
-firebase functions:secrets:set SMTP_USER
-firebase functions:secrets:set SMTP_PASS
-```
-
-Gmail için `SMTP_USER` = Gmail adresiniz, `SMTP_PASS` = [uygulama şifresi](https://myaccount.google.com/apppasswords).
-
-Varsayılan SMTP: `smtp.gmail.com:587`. Farklı sağlayıcı için deploy öncesi ortam değişkeni tanımlayabilirsiniz (`SMTP_HOST`, `SMTP_PORT`, `SMTP_FROM`).
-
-### 2. Deploy
+Notepad’e API anahtarını yazın → `C:\Users\pc\Desktop\sg-key.txt` kaydedin:
 
 ```powershell
-firebase deploy --only functions
+cd "c:\Users\pc\Desktop\HESAP KİTAP\apartim"
+npx.cmd firebase-tools@latest functions:secrets:set SENDGRID_API_KEY --data-file "C:\Users\pc\Desktop\sg-key.txt" -f
+Remove-Item "C:\Users\pc\Desktop\sg-key.txt"
 ```
 
-GitHub Actions ile: **Deploy Firebase Functions** workflow → `workflow_dispatch`.
+Gönderen adres (SendGrid’de doğruladığınız mail):
 
-### 3. Uygulama ayarı
+Notepad → `salimoglu61@gmail.com` → `sg-from.txt`:
 
-Apartım → Ayarlar → **Haftalık rapor e-postası** → e-posta adresinizi girin → Kaydet → **Test maili gönder** ile doğrulayın.
+```powershell
+npx.cmd firebase-tools@latest functions:secrets:set SENDGRID_FROM --data-file "C:\Users\pc\Desktop\sg-from.txt" -f
+Remove-Item "C:\Users\pc\Desktop\sg-from.txt"
+```
 
-## Fonksiyonlar
+### 3. Deploy
 
-| Ad | Açıklama |
-|----|----------|
-| `pazarRaporu` | Zamanlanmış — her Pazar 08:00, sezon içinde |
-| `raporTestGonder` | Callable — giriş yapmış kullanıcıya anında test raporu |
+```powershell
+npx.cmd firebase-tools@latest deploy --only functions
+```
 
-## Notlar
+## Kullanıcı tarafı
 
-- Manuel Excel indirme değişmez.
-- `raporPazarAktif: false` olan veya e-postası olmayan kullanıcılara gönderilmez.
-- SMTP secrets tanımlı değilse deploy sonrası mail gitmez; Firebase Console → Functions loglarından hata görülebilir.
+Ayarlar → **Haftalık rapor e-postası** → istediği adres → Kaydet → Test maili.
+
+Şifre gerekmez.

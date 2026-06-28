@@ -10,18 +10,14 @@ const { raporMailGonder } = require("./mail");
 
 initializeApp();
 
-const smtpPass = defineSecret("SMTP_PASS");
-const smtpUser = defineSecret("SMTP_USER");
-
-const SMTP_SECRETS = [smtpPass, smtpUser];
+const sendgridKey = defineSecret("SENDGRID_API_KEY");
+const sendgridFrom = defineSecret("SENDGRID_FROM");
+const MAIL_SECRETS = [sendgridKey, sendgridFrom];
 const REGION = "europe-west1";
 
-function smtpEnvYukle() {
-  process.env.SMTP_PASS = smtpPass.value();
-  process.env.SMTP_USER = smtpUser.value();
-  process.env.SMTP_HOST = process.env.SMTP_HOST || "smtp.gmail.com";
-  process.env.SMTP_PORT = process.env.SMTP_PORT || "587";
-  process.env.SMTP_FROM = process.env.SMTP_FROM || process.env.SMTP_USER;
+function mailEnvYukle() {
+  process.env.SENDGRID_API_KEY = sendgridKey.value();
+  process.env.SENDGRID_FROM = sendgridFrom.value();
 }
 
 function istanbulNow() {
@@ -112,9 +108,9 @@ exports.pazarRaporu = onSchedule({
   schedule: "0 8 * * 0",
   timeZone: "Europe/Istanbul",
   region: REGION,
-  secrets: SMTP_SECRETS
+  secrets: MAIL_SECRETS
 }, async () => {
-  smtpEnvYukle();
+  mailEnvYukle();
   const now = istanbulNow();
   const sonuc = await tumPazarRaporlariGonder(now);
   console.log("pazarRaporu", JSON.stringify(sonuc));
@@ -122,12 +118,12 @@ exports.pazarRaporu = onSchedule({
 
 exports.raporTestGonder = onCall({
   region: REGION,
-  secrets: SMTP_SECRETS
+  secrets: MAIL_SECRETS
 }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Giriş yapmanız gerekir");
   }
-  smtpEnvYukle();
+  mailEnvYukle();
 
   const uid = request.auth.uid;
   const { profil, veri } = await kullaniciVerisiOku(uid);
@@ -138,9 +134,11 @@ exports.raporTestGonder = onCall({
 
   const now = istanbulNow();
   try {
-    const sonuc = await kullaniciyaRaporGonder(uid, Object.assign({}, profil, { raporPazarAktif: true }), veri, now);
+    const sonuc = await kullaniciyaRaporGonder(
+      uid, Object.assign({}, profil, { raporPazarAktif: true }), veri, now
+    );
     if (!sonuc.ok) throw new Error(sonuc.sebep || "gonderilemedi");
-    return { ok: true, eposta, mesaj: "Test raporu gönderildi" };
+    return { ok: true, eposta, mesaj: "Test raporu " + eposta + " adresine gönderildi" };
   } catch (err) {
     console.error("raporTestGonder", err);
     throw new HttpsError("internal", err.message || "E-posta gönderilemedi");
