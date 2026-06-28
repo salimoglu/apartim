@@ -2171,12 +2171,6 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   color: #1a1a1a !important;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
-.rez-ozet-table tbody tr.rez-ozet-satir-hover td.rez-ozet-io-hucre,
-.rez-ozet-table tbody tr.rez-ozet-satir-secili td.rez-ozet-io-hucre {
-  background: #ffeb3b !important;
-  box-shadow: none !important;
-  color: #1a1a1a !important;
-}
 
 /* -------------------- 10. Temizlik -------------------- */
 .temizlik-wrap { display: flex; flex-direction: column; gap: 14px; }
