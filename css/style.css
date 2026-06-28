@@ -1986,12 +1986,23 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   font-weight: 800;
   color: #111827;
 }
-.rez-ozet-alt-bos {
-  padding: 0 2px !important;
-  height: 10px;
-  line-height: 10px;
-  font-size: 1px;
+.rez-ozet-g-stack {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   vertical-align: middle;
+}
+.rez-ozet-g-sayi {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 800;
+  color: #111827;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-sayi {
+  font-size: 11px;
 }
 html:not(.theme-light) .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
   background: #6b5200 !important;
@@ -2014,12 +2025,6 @@ html.theme-light .rez-ozet-tr.rez-ozet-io-gun .rez-ozet-tarih {
   font-size: 7px;
   line-height: 1.2;
   vertical-align: middle;
-}
-.rez-ozet-tr-turnover-out td {
-  border-bottom-color: rgba(0, 0, 0, 0.08);
-}
-.rez-ozet-tr-turnover-in td {
-  border-top: none;
 }
 
 /* -------------------- 10. Temizlik -------------------- */
