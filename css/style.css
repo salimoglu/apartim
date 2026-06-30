@@ -2782,6 +2782,175 @@ html:not(.theme-light) .rez-kaynak-badge {
   min-height: 1.2em;
 }
 
+/* Rezervasyon modal — mobil + klavye */
+@media (max-width: 720px), ((pointer: coarse) and (max-height: 900px)) {
+  #modal-rez.modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  #modal-rez .modal-box {
+    max-width: none;
+    width: 100%;
+    max-height: 94dvh;
+    border-radius: 16px 16px 0 0;
+    margin: 0;
+  }
+  #modal-rez .modal-header {
+    flex-shrink: 0;
+    padding: 10px 14px;
+  }
+  #modal-rez .modal-title {
+    font-size: 16px;
+    line-height: 1.25;
+    padding-right: 8px;
+  }
+  #modal-rez .modal-body {
+    padding: 12px 14px;
+    min-height: 0;
+    flex: 1;
+    scroll-padding-bottom: 24px;
+  }
+  #modal-rez .modal-body .field-input,
+  #modal-rez .modal-body .field-select {
+    font-size: 16px;
+    padding: 12px;
+    min-height: 44px;
+  }
+  #modal-rez .field-group {
+    margin-bottom: 10px;
+    scroll-margin-bottom: 16px;
+  }
+  #modal-rez .field-input:focus,
+  #modal-rez .field-select:focus {
+    scroll-margin: 80px 0 120px;
+  }
+  #modal-rez .modal-footer {
+    flex-shrink: 0;
+    padding: 10px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    background: var(--kart);
+    box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.12);
+    gap: 6px;
+  }
+  #modal-rez .modal-footer .btn-primary {
+    flex: 1 1 auto;
+    min-height: 44px;
+  }
+  #modal-rez .modal-footer .btn-secondary,
+  #modal-rez .modal-footer .btn-danger {
+    min-height: 44px;
+  }
+  #modal-rez .rez-toplam-bar {
+    margin-top: 4px;
+    padding: 8px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--zemin-2);
+  }
+  #modal-rez .rez-toplam-bar .tutar {
+    font-size: 17px;
+  }
+}
+
+body.klavye-acik #modal-rez.modal-overlay,
+body.mobil-yatay-mod #modal-rez.modal-overlay {
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+body.klavye-acik #modal-rez .modal-box,
+body.mobil-yatay-mod #modal-rez .modal-box {
+  max-height: none;
+  height: 100%;
+  border-radius: 0;
+}
+
+body.klavye-acik #modal-rez:not(.rez-takvim-goster) .rez-tarih-aralik-takvim {
+  display: none;
+}
+
+body.klavye-acik #modal-rez .rez-tarih-aralik-ozet {
+  cursor: pointer;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  background: var(--zemin-2);
+  border-radius: 8px;
+  border: 1px dashed var(--kenar);
+}
+
+body.klavye-acik #modal-rez:not(.rez-takvim-goster) .rez-tarih-aralik-ozet::after {
+  content: " · takvim";
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--vurgu);
+}
+
+body.klavye-acik #modal-rez .rez-fiyat-mod-kart {
+  min-height: 44px;
+  padding: 6px 3px;
+}
+
+body.klavye-acik #modal-rez .rez-tarih-fiyat-liste {
+  max-height: 120px;
+}
+
+body.mobil-yatay-mod #modal-rez .modal-header {
+  padding: 6px 12px;
+}
+
+body.mobil-yatay-mod #modal-rez .modal-title {
+  font-size: 14px;
+}
+
+body.mobil-yatay-mod #modal-rez .modal-body {
+  padding: 8px 12px;
+}
+
+body.mobil-yatay-mod #modal-rez .field-group {
+  margin-bottom: 8px;
+}
+
+body.mobil-yatay-mod #modal-rez .rez-tarih-aralik-takvim .mini-takvim-hucre {
+  min-height: 24px;
+}
+
+body.mobil-yatay-mod #modal-rez .rez-tarih-aralik-takvim .mini-takvim-gun {
+  font-size: 8px;
+}
+
+body.mobil-yatay-mod #modal-rez .rez-fiyat-mod-kart {
+  min-height: 40px;
+}
+
+body.mobil-yatay-mod #modal-rez .rez-fiyat-mod-kart strong {
+  font-size: 10px;
+}
+
+body.mobil-yatay-mod #modal-rez .rez-fiyat-mod-kart small {
+  font-size: 8px;
+}
+
+body.mobil-yatay-mod #modal-rez .rez-tarih-fiyat-liste {
+  max-height: 88px;
+}
+
+body.mobil-yatay-mod #modal-rez .rez-toplam-bar {
+  margin-top: 2px;
+  padding: 6px 8px;
+}
+
+body.mobil-yatay-mod #modal-rez .modal-footer {
+  padding: 6px 10px;
+  padding-bottom: max(6px, env(safe-area-inset-bottom));
+}
+
+body.mobil-yatay-mod #modal-rez .modal-footer .btn-primary,
+body.mobil-yatay-mod #modal-rez .modal-footer .btn-secondary,
+body.mobil-yatay-mod #modal-rez .modal-footer .btn-danger {
+  min-height: 38px;
+  font-size: 13px;
+  padding: 6px 12px;
+}
+
 .modal-uyari {
   background: rgba(231, 76, 60, 0.12);
   border: 1px solid rgba(231, 76, 60, 0.35);
