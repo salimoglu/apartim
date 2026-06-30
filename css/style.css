@@ -2504,18 +2504,105 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rez-toplam-bar .gece { color: var(--metin-soluk); font-size: 12px; }
 .rez-toplam-bar .tutar { color: var(--vurgu); font-size: 20px; }
 
-.rez-giris-cikis-satir {
-  align-items: flex-end;
+.rez-tarih-aralik-grup {
   margin-bottom: 12px;
 }
-.rez-giris-cikis-satir .field-group {
-  flex: 1;
-  min-width: 0;
-  margin-bottom: 0;
+.rez-tarih-aralik-ozet {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--vurgu);
+  line-height: 1.35;
 }
-.rez-giris-cikis-satir .field-input {
-  width: 100%;
-  min-width: 0;
+.rez-tarih-aralik-ozet.rez-tarih-kismi {
+  color: var(--metin-soluk);
+  font-weight: 500;
+}
+.rez-tarih-aralik-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.rez-tarih-aralik-nav-btn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--kenar);
+  border-radius: 8px;
+  background: var(--zemin-2);
+  color: var(--metin);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.rez-tarih-aralik-nav-btn:hover {
+  border-color: var(--vurgu);
+  color: var(--vurgu);
+}
+.rez-tarih-aralik-ay {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--metin);
+}
+.rez-tarih-aralik-takvim .mini-takvim-baslik {
+  font-size: 10px;
+  margin-bottom: 4px;
+}
+.rez-tarih-aralik-takvim .mini-takvim-grid {
+  gap: 3px;
+}
+.rez-tarih-aralik-takvim .mini-takvim-hucre {
+  min-height: 34px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.12s, border-color 0.12s;
+}
+.rez-tarih-aralik-takvim .mini-takvim-hucre:not(.disabled):hover {
+  border-color: var(--vurgu);
+}
+.rez-tarih-aralik-takvim .mini-takvim-hucre.disabled {
+  cursor: default;
+}
+.rez-tarih-aralik-takvim .mini-takvim-hucre.bugun {
+  outline: 2px solid var(--vurgu);
+}
+.rez-tarih-aralik-takvim .mini-takvim-hucre.aralik-ic {
+  background: rgba(46, 204, 113, 0.22);
+  border-color: rgba(46, 204, 113, 0.35);
+}
+.rez-tarih-aralik-takvim .mini-takvim-hucre.aralik-onizleme {
+  background: rgba(46, 204, 113, 0.12);
+  border-color: rgba(46, 204, 113, 0.25);
+}
+.rez-tarih-aralik-takvim .mini-takvim-hucre.aralik-bas {
+  background: var(--vurgu);
+  color: #fff;
+  border-color: var(--vurgu);
+}
+.rez-tarih-aralik-takvim .mini-takvim-hucre.aralik-bit {
+  background: var(--dolu);
+  color: #fff;
+  border-color: var(--dolu);
+}
+.rez-tarih-aralik-takvim .mini-takvim-hucre.aralik-bas .mini-takvim-gun,
+.rez-tarih-aralik-takvim .mini-takvim-hucre.aralik-bit .mini-takvim-gun {
+  color: inherit;
+}
+.rez-tarih-aralik-etiket {
+  position: absolute;
+  bottom: 2px;
+  left: 0;
+  right: 0;
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  opacity: 0.95;
 }
 .rez-tek-fiyat-toggle {
   display: flex;

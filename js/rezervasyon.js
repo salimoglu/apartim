@@ -44,7 +44,12 @@
   let tekFiyatModu = true;
 
   const TARIH_AYLAR = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+  const TARIH_AYLAR_UZUN = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
   const TARIH_GUNLER = ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"];
+  const TAKVIM_GUN_BAS = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+
+  let takvimGorYil = null;
+  let takvimGorAy = null;
 
   function varsayilanUcret() {
     const daire = mevcutDaireId ? window.APARTIM.db?.daireGetir(mevcutDaireId) : null;
@@ -270,8 +275,15 @@
 
   function tarihDegisti() {
     const e = ay();
-    if (!e.cikis?.value || e.cikis.value <= e.giris.value) {
-      e.cikis.value = gunEkle(e.giris.value, 1);
+    const giris = e.giris?.value || "";
+    const cikis = e.cikis?.value || "";
+    if (!giris || !cikis) {
+      tarihAralikOzetGuncelle();
+      toplamHesapla();
+      return;
+    }
+    if (cikis <= giris) {
+      e.cikis.value = gunEkle(giris, 1);
     }
     if (!tekFiyatModu) {
       tarihFiyatListeCiz(tarihFiyatlariOku());
@@ -281,6 +293,153 @@
     } else {
       toplamHesapla();
     }
+    tarihAralikOzetGuncelle();
+    tarihAralikTakvimCiz();
+  }
+
+  function isoOlustur(y, m, g) {
+    return y + "-" + String(m).padStart(2, "0") + "-" + String(g).padStart(2, "0");
+  }
+
+  function isoParcala(iso) {
+    const p = String(iso || "").split("-");
+    return { y: Number(p[0]), m: Number(p[1]), g: Number(p[2]) };
+  }
+
+  function takvimAyAyarla(iso) {
+    const ref = iso || ay().giris?.value || bugunISO();
+    const { y, m } = isoParcala(ref);
+    if (y && m) {
+      takvimGorYil = y;
+      takvimGorAy = m;
+    }
+  }
+
+  function tarihAralikOzetGuncelle() {
+    const el = document.getElementById("rez-tarih-aralik-ozet");
+    if (!el) return;
+    const giris = ay().giris?.value || "";
+    const cikis = ay().cikis?.value || "";
+    el.classList.remove("rez-tarih-kismi");
+    if (!giris) {
+      el.textContent = "Giriş gününü, ardından çıkış gününü seçin";
+      el.classList.add("rez-tarih-kismi");
+      return;
+    }
+    if (!cikis || cikis <= giris) {
+      el.textContent = tarihGoster(giris) + " — çıkış gününü seçin";
+      el.classList.add("rez-tarih-kismi");
+      return;
+    }
+    const gece = window.APARTIM.db?.geceSayisi(giris, cikis) || 0;
+    el.textContent =
+      tarihGoster(giris) + " → " + tarihGoster(cikis) +
+      " (" + gece + " gece)";
+  }
+
+  function tarihAralikKismiSec(giris) {
+    alanYaz(ay().giris, giris);
+    alanYaz(ay().cikis, "");
+    tarihAralikOzetGuncelle();
+    tarihAralikTakvimCiz();
+    toplamHesapla();
+  }
+
+  function tarihAralikTamamla(giris, cikis) {
+    alanYaz(ay().giris, giris);
+    alanYaz(ay().cikis, cikis);
+    tarihDegisti();
+  }
+
+  function tarihAralikGunTik(iso) {
+    const giris = ay().giris?.value || "";
+    const cikis = ay().cikis?.value || "";
+    const tamSecili = giris && cikis && cikis > giris;
+    if (!giris || tamSecili) {
+      tarihAralikKismiSec(iso);
+      return;
+    }
+    if (iso <= giris) {
+      tarihAralikKismiSec(iso);
+      return;
+    }
+    tarihAralikTamamla(giris, iso);
+  }
+
+  function tarihAralikHucreSinif(iso, giris, cikis, bugun) {
+    let cls = "mini-takvim-hucre";
+    if (iso === bugun) cls += " bugun";
+    if (giris && cikis && cikis > giris) {
+      if (iso === giris) cls += " aralik-bas";
+      else if (iso === cikis) cls += " aralik-bit";
+      else if (iso > giris && iso < cikis) cls += " aralik-ic";
+    } else if (giris && iso === giris) {
+      cls += " aralik-bas";
+    }
+    return cls;
+  }
+
+  function tarihAralikTakvimCiz() {
+    const wrap = document.getElementById("rez-tarih-aralik-takvim");
+    if (!wrap) return;
+    if (takvimGorYil == null || takvimGorAy == null) takvimAyAyarla();
+    const y = takvimGorYil;
+    const m = takvimGorAy;
+    const bugun = bugunISO();
+    const giris = ay().giris?.value || "";
+    const cikis = ay().cikis?.value || "";
+    const ilkGun = new Date(y, m - 1, 1);
+    const gunSay = new Date(y, m, 0).getDate();
+    let basInd = ilkGun.getDay() - 1;
+    if (basInd < 0) basInd = 6;
+
+    let html =
+      '<div class="rez-tarih-aralik-nav">' +
+      '<button type="button" class="rez-tarih-aralik-nav-btn" data-rez-ay="-1" aria-label="Önceki ay">‹</button>' +
+      '<span class="rez-tarih-aralik-ay">' + TARIH_AYLAR_UZUN[m - 1] + " " + y + "</span>" +
+      '<button type="button" class="rez-tarih-aralik-nav-btn" data-rez-ay="1" aria-label="Sonraki ay">›</button>' +
+      "</div>" +
+      '<div class="mini-takvim"><div class="mini-takvim-baslik">';
+    TAKVIM_GUN_BAS.forEach((g) => { html += "<span>" + g + "</span>"; });
+    html += '</div><div class="mini-takvim-grid">';
+
+    for (let i = 0; i < basInd; i++) {
+      html += '<div class="mini-takvim-hucre disabled" aria-hidden="true"></div>';
+    }
+    for (let g = 1; g <= gunSay; g++) {
+      const iso = isoOlustur(y, m, g);
+      const cls = tarihAralikHucreSinif(iso, giris, cikis, bugun);
+      let etiket = "";
+      if (iso === giris) etiket = '<span class="rez-tarih-aralik-etiket">GİRİŞ</span>';
+      else if (cikis && iso === cikis) etiket = '<span class="rez-tarih-aralik-etiket">ÇIKIŞ</span>';
+      html +=
+        '<button type="button" class="' + cls + '" data-rez-gun="' + iso + '" aria-label="' +
+        esc(tarihGoster(iso)) + '">' +
+        '<span class="mini-takvim-gun">' + g + "</span>" + etiket + "</button>";
+    }
+    html += "</div></div>";
+    wrap.innerHTML = html;
+
+    wrap.querySelectorAll("[data-rez-gun]").forEach((btn) => {
+      btn.addEventListener("click", () => tarihAralikGunTik(btn.dataset.rezGun));
+    });
+
+    wrap.querySelector("[data-rez-ay='-1']")?.addEventListener("click", () => {
+      takvimGorAy -= 1;
+      if (takvimGorAy < 1) { takvimGorAy = 12; takvimGorYil -= 1; }
+      tarihAralikTakvimCiz();
+    });
+    wrap.querySelector("[data-rez-ay='1']")?.addEventListener("click", () => {
+      takvimGorAy += 1;
+      if (takvimGorAy > 12) { takvimGorAy = 1; takvimGorYil += 1; }
+      tarihAralikTakvimCiz();
+    });
+  }
+
+  function tarihAralikFormSenkron() {
+    takvimAyAyarla(ay().giris?.value || bugunISO());
+    tarihAralikOzetGuncelle();
+    tarihAralikTakvimCiz();
   }
 
   function tutarHesapla(rez) {
@@ -470,6 +629,7 @@
       const gIso = secimler.girisOnseci || bugunISO();
       alanYaz(e.giris, gIso);
       alanYaz(e.cikis, gunEkle(gIso, 1));
+      takvimAyAyarla(gIso);
       const u = daire ? daire.gunlukUcret : 1000;
       alanYaz(e.ucret, u);
       if (e.paraBirimi) e.paraBirimi.value = "TL";
@@ -480,6 +640,7 @@
       e.btnSil?.classList.add("hidden");
       uyariGoster("");
       toplamHesapla();
+      tarihAralikFormSenkron();
       window.APARTIM.rezOzet?.konumKoru?.(gIso);
       modalAc();
     } catch (err) {
@@ -519,6 +680,7 @@
       e.btnSil?.classList.remove("hidden");
       uyariGoster("");
       toplamHesapla();
+      tarihAralikFormSenkron();
       toplamAnlasmaSenkron({
         giris: e.giris.value,
         cikis: e.cikis.value,
@@ -774,8 +936,6 @@
     e.btnClose?.addEventListener("click", modalKapat);
     e.btnKaydet?.addEventListener("click", kaydet);
     e.btnSil?.addEventListener("click", silOnay);
-    e.giris?.addEventListener("input", tarihDegisti);
-    e.cikis?.addEventListener("input", tarihDegisti);
     e.ucret?.addEventListener("input", toplamHesapla);
     e.paraBirimi?.addEventListener("change", () => {
       ucretEtiketGuncelle();
@@ -786,7 +946,6 @@
     e.tekFiyatToggle?.addEventListener("change", () => tekFiyatModuGoster(e.tekFiyatToggle.checked));
     e.toplamAnlasma?.addEventListener("input", toplamAnlasmaOtomatik);
     e.toplamAnlasma?.addEventListener("change", () => toplamAnlasmaUygula({ sessiz: true }));
-    e.giris?.addEventListener("change", tarihDegisti);
     document.getElementById("rez-yeni-btn")?.addEventListener("click", () => yeni({}));
     document.getElementById("cikis-close")?.addEventListener("click", cikisKapat);
     document.getElementById("cikis-iptal")?.addEventListener("click", cikisKapat);
