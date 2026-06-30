@@ -466,18 +466,25 @@
     }
     html += "</div></div>";
     wrap.innerHTML = html;
+  }
 
-    wrap.querySelectorAll("[data-rez-gun]").forEach((btn) => {
-      btn.addEventListener("click", () => tarihAralikGunTik(btn.dataset.rezGun));
-    });
-
-    wrap.querySelector("[data-rez-ay='-1']")?.addEventListener("click", () => {
-      takvimGorAy -= 1;
+  function tarihTakvimBagla() {
+    const wrap = document.getElementById("rez-tarih-aralik-takvim");
+    if (!wrap || wrap.dataset.takvimBagli) return;
+    wrap.dataset.takvimBagli = "1";
+    wrap.addEventListener("click", (e) => {
+      const gunBtn = e.target.closest?.("[data-rez-gun]");
+      if (gunBtn) {
+        e.preventDefault();
+        tarihAralikGunTik(gunBtn.dataset.rezGun);
+        return;
+      }
+      const ayBtn = e.target.closest?.("[data-rez-ay]");
+      if (!ayBtn) return;
+      e.preventDefault();
+      const delta = Number(ayBtn.dataset.rezAy) || 0;
+      takvimGorAy += delta;
       if (takvimGorAy < 1) { takvimGorAy = 12; takvimGorYil -= 1; }
-      tarihAralikTakvimCiz();
-    });
-    wrap.querySelector("[data-rez-ay='1']")?.addEventListener("click", () => {
-      takvimGorAy += 1;
       if (takvimGorAy > 12) { takvimGorAy = 1; takvimGorYil += 1; }
       tarihAralikTakvimCiz();
     });
@@ -547,31 +554,14 @@
     window.APARTIM.app?.modalAcikGuncelle?.();
   }
 
-  function modalBodyeSabitle() {
-    const el = modal();
-    if (!el) return;
-    window.APARTIM.rezOzet?.modalRezBodyeAl?.();
-    document.getElementById("rez-ozet-modal-host")?.setAttribute("aria-hidden", "true");
-    document.getElementById("takvim-detay-pop")?.classList.add("hidden");
-    if (el.parentElement !== document.body) {
-      document.body.appendChild(el);
-    }
-  }
-
   function modalAc() {
-    modalBodyeSabitle();
+    window.APARTIM.rezOzet?.modalRezBodyeAl?.();
     modal()?.classList.remove("hidden");
     modalAcikGuncelle();
-    window.APARTIM.modalKlavye?.viewportGuncelle?.();
-    const dokunmatik = window.APARTIM.modalKlavye?.mobilFormMu?.() ||
-      window.matchMedia("(pointer: coarse)").matches;
-    if (!dokunmatik) {
-      setTimeout(() => ay().misafir?.focus({ preventScroll: true }), 80);
-    }
+    setTimeout(() => ay().misafir?.focus({ preventScroll: true }), 80);
   }
   function modalKapat() {
     modal()?.classList.add("hidden");
-    window.APARTIM.modalKlavye?.viewportTemizle?.();
     mevcutRezId = null;
     mevcutDaireId = null;
     modalAcikGuncelle();
@@ -1005,37 +995,16 @@
 
   function daireRezListele(daireId) { listeRender("rez-liste-icerik", daireId); }
 
-  function rezModalTiklamaBagla() {
-    const ov = modal();
-    if (!ov || ov.dataset.rezTikBagli) return;
-    ov.dataset.rezTikBagli = "1";
-
-    ov.addEventListener("click", (e) => {
-      const btn = e.target.closest?.("button[id]");
-      if (btn && ov.contains(btn)) {
-        if (btn.id === "rez-modal-iptal" || btn.id === "rez-modal-close") {
-          e.preventDefault();
-          modalKapat();
-          return;
-        }
-        if (btn.id === "rez-modal-kaydet") {
-          e.preventDefault();
-          kaydet();
-          return;
-        }
-        if (btn.id === "rez-modal-sil") {
-          e.preventDefault();
-          silOnay();
-          return;
-        }
-      }
-      if (e.target === ov) modalKapat();
-    });
-  }
-
   function bagla() {
     const e = ay();
-    rezModalTiklamaBagla();
+    tarihTakvimBagla();
+    e.btnIptal?.addEventListener("click", modalKapat);
+    e.btnClose?.addEventListener("click", modalKapat);
+    e.btnKaydet?.addEventListener("click", kaydet);
+    e.btnSil?.addEventListener("click", silOnay);
+    modal()?.addEventListener("click", (ev) => {
+      if (ev.target === modal()) modalKapat();
+    });
     e.ucret?.addEventListener("input", toplamHesapla);
     e.paraBirimi?.addEventListener("change", () => {
       ucretEtiketGuncelle();
@@ -1054,14 +1023,6 @@
     document.getElementById("cikis-close")?.addEventListener("click", cikisKapat);
     document.getElementById("cikis-iptal")?.addEventListener("click", cikisKapat);
     document.getElementById("cikis-onayla")?.addEventListener("click", cikisOnayla);
-    document.addEventListener("keydown", (e) => {
-      const el = modal();
-      if (!el || el.classList.contains("hidden")) return;
-      if (e.key === "Escape") {
-        e.preventDefault();
-        modalKapat();
-      }
-    });
   }
 
   if (document.readyState === "loading") {
@@ -1083,8 +1044,6 @@
   window.APARTIM.rezervasyon = {
     yeni,
     duzenle,
-    modalKapat,
-    kaydet,
     rezIdAl,
     cikisAc,
     listeRender,
