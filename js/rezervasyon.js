@@ -272,7 +272,7 @@
       satir.dataset.tarih = t;
       satir.innerHTML =
         '<span class="rez-tarih-etiket">' + esc(tarihGoster(t)) + "</span>" +
-        '<input type="number" class="field-input rez-tarih-ucret" min="0" step="0.01" value="' +
+        '<input type="number" class="field-input rez-tarih-ucret" min="0" step="0.01" inputmode="decimal" value="' +
         (mevcut[t] != null ? mevcut[t] : u) + '" aria-label="' + esc(tarihGoster(t)) + ' fiyat" />' +
         '<span class="rez-tarih-pb">' + paraSimge() + "</span>";
       satir.querySelector("input").addEventListener("input", toplamHesapla);
@@ -553,10 +553,16 @@
     );
     modal()?.classList.remove("hidden");
     modalAcikGuncelle();
-    setTimeout(() => ay().misafir?.focus({ preventScroll: true }), 80);
+    window.APARTIM.modalKlavye?.viewportGuncelle?.();
+    const dokunmatik = window.APARTIM.modalKlavye?.mobilFormMu?.() ||
+      window.matchMedia("(pointer: coarse)").matches;
+    if (!dokunmatik) {
+      setTimeout(() => ay().misafir?.focus({ preventScroll: true }), 80);
+    }
   }
   function modalKapat() {
     modal()?.classList.add("hidden");
+    window.APARTIM.modalKlavye?.viewportTemizle?.();
     mevcutRezId = null;
     mevcutDaireId = null;
     modalAcikGuncelle();
