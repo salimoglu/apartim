@@ -555,8 +555,6 @@
     document.getElementById("takvim-detay-pop")?.classList.add("hidden");
     if (el.parentElement !== document.body) {
       document.body.appendChild(el);
-    } else if (el !== document.body.lastElementChild) {
-      document.body.appendChild(el);
     }
   }
 
@@ -775,7 +773,10 @@
     return "";
   }
 
+  let kaydetCalisiyor = false;
+
   async function kaydet() {
+    if (kaydetCalisiyor) return;
     const e = ay();
     let kaydediliyor = false;
     try {
@@ -828,6 +829,7 @@
       };
 
       kaydediliyor = true;
+      kaydetCalisiyor = true;
       if (e.btnKaydet) {
         e.btnKaydet.disabled = true;
         e.btnKaydet.textContent = "Kaydediliyor…";
@@ -848,6 +850,7 @@
       console.error("rezervasyon.kaydet", err);
       kaydetHata(err?.message || "Kayıt başarısız.");
     } finally {
+      kaydetCalisiyor = false;
       if (kaydediliyor && e.btnKaydet) {
         e.btnKaydet.disabled = false;
         e.btnKaydet.textContent = "Kaydet";
@@ -1002,70 +1005,37 @@
 
   function daireRezListele(daireId) { listeRender("rez-liste-icerik", daireId); }
 
-  function rezModalTikIslem(btn) {
-    if (!btn?.id) return false;
-    if (btn.id === "rez-modal-iptal" || btn.id === "rez-modal-close") {
-      modalKapat();
-      return true;
-    }
-    if (btn.id === "rez-modal-kaydet") {
-      kaydet();
-      return true;
-    }
-    if (btn.id === "rez-modal-sil") {
-      silOnay();
-      return true;
-    }
-    return false;
-  }
-
   function rezModalTiklamaBagla() {
     const ov = modal();
     if (!ov || ov.dataset.rezTikBagli) return;
     ov.dataset.rezTikBagli = "1";
 
     ov.addEventListener("click", (e) => {
-      const btn = e.target.closest?.(
-        "#rez-modal-iptal, #rez-modal-close, #rez-modal-kaydet, #rez-modal-sil"
-      );
+      const btn = e.target.closest?.("button[id]");
       if (btn && ov.contains(btn)) {
-        e.preventDefault();
-        rezModalTikIslem(btn);
-        return;
+        if (btn.id === "rez-modal-iptal" || btn.id === "rez-modal-close") {
+          e.preventDefault();
+          modalKapat();
+          return;
+        }
+        if (btn.id === "rez-modal-kaydet") {
+          e.preventDefault();
+          kaydet();
+          return;
+        }
+        if (btn.id === "rez-modal-sil") {
+          e.preventDefault();
+          silOnay();
+          return;
+        }
       }
       if (e.target === ov) modalKapat();
     });
-
-    if (window._rezModalDocTikBagli) return;
-    window._rezModalDocTikBagli = true;
-
-    document.addEventListener("pointerup", (e) => {
-      const el = modal();
-      if (!el || el.classList.contains("hidden")) return;
-      const btn = e.target.closest?.(
-        "#rez-modal-iptal, #rez-modal-close, #rez-modal-kaydet, #rez-modal-sil"
-      );
-      if (btn && el.contains(btn)) {
-        e.preventDefault();
-        e.stopPropagation();
-        rezModalTikIslem(btn);
-        return;
-      }
-      if (e.target === el) {
-        e.preventDefault();
-        e.stopPropagation();
-        modalKapat();
-      }
-    }, true);
   }
 
   function bagla() {
     const e = ay();
     rezModalTiklamaBagla();
-    e.btnIptal?.addEventListener("click", modalKapat);
-    e.btnClose?.addEventListener("click", modalKapat);
-    e.btnKaydet?.addEventListener("click", kaydet);
-    e.btnSil?.addEventListener("click", silOnay);
     e.ucret?.addEventListener("input", toplamHesapla);
     e.paraBirimi?.addEventListener("change", () => {
       ucretEtiketGuncelle();

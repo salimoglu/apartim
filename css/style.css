@@ -2295,6 +2295,10 @@ body.modal-acik {
   overflow: hidden;
   overscroll-behavior: none;
 }
+body.modal-acik #app {
+  pointer-events: none;
+  user-select: none;
+}
 body.modal-acik .rez-ozet-scroll {
   overflow: hidden !important;
   touch-action: none;

@@ -913,7 +913,11 @@
     const scroll = table.closest(".rez-ozet-scroll");
     if (!scroll || scroll.dataset.rezOzetRo) return;
     scroll.dataset.rezOzetRo = "1";
-    const ro = new ResizeObserver(() => stickyBaslikOlcul(table));
+    let roTimer = null;
+    const ro = new ResizeObserver(() => {
+      clearTimeout(roTimer);
+      roTimer = setTimeout(() => stickyBaslikOlcul(table), 48);
+    });
     ro.observe(scroll);
   }
 
