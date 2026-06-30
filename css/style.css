@@ -2295,17 +2295,26 @@ body.modal-acik {
   overflow: hidden;
   overscroll-behavior: none;
 }
-body.modal-acik .rez-ozet-scroll,
-body.modal-acik .content {
+body.modal-acik .rez-ozet-scroll {
   overflow: hidden !important;
   touch-action: none;
 }
+body.modal-acik .content {
+  overflow: hidden !important;
+}
 body.modal-acik .modal-overlay:not(.hidden) {
-  touch-action: auto;
+  touch-action: manipulation;
+  pointer-events: auto;
 }
 body.modal-acik .modal-box,
-body.modal-acik .modal-body {
-  touch-action: pan-y;
+body.modal-acik .modal-body,
+body.modal-acik .modal-footer {
+  touch-action: manipulation;
+  pointer-events: auto;
+}
+body.modal-acik .modal-footer button {
+  touch-action: manipulation;
+  cursor: pointer;
 }
 .modal-footer {
   padding: 12px 18px;
@@ -3832,7 +3841,13 @@ body.rez-ozet-tam-ekran {
   display: none;
 }
 #modal-rez.modal-overlay {
-  z-index: 10002;
+  z-index: 100050;
+}
+#modal-rez.modal-overlay:not(.hidden) {
+  pointer-events: auto;
+}
+#modal-rez .modal-box {
+  pointer-events: auto;
 }
 .rez-ozet-modal-host .modal-overlay {
   pointer-events: auto;

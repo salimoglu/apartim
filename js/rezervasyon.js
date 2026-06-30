@@ -548,9 +548,7 @@
   }
 
   function modalAc() {
-    window.APARTIM.rezOzet?.tamEkranaModallariTasi?.(
-      window.APARTIM.rezOzet?.tamEkranAcikMi?.() ?? false
-    );
+    window.APARTIM.rezOzet?.modalRezBodyeAl?.();
     modal()?.classList.remove("hidden");
     modalAcikGuncelle();
     window.APARTIM.modalKlavye?.viewportGuncelle?.();
@@ -993,8 +991,38 @@
 
   function daireRezListele(daireId) { listeRender("rez-liste-icerik", daireId); }
 
+  function rezModalTiklamaBagla() {
+    const ov = modal();
+    if (!ov || ov.dataset.rezTikBagli) return;
+    ov.dataset.rezTikBagli = "1";
+
+    function islem(hedef) {
+      if (!hedef) return false;
+      const id = hedef.id;
+      if (id === "rez-modal-iptal" || id === "rez-modal-close") {
+        modalKapat();
+        return true;
+      }
+      if (id === "rez-modal-kaydet") {
+        kaydet();
+        return true;
+      }
+      if (id === "rez-modal-sil") {
+        silOnay();
+        return true;
+      }
+      return false;
+    }
+
+    ov.addEventListener("click", (e) => {
+      if (islem(e.target)) return;
+      if (e.target === ov) modalKapat();
+    });
+  }
+
   function bagla() {
     const e = ay();
+    rezModalTiklamaBagla();
     e.btnIptal?.addEventListener("click", modalKapat);
     e.btnClose?.addEventListener("click", modalKapat);
     e.btnKaydet?.addEventListener("click", kaydet);

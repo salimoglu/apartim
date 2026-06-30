@@ -1556,7 +1556,7 @@
     return window.APARTIM.app?.yonKilidiAc?.();
   }
 
-  const TAM_EKRAN_MODAL_IDLER = ["modal-odeme", "modal-rez"];
+  const TAM_EKRAN_MODAL_IDLER = ["modal-odeme"];
 
   function tamEkranWrap() {
     return document.querySelector("#tab-rezervasyonlar .rez-ozet-wrap");
@@ -1566,6 +1566,19 @@
     const wrap = tamEkranWrap();
     if (!wrap) return false;
     return document.fullscreenElement === wrap || wrap.classList.contains("rez-ozet-tam-ekran");
+  }
+
+  function modalRezBodyeAl() {
+    const el = document.getElementById("modal-rez");
+    if (!el) return;
+    if (el._tamEkranKaynak) {
+      const k = el._tamEkranKaynak;
+      if (k.parent) k.parent.insertBefore(el, k.next);
+      delete el._tamEkranKaynak;
+    }
+    if (el.parentElement?.id === "rez-ozet-modal-host") {
+      document.body.appendChild(el);
+    }
   }
 
   function modalHost() {
@@ -1646,6 +1659,7 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
+    modalRezBodyeAl();
     tamEkranaModallariTasi(false);
     odemeModalBagla();
     etkilesimBagla(document.querySelector("#tab-rezervasyonlar .rez-ozet-scroll"));
@@ -1678,6 +1692,6 @@
   window.APARTIM.rezOzet = {
     tabloCiz, tabloCizPlanla, rezSekmeAc, sezonGit, buguneGit, konumKoru, excelRaporIndir,
     yatayModGuncelle, tamEkranYatay, tamEkranKapat, tamEkranAcikMi,
-    tamEkranaModallariTasi, yonKilidiAc, sutunOlculYenile
+    tamEkranaModallariTasi, modalRezBodyeAl, yonKilidiAc, sutunOlculYenile
   };
 })();
