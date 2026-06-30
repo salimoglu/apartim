@@ -19,6 +19,26 @@ Apart-otel takip uygulaması. Daireleri bina silüetinden tıklayarak seçin; he
 - Service Worker + Web App Manifest (PWA)
 - GitHub Pages üzerinde yayın
 
+## Canlı yayın (GitHub Pages)
+
+Site: [salimoglu.github.io/apartim](https://salimoglu.github.io/apartim)
+
+Deploy, `main` dalına push sonrası **Deploy GitHub Pages** workflow'u ile yapılır.
+
+**Bir kez yapılması gereken ayar** (iki deploy yarışmasını önler):
+
+1. GitHub repo → **Settings** → **Pages**
+2. **Build and deployment** → **Source:** `GitHub Actions` seçin
+3. "Deploy from a branch" **kapalı** olmalı
+
+Push sonrası deploy doğrulama:
+
+```powershell
+powershell -File tools/wait-deploy.ps1
+```
+
+Deploy genelde 2–5 dakika sürer; ardışık hızlı push'lar build'i iptal edip geciktirebilir.
+
 ## Yerel çalıştırma
 
 Statik bir site olduğu için yalnızca dosyaları bir tarayıcıda açmak yeterli, ancak service worker ve Firebase için bir HTTP sunucusu üzerinden açılması önerilir:

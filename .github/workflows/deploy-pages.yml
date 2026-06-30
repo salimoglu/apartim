@@ -1,8 +1,20 @@
 name: Deploy GitHub Pages
 
+# Tek deploy kanalı — repo Settings → Pages → Source: "GitHub Actions" olmalı.
+# "Deploy from branch" açıksa iki workflow yarışır ve deploy gecikir/iptal olur.
+
 on:
   push:
     branches: [main]
+    paths:
+      - "**.html"
+      - "css/**"
+      - "js/**"
+      - "icons/**"
+      - "sw.js"
+      - "manifest.json"
+      - ".nojekyll"
+      - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
 permissions:
@@ -12,7 +24,7 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -24,13 +36,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Site dosyalarini hazirla
+        run: |
+          mkdir _site
+          cp -r css icons js _site/
+          cp index.html sw.js manifest.json _site/
+          cp .nojekyll _site/ 2>/dev/null || true
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
       - name: Deploy
         id: deployment

@@ -7,8 +7,14 @@ alwaysApply: true
 
 Kullanıcı apartim projesinde anlamlı değişiklikler tamamlandığında (özellikle sürüm/cache bump ile):
 
-1. İlgili dosyaları commit et (`ev.svg`, `para.js` gibi yalnızca satır sonu gürültüsü olan dosyaları hariç tut).
-2. `git push origin main` çalıştır.
-3. Push için kullanıcıdan ayrıca onay isteme — kullanıcı "push et" demese de deploy edilebilir değişikliklerden sonra push yap.
+1. İlgili dosyaları **tek commit**'te topla (`ev.svg`, `para.js` gibi yalnızca satır sonu gürültüsü olan dosyaları hariç tut).
+2. Sürüm numarasını `js/version.js` içinde güncelle, ardından `node tools/sync-version.cjs` çalıştır (index.html ?v= ve sw.js CACHE/ASSET senkronu).
+3. `git push origin main` çalıştır.
+4. Push sonrası `powershell -File tools/wait-deploy.ps1` ile canlı sürümü doğrula (en fazla ~8 dk bekle).
+5. Push/deploy için kullanıcıdan ayrıca onay isteme.
 
-Sürüm numarasını `js/version.js` içinde güncelle, ardından `node tools/sync-version.cjs` çalıştır (index.html ?v= ve sw.js CACHE/ASSET senkronu).
+## Deploy notları
+
+- GitHub Pages **yalnızca Actions** ile deploy edilmeli: repo **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+- "Deploy from a branch" açıksa iki workflow yarışır; deploy 5–10 dk gecikebilir veya iptal olur.
+- Ardışık hızlı push'lardan kaçın — her özellik için **tek commit + tek push**.
