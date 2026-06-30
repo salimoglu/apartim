@@ -53,16 +53,26 @@
     const klavye = klavyeAcikMi();
     document.body.classList.toggle("klavye-acik", klavye);
 
-    el.style.top = vv.offsetTop + "px";
-    el.style.left = "0";
-    el.style.right = "0";
-    el.style.width = "100%";
-    el.style.height = vv.height + "px";
-    el.style.padding = "0";
+    if (klavye) {
+      el.style.top = vv.offsetTop + "px";
+      el.style.left = "0";
+      el.style.right = "0";
+      el.style.width = "100%";
+      el.style.height = vv.height + "px";
+      el.style.padding = "0";
+    } else {
+      el.style.top = "";
+      el.style.left = "";
+      el.style.right = "";
+      el.style.width = "";
+      el.style.height = "";
+      el.style.padding = "";
+    }
   }
 
   function alanGorunurYap(hedef) {
     if (!hedef?.closest?.("#" + MODAL_ID)) return;
+    if (hedef.closest?.(".modal-footer, .modal-header")) return;
     const body = hedef.closest(".modal-body");
     if (!body) return;
     const gecikme = mobilFormMu() ? 350 : 80;

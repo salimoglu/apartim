@@ -2826,6 +2826,8 @@ html:not(.theme-light) .rez-kaynak-badge {
   }
   #modal-rez .modal-footer {
     flex-shrink: 0;
+    position: relative;
+    z-index: 2;
     padding: 10px 12px;
     padding-bottom: max(10px, env(safe-area-inset-bottom));
     background: var(--kart);
@@ -2857,10 +2859,15 @@ body.mobil-yatay-mod #modal-rez.modal-overlay {
   justify-content: stretch;
 }
 
-body.klavye-acik #modal-rez .modal-box,
-body.mobil-yatay-mod #modal-rez .modal-box {
+body.klavye-acik #modal-rez .modal-box {
   max-height: none;
   height: 100%;
+  border-radius: 0;
+}
+
+body.mobil-yatay-mod #modal-rez .modal-box {
+  max-height: 100dvh;
+  height: auto;
   border-radius: 0;
 }
 
@@ -3820,6 +3827,12 @@ body.rez-ozet-tam-ekran {
   inset: 0;
   z-index: 10000;
   pointer-events: none;
+}
+.rez-ozet-modal-host[aria-hidden="true"] {
+  display: none;
+}
+#modal-rez.modal-overlay {
+  z-index: 10002;
 }
 .rez-ozet-modal-host .modal-overlay {
   pointer-events: auto;
