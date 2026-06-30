@@ -201,7 +201,12 @@
 
   function rezSekmeAc() {
     buguneOrtalaAyarla();
-    tabloCiz();
+    const ciz = () => tabloCiz();
+    if (typeof requestIdleCallback === "function") {
+      requestIdleCallback(ciz, { timeout: 600 });
+    } else {
+      setTimeout(ciz, 0);
+    }
   }
 
   function tabloSekmesiAcikMi() {
@@ -913,11 +918,7 @@
     const scroll = table.closest(".rez-ozet-scroll");
     if (!scroll || scroll.dataset.rezOzetRo) return;
     scroll.dataset.rezOzetRo = "1";
-    let roTimer = null;
-    const ro = new ResizeObserver(() => {
-      clearTimeout(roTimer);
-      roTimer = setTimeout(() => stickyBaslikOlcul(table), 48);
-    });
+    const ro = new ResizeObserver(() => sutunOlculPlanla(table));
     ro.observe(scroll);
   }
 
@@ -1152,6 +1153,8 @@
     });
   }
 
+  let sonOlculGenislik = 0;
+
   function tabloSutunOlcul(table, daireler) {
     const n = Math.max((daireler || sonDaireler || []).length, 1);
     const scroll = table.closest(".rez-ozet-scroll");
@@ -1163,6 +1166,11 @@
     if (genislik < 200) {
       genislik = document.querySelector(".content")?.clientWidth || window.innerWidth;
     }
+    if (Math.abs(genislik - sonOlculGenislik) < 2 && table.dataset.sutunOlculdu === "1") {
+      return;
+    }
+    sonOlculGenislik = genislik;
+    table.dataset.sutunOlculdu = "1";
 
     const mobilYatay = document.body.classList.contains("mobil-yatay-mod");
     const telefon = mobilYatay || genislik < 720;
@@ -1233,21 +1241,25 @@
   }
 
   function scheduleSutunOlcul(table, daireler) {
-    const run = () => tabloSutunOlcul(table, daireler);
-    requestAnimationFrame(() => {
-      run();
-      requestAnimationFrame(run);
-    });
+    requestAnimationFrame(() => tabloSutunOlcul(table, daireler));
   }
 
   function stickyBaslikOlcul(table) {
     requestAnimationFrame(() => {
       const tr1 = table.querySelector(".rez-ozet-tr-daire");
       if (!tr1) return;
-      table.style.setProperty("--rez-ozet-head1-h", tr1.getBoundingClientRect().height + "px");
-      tabloSutunOlcul(table, sonDaireler);
+      const h = tr1.getBoundingClientRect().height;
+      table.style.setProperty("--rez-ozet-head1-h", h + "px");
     });
   }
+
+  function sutunOlculPlanla(table) {
+    if (!table) return;
+    clearTimeout(sutunOlculTimer);
+    sutunOlculTimer = setTimeout(() => tabloSutunOlcul(table, sonDaireler), 80);
+  }
+
+  let sutunOlculTimer = null;
 
   function tabloCiz() {
     const wrap = document.getElementById("rez-ozet-tablo");
@@ -1264,6 +1276,7 @@
     const myToken = ++renderToken;
     if (baslik) baslik.textContent = "Haziran – Eylül " + y;
 
+    sonOlculGenislik = 0;
     scrollKonumKoru(false);
     const ilkYukleme = !wrap.querySelector(".rez-ozet-table");
 

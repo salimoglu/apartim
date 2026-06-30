@@ -706,7 +706,7 @@
       guncelleme: live.guncelleme,
       kaynak: live.kaynak
     });
-    window.APARTIM.rezOzet?.tabloCiz();
+    window.APARTIM.rezOzet?.tabloCizPlanla?.();
     raporCiz();
     return live;
   }

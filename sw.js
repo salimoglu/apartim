@@ -1,7 +1,7 @@
 /* Apartım — basit cache-first service worker */
 /* Sürüm: js/version.js APP ile senkron (1.0 → 1.1 → 1.2 …) */
-const CACHE_VERSION = "apartim-2-73";
-const ASSET_V = "2.73";
+const CACHE_VERSION = "apartim-2-74";
+const ASSET_V = "2.74";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -20,6 +20,7 @@ const CORE_ASSETS = [
   "./js/daire.js?v=" + ASSET_V,
   "./js/rezervasyon.js?v=" + ASSET_V,
   "./js/rez-ozet.js?v=" + ASSET_V,
+  "./js/modal-klavye.js?v=" + ASSET_V,
   "./js/tema.js?v=" + ASSET_V,
   "./js/ayarlar.js?v=" + ASSET_V,
   "./js/app.js?v=" + ASSET_V,
@@ -71,7 +72,9 @@ self.addEventListener("message", (event) => {
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(CORE_ASSETS)).then(() => self.skipWaiting())
+    caches.open(CACHE_VERSION).then((cache) =>
+      Promise.allSettled(CORE_ASSETS.map((url) => cache.add(url)))
+    ).then(() => self.skipWaiting())
   );
 });
 
