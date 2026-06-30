@@ -86,10 +86,6 @@
     return Math.round(Number(n) * 100) / 100;
   }
 
-  function fiyatEsitMi(a, b) {
-    return Math.abs(fiyatYuvarla(a) - fiyatYuvarla(b)) < 0.005;
-  }
-
   /** Toplam tutarı gece sayısına eşit böler; kuruş farkı son gecelere eklenir. */
   function toplamGeceyeBol(toplam, adet) {
     const kurus = Math.round(Number(toplam) * 100);
@@ -173,19 +169,6 @@
     document.querySelectorAll('input[name="rez-fiyat-mod"]').forEach((r) => {
       r.checked = r.value === fiyatModu;
     });
-  }
-
-  function toplamFormSenkron() {
-    const inp = ay().toplamAnlasma;
-    if (!inp) return;
-    const tarihler = geceTarihleriAl();
-    if (!tarihler.length) {
-      alanYaz(inp, "");
-      return;
-    }
-    const mevcut = tarihFiyatlariHamOku();
-    const toplam = tarihler.reduce((s, t) => s + (Number(mevcut[t]) || 0), 0);
-    if (toplam > 0) alanYaz(inp, fiyatYuvarla(toplam));
   }
 
   function tarihFiyatlariHamOku() {
