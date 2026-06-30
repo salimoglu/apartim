@@ -558,7 +558,11 @@
     window.APARTIM.rezOzet?.modalRezBodyeAl?.();
     modal()?.classList.remove("hidden");
     modalAcikGuncelle();
-    setTimeout(() => ay().misafir?.focus({ preventScroll: true }), 80);
+    const yatay = window.APARTIM.app?.yatayModMu?.();
+    const dokunmatik = window.matchMedia("(pointer: coarse)").matches;
+    if (!yatay && !dokunmatik) {
+      setTimeout(() => ay().misafir?.focus({ preventScroll: true }), 80);
+    }
   }
   function modalKapat() {
     modal()?.classList.add("hidden");

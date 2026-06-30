@@ -1588,14 +1588,24 @@
   function modalRezBodyeAl() {
     const el = document.getElementById("modal-rez");
     if (!el) return;
-    if (el._tamEkranKaynak) {
-      const k = el._tamEkranKaynak;
-      if (k.parent) k.parent.insertBefore(el, k.next);
-      delete el._tamEkranKaynak;
+    const host = modalHost();
+    const tamEkran = tamEkranAcikMi();
+
+    if (tamEkran && host) {
+      if (!el._rezModalKaynak) {
+        el._rezModalKaynak = { parent: el.parentElement, next: el.nextSibling };
+      }
+      host.setAttribute("aria-hidden", "false");
+      if (el.parentElement !== host) host.appendChild(el);
+      return;
     }
+
     if (el.parentElement?.id === "rez-ozet-modal-host") {
       document.body.appendChild(el);
+    } else if (el.parentElement !== document.body) {
+      document.body.appendChild(el);
     }
+    host?.setAttribute("aria-hidden", "true");
   }
 
   function modalHost() {
@@ -1637,6 +1647,7 @@
       }
     } catch (e) { /* yoksay */ }
     yatayModGuncelle();
+    modalRezBodyeAl();
   }
 
   async function tamEkranYatay() {
@@ -1668,6 +1679,7 @@
       } catch (e) { /* yoksay */ }
 
       yatayModGuncelle();
+      modalRezBodyeAl();
       window.APARTIM.toast?.("Tam ekran — çıkmak için Yatay'a tekrar dokunun", "bilgi");
     } catch (err) {
       await tamEkranKapat();
@@ -1690,6 +1702,7 @@
       if (table) stickyBaslikOlcul(table);
     });
     document.addEventListener("fullscreenchange", () => {
+      modalRezBodyeAl();
       if (document.fullscreenElement) return;
       const wrap = tamEkranWrap();
       if (wrap?.classList.contains("rez-ozet-tam-ekran")) {
