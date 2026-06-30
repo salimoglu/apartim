@@ -2604,24 +2604,91 @@ html:not(.theme-light) .rez-kaynak-badge {
   letter-spacing: 0.02em;
   opacity: 0.95;
 }
-.rez-tek-fiyat-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 4px 0 10px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--metin);
+.rez-fiyat-grup {
+  margin-bottom: 10px;
+}
+.rez-fiyat-modlari {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.rez-fiyat-mod {
+  position: relative;
   cursor: pointer;
-  user-select: none;
+  min-width: 0;
 }
-.rez-tek-fiyat-toggle input {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--vurgu);
-  flex-shrink: 0;
+.rez-fiyat-mod input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
 }
-.rez-tarih-fiyat-grup.hidden { display: none; }
+.rez-fiyat-mod-kart {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 58px;
+  padding: 8px 4px;
+  border: 2px solid var(--kenar);
+  border-radius: 10px;
+  background: var(--zemin-2);
+  text-align: center;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+  position: relative;
+}
+.rez-fiyat-mod-kart strong {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--metin);
+  line-height: 1.2;
+}
+.rez-fiyat-mod-kart small {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--metin-soluk);
+  line-height: 1.2;
+}
+.rez-fiyat-mod-tik {
+  position: absolute;
+  top: 4px;
+  right: 5px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--vurgu);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 900;
+  line-height: 14px;
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.15s, transform 0.15s;
+}
+.rez-fiyat-mod input:checked + .rez-fiyat-mod-kart {
+  border-color: var(--vurgu);
+  background: rgba(46, 204, 113, 0.1);
+  box-shadow: 0 0 0 1px rgba(46, 204, 113, 0.25);
+}
+.rez-fiyat-mod input:checked + .rez-fiyat-mod-kart .rez-fiyat-mod-tik {
+  opacity: 1;
+  transform: scale(1);
+}
+.rez-fiyat-mod input:focus-visible + .rez-fiyat-mod-kart {
+  outline: 2px solid var(--vurgu);
+  outline-offset: 2px;
+}
+.rez-fiyat-panel.hidden { display: none; }
+.rez-fiyat-panel { margin-top: 2px; }
+.rez-para-grup-satir {
+  margin-bottom: 8px;
+  max-width: 160px;
+}
+.rez-tarih-fiyat-grup { margin-bottom: 0; }
 .rez-tarih-fiyat-liste {
   display: flex;
   flex-direction: column;

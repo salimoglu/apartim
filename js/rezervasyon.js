@@ -25,7 +25,7 @@
     ucretGrup: document.getElementById("rez-ucret-grup"),
     toplamAnlasma: document.getElementById("rez-toplam-anlasma"),
     toplamAnlasmaLabel: document.getElementById("rez-toplam-anlasma-label"),
-    tekFiyatToggle: document.getElementById("rez-tek-fiyat"),
+    topluBolOzet: document.getElementById("rez-toplu-bol-ozet"),
     tarihFiyatGrup: document.getElementById("rez-tarih-fiyat-grup"),
     tarihFiyatListe: document.getElementById("rez-tarih-fiyat-liste"),
     fiyatOzet: document.getElementById("rez-fiyat-ozet"),
@@ -41,7 +41,7 @@
   let mevcutRezId = null;
   let mevcutDaireId = null;
   let cikisRezId = null;
-  let tekFiyatModu = true;
+  let fiyatModu = "tek";
 
   const TARIH_AYLAR = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
   const TARIH_AYLAR_UZUN = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
@@ -69,13 +69,7 @@
     const lbl = ay().ucretLabel;
     if (lbl) lbl.textContent = "Gecelik ücret (" + pb + ") *";
     const anlasmaLbl = ay().toplamAnlasmaLabel;
-    if (anlasmaLbl) anlasmaLbl.textContent = "Anlaşılan toplam (" + pb + ")";
-    const ipucu = document.getElementById("rez-toplam-anlasma-ipucu");
-    if (ipucu) {
-      ipucu.textContent =
-        "Pazarlık toplamını girin; gece fiyatlarına otomatik eşit bölünür (" +
-        pb + ", örn. 3 gece 190 → 63,33 + 63,33 + 63,34).";
-    }
+    if (anlasmaLbl) anlasmaLbl.textContent = "Toplam tutar (" + pb + ") *";
     document.querySelectorAll(".rez-tarih-pb").forEach((el) => {
       el.textContent = paraSimge();
     });
@@ -124,38 +118,131 @@
 
   function toplamAnlasmaUygula(opts) {
     const sessiz = opts?.sessiz;
+    if (fiyatModu !== "toplu") return;
     const e = ay();
     const raw = e.toplamAnlasma?.value;
     if (raw === "" || raw == null) {
+      topluBolOzetGuncelle();
       if (!sessiz) uyariGoster("");
+      toplamHesapla();
       return;
     }
     const toplam = Number(raw);
     const tarihler = geceTarihleriAl();
     if (!tarihler.length) {
       if (!sessiz) uyariGoster("Önce giriş ve çıkış tarihi seçin.");
+      topluBolOzetGuncelle();
       return;
     }
     if (!Number.isFinite(toplam) || toplam <= 0) {
       if (!sessiz) uyariGoster("Geçerli bir toplam tutar girin.");
+      topluBolOzetGuncelle();
+      return;
+    }
+    uyariGoster("");
+    topluBolOzetGuncelle();
+    toplamHesapla();
+  }
+
+  function topluBolOzetGuncelle() {
+    const el = ay().topluBolOzet;
+    if (!el) return;
+    const tarihler = geceTarihleriAl();
+    const toplam = Number(ay().toplamAnlasma?.value);
+    if (!tarihler.length || !Number.isFinite(toplam) || toplam <= 0) {
+      el.textContent = tarihler.length
+        ? "Toplam tutarı girin; gece fiyatları otomatik hesaplanır."
+        : "Önce konaklama tarihlerini seçin.";
       return;
     }
     const parcalar = toplamGeceyeBol(toplam, tarihler.length);
     if (!parcalar) {
-      uyariGoster("Toplam tutar geceye bölünemedi.");
+      el.textContent = "";
       return;
     }
-    const fiyatlar = {};
-    tarihler.forEach((t, i) => { fiyatlar[t] = parcalar[i]; });
-    const hepsiAyni = parcalar.every((v) => fiyatEsitMi(v, parcalar[0]));
-    if (hepsiAyni) {
-      tekFiyatModuGoster(true);
-      alanYaz(e.ucret, parcalar[0]);
-    } else {
-      tekFiyatModuGoster(false);
-      tarihFiyatListeCiz(fiyatlar);
+    const pb = paraSimge();
+    el.textContent =
+      "Gece başına: " +
+      parcalar.map((v) => aralikFormatla(v)).join(" · ") + " " + pb;
+  }
+
+  function fiyatModuPanelleriGuncelle() {
+    document.getElementById("rez-panel-tek")?.classList.toggle("hidden", fiyatModu !== "tek");
+    document.getElementById("rez-panel-ayri")?.classList.toggle("hidden", fiyatModu !== "ayri");
+    document.getElementById("rez-panel-toplu")?.classList.toggle("hidden", fiyatModu !== "toplu");
+    document.querySelectorAll('input[name="rez-fiyat-mod"]').forEach((r) => {
+      r.checked = r.value === fiyatModu;
+    });
+  }
+
+  function toplamFormSenkron() {
+    const inp = ay().toplamAnlasma;
+    if (!inp) return;
+    const tarihler = geceTarihleriAl();
+    if (!tarihler.length) {
+      alanYaz(inp, "");
+      return;
     }
-    uyariGoster("");
+    const mevcut = tarihFiyatlariHamOku();
+    const toplam = tarihler.reduce((s, t) => s + (Number(mevcut[t]) || 0), 0);
+    if (toplam > 0) alanYaz(inp, fiyatYuvarla(toplam));
+  }
+
+  function tarihFiyatlariHamOku() {
+    const u = Number(ay().ucret?.value) || varsayilanUcret();
+    const tarihler = geceTarihleriAl();
+    const out = {};
+    if (!tarihler.length) return out;
+
+    if (fiyatModu === "ayri") {
+      const wrap = ay().tarihFiyatListe;
+      if (wrap) {
+        wrap.querySelectorAll(".rez-gece-fiyat-satir").forEach((satir) => {
+          const t = satir.dataset.tarih;
+          const inp = satir.querySelector(".rez-tarih-ucret");
+          out[t] = Number(inp?.value) || u;
+        });
+      }
+      tarihler.forEach((t) => {
+        if (out[t] == null) out[t] = u;
+      });
+      return out;
+    }
+
+    if (fiyatModu === "toplu") {
+      const toplam = Number(ay().toplamAnlasma?.value);
+      if (Number.isFinite(toplam) && toplam > 0) {
+        const parcalar = toplamGeceyeBol(toplam, tarihler.length);
+        if (parcalar) {
+          tarihler.forEach((t, i) => { out[t] = parcalar[i]; });
+          return out;
+        }
+      }
+    }
+
+    tarihler.forEach((t) => { out[t] = u; });
+    return out;
+  }
+
+  function fiyatModuAyarla(mod) {
+    const onceki = fiyatModu;
+    const mevcut = tarihFiyatlariHamOku();
+    fiyatModu = mod === "ayri" || mod === "toplu" ? mod : "tek";
+    fiyatModuPanelleriGuncelle();
+
+    if (fiyatModu === "ayri") {
+      tarihFiyatListeCiz(mevcut);
+    } else if (fiyatModu === "toplu") {
+      if (onceki !== "toplu") {
+        const tarihler = geceTarihleriAl();
+        const toplam = tarihler.reduce((s, t) => s + (Number(mevcut[t]) || 0), 0);
+        if (toplam > 0) alanYaz(ay().toplamAnlasma, fiyatYuvarla(toplam));
+      }
+      topluBolOzetGuncelle();
+    } else {
+      const vals = Object.values(mevcut);
+      if (vals.length) alanYaz(ay().ucret, vals[0]);
+    }
     toplamHesapla();
   }
 
@@ -172,47 +259,15 @@
     return db.geceTarihleri(e.giris.value, e.cikis.value);
   }
 
-  function tekFiyatModuGoster(tek) {
-    tekFiyatModu = !!tek;
-    const e = ay();
-    if (e.tekFiyatToggle) e.tekFiyatToggle.checked = tekFiyatModu;
-    e.ucretGrup?.classList.toggle("hidden", !tekFiyatModu);
-    e.tarihFiyatGrup?.classList.toggle("hidden", tekFiyatModu);
-    if (!tekFiyatModu) {
-      const u = Number(e.ucret?.value) || varsayilanUcret();
-      const mevcut = {};
-      geceTarihleriAl().forEach((t) => { mevcut[t] = u; });
-      tarihFiyatListeCiz(mevcut);
-    } else {
-      const tf = tarihFiyatlariOku();
-      const vals = Object.values(tf);
-      if (vals.length) alanYaz(e.ucret, vals[0]);
-    }
-    toplamHesapla();
+  function tekFiyatKayitMi(tf, giris, cikis, varsayilan) {
+    if (fiyatModu === "tek") return true;
+    const db = window.APARTIM.db;
+    if (!tf || !db) return fiyatModu === "tek";
+    return db.tarihFiyatlariTekMi(giris, cikis, tf, varsayilan);
   }
 
   function tarihFiyatlariOku() {
-    const u = Number(ay().ucret?.value) || varsayilanUcret();
-    const tarihler = geceTarihleriAl();
-    const out = {};
-    if (tekFiyatModu) {
-      tarihler.forEach((t) => { out[t] = u; });
-      return out;
-    }
-    const wrap = ay().tarihFiyatListe;
-    if (!wrap) {
-      tarihler.forEach((t) => { out[t] = u; });
-      return out;
-    }
-    wrap.querySelectorAll(".rez-gece-fiyat-satir").forEach((satir) => {
-      const t = satir.dataset.tarih;
-      const inp = satir.querySelector(".rez-tarih-ucret");
-      out[t] = Number(inp?.value) || u;
-    });
-    tarihler.forEach((t) => {
-      if (out[t] == null) out[t] = u;
-    });
-    return out;
+    return tarihFiyatlariHamOku();
   }
 
   function tarihFiyatListeCiz(fiyatlar) {
@@ -264,13 +319,17 @@
     }
 
     alanYaz(ay().ucret, u);
-    tekFiyatModu = hepsiAyni;
-    const e = ay();
-    if (e.tekFiyatToggle) e.tekFiyatToggle.checked = tekFiyatModu;
-    e.ucretGrup?.classList.toggle("hidden", !tekFiyatModu);
-    e.tarihFiyatGrup?.classList.toggle("hidden", tekFiyatModu);
+    fiyatModu = hepsiAyni ? "tek" : "ayri";
+    fiyatModuPanelleriGuncelle();
     if (!hepsiAyni) tarihFiyatListeCiz(tf);
-    else if (e.tarihFiyatListe) e.tarihFiyatListe.innerHTML = "";
+    else if (ay().tarihFiyatListe) ay().tarihFiyatListe.innerHTML = "";
+    toplamAnlasmaSenkron({
+      giris: rez.giris,
+      cikis: rez.cikis,
+      gunlukUcret: u,
+      tarihFiyatlari: hepsiAyni ? null : tf
+    });
+    topluBolOzetGuncelle();
   }
 
   function tarihDegisti() {
@@ -285,11 +344,15 @@
     if (cikis <= giris) {
       e.cikis.value = gunEkle(giris, 1);
     }
-    if (!tekFiyatModu) {
+    if (fiyatModu === "ayri") {
       tarihFiyatListeCiz(tarihFiyatlariOku());
     }
-    if (ay().toplamAnlasma?.value) {
-      toplamAnlasmaUygula({ sessiz: true });
+    if (fiyatModu === "toplu") {
+      if (ay().toplamAnlasma?.value) toplamAnlasmaUygula({ sessiz: true });
+      else {
+        topluBolOzetGuncelle();
+        toplamHesapla();
+      }
     } else {
       toplamHesapla();
     }
@@ -546,11 +609,12 @@
       const c = e.cikis?.value;
       const u = Number(e.ucret?.value) || varsayilanUcret();
       const tf = tarihFiyatlariOku();
+      const tekKayit = tekFiyatKayitMi(tf, g, c, u);
       const rez = {
         giris: g,
         cikis: c,
         gunlukUcret: u,
-        tarihFiyatlari: tekFiyatModu ? null : tf
+        tarihFiyatlari: tekKayit ? null : tf
       };
       const { gece, toplam } = tutarHesapla(rez);
       if (e.tGece) e.tGece.textContent = gece + " gece";
@@ -560,7 +624,8 @@
           : aralikFormatla(toplam) + " TL";
       }
       if (e.fiyatOzet) {
-        e.fiyatOzet.textContent = !tekFiyatModu && gece > 0 ? fiyatOzetMetni(rez) : "";
+        e.fiyatOzet.textContent =
+          fiyatModu !== "tek" && gece > 0 ? fiyatOzetMetni(rez) : "";
       }
     } catch (err) {
       console.warn("toplamHesapla:", err);
@@ -634,8 +699,8 @@
       alanYaz(e.ucret, u);
       if (e.paraBirimi) e.paraBirimi.value = "TL";
       ucretEtiketGuncelle();
-      tekFiyatModuGoster(true);
-      toplamAnlasmaSenkron();
+      fiyatModuAyarla("tek");
+      alanYaz(e.toplamAnlasma, "");
       alanYaz(e.notlar, "");
       e.btnSil?.classList.add("hidden");
       uyariGoster("");
@@ -685,7 +750,7 @@
         giris: e.giris.value,
         cikis: e.cikis.value,
         gunlukUcret: Number(e.ucret?.value) || varsayilanUcret(),
-        tarihFiyatlari: tekFiyatModu ? null : tarihFiyatlariOku()
+        tarihFiyatlari: fiyatModu === "tek" ? null : tarihFiyatlariOku()
       });
       window.APARTIM.rezOzet?.konumKoru?.(rez.giris);
       modalAc();
@@ -696,9 +761,14 @@
   }
 
   function tarihFiyatDogrula(tf) {
-    if (tekFiyatModu) return "";
+    if (fiyatModu === "tek") return "";
     const tarihler = geceTarihleriAl();
     if (!tarihler.length) return "Geçerli tarih aralığı seçin.";
+    if (fiyatModu === "toplu") {
+      const toplam = Number(ay().toplamAnlasma?.value);
+      if (!Number.isFinite(toplam) || toplam <= 0) return "Toplam tutar 0'dan büyük olmalı.";
+      return "";
+    }
     for (const t of tarihler) {
       const f = Number(tf[t]) || 0;
       if (f <= 0) return tarihGoster(t) + " için fiyat 0'dan büyük olmalı.";
@@ -722,17 +792,20 @@
       const misafir = (e.misafir?.value || "").trim();
       const giris = e.giris?.value || "";
       const cikis = e.cikis?.value || "";
-      const ucretDeger = tekFiyatModu
-        ? Number(e.ucret?.value) || varsayilanUcret() || 1000
-        : (Object.values(tarihFiyatlariOku())[0] || varsayilanUcret());
+      const tfHam = tarihFiyatlariOku();
+      const ucretTek = Number(e.ucret?.value) || varsayilanUcret() || 1000;
+      const ucretDeger = fiyatModu === "tek"
+        ? ucretTek
+        : (Object.values(tfHam)[0] || varsayilanUcret());
+      const tekKayit = tekFiyatKayitMi(tfHam, giris, cikis, ucretTek);
 
       if (!misafir) { kaydetHata("Misafir adı zorunlu."); return; }
       if (!giris || !cikis) { kaydetHata("Tarihler zorunlu."); return; }
       if (cikis <= giris) { kaydetHata("Çıkış tarihi girişten sonra olmalı."); return; }
-      if (tekFiyatModu && ucretDeger <= 0) { kaydetHata("Gecelik ücret 0'dan büyük olmalı."); return; }
+      if (fiyatModu === "tek" && ucretTek <= 0) { kaydetHata("Gecelik ücret 0'dan büyük olmalı."); return; }
 
-      const tf = tekFiyatModu ? null : tarihFiyatlariOku();
-      const fiyatHata = tarihFiyatDogrula(tf || {});
+      const tf = tekKayit ? null : tfHam;
+      const fiyatHata = tarihFiyatDogrula(tfHam || {});
       if (fiyatHata) { kaydetHata(fiyatHata); return; }
 
       kaynakSelectDoldur(e.kaynak?.value || null);
@@ -751,7 +824,7 @@
         gunlukUcret: ucretDeger,
         paraBirimi: seciliParaBirimi(),
         notlar: (e.notlar?.value || "").trim(),
-        tarihFiyatlari: tekFiyatModu ? null : tf,
+        tarihFiyatlari: tf,
         ucretKademeleri: null
       };
 
@@ -939,11 +1012,15 @@
     e.ucret?.addEventListener("input", toplamHesapla);
     e.paraBirimi?.addEventListener("change", () => {
       ucretEtiketGuncelle();
-      if (!tekFiyatModu) tarihFiyatListeCiz(tarihFiyatlariOku());
-      if (e.toplamAnlasma?.value) toplamAnlasmaUygula({ sessiz: true });
-      else toplamHesapla();
+      if (fiyatModu === "ayri") tarihFiyatListeCiz(tarihFiyatlariOku());
+      if (fiyatModu === "toplu") topluBolOzetGuncelle();
+      toplamHesapla();
     });
-    e.tekFiyatToggle?.addEventListener("change", () => tekFiyatModuGoster(e.tekFiyatToggle.checked));
+    document.querySelectorAll('input[name="rez-fiyat-mod"]').forEach((r) => {
+      r.addEventListener("change", () => {
+        if (r.checked) fiyatModuAyarla(r.value);
+      });
+    });
     e.toplamAnlasma?.addEventListener("input", toplamAnlasmaOtomatik);
     e.toplamAnlasma?.addEventListener("change", () => toplamAnlasmaUygula({ sessiz: true }));
     document.getElementById("rez-yeni-btn")?.addEventListener("click", () => yeni({}));
