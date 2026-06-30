@@ -19,6 +19,11 @@
       window.matchMedia("(pointer: coarse)").matches;
   }
 
+  function yatayMi() {
+    if (window.APARTIM.app?.yatayModMu?.()) return true;
+    return window.matchMedia("(orientation: landscape) and (max-height: 520px)").matches;
+  }
+
   function acikMi() {
     const el = overlay();
     return el && !el.classList.contains("hidden");
@@ -79,7 +84,7 @@
     vpTimer = setTimeout(() => {
       const el = overlay();
       if (!el || el.classList.contains("hidden") || !mobilMi()) {
-        document.body.classList.remove("rez-form-klavye");
+        document.body.classList.remove("rez-form-klavye", "rez-form-yatay");
         stilTemizle();
         return;
       }
@@ -87,10 +92,32 @@
       const vv = window.visualViewport;
       if (!vv) return;
 
+      const yatay = yatayMi();
       const klavye = klavyeAcikMi();
+      document.body.classList.toggle("rez-form-yatay", yatay);
       document.body.classList.toggle("rez-form-klavye", klavye);
       document.documentElement.style.setProperty("--rez-vvh", Math.round(vv.height) + "px");
 
+      if (yatay) {
+        /* Yatay: ortalanmış kutu; klavye yokken inline konum yok */
+        if (klavye) {
+          el.style.top = vv.offsetTop + "px";
+          el.style.left = "0";
+          el.style.right = "0";
+          el.style.height = vv.height + "px";
+          el.style.bottom = "auto";
+          el.classList.add("rez-takvim-kapali");
+        } else {
+          el.style.top = "";
+          el.style.left = "";
+          el.style.right = "";
+          el.style.height = "";
+          el.style.bottom = "";
+        }
+        return;
+      }
+
+      /* Dikey: alt panel + görünür viewport */
       el.style.top = vv.offsetTop + "px";
       el.style.left = "0";
       el.style.right = "0";
@@ -108,11 +135,14 @@
     document.body.classList.add("rez-form-mobil");
     const el = overlay();
     el?.classList.remove("rez-takvim-kapali", "rez-takvim-acik");
+    if (yatayMi()) {
+      document.body.classList.add("rez-form-yatay");
+    }
     viewportGuncelle();
   }
 
   function kapat() {
-    document.body.classList.remove("rez-form-mobil", "rez-form-klavye");
+    document.body.classList.remove("rez-form-mobil", "rez-form-klavye", "rez-form-yatay");
     overlay()?.classList.remove("rez-takvim-kapali", "rez-takvim-acik");
     stilTemizle();
   }
