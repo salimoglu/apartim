@@ -2794,14 +2794,16 @@ html:not(.theme-light) .rez-kaynak-badge {
 /* Rezervasyon modal — mobil + klavye */
 @media (max-width: 720px), ((pointer: coarse) and (max-height: 900px)) {
   #modal-rez.modal-overlay {
-    align-items: flex-end;
+    align-items: stretch;
+    justify-content: stretch;
     padding: 0;
   }
   #modal-rez .modal-box {
     max-width: none;
     width: 100%;
-    max-height: 94dvh;
-    border-radius: 16px 16px 0 0;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
     margin: 0;
   }
   #modal-rez .modal-header {
@@ -2835,21 +2837,30 @@ html:not(.theme-light) .rez-kaynak-badge {
   }
   #modal-rez .modal-footer {
     flex-shrink: 0;
-    position: relative;
-    z-index: 2;
+    position: sticky;
+    bottom: 0;
+    z-index: 30;
     padding: 10px 12px;
     padding-bottom: max(10px, env(safe-area-inset-bottom));
     background: var(--kart);
     box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.12);
     gap: 6px;
+    touch-action: manipulation;
   }
   #modal-rez .modal-footer .btn-primary {
     flex: 1 1 auto;
-    min-height: 44px;
+    min-height: 48px;
+    touch-action: manipulation;
   }
   #modal-rez .modal-footer .btn-secondary,
   #modal-rez .modal-footer .btn-danger {
+    min-height: 48px;
+    touch-action: manipulation;
+  }
+  #modal-rez .modal-close {
+    min-width: 44px;
     min-height: 44px;
+    touch-action: manipulation;
   }
   #modal-rez .rez-toplam-bar {
     margin-top: 4px;
@@ -3842,12 +3853,17 @@ body.rez-ozet-tam-ekran {
 }
 #modal-rez.modal-overlay {
   z-index: 100050;
+  position: fixed;
+  inset: 0;
+  isolation: isolate;
 }
 #modal-rez.modal-overlay:not(.hidden) {
   pointer-events: auto;
+  display: flex;
 }
 #modal-rez .modal-box {
   pointer-events: auto;
+  min-height: 0;
 }
 .rez-ozet-modal-host .modal-overlay {
   pointer-events: auto;

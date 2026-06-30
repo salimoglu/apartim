@@ -115,7 +115,9 @@
   }
 
   function modalAcikGuncelle() {
-    document.body.classList.toggle("modal-acik", modalAcikMi());
+    const acik = modalAcikMi();
+    document.body.classList.toggle("modal-acik", acik);
+    document.getElementById("app")?.toggleAttribute("inert", acik);
   }
 
   function ptrDokunmaIptal(ev) {

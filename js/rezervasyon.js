@@ -547,8 +547,21 @@
     window.APARTIM.app?.modalAcikGuncelle?.();
   }
 
-  function modalAc() {
+  function modalBodyeSabitle() {
+    const el = modal();
+    if (!el) return;
     window.APARTIM.rezOzet?.modalRezBodyeAl?.();
+    document.getElementById("rez-ozet-modal-host")?.setAttribute("aria-hidden", "true");
+    document.getElementById("takvim-detay-pop")?.classList.add("hidden");
+    if (el.parentElement !== document.body) {
+      document.body.appendChild(el);
+    } else if (el !== document.body.lastElementChild) {
+      document.body.appendChild(el);
+    }
+  }
+
+  function modalAc() {
+    modalBodyeSabitle();
     modal()?.classList.remove("hidden");
     modalAcikGuncelle();
     window.APARTIM.modalKlavye?.viewportGuncelle?.();
@@ -633,8 +646,6 @@
     }
     e.uyari.classList.remove("hidden");
     e.uyari.textContent = msg;
-    e.uyari.scrollIntoView({ block: "nearest", behavior: "smooth" });
-    window.APARTIM.toast(msg, "uyari");
   }
 
   function kaydetHata(msg) {
@@ -991,33 +1002,61 @@
 
   function daireRezListele(daireId) { listeRender("rez-liste-icerik", daireId); }
 
+  function rezModalTikIslem(btn) {
+    if (!btn?.id) return false;
+    if (btn.id === "rez-modal-iptal" || btn.id === "rez-modal-close") {
+      modalKapat();
+      return true;
+    }
+    if (btn.id === "rez-modal-kaydet") {
+      kaydet();
+      return true;
+    }
+    if (btn.id === "rez-modal-sil") {
+      silOnay();
+      return true;
+    }
+    return false;
+  }
+
   function rezModalTiklamaBagla() {
     const ov = modal();
     if (!ov || ov.dataset.rezTikBagli) return;
     ov.dataset.rezTikBagli = "1";
 
-    function islem(hedef) {
-      if (!hedef) return false;
-      const id = hedef.id;
-      if (id === "rez-modal-iptal" || id === "rez-modal-close") {
-        modalKapat();
-        return true;
-      }
-      if (id === "rez-modal-kaydet") {
-        kaydet();
-        return true;
-      }
-      if (id === "rez-modal-sil") {
-        silOnay();
-        return true;
-      }
-      return false;
-    }
-
     ov.addEventListener("click", (e) => {
-      if (islem(e.target)) return;
+      const btn = e.target.closest?.(
+        "#rez-modal-iptal, #rez-modal-close, #rez-modal-kaydet, #rez-modal-sil"
+      );
+      if (btn && ov.contains(btn)) {
+        e.preventDefault();
+        rezModalTikIslem(btn);
+        return;
+      }
       if (e.target === ov) modalKapat();
     });
+
+    if (window._rezModalDocTikBagli) return;
+    window._rezModalDocTikBagli = true;
+
+    document.addEventListener("pointerup", (e) => {
+      const el = modal();
+      if (!el || el.classList.contains("hidden")) return;
+      const btn = e.target.closest?.(
+        "#rez-modal-iptal, #rez-modal-close, #rez-modal-kaydet, #rez-modal-sil"
+      );
+      if (btn && el.contains(btn)) {
+        e.preventDefault();
+        e.stopPropagation();
+        rezModalTikIslem(btn);
+        return;
+      }
+      if (e.target === el) {
+        e.preventDefault();
+        e.stopPropagation();
+        modalKapat();
+      }
+    }, true);
   }
 
   function bagla() {
@@ -1045,6 +1084,14 @@
     document.getElementById("cikis-close")?.addEventListener("click", cikisKapat);
     document.getElementById("cikis-iptal")?.addEventListener("click", cikisKapat);
     document.getElementById("cikis-onayla")?.addEventListener("click", cikisOnayla);
+    document.addEventListener("keydown", (e) => {
+      const el = modal();
+      if (!el || el.classList.contains("hidden")) return;
+      if (e.key === "Escape") {
+        e.preventDefault();
+        modalKapat();
+      }
+    });
   }
 
   if (document.readyState === "loading") {
@@ -1066,6 +1113,8 @@
   window.APARTIM.rezervasyon = {
     yeni,
     duzenle,
+    modalKapat,
+    kaydet,
     rezIdAl,
     cikisAc,
     listeRender,
