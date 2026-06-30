@@ -2683,10 +2683,43 @@ html:not(.theme-light) .rez-kaynak-badge {
   outline-offset: 2px;
 }
 .rez-fiyat-panel.hidden { display: none; }
-.rez-fiyat-panel { margin-top: 2px; }
-.rez-para-grup-satir {
-  margin-bottom: 8px;
-  max-width: 160px;
+.rez-fiyat-panel { margin-top: 0; }
+.rez-fiyat-deger-satir {
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+.rez-fiyat-deger-sol {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+}
+.rez-fiyat-deger-sol .field-group {
+  margin-bottom: 0;
+}
+.rez-fiyat-deger-satir .rez-para-grup {
+  flex: 0 0 118px;
+  min-width: 100px;
+  margin-bottom: 0;
+}
+.rez-fiyat-deger-sol .rez-fiyat-panel:not(.hidden) {
+  width: 100%;
+}
+.rez-ayri-baslik-grup {
+  display: flex;
+  align-items: flex-end;
+  min-height: 42px;
+  padding-bottom: 10px;
+}
+.rez-ayri-baslik-grup .field-label {
+  margin: 0;
+}
+#rez-panel-ayri {
+  margin-top: 6px;
+}
+.rez-toplu-bol.hidden { display: none; }
+.rez-toplu-bol {
+  margin: 6px 0 0;
 }
 .rez-tarih-fiyat-grup { margin-bottom: 0; }
 .rez-tarih-fiyat-liste {

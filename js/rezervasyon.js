@@ -65,11 +65,10 @@
   }
 
   function ucretEtiketGuncelle() {
-    const pb = seciliParaBirimi();
     const lbl = ay().ucretLabel;
-    if (lbl) lbl.textContent = "Gecelik ücret (" + pb + ") *";
+    if (lbl) lbl.textContent = "Gecelik ücret *";
     const anlasmaLbl = ay().toplamAnlasmaLabel;
-    if (anlasmaLbl) anlasmaLbl.textContent = "Toplam tutar (" + pb + ") *";
+    if (anlasmaLbl) anlasmaLbl.textContent = "Toplam tutar *";
     document.querySelectorAll(".rez-tarih-pb").forEach((el) => {
       el.textContent = paraSimge();
     });
@@ -165,7 +164,9 @@
   function fiyatModuPanelleriGuncelle() {
     document.getElementById("rez-panel-tek")?.classList.toggle("hidden", fiyatModu !== "tek");
     document.getElementById("rez-panel-ayri")?.classList.toggle("hidden", fiyatModu !== "ayri");
+    document.getElementById("rez-panel-ayri-ust")?.classList.toggle("hidden", fiyatModu !== "ayri");
     document.getElementById("rez-panel-toplu")?.classList.toggle("hidden", fiyatModu !== "toplu");
+    document.getElementById("rez-toplu-bol-wrap")?.classList.toggle("hidden", fiyatModu !== "toplu");
     document.querySelectorAll('input[name="rez-fiyat-mod"]').forEach((r) => {
       r.checked = r.value === fiyatModu;
     });
