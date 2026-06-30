@@ -2792,6 +2792,167 @@ html:not(.theme-light) .rez-kaynak-badge {
   margin-bottom: 10px;
 }
 
+/* Rezervasyon modal — mobil (dikey + yatay, klavye uyumlu) */
+@media (max-width: 720px), (pointer: coarse) and (max-width: 900px) {
+  body.rez-form-mobil #modal-rez.modal-overlay {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+  }
+  body.rez-form-mobil #modal-rez .modal-box {
+    width: 100%;
+    max-width: none;
+    max-height: min(94dvh, var(--rez-vvh, 94dvh));
+    display: flex;
+    flex-direction: column;
+    border-radius: 16px 16px 0 0;
+    margin: 0;
+  }
+  body.rez-form-mobil.rez-form-klavye #modal-rez .modal-box,
+  body.rez-form-mobil.rez-form-klavye #modal-rez.modal-overlay {
+    border-radius: 0;
+  }
+  body.rez-form-mobil.rez-form-klavye #modal-rez .modal-box {
+    height: var(--rez-vvh, 100dvh);
+    max-height: var(--rez-vvh, 100dvh);
+  }
+  body.rez-form-mobil #modal-rez .modal-header {
+    flex-shrink: 0;
+    padding: 10px 14px;
+  }
+  body.rez-form-mobil #modal-rez .modal-title {
+    font-size: 16px;
+    line-height: 1.25;
+  }
+  body.rez-form-mobil #modal-rez .modal-close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  body.rez-form-mobil #modal-rez .modal-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 12px 14px;
+    scroll-padding-bottom: 80px;
+  }
+  body.rez-form-mobil #modal-rez .modal-body .field-input,
+  body.rez-form-mobil #modal-rez .modal-body .field-select {
+    font-size: 16px;
+    min-height: 44px;
+    padding: 10px 12px;
+  }
+  body.rez-form-mobil #modal-rez .field-group {
+    margin-bottom: 10px;
+    scroll-margin-bottom: 12px;
+  }
+  body.rez-form-mobil #modal-rez .modal-footer {
+    flex-shrink: 0;
+    padding: 10px 12px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+    background: var(--kart);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+    gap: 8px;
+  }
+  body.rez-form-mobil #modal-rez .modal-footer .btn-primary {
+    flex: 1 1 auto;
+    min-height: 46px;
+  }
+  body.rez-form-mobil #modal-rez .modal-footer .btn-secondary,
+  body.rez-form-mobil #modal-rez .modal-footer .btn-danger {
+    min-height: 46px;
+  }
+  body.rez-form-mobil #modal-rez.rez-takvim-kapali .rez-tarih-aralik-takvim {
+    display: none;
+  }
+  body.rez-form-mobil.rez-form-klavye #modal-rez:not(.rez-takvim-acik) .rez-tarih-aralik-takvim {
+    display: none;
+  }
+  body.rez-form-mobil #modal-rez .rez-tarih-aralik-ozet {
+    cursor: pointer;
+    user-select: none;
+  }
+  body.rez-form-mobil.rez-form-klavye #modal-rez .rez-tarih-aralik-ozet,
+  body.rez-form-mobil #modal-rez.rez-takvim-kapali .rez-tarih-aralik-ozet {
+    padding: 10px 12px;
+    background: var(--zemin-2);
+    border-radius: 8px;
+    border: 1px dashed var(--kenar);
+  }
+  body.rez-form-mobil.rez-form-klavye #modal-rez .rez-tarih-aralik-ozet::after,
+  body.rez-form-mobil #modal-rez.rez-takvim-kapali .rez-tarih-aralik-ozet::after {
+    content: " · takvimi aç";
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--vurgu);
+  }
+  body.rez-form-mobil #modal-rez.rez-takvim-acik .rez-tarih-aralik-ozet::after {
+    content: " · takvimi kapat";
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--vurgu);
+  }
+  body.rez-form-mobil.rez-form-klavye #modal-rez .rez-fiyat-mod-kart {
+    min-height: 46px;
+    padding: 6px 4px;
+  }
+  body.rez-form-mobil.rez-form-klavye #modal-rez .rez-fiyat-mod-kart strong {
+    font-size: 10px;
+  }
+  body.rez-form-mobil.rez-form-klavye #modal-rez .rez-fiyat-mod-kart small {
+    font-size: 8px;
+  }
+  body.rez-form-mobil.rez-form-klavye #modal-rez .rez-toplam-bar {
+    padding: 6px 10px;
+    margin-top: 2px;
+  }
+  body.rez-form-mobil.rez-form-klavye #modal-rez .rez-fiyat-ozet {
+    display: none;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  body.rez-form-mobil #modal-rez.modal-overlay {
+    align-items: stretch;
+    padding: 0;
+  }
+  body.rez-form-mobil #modal-rez .modal-box {
+    max-height: var(--rez-vvh, 100dvh);
+    height: var(--rez-vvh, 100dvh);
+    border-radius: 0;
+  }
+  body.rez-form-mobil #modal-rez .modal-header {
+    padding: 6px 12px;
+  }
+  body.rez-form-mobil #modal-rez .modal-title {
+    font-size: 14px;
+  }
+  body.rez-form-mobil #modal-rez .modal-body {
+    padding: 6px 12px;
+    scroll-padding-bottom: 60px;
+  }
+  body.rez-form-mobil #modal-rez .field-group {
+    margin-bottom: 6px;
+  }
+  body.rez-form-mobil #modal-rez .rez-tarih-aralik-takvim .mini-takvim-hucre {
+    min-height: 24px;
+  }
+  body.rez-form-mobil #modal-rez .rez-tarih-aralik-takvim .mini-takvim-gun {
+    font-size: 9px;
+  }
+  body.rez-form-mobil #modal-rez .modal-footer {
+    padding: 6px 10px;
+    padding-bottom: max(6px, env(safe-area-inset-bottom));
+  }
+  body.rez-form-mobil #modal-rez .modal-footer .btn-primary,
+  body.rez-form-mobil #modal-rez .modal-footer .btn-secondary,
+  body.rez-form-mobil #modal-rez .modal-footer .btn-danger {
+    min-height: 40px;
+    font-size: 13px;
+  }
+}
+
 /* -------------------- 11b. PWA yükleme banner -------------------- */
 .pwa-install-bar {
   position: fixed;
@@ -3690,13 +3851,23 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
   color: #fff;
 }
 
-/* Rezervasyon modal — telefon yatay */
+/* Rezervasyon modal — telefon yatay (rez-form-mobil ile birleşik) */
 @media (orientation: landscape) and (max-height: 520px) {
-  body.mobil-yatay-mod #modal-rez.modal-overlay {
+  body.mobil-yatay-mod.rez-form-mobil #modal-rez.modal-overlay {
+    z-index: 100050;
+    padding: 0;
+  }
+  body.mobil-yatay-mod.rez-form-mobil #modal-rez .modal-box {
+    max-width: none;
+    width: 100%;
+    max-height: var(--rez-vvh, 100dvh);
+    height: var(--rez-vvh, 100dvh);
+  }
+  body.mobil-yatay-mod:not(.rez-form-mobil) #modal-rez.modal-overlay {
     z-index: 100050;
     padding: 6px;
   }
-  body.mobil-yatay-mod #modal-rez .modal-box {
+  body.mobil-yatay-mod:not(.rez-form-mobil) #modal-rez .modal-box {
     max-width: min(540px, 98vw);
     max-height: calc(100dvh - 12px);
     width: 100%;

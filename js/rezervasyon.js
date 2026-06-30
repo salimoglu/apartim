@@ -396,6 +396,7 @@
     alanYaz(ay().giris, giris);
     alanYaz(ay().cikis, cikis);
     tarihDegisti();
+    window.APARTIM.rezFormMobil?.tarihSecildi?.();
   }
 
   function tarihAralikGunTik(iso) {
@@ -558,6 +559,7 @@
     window.APARTIM.rezOzet?.modalRezBodyeAl?.();
     modal()?.classList.remove("hidden");
     modalAcikGuncelle();
+    window.APARTIM.rezFormMobil?.ac?.();
     const yatay = window.APARTIM.app?.yatayModMu?.();
     const dokunmatik = window.matchMedia("(pointer: coarse)").matches;
     if (!yatay && !dokunmatik) {
@@ -566,6 +568,7 @@
   }
   function modalKapat() {
     modal()?.classList.add("hidden");
+    window.APARTIM.rezFormMobil?.kapat?.();
     mevcutRezId = null;
     mevcutDaireId = null;
     modalAcikGuncelle();
