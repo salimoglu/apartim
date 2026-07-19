@@ -1450,11 +1450,12 @@ html.theme-light .rez-ozet-ay-ayrac td {
   border-spacing: 0;
   table-layout: fixed;
   width: 100%;
-  font-size: 10px;
+  font-size: 9px;
   min-width: 100%;
   white-space: nowrap;
   --rez-cizgi: #6b7280;
-  --rez-ozet-head1-h: 22px;
+  --rez-ozet-head1-h: 20px;
+  --rez-satir-h: 16px; /* önceki ~18px, %10 düşük */
   --rez-col-tarih: 34px;
   --rez-col-g: 14px;
   --rez-col-kt: 14px;
@@ -1471,17 +1472,17 @@ html.theme-light .rez-ozet-ay-ayrac td {
 .rez-ozet-col-ad { width: var(--rez-col-ad, 8.8%); }
 .rez-ozet-tablo-telefon .rez-ozet-sayi,
 .rez-ozet-tablo-telefon .rez-ozet-odenen:not(.rez-ozet-out-kalan-hucre) {
-  font-size: 10px;
+  font-size: 9px;
 }
 .rez-ozet-tablo-telefon .rez-ozet-ad {
-  font-size: 11.5px; /* 10px × 1.15 */
+  font-size: 10.35px; /* sıkı satırda %15 büyük Ad */
   text-align: center;
 }
 .rez-ozet-tablo-telefon .rez-ozet-out-kalan-tutar {
-  font-size: 10px;
+  font-size: 9px;
 }
 .rez-ozet-tablo-telefon .rez-ozet-out-kalan-etiket {
-  font-size: 8px;
+  font-size: 7px;
 }
 .rez-ozet-tablo-masaustu td.rez-ozet-io-rozet {
   overflow: visible;
@@ -1499,7 +1500,7 @@ html:not(.theme-light) .rez-ozet-table {
 .rez-ozet-table th,
 .rez-ozet-table td {
   border: 1px solid var(--rez-cizgi) !important;
-  padding: 1px 3px;
+  padding: 0 2px;
   vertical-align: middle;
   color: #111827 !important;
 }
@@ -1678,24 +1679,26 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   width: var(--rez-col-tarih);
   max-width: var(--rez-col-tarih);
   min-width: var(--rez-col-tarih);
-  padding: 2px 3px !important;
+  padding: 0 2px !important;
   text-align: center;
+  vertical-align: middle;
+  line-height: 1.05;
 }
 .rez-ozet-tarih-gun {
   display: block;
   font-weight: 800;
-  font-size: 10px;
-  line-height: 1.2;
+  font-size: 9px;
+  line-height: 1.1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
 }
 .rez-ozet-gun-ad {
   display: block;
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   white-space: nowrap;
-  line-height: 1.15;
+  line-height: 1.05;
   opacity: 1;
   text-transform: uppercase;
 }
@@ -1732,22 +1735,23 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 }
 .rez-ozet-kategori-simge {
   display: inline-block;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1;
 }
 .rez-ozet-misafir-baslik {
   text-align: center;
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 700;
   overflow: hidden;
 }
 .rez-ozet-sayi {
   text-align: center;
   font-weight: 700;
-  font-size: 9px;
-  padding: 1px 1px !important;
+  font-size: 8px;
+  padding: 0 1px !important;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.15;
 }
 .rez-ozet-ad {
   white-space: normal;
@@ -1755,15 +1759,15 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   overflow-wrap: anywhere;
   overflow: visible;
   font-weight: 600;
-  font-size: 10.35px; /* 9px × 1.15 */
-  line-height: 1.25;
-  padding: 1px 2px !important;
+  font-size: 9.3px; /* sıkı satırda ~%15 büyük */
+  line-height: 1.15;
+  padding: 0 1px !important;
   vertical-align: middle;
   text-align: center;
 }
 .rez-ozet-bos {
-  height: 18px;
-  padding: 1px !important;
+  height: var(--rez-satir-h, 16px);
+  padding: 0 !important;
 }
 .rez-ozet-hucre-tik {
   cursor: pointer;
@@ -1787,9 +1791,9 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   position: relative;
   max-width: var(--rez-col-odn);
   min-width: 0;
-  height: 18px;
-  max-height: 18px;
-  line-height: 18px;
+  height: var(--rez-satir-h, 16px);
+  max-height: var(--rez-satir-h, 16px);
+  line-height: var(--rez-satir-h, 16px);
   padding: 0 1px !important;
   overflow: hidden;
   box-sizing: border-box;
@@ -1802,10 +1806,10 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 .rez-ozet-odenen.rez-ozet-out-kalan-hucre {
   height: auto;
   max-height: none;
-  line-height: 1.1;
+  line-height: 1.05;
   white-space: normal;
   overflow: visible;
-  padding: 1px 1px !important;
+  padding: 0 1px !important;
 }
 .rez-ozet-odenen.bos {
   color: #111827 !important;
@@ -1837,7 +1841,7 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 .rez-ozet-odenen-input {
   display: block;
   width: 100%;
-  height: 18px;
+  height: var(--rez-satir-h, 16px);
   min-width: 0;
   max-width: 100%;
   margin: 0;
@@ -1845,7 +1849,7 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   font: inherit;
   font-weight: 700;
   text-align: center;
-  line-height: 18px;
+  line-height: var(--rez-satir-h, 16px);
   padding: 0 1px;
   border: none;
   border-radius: 0;
@@ -1976,8 +1980,8 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   gap: 4px;
   flex-wrap: nowrap;
   width: 100%;
-  min-height: 18px;
-  padding: 1px 6px;
+  min-height: var(--rez-satir-h, 16px);
+  padding: 0 4px;
   box-sizing: border-box;
 }
 .rez-ozet-turnover-grup {
@@ -2041,7 +2045,7 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 .rez-ozet-table td.rez-ozet-out-gun {
   text-align: center !important;
   vertical-align: middle !important;
-  padding: 2px 0 !important;
+  padding: 1px 0 !important;
   line-height: 1;
 }
 .rez-ozet-g-hucre-orta {
@@ -2049,16 +2053,16 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 16px;
+  min-height: var(--rez-satir-h, 16px);
   box-sizing: border-box;
 }
 .rez-ozet-table td.rez-ozet-io-rozet {
   overflow: visible !important;
   text-overflow: clip;
-  line-height: 1.15;
+  line-height: 1.1;
   font-size: inherit;
   min-width: 44px;
-  padding: 2px 3px !important;
+  padding: 1px 2px !important;
   text-align: center !important;
   vertical-align: middle;
 }
@@ -3754,14 +3758,14 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     font-size: 11px;
   }
   .rez-ozet-table .rez-ozet-daire-baslik {
-    font-size: 9px;
-    padding: 1px 3px !important;
+    font-size: 8px;
+    padding: 1px 2px !important;
   }
   .rez-ozet-table .rez-ozet-tarih-gun {
-    font-size: 11px;
+    font-size: 10px;
   }
   .rez-ozet-table .rez-ozet-gun-ad {
-    font-size: 9px;
+    font-size: 8px;
   }
 }
 
