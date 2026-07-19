@@ -372,16 +372,24 @@
   function turnoverBilgiHtml(isoT, cikis, giris) {
     const bOut = konakBilgi(cikis, isoT, "checkout");
     const bIn = konakBilgi(giris, isoT, "checkin");
-    const satir = (etiket, b) => b ? (
+    const satir = (b) => b ? (
       '<div class="takvim-turnover-satir">' +
-        '<span class="takvim-io ' + etiket + '">' + (etiket === "out" ? "OUT" : "IN") + '</span>' +
         '<span class="takvim-turnover-ad">' + esc(b.ad) + '</span>' +
         '<span class="takvim-rez-gece">' + esc(b.geceEtiket) + '</span>' +
         '<span class="takvim-rez-kat">' + esc(b.simge) + '</span>' +
         '<span class="takvim-rez-ucret">' + fmt(b.ucret) + '</span>' +
       '</div>'
     ) : "";
-    return '<div class="takvim-turnover-stack">' + satir("out", bOut) + satir("in", bIn) + '</div>';
+    return (
+      '<div class="takvim-turnover-stack">' +
+        '<span class="takvim-io-cift" title="Aynı gün: çıkış + giriş">' +
+          '<span class="takvim-io-cift-parca out">OUT↓</span>' +
+          '<span class="takvim-io-cift-parca in">IN↑</span>' +
+        "</span>" +
+        satir(bOut) +
+        satir(bIn) +
+      "</div>"
+    );
   }
 
   function hucreBilgiEkle(h, gd, rez, isoT) {

@@ -374,6 +374,16 @@
     return '<span class="rez-ozet-io ' + tip + ' rez-ozet-tik" data-rez-id="' + esc(rezId) + '">' + lbl + '</span>';
   }
 
+  /** Çakışan gün: tek blokta OUT↓ / IN↑ — iki rozet yan yana sığmaz */
+  function ioCiftRozet(cikisRid, girisRid) {
+    return (
+      '<span class="rez-ozet-io-cift" title="Aynı gün: çıkış + giriş">' +
+        '<span class="rez-ozet-io-cift-parca out rez-ozet-tik" data-rez-id="' + esc(cikisRid) + '" title="OUT — çıkan misafir">OUT<span class="rez-ozet-io-cift-ok" aria-hidden="true">↓</span></span>' +
+        '<span class="rez-ozet-io-cift-parca in rez-ozet-tik" data-rez-id="' + esc(girisRid) + '" title="IN — giren misafir">IN<span class="rez-ozet-io-cift-ok" aria-hidden="true">↑</span></span>' +
+      "</span>"
+    );
+  }
+
   function gSayiHtml(rez, tarih) {
     const det = konakDetay(rez, tarih);
     return '<span class="rez-ozet-g-sayi">' + esc(String(det.g)) + "</span>";
@@ -393,31 +403,6 @@
         gInHtml(rezId) +
         '<span class="rez-ozet-g-sayi">1</span>' +
       "</span>"
-    );
-  }
-
-  function turnoverSatirHtml(cikis, giris, tarih) {
-    const cikisRid = rezIdAl(cikis);
-    const girisRid = rezIdAl(giris);
-    const det = konakDetay(giris, tarih);
-    const fiyat = formatHucreFiyat(giris, det.prc);
-    const ad = misafirTabloGoster(det.misafir);
-    return (
-      '<div class="rez-ozet-turnover-satir">' +
-        '<span class="rez-ozet-turnover-io">' +
-          gOutHtml(cikisRid) +
-          '<span class="rez-ozet-io-sep">/</span>' +
-          gInHtml(girisRid) +
-          '<span class="rez-ozet-g-sayi">1</span>' +
-        "</span>" +
-        '<span class="rez-ozet-turnover-kt rez-ozet-tik" data-rez-id="' + esc(girisRid) + '">' +
-          det.kategoriHtml +
-        "</span>" +
-        '<span class="rez-ozet-turnover-fyt">' + esc(fiyat) + "</span>" +
-        '<span class="rez-ozet-turnover-ad rez-ozet-tik" data-rez-id="' + esc(girisRid) + '"' +
-          (det.misafir ? ' title="' + esc(det.misafir) + '"' : "") +
-          ">" + esc(ad) + "</span>" +
-      "</div>"
     );
   }
 
@@ -467,16 +452,58 @@
     tr.appendChild(tdA);
   }
 
+  /** Çakışan gün: 5 sütun korunur (colspan yok), hücreler görsel olarak birleşir */
   function turnoverHucreleriEkle(tr, cikis, giris, tarih, renk) {
+    const cikisRid = rezIdAl(cikis);
     const girisRid = rezIdAl(giris);
     const bg = hucreBg(renk, true);
-    const td = document.createElement("td");
-    td.colSpan = 5;
-    td.className = "rez-ozet-turnover-birlesik rez-ozet-io-hucre";
-    td.style.background = bg;
-    if (girisRid) td.dataset.rezId = girisRid;
-    td.innerHTML = turnoverSatirHtml(cikis, giris, tarih);
-    tr.appendChild(td);
+    const det = konakDetay(giris, tarih);
+    const fiyat = formatHucreFiyat(giris, det.prc);
+    const ad = misafirTabloGoster(det.misafir);
+
+    const hucreler = [
+      {
+        cls: "rez-ozet-sayi rez-ozet-io-rozet rez-ozet-turnover-hucre rez-ozet-turnover-bas",
+        html:
+          '<div class="rez-ozet-g-dikey rez-ozet-g-turnover">' +
+            ioCiftRozet(cikisRid, girisRid) +
+            '<span class="rez-ozet-g-sayi">1</span>' +
+          "</div>",
+        rid: girisRid
+      },
+      {
+        cls: "rez-ozet-kategori rez-ozet-turnover-hucre rez-ozet-tik",
+        html: det.kategoriHtml,
+        rid: girisRid
+      },
+      {
+        cls: "rez-ozet-sayi rez-ozet-turnover-hucre",
+        txt: fiyat
+      },
+      {
+        cls: "rez-ozet-sayi rez-ozet-turnover-hucre",
+        txt: "—"
+      },
+      {
+        cls: "rez-ozet-ad rez-ozet-turnover-hucre rez-ozet-turnover-son rez-ozet-tik",
+        txt: ad,
+        rid: girisRid,
+        title: det.misafir || ""
+      }
+    ];
+
+    hucreler.forEach((c) => {
+      const td = document.createElement("td");
+      td.className = c.cls + " rez-ozet-io-hucre";
+      td.style.background = bg;
+      if (c.rid) td.dataset.rezId = c.rid;
+      if (c.html) td.innerHTML = c.html;
+      else {
+        td.textContent = c.txt == null ? "" : c.txt;
+        if (c.title) td.title = c.title;
+      }
+      tr.appendChild(td);
+    });
   }
 
   function satirSiniflari(tarih, bugun, haftaSonu, ioGun) {
@@ -1395,9 +1422,16 @@
   function excelDaireHucreleri(h, tarih) {
     if (h.tip === "turnover") {
       const det = konakDetay(h.giris, tarih);
-      const txt = "OUT / IN · 1 · " + det.kategori + " · " + formatHucreFiyat(h.giris, det.prc) +
-        (det.misafir ? " · " + det.misafir : "");
-      return { birlesik: txt };
+      return {
+        hucreler: [
+          "OUT↓ IN↑ · 1",
+          det.kategori,
+          formatHucreFiyat(h.giris, det.prc),
+          "—",
+          det.misafir || "",
+          rezNotMetni(h.giris)
+        ]
+      };
     }
     if (h.tip === "checkout") {
       return {
