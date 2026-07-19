@@ -3086,13 +3086,13 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rez-tarih-aralik-nav-btn {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border: 1px solid var(--kenar);
   border-radius: 6px;
   background: var(--zemin-2);
   color: var(--metin);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1;
   cursor: pointer;
 }
@@ -3103,19 +3103,20 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rez-tarih-aralik-ay {
   flex: 1;
   text-align: center;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--metin);
 }
 .rez-tarih-aralik-takvim .mini-takvim-baslik {
-  font-size: 8px;
-  margin-bottom: 3px;
+  font-size: 7px;
+  margin-bottom: 2px;
 }
 .rez-tarih-aralik-takvim .mini-takvim-grid {
   gap: 2px;
 }
+/* Boydan ~%10 daha kısa */
 .rez-tarih-aralik-takvim .mini-takvim-hucre {
-  min-height: 26px;
+  min-height: 23px;
   border: 1px solid transparent;
   cursor: pointer;
   position: relative;
@@ -3123,7 +3124,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   gap: 0;
 }
 .rez-tarih-aralik-takvim .mini-takvim-gun {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   line-height: 1;
 }
@@ -3614,10 +3615,10 @@ html:not(.theme-light) .rez-kaynak-badge {
     padding: 3px 2px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .rez-tarih-aralik-takvim .mini-takvim-hucre {
-    min-height: 20px;
+    min-height: 18px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .rez-tarih-aralik-takvim .mini-takvim-gun {
-    font-size: 11px;
+    font-size: 10px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .modal-footer {
     flex-shrink: 0;
@@ -5603,10 +5604,10 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
     margin-bottom: 6px;
   }
   body.mobil-yatay-mod #modal-rez .rez-tarih-aralik-takvim .mini-takvim-hucre {
-    min-height: 20px;
+    min-height: 18px;
   }
   body.mobil-yatay-mod #modal-rez .rez-tarih-aralik-takvim .mini-takvim-gun {
-    font-size: 11px;
+    font-size: 10px;
   }
   body.mobil-yatay-mod #modal-rez .rez-fiyat-mod-kart {
     min-height: 34px;
