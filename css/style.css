@@ -1408,13 +1408,11 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   min-width: 100%;
   box-sizing: border-box;
 }
-#rez-ozet-tablo:has(.rez-ozet-tablo-telefon) {
-  width: auto;
-  min-width: 100%;
-}
+#rez-ozet-tablo:has(.rez-ozet-tablo-telefon),
 #rez-ozet-tablo:has(.rez-ozet-tablo-masaustu) {
   width: auto;
-  min-width: 100%;
+  min-width: 0;
+  max-width: none;
 }
 .rez-ozet-yukleniyor {
   padding: 24px 16px;

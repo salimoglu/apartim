@@ -1701,14 +1701,16 @@
     table.dataset.odaHedef = String(gorunum.odaHedef);
 
     if (kompakt) {
-      /* Genişliğe göre odaHedef kadar sığdır; fazlası yatay kaydırılır */
+      /* Tavan kadar oda sığdır; daha fazla küçültme. Az odada genişliği doldur (sağ boşluk yok). */
       const odaHedef = Math.max(1, gorunum.odaHedef);
       const tarihPx = gorunum.tarihPx || 32;
-      const odaBlokPx = Math.max(1, (genislik - tarihPx) / odaHedef);
-      /* G/Kt dar; Ad geniş — isim tek satırda okunsun */
-      const g = Math.max(9, Math.min(16, Math.floor(odaBlokPx * 0.10)));
+      const gorunen = Math.max(1, Math.min(n, odaHedef));
+      const kullanilabilir = Math.max(1, genislik - tarihPx);
+      const odaBlokPx = kullanilabilir / gorunen;
+      /* G/Kt dar; Ad geniş — sütun toplamı blok genişliğini aşmasın */
+      const g = Math.max(9, Math.min(14, Math.floor(odaBlokPx * 0.10)));
       const kt = g;
-      const rem = Math.max(0, odaBlokPx - 2 * g);
+      const rem = Math.max(0, Math.floor(odaBlokPx) - 2 * g);
       const fyt = Math.floor(rem * 0.18);
       const odn = Math.floor(rem * 0.20);
       const ad = Math.max(0, rem - fyt - odn);
@@ -1723,7 +1725,11 @@
         odn,
         ad
       });
-      if (wrap) wrap.style.width = tabloW + "px";
+      if (wrap) {
+        wrap.style.width = tabloW + "px";
+        wrap.style.minWidth = tabloW + "px";
+        wrap.style.maxWidth = tabloW + "px";
+      }
       table.style.width = tabloW + "px";
       table.style.minWidth = tabloW + "px";
       table.style.maxWidth = tabloW + "px";
@@ -1733,7 +1739,8 @@
 
     const MASAUSTU_ODA_HEDEF = gorunum.odaHedef;
     const tarihPx = gorunum.tarihPx || (genislik >= 1200 ? 42 : 38);
-    const odaBlokPx = Math.max(76, (genislik - tarihPx) / MASAUSTU_ODA_HEDEF);
+    const masaGorunen = Math.max(1, Math.min(n, MASAUSTU_ODA_HEDEF));
+    const odaBlokPx = Math.max(76, (genislik - tarihPx) / masaGorunen);
     const g = Math.min(30, Math.max(24, Math.floor(odaBlokPx * 0.12)));
     const kt = g;
     const rem = odaBlokPx - 2 * g;
@@ -1751,7 +1758,11 @@
       odn,
       ad
     });
-    if (wrap) wrap.style.width = tabloW + "px";
+    if (wrap) {
+      wrap.style.width = tabloW + "px";
+      wrap.style.minWidth = tabloW + "px";
+      wrap.style.maxWidth = tabloW + "px";
+    }
     table.style.width = tabloW + "px";
     table.style.minWidth = tabloW + "px";
     table.style.maxWidth = tabloW + "px";
