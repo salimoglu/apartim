@@ -3351,6 +3351,10 @@ html:not(.theme-light) .rez-kaynak-badge {
 .tahsilat-ozet-grid > span.tl {
   font-weight: 800;
 }
+.tahsilat-ozet-grid > b.tahsilat-ozet-fazla,
+.tahsilat-ozet-grid > span.tahsilat-ozet-fazla {
+  color: #1565c0;
+}
 .tahsilat-form {
   --tahsilat-lbl: 3.6em;
   display: flex;

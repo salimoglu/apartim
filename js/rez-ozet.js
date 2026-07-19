@@ -142,11 +142,14 @@
     const kalan = db.rezervasyonKalanHesapla(rez);
     const esik = kalanEsik(rez);
     const tamam = !!rez.tahsilatTamamlandi;
-    if (tamam && kalan > esik) return formatPbKisa(rez, kalan) + " eksik ✓";
-    if (tamam) return "Tamam ✓";
-    if (kalan < -esik) return "Fazla " + formatPbKisa(rez, -kalan);
-    if (kalan > esik) return "Kalan " + formatPbKisa(rez, kalan);
-    return "Kalan " + formatPbKisa(rez, 0);
+    const ok = tamam ? " ✓" : "";
+    if (kalan < -esik) return "Fazla " + formatPbKisa(rez, -kalan) + ok;
+    if (kalan > esik) {
+      return tamam
+        ? formatPbKisa(rez, kalan) + " eksik ✓"
+        : "Kalan " + formatPbKisa(rez, kalan);
+    }
+    return tamam ? "Tamam ✓" : "Kalan " + formatPbKisa(rez, 0);
   }
 
   function rezOutKalanParca(rez) {
@@ -159,16 +162,23 @@
     const kalan = db.rezervasyonKalanHesapla(rez);
     const esik = kalanEsik(rez);
     const tamam = !!rez.tahsilatTamamlandi;
-    if (tamam && kalan > esik) {
-      return { etiket: "Eksik", tutar: formatPbKisa(rez, kalan), fazla: false, tamam: true };
-    }
-    if (tamam) {
-      return { etiket: "Tamam", tutar: "", fazla: false, tamam: true };
-    }
     if (kalan < -esik) {
-      return { etiket: "Fazla", tutar: formatPbKisa(rez, -kalan), fazla: true, tamam: false };
+      return { etiket: "Fazla", tutar: formatPbKisa(rez, -kalan), fazla: true, tamam };
     }
-    return { etiket: "Kalan", tutar: formatPbKisa(rez, Math.max(0, kalan)), fazla: false, tamam: false };
+    if (kalan > esik) {
+      return {
+        etiket: tamam ? "Eksik" : "Kalan",
+        tutar: formatPbKisa(rez, kalan),
+        fazla: false,
+        tamam
+      };
+    }
+    return {
+      etiket: tamam ? "Tamam" : "Kalan",
+      tutar: tamam ? "" : formatPbKisa(rez, 0),
+      fazla: false,
+      tamam
+    };
   }
 
   function rezOutKalanStackHtml(rez) {
@@ -922,24 +932,32 @@
     if (!db || !rez || !ozet) return;
     const toplamTl = db.rezervasyonToplamTl(rez);
     const odenenTl = db.rezervasyonOdenenToplamTl(rez);
-    const kalanTl = Math.max(0, db.rezervasyonKalanTl(rez));
+    /* Tamamlandı olsa bile gerçek kalan/fazla göster (0'a zorlama) */
+    const bakiyeTl = db.rezervasyonKalanTl(rez);
+    const fazlaMi = bakiyeTl < -0.009;
+    const bakiyeEtiket = fazlaMi ? "Fazla" : "Kalan";
+    const bakiyeAbsTl = Math.abs(bakiyeTl);
     const kur = db.rezervasyonKurCift ? db.rezervasyonKurCift(rez) : null;
     const tlDenUsd = (tl) =>
       para ? para.tlDenPb(tl, "USD", kur) : tl;
     const yazUsd = (m) => para ? para.formatTutar(m, "USD") : (fmt(m) + " $");
     const yazTl = (m) => para ? para.formatTutar(m, "TL") : (fmt(m) + " ₺");
-    /* Tek grid: Toplam/Ödenen/Kalan etiketleri USD–TL satırlarında aynı kolonda alt alta */
-    const hucre = (etiket, tutar, tlMi) =>
-      "<b" + (tlMi ? ' class="tl"' : "") + ">" + esc(etiket) + "</b>" +
-      "<span" + (tlMi ? ' class="tl"' : "") + ">" + esc(tutar) + "</span>";
+    /* Tek grid: Toplam/Ödenen/Kalan|Fazla etiketleri USD–TL satırlarında aynı kolonda alt alta */
+    const hucre = (etiket, tutar, tlMi, ekstraCls) => {
+      const cls = [tlMi ? "tl" : "", ekstraCls || ""].filter(Boolean).join(" ");
+      const attr = cls ? ' class="' + cls + '"' : "";
+      return "<b" + attr + ">" + esc(etiket) + "</b>" +
+        "<span" + attr + ">" + esc(tutar) + "</span>";
+    };
+    const bakiyeCls = fazlaMi ? "tahsilat-ozet-fazla" : "";
     ozet.innerHTML =
       '<div class="tahsilat-ozet-grid">' +
         hucre("Toplam", yazUsd(tlDenUsd(toplamTl)), false) +
         hucre("Ödenen", yazUsd(tlDenUsd(odenenTl)), false) +
-        hucre("Kalan", yazUsd(tlDenUsd(kalanTl)), false) +
+        hucre(bakiyeEtiket, yazUsd(tlDenUsd(bakiyeAbsTl)), false, bakiyeCls) +
         hucre("Toplam", yazTl(toplamTl), true) +
         hucre("Ödenen", yazTl(odenenTl), true) +
-        hucre("Kalan", yazTl(kalanTl), true) +
+        hucre(bakiyeEtiket, yazTl(bakiyeAbsTl), true, bakiyeCls) +
       "</div>";
   }
 
@@ -1082,26 +1100,24 @@
     const tlParantez = (mPb, mTl) =>
       pb !== "TL" ? ' <span class="tahsilat-kalan-tl">(' + esc(yazTl(mTl)) + ")</span>" : "";
 
-    if (tamam && kalanPb > esik) {
-      el.innerHTML = esc(yaz(kalanPb) + " eksik") + tlParantez(kalanPb, kalanTl) + ok;
-      el.className = "tahsilat-kalan tahsilat-kalan-tamam";
-      el.title = "Eksik kalsa bile tahsilat tamamlandı sayılacak";
-    } else if (tamam) {
-      el.innerHTML = "Tamam" + ok;
-      el.className = "tahsilat-kalan tahsilat-kalan-tamam";
-      el.title = "Tahsilat tamam";
-    } else if (kalanPb < -esik) {
-      el.innerHTML = "Fazla " + esc(yaz(-kalanPb)) + tlParantez(-kalanPb, -kalanTl);
+    /* Tamamlandı işaretli olsa bile kalan/fazla tutarı her zaman yazılır */
+    if (kalanPb < -esik) {
+      el.innerHTML = "Fazla " + esc(yaz(-kalanPb)) + tlParantez(-kalanPb, -kalanTl) + (tamam ? ok : "");
       el.className = "tahsilat-kalan tahsilat-kalan-fazla";
-      el.title = "";
+      el.title = tamam ? "Fazla ödeme · tahsilat tamamlandı" : "Fazla ödeme";
     } else if (kalanPb > esik) {
-      el.innerHTML = esc(yaz(kalanPb)) + tlParantez(kalanPb, kalanTl);
-      el.className = "tahsilat-kalan";
-      el.title = "Kalan";
+      el.innerHTML =
+        esc(yaz(kalanPb) + (tamam ? " eksik" : "")) +
+        tlParantez(kalanPb, kalanTl) +
+        (tamam ? ok : "");
+      el.className = "tahsilat-kalan" + (tamam ? " tahsilat-kalan-tamam" : "");
+      el.title = tamam
+        ? "Eksik kalsa bile tahsilat tamamlandı sayılacak"
+        : "Kalan";
     } else {
-      el.innerHTML = esc(yaz(0)) + tlParantez(0, 0);
+      el.innerHTML = esc(yaz(0)) + tlParantez(0, 0) + (tamam ? ok : "");
       el.className = "tahsilat-kalan tahsilat-kalan-tamam";
-      el.title = "Kalan";
+      el.title = tamam ? "Tahsilat tamam" : "Kalan";
     }
   }
 

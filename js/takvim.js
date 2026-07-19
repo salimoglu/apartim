@@ -147,18 +147,18 @@
       : fmt(n) + " TL";
     const esik = pb === "USD" ? 0.01 : 0.5;
     const tamam = !!rez.tahsilatTamamlandi;
+    const ok = ' <span class="rez-ozet-tahsilat-ok">✓</span>';
     let durumSatir = "";
-    if (tamam && kalan > esik) {
-      durumSatir = '<div class="takvim-detay-satir"><span>Durum</span><strong>' +
-        esc(fmtPb(kalan)) + ' eksik <span class="rez-ozet-tahsilat-ok">✓</span></strong></div>';
-    } else if (tamam || (odenen > 0 && kalan <= esik)) {
-      durumSatir = '<div class="takvim-detay-satir"><span>Durum</span><strong>Tahsilat tamam <span class="rez-ozet-tahsilat-ok">✓</span></strong></div>';
-    } else if (kalan < -esik) {
+    if (kalan < -esik) {
       durumSatir = '<div class="takvim-detay-satir"><span>Fazla</span><strong>' +
-        esc(fmtPb(-kalan)) + "</strong></div>";
+        esc(fmtPb(-kalan)) + (tamam ? ok : "") + "</strong></div>";
     } else if (kalan > esik) {
-      durumSatir = '<div class="takvim-detay-satir"><span>Kalan</span><strong>' +
-        esc(fmtPb(kalan)) + "</strong></div>";
+      durumSatir = '<div class="takvim-detay-satir"><span>' +
+        (tamam ? "Durum" : "Kalan") + "</span><strong>" +
+        esc(fmtPb(kalan)) + (tamam ? " eksik" + ok : "") + "</strong></div>";
+    } else if (tamam || odenen > 0) {
+      durumSatir = '<div class="takvim-detay-satir"><span>Durum</span><strong>Tahsilat tamam' +
+        ok + "</strong></div>";
     }
 
     return (
