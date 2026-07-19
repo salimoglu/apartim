@@ -374,12 +374,12 @@
     return '<span class="rez-ozet-io ' + tip + ' rez-ozet-tik" data-rez-id="' + esc(rezId) + '">' + lbl + '</span>';
   }
 
-  /** Çakışan gün: tek blokta OUT↓ / IN↑ — iki rozet yan yana sığmaz */
+  /** Çakışan gün: tek satırda kompakt OUT↓|IN↑ (satır yüksekliği şişmesin) */
   function ioCiftRozet(cikisRid, girisRid) {
     return (
       '<span class="rez-ozet-io-cift" title="Aynı gün: çıkış + giriş">' +
-        '<span class="rez-ozet-io-cift-parca out rez-ozet-tik" data-rez-id="' + esc(cikisRid) + '" title="OUT — çıkan misafir">OUT<span class="rez-ozet-io-cift-ok" aria-hidden="true">↓</span></span>' +
-        '<span class="rez-ozet-io-cift-parca in rez-ozet-tik" data-rez-id="' + esc(girisRid) + '" title="IN — giren misafir">IN<span class="rez-ozet-io-cift-ok" aria-hidden="true">↑</span></span>' +
+        '<span class="rez-ozet-io-cift-parca out rez-ozet-tik" data-rez-id="' + esc(cikisRid) + '" title="OUT — çıkan misafir">OUT↓</span>' +
+        '<span class="rez-ozet-io-cift-parca in rez-ozet-tik" data-rez-id="' + esc(girisRid) + '" title="IN — giren misafir">IN↑</span>' +
       "</span>"
     );
   }
@@ -461,49 +461,44 @@
     const fiyat = formatHucreFiyat(giris, det.prc);
     const ad = misafirTabloGoster(det.misafir);
 
-    const hucreler = [
-      {
-        cls: "rez-ozet-sayi rez-ozet-io-rozet rez-ozet-turnover-hucre rez-ozet-turnover-bas",
-        html:
-          '<div class="rez-ozet-g-dikey rez-ozet-g-turnover">' +
-            ioCiftRozet(cikisRid, girisRid) +
-            '<span class="rez-ozet-g-sayi">1</span>' +
-          "</div>",
-        rid: girisRid
-      },
-      {
-        cls: "rez-ozet-kategori rez-ozet-turnover-hucre rez-ozet-tik",
-        html: det.kategoriHtml,
-        rid: girisRid
-      },
-      {
-        cls: "rez-ozet-sayi rez-ozet-turnover-hucre",
-        txt: fiyat
-      },
-      {
-        cls: "rez-ozet-sayi rez-ozet-turnover-hucre",
-        txt: "—"
-      },
-      {
-        cls: "rez-ozet-ad rez-ozet-turnover-hucre rez-ozet-turnover-son rez-ozet-tik",
-        txt: ad,
-        rid: girisRid,
-        title: det.misafir || ""
-      }
-    ];
+    const tdG = document.createElement("td");
+    tdG.className =
+      "rez-ozet-sayi rez-ozet-io-rozet rez-ozet-turnover-hucre rez-ozet-turnover-bas rez-ozet-io-hucre";
+    tdG.style.background = bg;
+    if (girisRid) tdG.dataset.rezId = girisRid;
+    tdG.innerHTML =
+      '<div class="rez-ozet-g-yatay rez-ozet-g-turnover">' +
+        ioCiftRozet(cikisRid, girisRid) +
+        '<span class="rez-ozet-g-sayi">1</span>' +
+      "</div>";
+    tr.appendChild(tdG);
 
-    hucreler.forEach((c) => {
-      const td = document.createElement("td");
-      td.className = c.cls + " rez-ozet-io-hucre";
-      td.style.background = bg;
-      if (c.rid) td.dataset.rezId = c.rid;
-      if (c.html) td.innerHTML = c.html;
-      else {
-        td.textContent = c.txt == null ? "" : c.txt;
-        if (c.title) td.title = c.title;
-      }
-      tr.appendChild(td);
-    });
+    const tdKt = document.createElement("td");
+    tdKt.className = "rez-ozet-kategori rez-ozet-turnover-hucre rez-ozet-tik rez-ozet-io-hucre";
+    tdKt.style.background = bg;
+    if (girisRid) tdKt.dataset.rezId = girisRid;
+    tdKt.innerHTML = det.kategoriHtml;
+    tr.appendChild(tdKt);
+
+    const tdF = document.createElement("td");
+    tdF.className = "rez-ozet-sayi rez-ozet-turnover-hucre rez-ozet-io-hucre";
+    tdF.style.background = bg;
+    tdF.textContent = fiyat;
+    tr.appendChild(tdF);
+
+    /* Giren misafirin Ödn hücresi — tek gecelik / son gece ödemesi burada girilir */
+    const tdO = odnHucreTd(giris, tarih, renk, girisRid, true);
+    tdO.classList.add("rez-ozet-turnover-hucre");
+    tr.appendChild(tdO);
+
+    const tdA = document.createElement("td");
+    tdA.className =
+      "rez-ozet-ad rez-ozet-turnover-hucre rez-ozet-turnover-son rez-ozet-tik rez-ozet-io-hucre";
+    tdA.style.background = bg;
+    if (girisRid) tdA.dataset.rezId = girisRid;
+    tdA.textContent = ad;
+    if (det.misafir) tdA.title = det.misafir;
+    tr.appendChild(tdA);
   }
 
   function satirSiniflari(tarih, bugun, haftaSonu, ioGun) {
@@ -1424,10 +1419,10 @@
       const det = konakDetay(h.giris, tarih);
       return {
         hucreler: [
-          "OUT↓ IN↑ · 1",
+          "OUT↓|IN↑ · 1",
           det.kategori,
           formatHucreFiyat(h.giris, det.prc),
-          "—",
+          excelOdnHucre(h.giris, tarih, det.odenenInfo),
           det.misafir || "",
           rezNotMetni(h.giris)
         ]
