@@ -611,7 +611,7 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
     padding: 10px 10px 12px;
   }
   #tab-bina.active {
-    padding: 12px 18px 18px;
+    padding: 8px 16px 14px;
   }
 }
 @media (min-width: 1200px) {
@@ -619,7 +619,7 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
     padding: 12px 14px 14px;
   }
   #tab-bina.active {
-    padding: 14px 22px 22px;
+    padding: 10px 20px 16px;
   }
 }
 .tab-panel { display: none; padding: 16px; box-sizing: border-box; }
@@ -951,8 +951,9 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
 /* Geniş PC: kartları daha da büyüt */
 @media (min-width: 1400px) {
   #tab-bina.active {
-    padding: 16px 28px 24px;
+    padding: 10px 24px 18px;
   }
+  .bina-baslik h2 { font-size: 26px; }
   .daire-kart-listesi { gap: 18px; }
   .daire-kart-icerik {
     padding: 18px 20px;
@@ -4751,7 +4752,13 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
   .rez-ozet-toolbar .rez-ozet-para-kur { font-size: 7px; }
   .rapor-daire-satir { grid-template-columns: 1fr 60px 80px; }
   .rapor-daire-satir .gece-val { display: none; }
-  .bina-baslik h2 { font-size: 22px; }
+  .bina-ust-bar {
+    gap: 8px;
+  }
+  .bina-baslik h2 { font-size: 18px; letter-spacing: 1px; }
+  .bina-baslik p { font-size: 11px; }
+  .bina-ay-nav { gap: 4px; }
+  .bina-ay-baslik { font-size: 12px; min-width: 88px; }
   .mini-takvim-hucre { min-height: 20px; }
   .takvim-hucre { font-size: 11px; padding: 3px; }
   .takvim-gun-no { font-size: 12px; }
