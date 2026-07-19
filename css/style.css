@@ -3197,6 +3197,12 @@ html:not(.theme-light) .rez-kaynak-badge {
 .modal-box-tahsilat {
   max-width: 420px;
 }
+.modal-box-tahsilat .field-row {
+  margin-bottom: 10px;
+}
+.modal-box-tahsilat .field-row + .tahsilat-kur {
+  margin-top: 0;
+}
 .tahsilat-ozet {
   display: flex;
   flex-wrap: wrap;
@@ -3215,9 +3221,18 @@ html:not(.theme-light) .rez-kaynak-badge {
   margin-right: 4px;
 }
 .tahsilat-kur {
-  margin: -4px 0 12px;
+  display: block;
+  margin: 0 0 14px;
+  padding: 8px 10px;
   font-size: 12px;
-  color: var(--metin-soluk);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--metin);
+  background: var(--zemin-2);
+  border: 1px solid var(--kenar);
+  border-radius: 8px;
+  position: relative;
+  z-index: 1;
 }
 .tahsilat-tamamla-satir {
   display: flex;
