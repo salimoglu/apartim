@@ -356,7 +356,7 @@
       const sil = e.target.closest?.(".kasa-sil-btn");
       if (sil) {
         e.preventDefault();
-        kayitSil(sil.dataset.id);
+        kayitSilIste(sil.dataset.id);
         return;
       }
       const duzenle = e.target.closest?.(".kasa-duzenle-btn");
