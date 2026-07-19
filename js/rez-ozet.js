@@ -149,7 +149,9 @@
   function rezOutKalanParca(rez) {
     const db = window.APARTIM.db;
     if (!db) return null;
-    const toplam = db.rezervasyonToplamTutar(rez);
+    const toplam = db.rezervasyonToplamTl
+      ? db.rezervasyonToplamTl(rez)
+      : db.rezervasyonToplamTutar(rez);
     if (toplam <= 0) return null;
     const kalan = db.rezervasyonKalanHesapla(rez);
     const esik = kalanEsik(rez);
