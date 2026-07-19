@@ -2023,12 +2023,16 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 }
 .rez-ozet-g-sayi {
   display: inline-block;
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 700;
   color: #111827;
   line-height: 1.15;
   letter-spacing: -0.02em;
   flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.rez-ozet-g-sayi.rez-ozet-g-ilk {
+  font-weight: 900;
 }
 .rez-ozet-g-dikey {
   display: inline-flex;
@@ -2040,10 +2044,13 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   vertical-align: middle;
 }
 .rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-dikey .rez-ozet-g-sayi {
-  font-size: 9px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 700;
   line-height: 1;
   color: #1a1a1a !important;
+}
+.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-dikey .rez-ozet-g-sayi.rez-ozet-g-ilk {
+  font-weight: 900;
 }
 .rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-dikey .rez-ozet-io {
   font-size: 7px;
@@ -2073,7 +2080,11 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   vertical-align: middle;
 }
 .rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-sayi {
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-sayi.rez-ozet-g-ilk {
+  font-weight: 900;
 }
 .rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-io {
   font-size: 8px;

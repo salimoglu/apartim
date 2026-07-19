@@ -489,9 +489,28 @@
     return String(ad || "");
   }
 
-  function gSayiHtml(rez, tarih) {
-    const det = konakDetay(rez, tarih);
-    return '<span class="rez-ozet-g-sayi">' + esc(String(det.g)) + "</span>";
+  function gSayiHtml(g) {
+    const n = Number(g) || 0;
+    const cls = "rez-ozet-g-sayi" + (n === 1 ? " rez-ozet-g-ilk" : "");
+    return '<span class="' + cls + '">' + esc(String(n)) + "</span>";
+  }
+
+  /** Oda bloğu: G=Kt, Fyt=Odn, Ad en büyük */
+  function odaSutunPaylari(odaBlokPx) {
+    const blok = Math.max(50, Math.floor(Number(odaBlokPx) || 0));
+    let gk = Math.max(11, Math.floor(blok * 0.11));
+    let fo = Math.max(16, Math.floor(blok * 0.17));
+    let ad = blok - 2 * gk - 2 * fo;
+    if (ad <= fo) {
+      fo = Math.max(12, Math.floor((blok - 2 * gk) / 3));
+      ad = blok - 2 * gk - 2 * fo;
+    }
+    if (ad < 0) {
+      gk = Math.max(8, Math.floor(blok / 8));
+      fo = Math.max(10, Math.floor(blok / 5));
+      ad = Math.max(0, blok - 2 * gk - 2 * fo);
+    }
+    return { g: gk, kt: gk, fyt: fo, odn: fo, ad };
   }
 
   function checkoutHucreleriEkle(tr, rez, tarih, renk, ioVurgu) {
@@ -544,7 +563,7 @@
       "rez-ozet-sayi rez-ozet-turnover-hucre rez-ozet-turnover-bas rez-ozet-io-hucre";
     tdG.style.background = bg;
     tdG.title = "Çıkış: " + cikisAd + " → Giriş: " + girisAd;
-    tdG.innerHTML = '<span class="rez-ozet-g-sayi">1</span>';
+    tdG.innerHTML = gSayiHtml(1);
     tr.appendChild(tdG);
 
     const tdKt = document.createElement("td");
@@ -598,7 +617,7 @@
     const det = konakDetay(rez, tarih);
     const rid = rezIdAl(rez);
     [
-      { cls: "rez-ozet-sayi", txt: String(det.g) },
+      { cls: "rez-ozet-sayi", html: gSayiHtml(det.g) },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc, det.prcPb) },
       { type: "odn" },
@@ -686,7 +705,7 @@
   function checkinHucreler(rez, tarih) {
     const det = konakDetay(rez, tarih);
     return [
-      { cls: "rez-ozet-sayi", html: '<span class="rez-ozet-g-sayi">1</span>' },
+      { cls: "rez-ozet-sayi", html: gSayiHtml(1) },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc, det.prcPb) },
       { type: "odn" },
@@ -1707,23 +1726,17 @@
       const gorunen = Math.max(1, Math.min(n, odaHedef));
       const kullanilabilir = Math.max(1, genislik - tarihPx);
       const odaBlokPx = kullanilabilir / gorunen;
-      /* G/Kt dar; Ad geniş — sütun toplamı blok genişliğini aşmasın */
-      const g = Math.max(9, Math.min(14, Math.floor(odaBlokPx * 0.10)));
-      const kt = g;
-      const rem = Math.max(0, Math.floor(odaBlokPx) - 2 * g);
-      const fyt = Math.floor(rem * 0.18);
-      const odn = Math.floor(rem * 0.20);
-      const ad = Math.max(0, rem - fyt - odn);
+      const pay = odaSutunPaylari(odaBlokPx);
       const tabloW = tarihPx + n * odaBlokPx;
 
       applyColGenislik(table, {
         birim: "px",
         tarih: tarihPx,
-        g,
-        kt,
-        fyt,
-        odn,
-        ad
+        g: pay.g,
+        kt: pay.kt,
+        fyt: pay.fyt,
+        odn: pay.odn,
+        ad: pay.ad
       });
       if (wrap) {
         wrap.style.width = tabloW + "px";
@@ -1741,22 +1754,17 @@
     const tarihPx = gorunum.tarihPx || (genislik >= 1200 ? 42 : 38);
     const masaGorunen = Math.max(1, Math.min(n, MASAUSTU_ODA_HEDEF));
     const odaBlokPx = Math.max(76, (genislik - tarihPx) / masaGorunen);
-    const g = Math.min(30, Math.max(24, Math.floor(odaBlokPx * 0.12)));
-    const kt = g;
-    const rem = odaBlokPx - 2 * g;
-    const fyt = Math.floor(rem / 3);
-    const odn = fyt;
-    const ad = rem - 2 * fyt;
+    const pay = odaSutunPaylari(odaBlokPx);
     const tabloW = tarihPx + n * odaBlokPx;
 
     applyColGenislik(table, {
       birim: "px",
       tarih: tarihPx,
-      g,
-      kt,
-      fyt,
-      odn,
-      ad
+      g: pay.g,
+      kt: pay.kt,
+      fyt: pay.fyt,
+      odn: pay.odn,
+      ad: pay.ad
     });
     if (wrap) {
       wrap.style.width = tabloW + "px";
