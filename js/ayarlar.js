@@ -132,13 +132,12 @@
     liste.forEach((d) => {
       const li = document.createElement("li");
       li.className = "daire-ayar-item";
+      const etiket = daireKatEtiket(d);
       li.innerHTML =
-        '<div class="daire-ayar-meta">' +
-          '<span class="daire-ayar-kat">' + esc(daireKatEtiket(d)) + "</span>" +
-          '<button type="button" class="daire-sil-btn" data-id="' + esc(d.id) + '">Sil</button>' +
-        "</div>" +
+        '<span class="daire-ayar-kat">' + esc(etiket) + "</span>" +
         '<input type="text" class="field-input daire-ayar-ad" data-id="' + esc(d.id) + '" ' +
-        'value="' + esc(d.ad) + '" maxlength="40" aria-label="' + esc(daireKatEtiket(d)) + ' adı" />';
+        'value="' + esc(d.ad) + '" maxlength="40" aria-label="' + esc(etiket) + ' adı" />' +
+        '<button type="button" class="daire-sil-btn" data-id="' + esc(d.id) + '" title="Sil" aria-label="Sil">×</button>';
       li.querySelector(".daire-sil-btn")?.addEventListener("click", () => daireSil(d.id));
       ul.appendChild(li);
     });

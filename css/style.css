@@ -2364,53 +2364,65 @@ body.modal-acik .modal-body {
   box-shadow: 0 0 0 2px var(--vurgu);
 }
 
+.modal-body-odalar {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
 .daire-ayar-liste {
   list-style: none;
-  margin: 0 0 14px;
+  margin: 0 0 8px;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
-.daire-ayar-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 10px 12px;
-  background: var(--kart-2);
-  border: 1px solid var(--kenar);
-  border-radius: var(--radius-sm);
-}
-.daire-ayar-meta {
-  display: flex;
+.daire-ayar-item,
+.daire-ekle-row {
+  display: grid;
+  grid-template-columns: 3.4em minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
 }
 .daire-ayar-kat {
+  margin: 0;
   font-size: 12px;
   color: var(--metin-soluk);
-  font-weight: 600;
+  font-weight: 700;
+  white-space: nowrap;
+  text-align: right;
 }
-.daire-ayar-ad { width: 100%; }
+.daire-ayar-ad,
+.daire-ekle-row .field-input {
+  width: 100%;
+  min-width: 0;
+  padding: 7px 10px;
+  font-size: 13px;
+}
 .daire-sil-btn {
   border: none;
   background: transparent;
   color: var(--tehlike);
-  font-size: 13px;
+  font-size: 18px;
   font-weight: 700;
+  line-height: 1;
   cursor: pointer;
-  padding: 2px 6px;
+  padding: 4px 6px;
+  min-width: 28px;
   flex-shrink: 0;
 }
-.daire-sil-btn:hover { text-decoration: underline; }
-.daire-ekle-row {
-  display: flex;
-  gap: 8px;
-  align-items: stretch;
-  margin-top: 4px;
+.daire-sil-btn:hover { opacity: 0.8; }
+.daire-ekle-btn {
+  padding: 7px 12px;
+  font-size: 13px;
+  white-space: nowrap;
 }
-.daire-ekle-row .field-input { flex: 1; }
+#modal-daireler .modal-uyari {
+  margin-top: 8px;
+}
 
 .rez-kaynak-badge {
   font-size: 11px;
