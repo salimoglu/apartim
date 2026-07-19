@@ -1418,9 +1418,15 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   border-color: var(--tehlike);
   color: #fff;
 }
-.modal-box-sezon-temizle {
+.modal-box-sezon-temizle,
+.modal-box-kimlik {
   max-width: min(440px, 96vw);
 }
+#kimlik-google {
+  width: 100%;
+  margin-top: 8px;
+}
+#kimlik-hata:empty { display: none; }
 .sezon-temizle-uyari-kisa {
   color: var(--tehlike);
   font-weight: 700;

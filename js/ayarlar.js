@@ -181,8 +181,22 @@
   }
 
   async function daireSil(id) {
-    if (!confirm("Bu odayı silmek istiyor musunuz?")) return;
+    const daire = window.APARTIM.db.dairelerListele().find((d) => d.id === id);
+    const ad = daire?.ad || "Bu oda";
     uyari("daire-uyari", "");
+    const kimlik = window.APARTIM.kimlik;
+    if (!kimlik?.iste) {
+      if (!confirm("\"" + ad + "\" odasını silmek istiyor musunuz?")) return;
+    } else {
+      const ok = await kimlik.iste({
+        baslik: "Odayı sil",
+        aciklama: "\"" + ad + "\" odasını silmek için hesabınızı doğrulayın. Bu işlem geri alınamaz.",
+        onayMetin: "Odayı sil",
+        tehlike: true,
+        yerelAnahtar: "SIL"
+      });
+      if (!ok) return;
+    }
     try {
       await window.APARTIM.db.daireSil(id);
       daireListeRender();
