@@ -1,6 +1,6 @@
 /* =========================================================
    APARTIM — Aylık takvim
-   Belirli bir daire için ay görünümü; dolu/boş/temiz/kirli renkler.
+   Belirli bir daire için ay görünümü; dolu/boş gün renkleri.
    Hücreye tıklamak: boşsa yeni rezervasyon, doluysa detay açar.
    ========================================================= */
 
@@ -586,19 +586,27 @@
     document.getElementById("takvim-next")?.addEventListener("click", () => git(1));
     document.getElementById("takvim-bugun")?.addEventListener("click", bugunYap);
   });
+  function takvimGorunurMu() {
+    if (!durum.daireId) return false;
+    const wrap = document.getElementById("daire-wrap");
+    return !!(wrap && !wrap.classList.contains("hidden"));
+  }
+
   document.addEventListener("apartim:gorunum-degisti", () => {
-    if (durum.daireId) {
-      const gor = window.APARTIM.gorunum;
-      if (gor) {
-        durum.yil = gor.seciliYil();
-        const bugun = gor.bugunISO();
-        durum.ay = Number(bugun.slice(5, 7)) - 1;
-      }
-      ciz();
+    if (!takvimGorunurMu()) return;
+    const gor = window.APARTIM.gorunum;
+    if (gor) {
+      durum.yil = gor.seciliYil();
+      const bugun = gor.bugunISO();
+      durum.ay = Number(bugun.slice(5, 7)) - 1;
     }
+    ciz();
   });
-  document.addEventListener("apartim:veri-degisti", () => {
-    if (durum.daireId) ciz();
+  document.addEventListener("apartim:veri-degisti", (ev) => {
+    if (!takvimGorunurMu()) return;
+    const sebep = ev.detail?.sebep;
+    if (sebep === "kasa-harcama" || sebep === "doviz-kurlari") return;
+    ciz();
   });
 
   window.APARTIM.takvim = {

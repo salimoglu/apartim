@@ -1016,27 +1016,6 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
 }
 .daire-ucret .tl { color: var(--vurgu); font-weight: 800; }
 
-.daire-temizlik {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--kenar);
-  background: var(--zemin-2);
-  font-weight: 700;
-  font-size: 13px;
-  transition: background var(--gecis), border-color var(--gecis);
-  cursor: pointer;
-  user-select: none;
-}
-.daire-temizlik:hover { background: var(--kart-2); }
-.daire-temizlik-dot {
-  width: 10px; height: 10px; border-radius: 50%;
-  background: var(--metin-soluk-2);
-}
-.daire-temizlik[data-durum="temiz"] .daire-temizlik-dot { background: var(--bos-temiz); }
-.daire-temizlik[data-durum="kirli"] .daire-temizlik-dot { background: var(--bos-kirli); }
-.daire-temizlik[data-durum="temizleniyor"] .daire-temizlik-dot { background: var(--temizleniyor); }
-
 /* Daire iç tabları */
 .daire-subnav {
   display: flex; gap: 6px;
@@ -2259,52 +2238,17 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   color: var(--metin-soluk-2);
   opacity: 0.8;
 }
-.rez-ozet-tr-bugun .rez-ozet-tarih,
 .rez-ozet-bugun .rez-ozet-tarih {
   box-shadow: inset 4px 0 0 var(--vurgu);
 }
-html:not(.theme-light) .rez-ozet-bugun .rez-ozet-tarih,
-html:not(.theme-light) .rez-ozet-tr-bugun .rez-ozet-tarih {
+html:not(.theme-light) .rez-ozet-bugun .rez-ozet-tarih {
   background: #1a3344 !important;
 }
-html.theme-light .rez-ozet-bugun .rez-ozet-tarih,
-html.theme-light .rez-ozet-tr-bugun .rez-ozet-tarih {
+html.theme-light .rez-ozet-bugun .rez-ozet-tarih {
   background: #dce8f5 !important;
 }
 html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   color: #0f172a !important;
-}
-.rez-ozet-io {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 7px;
-  letter-spacing: 0;
-  padding: 2px 4px;
-  border-radius: 2px;
-  line-height: 1;
-  vertical-align: middle;
-  flex-shrink: 0;
-  box-sizing: border-box;
-}
-.rez-ozet-io.in,
-.rez-ozet-io.out {
-  background: #ffeb3b;
-  color: #1a1a1a;
-}
-.rez-ozet-io-ad {
-  font-weight: 600;
-  font-size: 9px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: middle;
-  white-space: nowrap;
-  min-width: 0;
-}
-.rez-ozet-turnover-hucre .rez-ozet-io-ad {
-  flex: 1 1 auto;
-  max-width: 88px;
 }
 .rez-ozet-out-kalan-stack {
   display: flex;
@@ -2347,14 +2291,6 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   color: #111827;
   font-weight: 800;
 }
-.rez-ozet-io-sep {
-  color: #6b7280;
-  font-size: 9px;
-  padding: 0 2px;
-  vertical-align: middle;
-  flex-shrink: 0;
-  opacity: 0.7;
-}
 /* Çakışan gün: yalnızca sarı vurgu; sütun çizgileri korunur */
 .rez-ozet-table td.rez-ozet-turnover-hucre {
   padding: 1px 2px !important;
@@ -2364,18 +2300,6 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 .rez-ozet-table td.rez-ozet-turnover-bas {
   text-align: center !important;
   overflow: hidden !important;
-}
-.rez-ozet-turnover-kompakt,
-.rez-ozet-io-satir {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 4px;
-  flex-wrap: nowrap;
-  width: 100%;
-  min-height: var(--rez-satir-h, 16px);
-  padding: 0 4px;
-  box-sizing: border-box;
 }
 .rez-ozet-turnover-grup {
   display: inline-flex;
@@ -2493,96 +2417,6 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 .rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-odenen {
   color: #1a1a1a !important;
 }
-.rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-io.in,
-.rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-io.out {
-  background: #ffeb3b !important;
-  color: #1a1a1a !important;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
-}
-/* -------------------- 10. Temizlik -------------------- */
-.temizlik-wrap { display: flex; flex-direction: column; gap: 14px; }
-.temizlik-oda-liste {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 10px;
-}
-.temizlik-oda-kart {
-  background: var(--kart);
-  border: 1px solid var(--kenar);
-  border-radius: var(--radius);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.temizlik-oda-kart.durum-kirli { border-color: var(--bos-kirli); }
-.temizlik-oda-kart.durum-temizleniyor { border-color: var(--temizleniyor); }
-.temizlik-oda-kart.dolu { opacity: 0.85; }
-.temizlik-oda-ust {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-.temizlik-oda-ad {
-  font-weight: 800;
-  font-size: 15px;
-  color: var(--metin);
-}
-.temizlik-oda-durum {
-  font-size: 12px;
-  color: var(--metin-soluk);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.temizlik-oda-btns {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.temizlik-oda-btn {
-  flex: 1;
-  min-width: 0;
-  padding: 6px 8px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--kenar);
-  background: var(--zemin-2);
-  color: var(--metin-soluk);
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-.temizlik-oda-btn.active {
-  background: var(--vurgu);
-  border-color: var(--vurgu);
-  color: #fff;
-}
-.temizlik-oda-btn.disabled,
-.temizlik-oda-kart.dolu .temizlik-oda-btn {
-  opacity: 0.45;
-  pointer-events: none;
-  cursor: not-allowed;
-}
-.temizlik-liste { display: flex; flex-direction: column; gap: 8px; }
-.temizlik-kart {
-  background: var(--kart);
-  border: 1px solid var(--kenar);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  display: flex; align-items: center; gap: 10px;
-}
-.temizlik-kart-ikon {
-  width: 30px; height: 30px;
-  border-radius: 50%;
-  background: var(--vurgu-soluk);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px;
-}
-.temizlik-kart-detay { flex: 1; }
-.temizlik-kart-detay .ust { font-weight: 700; font-size: 13px; }
-.temizlik-kart-detay .alt { font-size: 11px; color: var(--metin-soluk); }
-
 /* -------------------- 11. Modallar -------------------- */
 .modal-overlay {
   position: fixed; inset: 0;
@@ -4947,7 +4781,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
   .takvim-hucre { font-size: 11px; padding: 3px; }
   .takvim-gun-no { font-size: 12px; }
   .takvim-gun-bilgi { font-size: 9px; }
-  .daire-temizlik { font-size: 12px; padding: 6px 10px; }
   .daire-ucret input { width: 70px; font-size: 14px; }
   .daire-title h2 { font-size: 20px; }
 }
@@ -5329,11 +5162,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     width: 56px;
     font-size: 13px;
   }
-  body.mobil-yatay-mod #daire-wrap .daire-temizlik {
-    padding: 4px 8px;
-    font-size: 11px;
-    flex-shrink: 0;
-  }
   body.mobil-yatay-mod #daire-wrap .daire-subnav {
     flex-shrink: 0;
     width: 100%;
@@ -5401,8 +5229,7 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     font-size: 13px;
     flex-shrink: 0;
   }
-  body.mobil-yatay-mod #daire-wrap #rez-liste-icerik,
-  body.mobil-yatay-mod #daire-wrap .temizlik-liste {
+  body.mobil-yatay-mod #daire-wrap #rez-liste-icerik {
     min-height: 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
@@ -5446,22 +5273,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
   }
-
-  /* Temizlik */
-  body.mobil-yatay-mod #tab-temizlik .temizlik-wrap {
-    flex: 1;
-    min-height: 0;
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    gap: 8px;
-  }
-  body.mobil-yatay-mod #tab-temizlik .temizlik-oda-liste {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 6px;
-  }
-  body.mobil-yatay-mod #tab-temizlik .temizlik-oda-kart { padding: 8px; gap: 6px; }
-  body.mobil-yatay-mod #tab-temizlik .temizlik-oda-btn { font-size: 10px; padding: 4px 6px; }
 
   /* Rapor — yatay telefonda yine tek satır, kompakt */
   body.mobil-yatay-mod #tab-rapor.active {

@@ -34,6 +34,9 @@
 
   function kapat() {
     aktifDaireId = null;
+    if (window.APARTIM.takvim?.durum) {
+      window.APARTIM.takvim.durum.daireId = null;
+    }
     el("daire-wrap")?.classList.add("hidden");
     el("bina-wrap")?.classList.remove("hidden");
     window.APARTIM.bina?.guncelle();

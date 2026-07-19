@@ -151,14 +151,6 @@
     return paraBirimiNorm(rez?.paraBirimi);
   }
 
-  function ayToplamlari(db, yil, ay) {
-    const pad = (n) => String(n).padStart(2, "0");
-    const ayGun = new Date(yil, ay + 1, 0).getDate();
-    const ayBas = yil + "-" + pad(ay + 1) + "-01";
-    const ayBit = db.gunEkleISO(yil + "-" + pad(ay + 1) + "-" + pad(ayGun), 1);
-    return aralikToplamlari(db, ayBas, ayBit);
-  }
-
   /** basISO dahil, bitISO hariç */
   function aralikToplamlari(db, basISO, bitISO) {
     const toplam = { TL: 0, USD: 0, EUR: 0 };
@@ -277,7 +269,6 @@
     kurlariYukle,
     kurlariGetir,
     kurMetaGetir,
-    kurlariCanliCek,
     kurlariOtomatikGuncelle,
     tlKarsiligi,
     tlDenPb,
@@ -287,7 +278,6 @@
     formatKur,
     formatKurTarihi,
     rezParaBirimi,
-    ayToplamlari,
     aralikToplamlari,
     VARSAYILAN,
     YENILEME_MS

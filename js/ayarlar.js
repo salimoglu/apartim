@@ -121,7 +121,6 @@
   function daireEkranYenile() {
     window.APARTIM.bina?.ciz?.();
     window.APARTIM.rezOzet?.tabloCizPlanla?.();
-    window.APARTIM.temizlik?.ciz?.();
   }
 
   function daireListeRender() {

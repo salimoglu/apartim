@@ -1002,9 +1002,9 @@
 
       const ikincilDinleyicileriBagla = () => {
         if (!fbRef) return;
+        /* Temizlik UI kaldırıldı — senkron sessiz (gereksiz tam çizim yok) */
         fbRef.child("temizlik-kayit").on("value", (snap) => {
           durum.temizlikKayit = snap.val() || {};
-          veriDegistiBildir("temizlik-kayit");
         });
         fbRef.child("musteri-kaynaklari").on("value", (snap) => {
           durum.musteriKaynaklari = snap.val() || {};
@@ -1305,7 +1305,7 @@
     kasaHarcamaListele().forEach((h) => {
       const gelirMi = h.tip === "gelir";
       hareketler.push({
-        tip: gelirMi ? "gelir" : "harcama",
+        tip: gelirMi ? "gelir" : "gider",
         id: "h-" + h.id,
         harcamaId: h.id,
         manuel: true,
@@ -1569,39 +1569,58 @@
   }
 
   // ---------- Yardımcı: bugün için durum hesabı ----------
+  /** Daire rezervasyonları — sıralamasız (sıcak yollar için) */
+  function daireRezleriHam(daireId) {
+    const out = [];
+    const tum = Object.values(durum.rezervasyonlar);
+    for (let i = 0; i < tum.length; i++) {
+      const r = tum[i];
+      if (r && r.daireId === daireId) out.push(r);
+    }
+    return out;
+  }
+
   function dairedeBuTariheRez(daireId, isoTarih) {
-    const liste = rezervasyonlarListele(daireId);
-    return liste.find((r) => r.giris <= isoTarih && isoTarih < r.cikis) || null;
+    const tum = Object.values(durum.rezervasyonlar);
+    for (let i = 0; i < tum.length; i++) {
+      const r = tum[i];
+      if (!r || r.daireId !== daireId) continue;
+      if (r.giris <= isoTarih && isoTarih < r.cikis) return r;
+    }
+    return null;
   }
 
   /** Özet/takvim: [giris,cikis) + aynı gün çıkış+giriş (turnover) */
-  function daireGunDurumu(daireId, isoTarih) {
-    const liste = rezervasyonlarListele(daireId);
-    const cikisList = liste.filter((r) => r.cikis === isoTarih);
-    const girisList = liste.filter((r) => r.giris === isoTarih);
+  function daireGunDurumuListe(liste, isoTarih) {
+    const cikisList = [];
+    const girisList = [];
+    let konak = null;
+    for (let i = 0; i < liste.length; i++) {
+      const r = liste[i];
+      if (!r) continue;
+      if (r.cikis === isoTarih) cikisList.push(r);
+      if (r.giris === isoTarih) girisList.push(r);
+      if (!konak && r.giris <= isoTarih && isoTarih < r.cikis) konak = r;
+    }
 
-    for (const cikis of cikisList) {
-      for (const giris of girisList) {
+    for (let i = 0; i < cikisList.length; i++) {
+      const cikis = cikisList[i];
+      for (let j = 0; j < girisList.length; j++) {
+        const giris = girisList[j];
         if (cikis.id !== giris.id) {
           return { tip: "turnover", cikis, giris, rez: giris };
         }
       }
     }
 
-    if (cikisList.length) {
-      return { tip: "checkout", rez: cikisList[0] };
-    }
-
-    if (girisList.length) {
-      return { tip: "checkin", rez: girisList[0] };
-    }
-
-    const konak = liste.find((r) => r.giris <= isoTarih && isoTarih < r.cikis);
-    if (konak) {
-      return { tip: "konak", rez: konak };
-    }
-
+    if (cikisList.length) return { tip: "checkout", rez: cikisList[0] };
+    if (girisList.length) return { tip: "checkin", rez: girisList[0] };
+    if (konak) return { tip: "konak", rez: konak };
     return { tip: "bos", rez: null };
+  }
+
+  function daireGunDurumu(daireId, isoTarih) {
+    return daireGunDurumuListe(daireRezleriHam(daireId), isoTarih);
   }
   function daireDurumuBugun(daireId) {
     const daire = daireGetir(daireId);
@@ -1677,6 +1696,8 @@
     rezervasyonGuncelle,
     rezervasyonSil,
     dairedeBuTariheRez,
+    daireRezleriHam,
+    daireGunDurumuListe,
     daireGunDurumu,
     dairedeCakisanRez,
     daireDurumuBugun,

@@ -83,16 +83,21 @@
         (oncekiSon - i) + "</span></div>";
     }
 
+    const rezler = db.daireRezleriHam?.(daireId) || [];
     for (let d = 1; d <= sonGun; d++) {
       const isoT = iso(y, m, d);
-      const gd = db.daireGunDurumu(daireId, isoT);
+      const gd = db.daireGunDurumuListe
+        ? db.daireGunDurumuListe(rezler, isoT)
+        : db.daireGunDurumu(daireId, isoT);
+      const tip = gd?.tip || "bos";
       const siniflar = ["mini-takvim-hucre"];
       if (isoT === bg) siniflar.push("bugun");
       const boncuk = boncukSinifi(gd);
       if (boncuk) siniflar.push("mini-takvim-dolu");
       html += '<div class="' + siniflar.join(" ") + '"' +
         ' data-daire-id="' + esc(daireId) + '"' +
-        ' data-tarih="' + isoT + '">' +
+        ' data-tarih="' + isoT + '"' +
+        ' data-gun-tip="' + tip + '">' +
         '<span class="mini-takvim-gun">' + d + "</span>" +
         (boncuk ? '<span class="mini-takvim-boncuk ' + boncuk + '"></span>' : "") +
         "</div>";
@@ -205,7 +210,7 @@
       const isoT = hucre.getAttribute("data-tarih");
       if (!daireId || !isoT) return;
 
-      const gd = window.APARTIM.db?.daireGunDurumu?.(daireId, isoT);
+      const gunTip = hucre.getAttribute("data-gun-tip") || "bos";
       const yeniRezAc = (e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -218,7 +223,7 @@
       };
 
       /* Out günü: yeni giriş rezervasyonu açılabilir */
-      if (gd?.tip === "checkout") {
+      if (gunTip === "checkout") {
         hucre.addEventListener("mouseenter", () =>
           window.APARTIM.takvim?.ozetHoverGoster?.(hucre, daireId, isoT));
         hucre.addEventListener("mouseleave", () =>
@@ -288,7 +293,7 @@
   });
   document.addEventListener("apartim:gorunum-degisti", () => {
     gorunumdenSenkron();
-    binayiCiz();
+    guncelle();
   });
   document.addEventListener("apartim:veri-degisti", guncelle);
   document.addEventListener("apartim:gun-degisti", guncelle);

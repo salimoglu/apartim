@@ -52,7 +52,7 @@
     };
     liste.forEach((h) => {
       const t = Number(h.tutar) || 0;
-      if (h.tip === "harcama") {
+      if (h.tip === "gider" || h.tip === "harcama") {
         if (h.pb === "USD") ozet.harcamaUsd += t;
         else ozet.harcamaTl += t;
       } else {
@@ -118,9 +118,9 @@
       "</div>";
     const satirlar = liste.map((h) => {
       hareketMap[h.id] = h;
-      const harcamaMi = h.tip === "harcama";
-      const miktarSinif = harcamaMi ? "eksi" : "arti";
-      const miktarOn = harcamaMi ? "−" : "+";
+      const giderMi = h.tip === "gider" || h.tip === "harcama";
+      const miktarSinif = giderMi ? "eksi" : "arti";
+      const miktarOn = giderMi ? "−" : "+";
       const oda = String(h.oda || "").trim();
       const duzenleBtn =
         '<button type="button" class="kasa-duzenle-btn" data-hid="' +
@@ -131,8 +131,7 @@
             esc(h.harcamaId) + '" title="Sil" aria-label="Kaydı sil">&#10005;</button>'
         : '<span class="kasa-sil-slot" aria-hidden="true"></span>';
       return (
-        '<div class="kasa-satir ' + (harcamaMi ? "harcama" : "gelir") +
-          '" data-hid="' + esc(h.id) + '">' +
+        '<div class="kasa-satir" data-hid="' + esc(h.id) + '">' +
           '<span class="kasa-tarih">' + esc(tarihGoster(h.tarih)) + "</span>" +
           '<span class="kasa-oda' + (oda ? "" : " soluk") + '">' +
             esc(oda || "—") +

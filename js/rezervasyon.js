@@ -11,31 +11,36 @@
   const cikisModal = () => document.getElementById("modal-cikis");
   const onayModal = () => document.getElementById("modal-onay");
 
-  const ay = () => ({
-    title: document.getElementById("rez-modal-title"),
-    uyari: document.getElementById("rez-modal-uyari"),
-    misafir: document.getElementById("rez-misafir"),
-    kaynak: document.getElementById("rez-kaynak"),
-    telefon: document.getElementById("rez-telefon"),
-    giris: document.getElementById("rez-giris"),
-    cikis: document.getElementById("rez-cikis"),
-    ucret: document.getElementById("rez-ucret"),
-    ucretLabel: document.getElementById("rez-ucret-label"),
-    paraBirimi: document.getElementById("rez-para-birimi"),
-    toplamAnlasma: document.getElementById("rez-toplam-anlasma"),
-    toplamAnlasmaLabel: document.getElementById("rez-toplam-anlasma-label"),
-    topluBolOzet: document.getElementById("rez-toplu-bol-ozet"),
-    tarihFiyatGrup: document.getElementById("rez-tarih-fiyat-grup"),
-    tarihFiyatListe: document.getElementById("rez-tarih-fiyat-liste"),
-    fiyatOzet: document.getElementById("rez-fiyat-ozet"),
-    tGece: document.getElementById("rez-toplam-gece"),
-    tTutar: document.getElementById("rez-toplam-tutar"),
-    notlar: document.getElementById("rez-notlar"),
-    btnKaydet: document.getElementById("rez-modal-kaydet"),
-    btnIptal: document.getElementById("rez-modal-iptal"),
-    btnSil: document.getElementById("rez-modal-sil"),
-    btnClose: document.getElementById("rez-modal-close")
-  });
+  let alanCache = null;
+  function ay() {
+    if (alanCache) return alanCache;
+    alanCache = {
+      title: document.getElementById("rez-modal-title"),
+      uyari: document.getElementById("rez-modal-uyari"),
+      misafir: document.getElementById("rez-misafir"),
+      kaynak: document.getElementById("rez-kaynak"),
+      telefon: document.getElementById("rez-telefon"),
+      giris: document.getElementById("rez-giris"),
+      cikis: document.getElementById("rez-cikis"),
+      ucret: document.getElementById("rez-ucret"),
+      ucretLabel: document.getElementById("rez-ucret-label"),
+      paraBirimi: document.getElementById("rez-para-birimi"),
+      toplamAnlasma: document.getElementById("rez-toplam-anlasma"),
+      toplamAnlasmaLabel: document.getElementById("rez-toplam-anlasma-label"),
+      topluBolOzet: document.getElementById("rez-toplu-bol-ozet"),
+      tarihFiyatGrup: document.getElementById("rez-tarih-fiyat-grup"),
+      tarihFiyatListe: document.getElementById("rez-tarih-fiyat-liste"),
+      fiyatOzet: document.getElementById("rez-fiyat-ozet"),
+      tGece: document.getElementById("rez-toplam-gece"),
+      tTutar: document.getElementById("rez-toplam-tutar"),
+      notlar: document.getElementById("rez-notlar"),
+      btnKaydet: document.getElementById("rez-modal-kaydet"),
+      btnIptal: document.getElementById("rez-modal-iptal"),
+      btnSil: document.getElementById("rez-modal-sil"),
+      btnClose: document.getElementById("rez-modal-close")
+    };
+    return alanCache;
+  }
 
   let mevcutRezId = null;
   let mevcutDaireId = null;

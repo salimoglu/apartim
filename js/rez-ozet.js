@@ -2255,7 +2255,18 @@
 
   document.addEventListener("apartim:gorunum-degisti", tabloCizPlanla);
 
-  document.addEventListener("apartim:veri-degisti", tabloCizPlanla);
+  document.addEventListener("apartim:veri-degisti", (ev) => {
+    const sebep = ev.detail?.sebep;
+    /* Kasa/kur/temizlik değişince ağır özet tablosunu yeniden çizme */
+    if (
+      sebep === "kasa-harcama" ||
+      sebep === "temizlik-kayit" ||
+      sebep === "doviz-kurlari"
+    ) {
+      return;
+    }
+    tabloCizPlanla();
+  });
 
   document.addEventListener("apartim:gun-degisti", tabloCizPlanla);
 

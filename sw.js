@@ -2,8 +2,8 @@
    JS/CSS: stale-while-revalidate (hızlı yenileme + arka planda güncelleme)
    HTML navigate: network-first (kısa zaman aşımı → cache)
    Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
-const CACHE_VERSION = "apartim-3-29";
-const ASSET_V = "3.29";
+const CACHE_VERSION = "apartim-3-30";
+const ASSET_V = "3.30";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -65,15 +65,6 @@ function staleWhileRevalidate(request) {
       return cached || networkPromise;
     })
   );
-}
-
-function networkFirstThenCache(request) {
-  return fetch(request)
-    .then((resp) => {
-      putCache(request, resp);
-      return resp;
-    })
-    .catch(() => caches.match(request));
 }
 
 /** Navigate: ağı dene, yavaşsa cache’e düş */
