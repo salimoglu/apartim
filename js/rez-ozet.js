@@ -917,16 +917,19 @@
       para ? para.tlDenPb(tl, "USD", kur) : tl;
     const yazUsd = (m) => para ? para.formatTutar(m, "USD") : (fmt(m) + " $");
     const yazTl = (m) => para ? para.formatTutar(m, "TL") : (fmt(m) + " ₺");
-    /* 2 satır (USD + TL); etiket kolonları alt alta hizalı, miktar sağında */
-    const satir = (cls, t, o, k) =>
-      '<div class="tahsilat-ozet-satir' + (cls ? " " + cls : "") + '">' +
-        "<b>Toplam</b><span>" + esc(t) + "</span>" +
-        "<b>Ödenen</b><span>" + esc(o) + "</span>" +
-        "<b>Kalan</b><span>" + esc(k) + "</span>" +
-      "</div>";
+    /* Tek grid: Toplam/Ödenen/Kalan etiketleri USD–TL satırlarında aynı kolonda alt alta */
+    const hucre = (etiket, tutar, tlMi) =>
+      "<b" + (tlMi ? ' class="tl"' : "") + ">" + esc(etiket) + "</b>" +
+      "<span" + (tlMi ? ' class="tl"' : "") + ">" + esc(tutar) + "</span>";
     ozet.innerHTML =
-      satir("", yazUsd(tlDenUsd(toplamTl)), yazUsd(tlDenUsd(odenenTl)), yazUsd(tlDenUsd(kalanTl))) +
-      satir("tl", yazTl(toplamTl), yazTl(odenenTl), yazTl(kalanTl));
+      '<div class="tahsilat-ozet-grid">' +
+        hucre("Toplam", yazUsd(tlDenUsd(toplamTl)), false) +
+        hucre("Ödenen", yazUsd(tlDenUsd(odenenTl)), false) +
+        hucre("Kalan", yazUsd(tlDenUsd(kalanTl)), false) +
+        hucre("Toplam", yazTl(toplamTl), true) +
+        hucre("Ödenen", yazTl(odenenTl), true) +
+        hucre("Kalan", yazTl(kalanTl), true) +
+      "</div>";
   }
 
   function tahsilatGecmisCiz(rez) {
