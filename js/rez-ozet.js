@@ -83,6 +83,32 @@
 
   function odenenHucreGoster(rez, info) {
     if (!info || !info.manuel) return "—";
+    const para = window.APARTIM.para;
+    const pb = rezPb(rez);
+    /* Tabloda tek birim: rezervasyon PB'si (USD ise yalnızca dolar) */
+    if (info.tutarPb != null && info.tutarPb > 0) {
+      return formatPbKisa(rez, info.tutarPb);
+    }
+    if ((info.tutarTl || 0) > 0 || (info.tutarUsd || 0) > 0) {
+      const tl = para
+        ? para.tahsilatTlToplam(info.tutarTl, info.tutarUsd, info.kurUsd)
+        : (info.tutarTl || 0);
+      const pbMiktar = pb === "TL" ? tl : (para ? para.tlDenPb(tl, pb, info.kurUsd) : tl);
+      return formatPbKisa(rez, pbMiktar);
+    }
+    if (info.tutar) {
+      if (info.tutarBirim === "TL" && pb !== "TL") {
+        const pbMiktar = para ? para.tlDenPb(info.tutar, pb, info.kurUsd) : info.tutar;
+        return formatPbKisa(rez, pbMiktar);
+      }
+      return formatPbKisa(rez, info.tutar);
+    }
+    return "—";
+  }
+
+  function odenenHucreBaslik(rez, info) {
+    if (!info || !info.manuel) return "Tahsilat girmek için tıklayın";
+    const ana = odenenHucreGoster(rez, info);
     const parcalar = [];
     if ((info.tutarTl || 0) > 0) parcalar.push(formatTlKisa(info.tutarTl));
     if ((info.tutarUsd || 0) > 0) {
@@ -92,14 +118,8 @@
           : ("$" + fmt(info.tutarUsd))
       );
     }
-    if (parcalar.length) return parcalar.join("+");
-    if (info.tutar) return formatPbKisa(rez, info.tutar);
-    return "—";
-  }
-
-  function odenenHucreBaslik(rez, info) {
-    if (!info || !info.manuel) return "Tahsilat girmek için tıklayın";
-    return odenenYontemAd(info.yontem) + " · " + odenenHucreGoster(rez, info);
+    const detay = parcalar.length > 1 ? " ← " + parcalar.join(" + ") : "";
+    return odenenYontemAd(info.yontem) + " · " + ana + detay;
   }
 
   function kalanEsik(rez) {

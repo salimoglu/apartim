@@ -282,7 +282,7 @@
             kurUsd
           )
           : (Number.isFinite(tutarTl) ? tutarTl : 0);
-        const out = { tutar: tlTop, yontem };
+        const out = { tutar: tlTop, tutarBirim: "TL", yontem };
         if (Number.isFinite(tutarTl) && tutarTl > 0) out.tutarTl = tutarTl;
         if (Number.isFinite(tutarUsd) && tutarUsd > 0) out.tutarUsd = tutarUsd;
         if (kurUsd) out.kurUsd = kurUsd;
@@ -290,7 +290,10 @@
       }
       const tutar = Number(deger.tutar);
       if (!Number.isFinite(tutar) || tutar < 0) return null;
-      return { tutar, yontem };
+      const out = { tutar, yontem };
+      if (deger.tutarBirim === "TL") out.tutarBirim = "TL";
+      if (Number(deger.kurUsd) > 0) out.kurUsd = Number(deger.kurUsd);
+      return out;
     }
     return null;
   }
@@ -300,15 +303,25 @@
     if (!kayit) return 0;
     const para = window.APARTIM.para;
     const pb = para?.rezParaBirimi(rez) || "TL";
-    if ((kayit.tutarTl != null && kayit.tutarTl > 0) || (kayit.tutarUsd != null && kayit.tutarUsd > 0)) {
+    if ((Number(kayit.tutarTl) || 0) > 0 || (Number(kayit.tutarUsd) || 0) > 0) {
       return para
         ? para.tahsilatTlToplam(kayit.tutarTl, kayit.tutarUsd, kayit.kurUsd)
         : (Number(kayit.tutarTl) || 0);
     }
     const tutar = Number(kayit.tutar) || 0;
     if (!para) return tutar;
-    /* Eski kayıtlar: tutar rezervasyon para biriminde */
+    /* Yeni kayıtlar: tutar TL toplamı; eski kayıtlar: rezervasyon PB'si */
+    if (kayit.tutarBirim === "TL") return tutar;
     return para.tlKarsiligi(tutar, pb, kayit.kurUsd);
+  }
+
+  /** Tahsilatın rezervasyon para birimindeki karşılığı */
+  function odenenKayitPb(kayit, rez) {
+    const para = window.APARTIM.para;
+    const pb = para?.rezParaBirimi(rez) || "TL";
+    const tl = odenenKayitTl(kayit, rez);
+    if (!para || pb === "TL") return tl;
+    return para.tlDenPb(tl, pb, kayit?.kurUsd);
   }
 
   function odenenGunleriTemizle(rez) {
@@ -328,7 +341,8 @@
     if (!og) return [];
     return Object.keys(og).sort().map((tarih) => {
       const kayit = odenenGunKaydiNorm(og[tarih]);
-      return kayit ? Object.assign({ tarih }, kayit) : null;
+      if (!kayit) return null;
+      return Object.assign({ tarih, manuel: true, tutarPb: odenenKayitPb(kayit, rez) }, kayit);
     }).filter(Boolean);
   }
 
@@ -388,9 +402,11 @@
       if (kayit && odenenKayitDoluMu(kayit)) {
         return {
           tutar: kayit.tutar,
+          tutarBirim: kayit.tutarBirim,
           tutarTl: kayit.tutarTl || 0,
           tutarUsd: kayit.tutarUsd || 0,
           kurUsd: kayit.kurUsd,
+          tutarPb: odenenKayitPb(kayit, rez),
           manuel: true,
           yontem: kayit.yontem
         };
@@ -400,6 +416,7 @@
       tutar: 0,
       tutarTl: 0,
       tutarUsd: 0,
+      tutarPb: 0,
       manuel: false,
       yontem: ODEME_YONTEM_VARSAYILAN
     };
