@@ -915,16 +915,12 @@
       para ? para.tlDenPb(tl, "USD", kur) : tl;
     const yazUsd = (m) => para ? para.formatTutar(m, "USD") : (fmt(m) + " $");
     const yazTl = (m) => para ? para.formatTutar(m, "TL") : (fmt(m) + " ₺");
-    /* Yalnızca 2 satır (USD + TL); etiket ve tutar yan yana */
-    const hucre = (etiket, tutar) =>
-      '<span class="tahsilat-ozet-hucre">' +
-        "<b>" + esc(etiket) + "</b> " + esc(tutar) +
-      "</span>";
+    /* 2 satır (USD + TL); etiket kolonları alt alta hizalı, miktar sağında */
     const satir = (cls, t, o, k) =>
       '<div class="tahsilat-ozet-satir' + (cls ? " " + cls : "") + '">' +
-        hucre("Toplam", t) +
-        hucre("Ödenen", o) +
-        hucre("Kalan", k) +
+        "<b>Toplam</b><span>" + esc(t) + "</span>" +
+        "<b>Ödenen</b><span>" + esc(o) + "</span>" +
+        "<b>Kalan</b><span>" + esc(k) + "</span>" +
       "</div>";
     ozet.innerHTML =
       satir("", yazUsd(tlDenUsd(toplamTl)), yazUsd(tlDenUsd(odenenTl)), yazUsd(tlDenUsd(kalanTl))) +
