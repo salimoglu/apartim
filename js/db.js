@@ -313,14 +313,23 @@
 
   function odenenGunleriTemizle(rez) {
     if (!rez.odenenGunleri || typeof rez.odenenGunleri !== "object") return undefined;
-    const gecerli = new Set(geceTarihleri(rez.giris, rez.cikis));
     const out = {};
     Object.keys(rez.odenenGunleri).forEach((t) => {
-      if (!gecerli.has(t)) return;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return;
       const kayit = odenenGunKaydiNorm(rez.odenenGunleri[t]);
       if (kayit && odenenKayitDoluMu(kayit)) out[t] = kayit;
     });
     return Object.keys(out).length ? out : undefined;
+  }
+
+  /** Rezervasyonun tüm tahsilat kayıtları (tarih artan) */
+  function rezervasyonOdenenListe(rez) {
+    const og = odenenGunleriTemizle(rez) || rez?.odenenGunleri;
+    if (!og) return [];
+    return Object.keys(og).sort().map((tarih) => {
+      const kayit = odenenGunKaydiNorm(og[tarih]);
+      return kayit ? Object.assign({ tarih }, kayit) : null;
+    }).filter(Boolean);
   }
 
   function rezervasyonToplamTl(rez) {
@@ -1069,6 +1078,7 @@
     rezervasyonFazlaOdenen,
     rezervasyonTahsilatTamamMi,
     rezervasyonOdenenGosterim,
+    rezervasyonOdenenListe,
     rezervasyonOdenenHucreKaydet,
     rezervasyonOdemeDonemToplam,
     odemeYontemNorm,

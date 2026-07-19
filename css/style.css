@@ -3248,29 +3248,106 @@ html:not(.theme-light) .rez-kaynak-badge {
   margin-top: 2px;
 }
 .tahsilat-kalan {
-  margin: 0;
+  margin: 0 0 12px;
   font-size: 13px;
   font-weight: 700;
   color: var(--metin);
   line-height: 1.35;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 .tahsilat-kalan-tamam { color: #2e7d32; }
 .tahsilat-kalan-fazla { color: #1565c0; }
+.tahsilat-gecmis-baslik {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--metin-soluk);
+  margin: 0 0 6px;
+}
+.tahsilat-gecmis {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 160px;
+  overflow-y: auto;
+  margin-bottom: 4px;
+}
+.tahsilat-gecmis-bos {
+  font-size: 12px;
+  color: var(--metin-soluk);
+  padding: 8px 10px;
+  background: var(--zemin-2);
+  border-radius: 8px;
+}
+.tahsilat-gecmis-satir {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border: 1px solid var(--kenar);
+  border-radius: 8px;
+  background: var(--kart);
+  color: var(--metin);
+  cursor: pointer;
+  font-size: 12px;
+}
+.tahsilat-gecmis-satir:hover {
+  border-color: var(--vurgu);
+}
+.tahsilat-gecmis-satir.aktif {
+  border-color: var(--vurgu);
+  background: rgba(46, 204, 113, 0.1);
+}
+.tahsilat-gecmis-tarih { font-weight: 700; }
+.tahsilat-gecmis-yontem { color: var(--metin-soluk); font-weight: 600; }
+.tahsilat-gecmis-tutar { font-weight: 800; white-space: nowrap; }
 .rez-ozet-tahsilat-ok {
-  display: inline-block;
-  margin-left: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  margin-left: 3px;
+  border-radius: 50%;
+  background: #2e7d32;
+  color: #fff !important;
+  font-size: 11px;
   font-weight: 900;
-  color: #2e7d32;
+  line-height: 1;
+  box-shadow: 0 0 0 1px rgba(46, 125, 50, 0.35);
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 .rez-ozet-out-kalan-stack.rez-ozet-tahsilat-tamam .rez-ozet-out-kalan-etiket,
 .rez-ozet-out-kalan-stack.rez-ozet-tahsilat-tamam .rez-ozet-out-kalan-tutar {
   color: #2e7d32;
+  font-weight: 800;
+}
+.rez-ozet-out-kalan-stack .rez-ozet-out-kalan-tutar {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.rez-ozet-tablo-telefon .rez-ozet-tahsilat-ok {
+  width: 14px;
+  height: 14px;
+  font-size: 10px;
 }
 html:not(.theme-light) .tahsilat-kalan-tamam,
-html:not(.theme-light) .rez-ozet-tahsilat-ok,
 html:not(.theme-light) .rez-ozet-out-kalan-stack.rez-ozet-tahsilat-tamam .rez-ozet-out-kalan-etiket,
 html:not(.theme-light) .rez-ozet-out-kalan-stack.rez-ozet-tahsilat-tamam .rez-ozet-out-kalan-tutar {
   color: #81c784;
+}
+html:not(.theme-light) .rez-ozet-tahsilat-ok {
+  background: #43a047;
+  color: #fff !important;
 }
 
 .rapor-daire-tablo {

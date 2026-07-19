@@ -138,32 +138,26 @@
     if (!bilgi) return "";
     const ozet = db.rezervasyonOzeti(rez);
     const kaynak = db.musteriKaynagiAd(rez.kaynakId) || "—";
-    const odenenTl = db.rezervasyonOdenenToplamTl
-      ? db.rezervasyonOdenenToplamTl(rez)
-      : db.rezervasyonOdenenToplam(rez);
-    const kalanTl = db.rezervasyonKalanTl
-      ? db.rezervasyonKalanTl(rez)
-      : db.rezervasyonKalanHesapla(rez);
+    const odenen = db.rezervasyonOdenenToplam(rez);
+    const kalan = db.rezervasyonKalanHesapla(rez);
     const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
     const fmtPb = (n) => window.APARTIM.para
       ? window.APARTIM.para.formatTutar(n, pb)
       : fmt(n) + " TL";
-    const fmtTl = (n) => window.APARTIM.para
-      ? window.APARTIM.para.formatTutar(n, "TL")
-      : fmt(n) + " TL";
+    const esik = pb === "USD" ? 0.01 : 0.5;
     const tamam = !!rez.tahsilatTamamlandi;
     let durumSatir = "";
-    if (tamam && kalanTl > 0.5) {
+    if (tamam && kalan > esik) {
       durumSatir = '<div class="takvim-detay-satir"><span>Durum</span><strong>' +
-        esc(fmtTl(kalanTl)) + " eksik ✓</strong></div>";
-    } else if (tamam || (odenenTl > 0 && kalanTl <= 0.5)) {
-      durumSatir = '<div class="takvim-detay-satir"><span>Durum</span><strong>Tahsilat tamam ✓</strong></div>';
-    } else if (kalanTl < -0.5) {
+        esc(fmtPb(kalan)) + ' eksik <span class="rez-ozet-tahsilat-ok">✓</span></strong></div>';
+    } else if (tamam || (odenen > 0 && kalan <= esik)) {
+      durumSatir = '<div class="takvim-detay-satir"><span>Durum</span><strong>Tahsilat tamam <span class="rez-ozet-tahsilat-ok">✓</span></strong></div>';
+    } else if (kalan < -esik) {
       durumSatir = '<div class="takvim-detay-satir"><span>Fazla</span><strong>' +
-        esc(fmtTl(-kalanTl)) + "</strong></div>";
-    } else if (kalanTl > 0.5) {
+        esc(fmtPb(-kalan)) + "</strong></div>";
+    } else if (kalan > esik) {
       durumSatir = '<div class="takvim-detay-satir"><span>Kalan</span><strong>' +
-        esc(fmtTl(kalanTl)) + "</strong></div>";
+        esc(fmtPb(kalan)) + "</strong></div>";
     }
 
     return (
@@ -184,9 +178,9 @@
           fmtPb(ozet.gecelik) + "</strong></div>" +
         '<div class="takvim-detay-satir"><span>Toplam</span><strong>' +
           fmtPb(ozet.toplamTutar) + "</strong></div>" +
-        (odenenTl > 0
+        (odenen > 0
           ? '<div class="takvim-detay-satir"><span>Tahsilat</span><strong>' +
-            esc(fmtTl(odenenTl)) + "</strong></div>"
+            esc(fmtPb(odenen)) + "</strong></div>"
           : "") +
         durumSatir +
       "</div>"
