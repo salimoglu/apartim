@@ -117,15 +117,20 @@
     return yuvarla(tl + usd * kur);
   }
 
+  /** Para tutarları: virgülden sonra her zaman 2 basamak */
+  function formatSayi(miktar) {
+    return yuvarla(miktar || 0).toLocaleString("tr-TR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
+
   function formatTutar(miktar, pb) {
-    return Number(miktar || 0).toLocaleString("tr-TR") + " " + simge(pb);
+    return formatSayi(miktar) + " " + simge(pb);
   }
 
   function formatTutarKisa(miktar, pb) {
-    const n = Number(miktar || 0);
-    const s = simge(pb);
-    if (n >= 1000) return Math.round(n).toLocaleString("tr-TR") + s;
-    return n.toLocaleString("tr-TR") + s;
+    return formatSayi(miktar) + simge(pb);
   }
 
   function formatKur(miktar) {

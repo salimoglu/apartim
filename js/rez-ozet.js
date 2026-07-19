@@ -45,7 +45,12 @@
 
   function pad(n) { return String(n).padStart(2, "0"); }
   function iso(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
-  function fmt(n) { return Number(n || 0).toLocaleString("tr-TR"); }
+  function fmt(n) {
+    return Number(Math.round((Number(n) || 0) * 100) / 100).toLocaleString("tr-TR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  }
 
   function formatHucreFiyat(rez, miktar, pbOverride) {
     const pb = pbOverride ||
@@ -913,19 +918,25 @@
     const kalanTl = Math.max(0, db.rezervasyonKalanTl(rez));
     const yazPb = (m) => para ? para.formatTutar(m, pb) : (fmt(m) + " " + pb);
     const yazTl = (m) => para ? para.formatTutar(m, "TL") : (fmt(m) + " ₺");
-    const satir = (cls, t, o, k) =>
-      '<div class="tahsilat-ozet-satir' + (cls ? " " + cls : "") + '">' +
-        "<span><b>Toplam</b> " + esc(t) + "</span>" +
-        "<span><b>Ödenen</b> " + esc(o) + "</span>" +
-        "<span><b>Kalan</b> " + esc(k) + "</span>" +
+    /* Toplam / Ödenen / Kalan alt alta; dövizde alt satırda TL karşılığı */
+    const satir = (etiket, ana, tlAlt) =>
+      '<div class="tahsilat-ozet-satir">' +
+        '<span class="tahsilat-ozet-etiket">' + esc(etiket) + "</span>" +
+        '<span class="tahsilat-ozet-deger">' +
+          "<span>" + esc(ana) + "</span>" +
+          (tlAlt ? '<span class="tahsilat-ozet-tl">' + esc(tlAlt) + "</span>" : "") +
+        "</span>" +
       "</div>";
-    /* 1. satır: gösterim PB (USD/TL); 2. satır: her zaman TL karşılığı */
     if (pb === "TL") {
-      ozet.innerHTML = satir("", yazTl(toplamTl), yazTl(odenenTl), yazTl(kalanTl));
+      ozet.innerHTML =
+        satir("Toplam", yazTl(toplamTl)) +
+        satir("Ödenen", yazTl(odenenTl)) +
+        satir("Kalan", yazTl(kalanTl));
     } else {
       ozet.innerHTML =
-        satir("", yazPb(toplam), yazPb(odenen), yazPb(Math.max(0, kalan))) +
-        satir("tl", yazTl(toplamTl), yazTl(odenenTl), yazTl(kalanTl));
+        satir("Toplam", yazPb(toplam), yazTl(toplamTl)) +
+        satir("Ödenen", yazPb(odenen), yazTl(odenenTl)) +
+        satir("Kalan", yazPb(Math.max(0, kalan)), yazTl(kalanTl));
     }
   }
 
