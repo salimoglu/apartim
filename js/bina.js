@@ -200,10 +200,50 @@
         }
       });
     });
-    wrap.querySelectorAll(".mini-takvim-hucre.mini-takvim-dolu").forEach((hucre) => {
+    wrap.querySelectorAll(".mini-takvim-hucre:not(.disabled)").forEach((hucre) => {
       const daireId = hucre.getAttribute("data-daire-id");
       const isoT = hucre.getAttribute("data-tarih");
-      window.APARTIM.takvim?.ozetHoverBagla(hucre, daireId, isoT);
+      if (!daireId || !isoT) return;
+
+      if (hucre.classList.contains("mini-takvim-dolu")) {
+        const onDuzenle = () => {
+          const db = window.APARTIM.db;
+          const rezervasyon = window.APARTIM.rezervasyon;
+          if (!db || !rezervasyon) {
+            window.APARTIM.toast("Rezervasyon modülü yüklenemedi", "hata");
+            return;
+          }
+          const gd = db.daireGunDurumu(daireId, isoT);
+          if (gd.tip === "turnover") {
+            const sec = confirm(
+              "CHECK OUT: " + (gd.cikis?.misafirAdi || "—") + "\nCHECK IN: " +
+              (gd.giris?.misafirAdi || "—") +
+              "\n\nGiriş rezervasyonunu düzenlemek için Tamam, çıkış için İptal'e basın."
+            );
+            const id = rezervasyon.rezIdAl(sec ? gd.giris : gd.cikis);
+            if (id) rezervasyon.duzenle(id);
+            return;
+          }
+          const rez = gd.rez;
+          if (!rez) return;
+          const id = rezervasyon.rezIdAl(rez);
+          if (id) rezervasyon.duzenle(id);
+        };
+        window.APARTIM.takvim?.ozetHoverBagla(hucre, daireId, isoT, onDuzenle);
+        return;
+      }
+
+      /* Boş gün → Rezervasyonlar’daki gibi rezervasyon formu */
+      hucre.addEventListener("click", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const rezervasyon = window.APARTIM.rezervasyon;
+        if (!rezervasyon) {
+          window.APARTIM.toast("Rezervasyon modülü yüklenemedi", "hata");
+          return;
+        }
+        rezervasyon.yeni({ daireId, girisOnseci: isoT });
+      });
     });
     ozetGuncelle();
   }

@@ -210,6 +210,10 @@
     return rezDetayHtml(rez, isoT, hucreTip, null);
   }
 
+  function takvimDetayKapat() {
+    document.getElementById("takvim-detay-pop")?.classList.add("hidden");
+  }
+
   function takvimDetayGoster(html, tarih, onDuzenle) {
     if (!html) return;
     let pop = document.getElementById("takvim-detay-pop");
@@ -232,11 +236,16 @@
       document.body.appendChild(pop);
       pop.addEventListener("click", (e) => {
         if (e.target === pop || e.target.closest(".takvim-detay-kapat")) {
-          pop.classList.add("hidden");
+          takvimDetayKapat();
         }
       });
       pop.querySelector(".takvim-detay-kutu").addEventListener("click", (e) => {
         e.stopPropagation();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && !pop.classList.contains("hidden")) {
+          takvimDetayKapat();
+        }
       });
     }
     pop.querySelector(".takvim-detay-tarih").textContent = tarihEtiket(tarih) || tarih || "";
@@ -246,14 +255,14 @@
     if (onDuzenle) {
       duzenleBtn.classList.remove("hidden");
       duzenleBtn.onclick = () => {
-        pop.classList.add("hidden");
+        takvimDetayKapat();
         onDuzenle();
       };
-      ipucu.textContent = "Rezervasyonu düzenlemek için Düzenle'ye dokunun";
+      ipucu.textContent = "Kapatmak için dışarıya veya ×’e dokunun";
     } else {
       duzenleBtn.classList.add("hidden");
       duzenleBtn.onclick = null;
-      ipucu.textContent = "Kapatmak için dışarı dokunun";
+      ipucu.textContent = "Kapatmak için dışarıya veya ×’e dokunun";
     }
     ozetHoverGizle();
     pop.classList.remove("hidden");
@@ -539,10 +548,9 @@
         if (hoverDestekli()) {
           h.addEventListener("mouseenter", () => ozetHoverGoster(h, durum.daireId, isoT));
           h.addEventListener("mouseleave", ozetHoverGizle);
-          h.addEventListener("click", duzenle);
-        } else {
-          hucreTiklamaBagla(h, kartGoster, duzenle);
         }
+        /* Kısa tık: ortadaki bilgi kartı; uzun bas: doğrudan düzenle */
+        hucreTiklamaBagla(h, kartGoster, duzenle);
       } else {
         h.addEventListener("click", bosTik);
       }
