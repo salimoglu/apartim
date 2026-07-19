@@ -18,15 +18,25 @@ if (!m) {
 }
 
 const APP = m[1];
+if (!/^\d+\.\d+$/.test(APP)) {
+  console.error("APP major.minor olmalı (örn. 3.0):", APP);
+  process.exit(1);
+}
 const CACHE = "apartim-" + APP.replace(/\./g, "-");
 
 let indexHtml = fs.readFileSync(indexPath, "utf8");
-indexHtml = indexHtml.replace(/\?v=2\.\d+/g, "?v=" + APP);
+/* Eski 2.x ve yeni 3.x+ ?v= değerlerini yakala */
+indexHtml = indexHtml.replace(/\?v=\d+\.\d+/g, "?v=" + APP);
 fs.writeFileSync(indexPath, indexHtml, "utf8");
 
 let sw = fs.readFileSync(swPath, "utf8");
 sw = sw.replace(/const CACHE_VERSION = "[^"]+";/, 'const CACHE_VERSION = "' + CACHE + '";');
 sw = sw.replace(/const ASSET_V = "[^"]+";/, 'const ASSET_V = "' + APP + '";');
+/* Açıklama satırı */
+sw = sw.replace(
+  /\/\* Sürüm:.*\*\//,
+  "/* Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */"
+);
 fs.writeFileSync(swPath, sw, "utf8");
 
 console.log("Senkron OK — APP " + APP + ", cache " + CACHE);

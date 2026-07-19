@@ -1,10 +1,10 @@
-/* Apartım sürüm — sw.js + index.html ?v= için: node tools/sync-version.cjs */
+/* Apartım sürüm — artır: node tools/bump-version.cjs (2.99 → 3.0) */
 (function () {
   "use strict";
-  const APP = "2.160";
+  const APP = "3.0";
   window.APARTIM_VERSION = {
     APP,
-    CACHE: "apartim-" + APP.replace(".", "-"),
+    CACHE: "apartim-" + APP.replace(/\./g, "-"),
     ASSET: APP,
     LABEL: APP
   };

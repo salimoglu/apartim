@@ -8,7 +8,7 @@ alwaysApply: true
 Kullanıcı apartim projesinde anlamlı değişiklikler tamamlandığında (özellikle sürüm/cache bump ile):
 
 1. İlgili dosyaları **tek commit**'te topla (`ev.svg`, `para.js` gibi yalnızca satır sonu gürültüsü olan dosyaları hariç tut).
-2. Sürüm numarasını `js/version.js` içinde güncelle, ardından `node tools/sync-version.cjs` çalıştır (index.html ?v= ve sw.js CACHE/ASSET senkronu).
+2. Sürümü artır: `node tools/bump-version.cjs` (minor 0–99; **2.99 → 3.0**). Bu komut `sync-version`’ı da çalıştırır. Elle yazarsan ardından `node tools/sync-version.cjs` şart.
 3. `git push origin main` çalıştır.
 4. Push sonrası `powershell -File tools/wait-deploy.ps1` ile canlı sürümü doğrula (en fazla ~8 dk bekle).
 5. Push/deploy için kullanıcıdan ayrıca onay isteme.

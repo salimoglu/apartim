@@ -3740,12 +3740,24 @@ html:not(.theme-light) .rez-kaynak-badge {
   min-width: 0;
 }
 /* -------------------- Kasa sekmesi -------------------- */
-.kasa-wrap {
-  --kasa-cols: 88px minmax(90px, 1.1fr) minmax(80px, 1.4fr) minmax(96px, auto) 28px;
+#tab-kasa.active {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-width: 860px;
+  min-height: 0;
+  padding: 10px 10px 12px;
+  overflow: hidden;
+}
+.kasa-wrap {
+  --kasa-cols: 68px minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(70px, auto) 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 920px;
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden;
 }
 .kasa-pb-nav {
   display: flex;
@@ -3756,14 +3768,15 @@ html:not(.theme-light) .rez-kaynak-badge {
   padding: 3px;
   width: fit-content;
   max-width: 100%;
+  flex-shrink: 0;
 }
 .kasa-pb-btn {
   background: transparent;
   border: none;
   color: var(--metin-soluk);
-  padding: 6px 14px;
+  padding: 6px 12px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
@@ -3777,45 +3790,54 @@ html:not(.theme-light) .rez-kaynak-badge {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 6px 10px;
-  font-size: 13px;
+  gap: 4px 8px;
+  font-size: 12px;
   color: var(--metin-soluk);
+  flex-shrink: 0;
+  min-width: 0;
 }
 .kasa-ozet-parca {
   display: inline-flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 5px;
+  min-width: 0;
 }
 .kasa-ozet-lbl {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.04em;
   color: var(--metin-soluk);
 }
 .kasa-ozet-val {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   color: var(--metin);
+  white-space: nowrap;
 }
 .kasa-ozet-val.arti { color: var(--basari); }
 .kasa-ozet-val.eksi { color: var(--tehlike); }
 .kasa-ozet-ayrac { color: var(--metin-soluk-2); }
 .kasa-harcama-form {
   display: grid;
-  grid-template-columns: 118px minmax(0, 1fr) 88px 48px 32px;
-  gap: 6px;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.2fr) minmax(56px, 0.7fr) 34px 30px;
+  gap: 5px;
   align-items: center;
+  flex-shrink: 0;
+  min-width: 0;
+  width: 100%;
 }
 .kasa-inp {
   min-width: 0;
+  width: 100%;
   min-height: 34px;
-  padding: 5px 8px;
+  padding: 5px 6px;
   border: 1px solid var(--kenar);
   border-radius: 8px;
   background: var(--kart);
   color: var(--metin);
   font-size: 13px;
   font-family: inherit;
+  box-sizing: border-box;
 }
 .kasa-inp:focus {
   outline: none;
@@ -3833,13 +3855,14 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .kasa-pb-toggle {
   width: 100%;
+  min-width: 0;
   min-height: 34px;
   height: 34px;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 14px;
 }
 .kasa-kaydet-btn {
-  width: 32px;
+  width: 30px;
   height: 34px;
   padding: 0;
   border: 1px solid var(--kenar);
@@ -3850,6 +3873,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   font-weight: 600;
   line-height: 1;
   cursor: pointer;
+  flex-shrink: 0;
 }
 .kasa-kaydet-btn:hover {
   border-color: var(--vurgu);
@@ -3862,7 +3886,12 @@ html:not(.theme-light) .rez-kaynak-badge {
   border: 1px solid var(--kenar);
   border-radius: var(--radius);
   background: var(--kart);
-  overflow: hidden;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
 }
 .kasa-bos {
   padding: 22px 14px;
@@ -3873,37 +3902,43 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-satir {
   display: grid;
   grid-template-columns: var(--kasa-cols);
-  gap: 8px;
+  gap: 6px;
   align-items: center;
-  padding: 8px 10px;
+  padding: 7px 8px;
   border-bottom: 1px solid var(--kenar);
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 .kasa-satir:last-child { border-bottom: none; }
 .kasa-satir-baslik {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   background: var(--zemin-2);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--metin-soluk);
   letter-spacing: 0.02em;
-  padding-top: 7px;
-  padding-bottom: 7px;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 .kasa-satir-baslik .kasa-miktar {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--metin-soluk);
 }
 .kasa-tarih {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--metin-soluk);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 0;
 }
 .kasa-musteri {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--metin);
   white-space: nowrap;
@@ -3912,7 +3947,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   min-width: 0;
 }
 .kasa-not {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--metin);
   white-space: nowrap;
   overflow: hidden;
@@ -3921,29 +3956,33 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .kasa-not.soluk { color: var(--metin-soluk); }
 .kasa-miktar {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   white-space: nowrap;
   text-align: right;
   justify-self: end;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .kasa-miktar.arti { color: var(--basari); }
 .kasa-miktar.eksi { color: var(--tehlike); }
 .kasa-sil-btn,
 .kasa-sil-slot {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   justify-self: end;
 }
 .kasa-sil-btn {
   border: none;
   background: transparent;
   color: var(--metin-soluk);
-  font-size: 13px;
+  font-size: 12px;
   padding: 0;
   cursor: pointer;
   border-radius: 6px;
-  line-height: 24px;
+  line-height: 22px;
   text-align: center;
 }
 .kasa-sil-btn:hover {
@@ -3951,20 +3990,22 @@ html:not(.theme-light) .rez-kaynak-badge {
   background: rgba(231, 76, 60, 0.1);
 }
 @media (max-width: 640px) {
+  #tab-kasa.active { padding: 8px; }
   .kasa-wrap {
-    --kasa-cols: 70px minmax(72px, 1fr) minmax(64px, 1.2fr) minmax(76px, auto) 22px;
+    --kasa-cols: 54px minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(58px, auto) 18px;
+    gap: 6px;
   }
   .kasa-harcama-form {
-    grid-template-columns: 104px minmax(0, 1fr) 72px 36px 30px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(52px, 0.75fr) 32px 28px;
     gap: 4px;
   }
-  .kasa-inp { min-height: 32px; font-size: 12px; padding: 4px 6px; }
-  .kasa-pb-toggle { min-height: 32px; height: 32px; font-size: 14px; }
-  .kasa-kaydet-btn { width: 30px; height: 32px; font-size: 16px; }
-  .kasa-liste { overflow-x: auto; }
-  .kasa-satir { min-width: 420px; gap: 6px; padding: 7px 8px; }
-  .kasa-musteri, .kasa-not { font-size: 12px; }
-  .kasa-miktar { font-size: 12px; }
+  .kasa-inp { min-height: 32px; font-size: 12px; padding: 4px 5px; }
+  .kasa-pb-toggle { min-height: 32px; height: 32px; font-size: 13px; }
+  .kasa-kaydet-btn { width: 28px; height: 32px; font-size: 16px; }
+  .kasa-satir { gap: 4px; padding: 6px 6px; }
+  .kasa-musteri, .kasa-not, .kasa-miktar { font-size: 11px; }
+  .kasa-tarih { font-size: 10px; }
+  .kasa-pb-btn { padding: 5px 10px; font-size: 11px; }
 }
 
 .modal-box-kucuk {
