@@ -3597,6 +3597,13 @@ html:not(.theme-light) .rez-kaynak-badge {
     min-height: 40px;
     padding: 8px 10px;
   }
+  body.rez-form-mobil.rez-form-yatay #modal-rez .rez-kaynak-mini {
+    flex: 0 1 7em;
+    max-width: 34%;
+    font-size: 12px;
+    padding-left: 5px;
+    padding-right: 2px;
+  }
   body.rez-form-mobil.rez-form-yatay #modal-rez .field-group {
     margin-bottom: 6px;
     scroll-margin-bottom: 8px;
