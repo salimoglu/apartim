@@ -1129,7 +1129,14 @@
     e.btnKaydet?.addEventListener("click", kaydet);
     e.btnSil?.addEventListener("click", silOnay);
     modal()?.addEventListener("click", (ev) => {
-      if (ev.target === modal()) modalKapat();
+      /* Overlay (modal kutusu dışı) → X gibi kapat */
+      if (ev.target.closest(".modal-box")) return;
+      modalKapat();
+    });
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key !== "Escape") return;
+      const m = modal();
+      if (m && !m.classList.contains("hidden")) modalKapat();
     });
     e.ucret?.addEventListener("input", toplamHesapla);
     e.paraBirimi?.addEventListener("change", () => {
