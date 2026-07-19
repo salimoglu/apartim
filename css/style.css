@@ -4514,7 +4514,16 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     font-size: 12px;
   }
   .rez-ozet-chip-metin { display: inline; }
-  /* PC: import/export yazıyla daha anlaşılır */
+  .rez-ozet-para-bar .rez-ozet-para-ic {
+    font-size: 12px;
+  }
+  .rez-ozet-para-bar .rez-ozet-para-kur {
+    font-size: 10px;
+  }
+}
+
+/* Geniş PC: import/export yazısı — tablette yalnız ikon */
+@media (min-width: 1101px) {
   #rez-ozet-excel-import,
   #rez-ozet-rapor {
     width: auto;
@@ -4533,12 +4542,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
   #rez-ozet-excel-import .rez-ozet-indir-ikon,
   #rez-ozet-rapor .rez-ozet-indir-ikon {
     font-size: 13px;
-  }
-  .rez-ozet-para-bar .rez-ozet-para-ic {
-    font-size: 12px;
-  }
-  .rez-ozet-para-bar .rez-ozet-para-kur {
-    font-size: 10px;
   }
 }
 
