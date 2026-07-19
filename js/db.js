@@ -1251,6 +1251,13 @@
     Object.values(durum.rezervasyonlar || {}).forEach((rez) => {
       if (!rez) return;
       const misafir = String(rez.misafirAdi || rez.misafir || "").trim() || "—";
+      const daire = daireGetir(rez.daireId);
+      const odaHam = String(daire?.ad || "").trim();
+      /* Minimal etiket: "1. Oda" → "1", aksi halde kısa ad */
+      let oda = odaHam;
+      const odaSayi = /^(\d+)\s*\.?\s*(oda)?$/i.exec(odaHam);
+      if (odaSayi) oda = odaSayi[1];
+      else if (odaHam.length > 8) oda = odaHam.slice(0, 8);
       const rezPb = para?.rezParaBirimi?.(rez) || "TL";
       rezervasyonOdenenListe(rez).forEach((kayit) => {
         if (odemeYontemNorm(kayit.yontem) !== "kasa") return;
@@ -1258,6 +1265,7 @@
         const ortak = {
           tip: "gelir",
           tarih: kayit.tarih,
+          oda,
           musteri: misafir,
           not,
           rezId: rez.id,
@@ -1302,6 +1310,7 @@
         harcamaId: h.id,
         manuel: true,
         tarih: h.tarih,
+        oda: "",
         musteri: gelirMi ? "Gelir" : "Gider",
         not: h.not || "",
         tutar: h.tutar,

@@ -35,10 +35,6 @@
       new Date().toISOString().slice(0, 10);
   }
 
-  function telefonMu() {
-    return window.matchMedia("(max-width: 720px)").matches;
-  }
-
   function formatTutar(tutar, pb) {
     const para = window.APARTIM.para;
     if (para?.formatTutar) return para.formatTutar(tutar, pb);
@@ -113,28 +109,28 @@
     const baslik =
       '<div class="kasa-satir kasa-satir-baslik" aria-hidden="true">' +
         '<span class="kasa-tarih">Tarih</span>' +
+        '<span class="kasa-oda">Oda</span>' +
         '<span class="kasa-musteri">Müşteri</span>' +
         '<span class="kasa-not">Not</span>' +
         '<span class="kasa-miktar">Miktar</span>' +
         '<span class="kasa-aksiyon-slot"></span>' +
-        '<span class="kasa-sil-slot"></span>' +
       "</div>";
     const satirlar = liste.map((h) => {
       hareketMap[h.id] = h;
       const harcamaMi = h.tip === "harcama";
       const miktarSinif = harcamaMi ? "eksi" : "arti";
       const miktarOn = harcamaMi ? "−" : "+";
+      const oda = String(h.oda || "").trim();
       const duzenleBtn =
         '<button type="button" class="kasa-duzenle-btn" data-hid="' +
           esc(h.id) + '" title="Düzenle" aria-label="Düzenle">✎</button>';
-      const silBtn = h.harcamaId
-        ? '<button type="button" class="kasa-sil-btn" data-id="' +
-            esc(h.harcamaId) + '" title="Sil" aria-label="Kaydı sil">&#10005;</button>'
-        : '<span class="kasa-sil-slot" aria-hidden="true"></span>';
       return (
         '<div class="kasa-satir ' + (harcamaMi ? "harcama" : "gelir") +
           '" data-hid="' + esc(h.id) + '">' +
           '<span class="kasa-tarih">' + esc(tarihGoster(h.tarih)) + "</span>" +
+          '<span class="kasa-oda' + (oda ? "" : " soluk") + '">' +
+            esc(oda || "—") +
+          "</span>" +
           '<span class="kasa-musteri">' + esc(h.musteri || "—") + "</span>" +
           '<span class="kasa-not' + (h.not ? "" : " soluk") + '">' +
             esc(h.not || "—") +
@@ -143,7 +139,6 @@
             miktarOn + formatTutar(h.tutar, h.pb) +
           "</span>" +
           duzenleBtn +
-          silBtn +
         "</div>"
       );
     });
@@ -353,12 +348,6 @@
 
   function listeBagla(listeEl) {
     listeEl.addEventListener("click", (e) => {
-      const sil = e.target.closest?.(".kasa-sil-btn");
-      if (sil) {
-        e.preventDefault();
-        kayitSilIste(sil.dataset.id);
-        return;
-      }
       const duzenle = e.target.closest?.(".kasa-duzenle-btn");
       if (duzenle) {
         e.preventDefault();
@@ -366,8 +355,8 @@
       }
     });
 
+    /* Basılı tut = silme onayı (X yok; masaüstü + telefon) */
     listeEl.addEventListener("pointerdown", (e) => {
-      if (!telefonMu()) return;
       if (e.target.closest?.("button")) return;
       const satir = e.target.closest?.(".kasa-satir:not(.kasa-satir-baslik)");
       if (!satir?.dataset.hid) return;
@@ -388,7 +377,6 @@
         }
         longPressSatir.classList.add("kasa-satir-basili");
         setTimeout(() => longPressSatir?.classList.remove("kasa-satir-basili"), 220);
-        /* Basılı tut = silme onayı (yalnız manuel gelir/gider) */
         if (kayit?.harcamaId) {
           kayitSilIste(kayit.harcamaId);
         } else {
@@ -416,7 +404,6 @@
     });
 
     listeEl.addEventListener("contextmenu", (e) => {
-      if (!telefonMu()) return;
       if (e.target.closest?.(".kasa-satir:not(.kasa-satir-baslik)")) {
         e.preventDefault();
       }

@@ -3980,7 +3980,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   overflow: hidden;
 }
 .kasa-wrap {
-  --kasa-cols: 68px minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(70px, auto) 26px 28px;
+  --kasa-cols: 68px 28px minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(70px, auto) 26px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -4226,6 +4226,17 @@ html:not(.theme-light) .rez-kaynak-badge {
   text-overflow: ellipsis;
   min-width: 0;
 }
+.kasa-oda {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--metin-soluk);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  min-width: 0;
+}
+.kasa-oda.soluk { color: var(--metin-soluk-2, var(--metin-soluk)); font-weight: 600; }
 .kasa-musteri {
   font-size: 12px;
   font-weight: 700;
@@ -4258,9 +4269,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-miktar.arti { color: var(--basari); }
 .kasa-miktar.eksi { color: var(--tehlike); }
 .kasa-duzenle-btn,
-.kasa-aksiyon-slot,
-.kasa-sil-btn,
-.kasa-sil-slot {
+.kasa-aksiyon-slot {
   width: 26px;
   height: 26px;
   justify-self: end;
@@ -4281,24 +4290,6 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-duzenle-btn:hover {
   color: var(--vurgu);
   background: var(--vurgu-soluk);
-}
-.kasa-sil-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  color: var(--metin-soluk);
-  font-size: 13px;
-  padding: 0;
-  cursor: pointer;
-  border-radius: 6px;
-  line-height: 1;
-  text-align: center;
-}
-.kasa-sil-btn:hover {
-  color: var(--tehlike);
-  background: rgba(231, 76, 60, 0.1);
 }
 .kasa-satir-basili {
   background: var(--vurgu-soluk);
@@ -4341,17 +4332,15 @@ html:not(.theme-light) .rez-kaynak-badge {
   -webkit-appearance: none;
   margin: 0;
 }
-/* Telefon: ✎ + X görünür; uzun bas = silme onayı */
+/* Telefon: ✎ görünür; uzun bas = silme onayı; oda dar sütun */
 @media (max-width: 720px) {
   .kasa-wrap {
-    --kasa-cols: 48px minmax(0, 1fr) minmax(0, 1fr) minmax(0, max-content) 26px 28px;
+    --kasa-cols: 46px 22px minmax(0, 1fr) minmax(0, 1fr) minmax(0, max-content) 26px;
   }
   .kasa-ust-satir { gap: 6px; }
   .kasa-tip-nav { margin-left: 0; }
   .kasa-duzenle-btn,
-  .kasa-aksiyon-slot,
-  .kasa-sil-btn,
-  .kasa-sil-slot {
+  .kasa-aksiyon-slot {
     width: 28px;
     height: 28px;
     justify-self: center;
@@ -4367,11 +4356,12 @@ html:not(.theme-light) .rez-kaynak-badge {
     gap: 4px;
     padding: 7px 6px;
   }
+  .kasa-oda { font-size: 10px; }
 }
 @media (max-width: 640px) {
   #tab-kasa.active { padding: 8px; }
   .kasa-wrap {
-    --kasa-cols: 46px minmax(0, 0.95fr) minmax(0, 1fr) minmax(0, max-content) 26px 28px;
+    --kasa-cols: 44px 20px minmax(0, 0.95fr) minmax(0, 1fr) minmax(0, max-content) 26px;
     gap: 6px;
   }
   .kasa-tip-btn { padding: 4px 10px; font-size: 11px; }
@@ -4384,7 +4374,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   .kasa-pb-toggle { min-height: 32px; height: 32px; font-size: 13px; }
   .kasa-kaydet-btn { width: 28px; height: 32px; font-size: 16px; }
   .kasa-musteri, .kasa-not, .kasa-miktar { font-size: 11px; }
-  .kasa-tarih { font-size: 10px; }
+  .kasa-tarih, .kasa-oda { font-size: 10px; }
 }
 
 .modal-box-kucuk {
