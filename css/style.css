@@ -3980,7 +3980,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   overflow: hidden;
 }
 .kasa-wrap {
-  --kasa-cols: 68px minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(70px, auto) 26px 22px;
+  --kasa-cols: 68px minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(70px, auto) 26px 28px;
   display: flex;
   flex-direction: column;
   gap: 8px;
