@@ -495,11 +495,12 @@
     return '<span class="' + cls + '">' + esc(String(n)) + "</span>";
   }
 
-  /** Oda bloğu: G=Kt, Fyt=Odn, Ad en büyük */
-  function odaSutunPaylari(odaBlokPx) {
+  /** Oda bloğu: G=Kt, Fyt=Odn, Ad en büyük. kompakt=true iken Ad %10 küçülür → Fyt/Odn'ye gider */
+  function odaSutunPaylari(odaBlokPx, kompakt) {
     const blok = Math.max(50, Math.floor(Number(odaBlokPx) || 0));
     let gk = Math.max(11, Math.floor(blok * 0.11));
-    let fo = Math.max(16, Math.floor(blok * 0.17));
+    /* Telefonda fiyat/ödeme biraz daha geniş başlasın */
+    let fo = Math.max(16, Math.floor(blok * (kompakt ? 0.19 : 0.17)));
     let ad = blok - 2 * gk - 2 * fo;
     if (ad <= fo) {
       fo = Math.max(12, Math.floor((blok - 2 * gk) / 3));
@@ -509,6 +510,12 @@
       gk = Math.max(8, Math.floor(blok / 8));
       fo = Math.max(10, Math.floor(blok / 5));
       ad = Math.max(0, blok - 2 * gk - 2 * fo);
+    }
+    if (kompakt && ad > 20) {
+      const kes = Math.floor(ad * 0.10);
+      const foEk = Math.floor(kes / 2);
+      fo += foEk;
+      ad -= 2 * foEk;
     }
     return { g: gk, kt: gk, fyt: fo, odn: fo, ad };
   }
@@ -1726,7 +1733,7 @@
       const gorunen = Math.max(1, Math.min(n, odaHedef));
       const kullanilabilir = Math.max(1, genislik - tarihPx);
       const odaBlokPx = kullanilabilir / gorunen;
-      const pay = odaSutunPaylari(odaBlokPx);
+      const pay = odaSutunPaylari(odaBlokPx, true);
       const tabloW = tarihPx + n * odaBlokPx;
 
       applyColGenislik(table, {
@@ -1754,7 +1761,7 @@
     const tarihPx = gorunum.tarihPx || (genislik >= 1200 ? 42 : 38);
     const masaGorunen = Math.max(1, Math.min(n, MASAUSTU_ODA_HEDEF));
     const odaBlokPx = Math.max(76, (genislik - tarihPx) / masaGorunen);
-    const pay = odaSutunPaylari(odaBlokPx);
+    const pay = odaSutunPaylari(odaBlokPx, false);
     const tabloW = tarihPx + n * odaBlokPx;
 
     applyColGenislik(table, {
