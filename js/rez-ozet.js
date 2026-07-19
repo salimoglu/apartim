@@ -1216,8 +1216,8 @@
     document.getElementById("odeme-modal-iptal")?.addEventListener("click", odemeModalKapat);
     document.getElementById("odeme-modal-close")?.addEventListener("click", odemeModalKapat);
     odemeModal()?.addEventListener("click", (ev) => {
-      /* Overlay (modal kutusu dışı) → X gibi kapat */
-      if (ev.target.closest(".modal-box")) return;
+      /* Yalnızca doğrudan karartmaya tıklanınca kapat (içerik yeniden çizilince bubble ile kapanmasın) */
+      if (ev.target !== ev.currentTarget) return;
       odemeModalKapat();
     });
     document.addEventListener("keydown", (ev) => {
@@ -1254,6 +1254,8 @@
     document.getElementById("odeme-gecmis")?.addEventListener("click", (e) => {
       const btn = e.target.closest?.("[data-tahsilat-tarih]");
       if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
       const ctx = odemeDuzenleDurum;
       if (!ctx) return;
       const db = window.APARTIM.db;

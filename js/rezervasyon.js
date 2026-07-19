@@ -1129,8 +1129,8 @@
     e.btnKaydet?.addEventListener("click", kaydet);
     e.btnSil?.addEventListener("click", silOnay);
     modal()?.addEventListener("click", (ev) => {
-      /* Overlay (modal kutusu dışı) → X gibi kapat */
-      if (ev.target.closest(".modal-box")) return;
+      /* Yalnızca doğrudan karartmaya tıklanınca kapat */
+      if (ev.target !== ev.currentTarget) return;
       modalKapat();
     });
     document.addEventListener("keydown", (ev) => {
