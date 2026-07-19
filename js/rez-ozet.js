@@ -472,10 +472,10 @@
     const genislik = Math.max(200, scrollGenislik || w);
     const kullanilabilir = Math.max(80, genislik - tarihPx);
 
-    /* 2×Fyt(10.000,00₺) + G + Kt + Ad(~56px) — Ad'den yer çalınmaz */
+    /* G+Kt+2×(10.000,00₺)+Ad("feyzullah kandemir") — oranlar bozulmadan */
     const minBlok = cihaz === "telefon"
-      ? (yatay ? 196 : 204)
-      : (yatay ? 180 : 190);
+      ? (yatay ? 250 : 258)
+      : (yatay ? 250 : 258);
     const tavan = cihaz === "telefon" ? (yatay ? 3 : 2) : (yatay ? 5 : 3);
 
     let odaHedef = Math.floor(kullanilabilir / minBlok);
@@ -495,26 +495,20 @@
     return '<span class="' + cls + '">' + esc(String(n)) + "</span>";
   }
 
-  /* Telefonda "10.000,00₺" (~9px kalın) + hücre padding */
+  /* Telefonda: Fyt/Odn = 10.000,00₺; Ad = "feyzullah kandemir"; G/Kt dar eşit */
   const FO_MIN_KOMPAKT = 58;
-  const AD_MIN_KOMPAKT = 56; /* Ad eski hali — Fyt/Odn için küçültülmez */
+  const AD_MIN_KOMPAKT = 112;
 
-  /** Oda bloğu: G=Kt, Fyt=Odn, Ad en büyük. kompaktta Ad korunur, Fyt/Odn ≥ 10.000,00₺ */
+  /** Oda bloğu: G=Kt, Fyt=Odn(sabit), Ad kalan (≥ isim). Birini büyütünce diğerini bozma. */
   function odaSutunPaylari(odaBlokPx, kompakt) {
     const blok = Math.max(50, Math.floor(Number(odaBlokPx) || 0));
 
     if (kompakt) {
       const fo = FO_MIN_KOMPAKT;
-      /* Ad önce — ~%38, FO için kısılmaz */
-      let ad = Math.max(AD_MIN_KOMPAKT, Math.floor(blok * 0.38));
-      let gk = Math.floor((blok - ad - 2 * fo) / 2);
-      if (gk < 10) {
-        gk = 10;
-        ad = Math.max(AD_MIN_KOMPAKT, blok - 2 * gk - 2 * fo);
-      }
-      const sum = 2 * gk + 2 * fo + ad;
-      if (sum < blok) ad += blok - sum;
-      return { g: gk, kt: gk, fyt: fo, odn: fo, ad: Math.max(0, ad) };
+      const gk = Math.max(12, Math.min(15, Math.floor(blok * 0.09)));
+      /* G/Kt ve Fyt/Odn sabit; kalanın tamamı Ad (minBlok ≥ isim genişliği) */
+      const ad = Math.max(0, blok - 2 * gk - 2 * fo);
+      return { g: gk, kt: gk, fyt: fo, odn: fo, ad };
     }
 
     let gk = Math.max(11, Math.floor(blok * 0.11));
