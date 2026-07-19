@@ -172,6 +172,8 @@
       window.APARTIM.rezOzet?.tamEkranKapat?.();
     }
     document.querySelector(".content")?.classList.toggle("content-rez-genis", ad === "rezervasyonlar");
+    document.body.classList.toggle("sekme-rezervasyonlar", ad === "rezervasyonlar");
+    document.documentElement.classList.toggle("sekme-rezervasyonlar", ad === "rezervasyonlar");
     document.querySelectorAll(".tab-btn").forEach((b) =>
       b.classList.toggle("active", b.dataset.tab === ad));
     document.querySelectorAll(".tab-panel").forEach((p) =>

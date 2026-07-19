@@ -396,11 +396,30 @@ body.ptr-cekiliyor { overscroll-behavior-y: contain; }
 
 /* -------------------- 5. Sekmeler -------------------- */
 .tab-nav {
-  display: flex; gap: 6px;
-  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
   background: var(--zemin-2);
   border-bottom: 1px solid var(--kenar);
-  overflow-x: auto;
+  overflow: hidden;
+  min-height: 0;
+}
+.tab-nav-sekmeler {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+.tab-nav-rez-slot {
+  display: none;
+  flex: 1 1 auto;
+  min-width: 0;
+  justify-content: flex-end;
+}
+body.sekme-rezervasyonlar .tab-nav-rez-slot {
+  display: flex;
 }
 .tab-btn {
   background: transparent;
@@ -1200,13 +1219,13 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
 .rez-ozet-wrap {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   width: 100%;
   min-width: 0;
 }
 .rez-ozet-ust {
   flex-shrink: 0;
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: 0;
   background: var(--kart);
@@ -1214,11 +1233,20 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   border-radius: var(--radius);
   overflow: hidden;
 }
-.rez-ozet-ust-icerik {
+.rez-ozet-ust:not([hidden]) {
   display: flex;
-  flex-direction: column;
+  margin-bottom: 6px;
+}
+.rez-ozet-ust-icerik,
+.rez-ozet-tab-araclar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
   gap: 6px;
-  padding: 6px 10px;
+  padding: 0;
+  min-width: 0;
+  width: 100%;
 }
 .rez-ozet-toolbar {
   display: flex;
@@ -1277,7 +1305,10 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 220px;
 }
 .rez-ozet-nav-btn {
   flex-shrink: 0;
@@ -3861,31 +3892,54 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
 @media (max-width: 720px) {
   .app-name { font-size: 18px; letter-spacing: 2px; }
   .lock-title { font-size: 30px; }
-  .tab-btn .tab-label { display: none; }
-  .tab-btn { padding: 8px 10px; font-size: 18px; }
-  #tab-rezervasyonlar.active {
-    padding: 8px 10px 10px;
-  }
-  .rez-ozet-wrap { gap: 4px; }
-  .rez-ozet-ust-icerik {
-    padding: 5px 8px;
+  .tab-nav {
+    padding: 4px 6px;
     gap: 4px;
   }
+  .tab-nav-sekmeler { gap: 3px; }
+  .tab-btn .tab-label { display: none; }
+  .tab-btn { padding: 6px 8px; font-size: 16px; }
+  body.sekme-rezervasyonlar .tab-nav-rez-slot {
+    gap: 4px;
+  }
+  .rez-ozet-tab-araclar,
+  .rez-ozet-ust-icerik {
+    gap: 3px;
+    padding: 0;
+  }
+  .rez-ozet-sezon-nav {
+    max-width: none;
+    flex: 1 1 auto;
+    gap: 2px;
+  }
+  #tab-rezervasyonlar.active {
+    padding: 4px 6px 8px;
+  }
+  .rez-ozet-wrap { gap: 0; }
   .rez-ozet-ay-baslik {
-    font-size: 9px;
-    letter-spacing: 0.2px;
+    font-size: 8px;
+    letter-spacing: 0.1px;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .rez-ozet-nav-btn {
-    width: 26px;
-    height: 26px;
-    font-size: 11px;
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
   }
   .rez-ozet-toolbar {
-    gap: 4px;
+    flex: 0 0 auto;
+    gap: 3px;
   }
   .rez-ozet-toolbar .rez-ozet-chip {
-    padding: 3px 6px;
+    padding: 3px 5px;
     font-size: 8px;
+  }
+  .rez-ozet-indir-btn {
+    width: 24px;
+    height: 24px;
+    font-size: 12px;
   }
   .rez-ozet-chip-metin { display: none; }
   .rez-ozet-para-bar .rez-ozet-para-ic {
@@ -3906,23 +3960,28 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
 }
 
 @media (min-width: 721px) {
+  .tab-nav {
+    padding: 6px 12px;
+    gap: 10px;
+  }
+  .rez-ozet-tab-araclar,
   .rez-ozet-ust-icerik {
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 6px 12px;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 0;
   }
   .rez-ozet-sezon-nav {
-    flex: 0 1 auto;
-    max-width: 360px;
+    flex: 1 1 auto;
+    max-width: 280px;
   }
   .rez-ozet-ay-baslik {
     font-size: 11px;
     letter-spacing: 0.3px;
   }
   .rez-ozet-toolbar {
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 0;
     justify-content: flex-end;
     overflow: hidden;
@@ -4334,24 +4393,34 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
   }
 
   /* Rezervasyon özeti */
+  body.mobil-yatay-mod .tab-nav {
+    padding: 3px 6px;
+    gap: 4px;
+  }
+  body.mobil-yatay-mod .rez-ozet-ay-baslik { font-size: 9px; }
+  body.mobil-yatay-mod .rez-ozet-nav-btn {
+    width: 22px;
+    height: 22px;
+  }
   body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-wrap {
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 0;
   }
-  body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ust {
+  body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ust:not([hidden]) {
     flex-shrink: 0;
     padding: 0;
+    margin-bottom: 4px;
   }
   body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ust-icerik {
-    padding: 3px 6px;
+    padding: 2px 4px;
     flex-direction: row;
-    gap: 6px;
+    gap: 4px;
   }
   body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-toolbar {
-    flex: 1;
+    flex: 0 0 auto;
     min-width: 0;
   }
   body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-scroll {
@@ -4410,6 +4479,14 @@ body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-table {
 }
 
 /* Tam ekran yatay tablo — native fullscreen + modal host */
+.rez-ozet-wrap:fullscreen .rez-ozet-ust:not([hidden]),
+.rez-ozet-wrap:-webkit-full-screen .rez-ozet-ust:not([hidden]),
+.rez-ozet-wrap.rez-ozet-tam-ekran .rez-ozet-ust:not([hidden]) {
+  display: flex;
+  margin-bottom: 6px;
+  padding: 4px 6px;
+  background: var(--kart);
+}
 .rez-ozet-wrap:fullscreen,
 .rez-ozet-wrap:-webkit-full-screen,
 .rez-ozet-wrap.rez-ozet-tam-ekran {

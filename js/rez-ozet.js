@@ -2152,6 +2152,35 @@
     return document.fullscreenElement === wrap || wrap.classList.contains("rez-ozet-tam-ekran");
   }
 
+  function rezAraclarEl() {
+    return document.getElementById("rez-ozet-araclar");
+  }
+
+  function rezAraclarSlot() {
+    return document.getElementById("rez-ozet-araclar-slot");
+  }
+
+  function rezAraclarUstHost() {
+    return document.getElementById("rez-ozet-ust-host");
+  }
+
+  /** Araç çubuğu: normalde sekme satırında; tam ekranda tablo sarmalayıcısında */
+  function rezAraclarYerlestir(tamEkrana) {
+    const el = rezAraclarEl();
+    const slot = rezAraclarSlot();
+    const host = rezAraclarUstHost();
+    if (!el || !slot || !host) return;
+    if (tamEkrana) {
+      if (el.parentElement !== host) host.appendChild(el);
+      host.hidden = false;
+      host.setAttribute("aria-hidden", "false");
+    } else {
+      if (el.parentElement !== slot) slot.appendChild(el);
+      host.hidden = true;
+      host.setAttribute("aria-hidden", "true");
+    }
+  }
+
   function modalRezBodyeAl() {
     const el = document.getElementById("modal-rez");
     if (!el) return;
@@ -2207,6 +2236,7 @@
     } catch (e) { /* yoksay */ }
     wrap.classList.remove("rez-ozet-tam-ekran");
     document.body.classList.remove("rez-ozet-tam-ekran");
+    rezAraclarYerlestir(false);
     tamEkranaModallariTasi(false);
     try {
       if (screen.orientation && typeof screen.orientation.unlock === "function") {
@@ -2227,6 +2257,7 @@
     }
 
     try {
+      rezAraclarYerlestir(true);
       tamEkranaModallariTasi(true);
       await yonKilidiAc();
 
@@ -2257,6 +2288,7 @@
   document.addEventListener("DOMContentLoaded", () => {
     modalRezBodyeAl();
     tamEkranaModallariTasi(false);
+    rezAraclarYerlestir(false);
     odemeModalBagla();
     etkilesimBagla(document.querySelector("#tab-rezervasyonlar .rez-ozet-scroll"));
     document.getElementById("rez-ozet-yil-prev")?.addEventListener("click", () => sezonGit(-1));
@@ -2270,11 +2302,15 @@
     });
     document.addEventListener("fullscreenchange", () => {
       modalRezBodyeAl();
-      if (document.fullscreenElement) return;
+      if (document.fullscreenElement === tamEkranWrap()) {
+        rezAraclarYerlestir(true);
+        return;
+      }
       const wrap = tamEkranWrap();
       if (wrap?.classList.contains("rez-ozet-tam-ekran")) {
         tamEkranKapat();
       } else {
+        rezAraclarYerlestir(false);
         tamEkranaModallariTasi(false);
       }
     });
