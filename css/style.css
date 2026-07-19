@@ -1470,9 +1470,12 @@ html.theme-light .rez-ozet-ay-ayrac td {
 .rez-ozet-col-odn { width: var(--rez-col-odn, 3.7%); }
 .rez-ozet-col-ad { width: var(--rez-col-ad, 8.8%); }
 .rez-ozet-tablo-telefon .rez-ozet-sayi,
-.rez-ozet-tablo-telefon .rez-ozet-ad,
 .rez-ozet-tablo-telefon .rez-ozet-odenen:not(.rez-ozet-out-kalan-hucre) {
   font-size: 10px;
+}
+.rez-ozet-tablo-telefon .rez-ozet-ad {
+  font-size: 11.5px; /* 10px × 1.15 */
+  text-align: center;
 }
 .rez-ozet-tablo-telefon .rez-ozet-out-kalan-tutar {
   font-size: 10px;

@@ -558,11 +558,16 @@
   function bosHucreleriEkle(tr, daireId, tarih, renk) {
     for (let i = 0; i < 5; i++) {
       const td = document.createElement("td");
-      td.className = "rez-ozet-bos rez-ozet-hucre-tik";
       td.style.background = renk;
-      td.dataset.daireId = daireId;
-      td.dataset.tarih = tarih;
-      td.title = "Yeni rezervasyon";
+      if (i === 0) {
+        /* G sütunu: tıklayınca rezervasyon açılmaz */
+        td.className = "rez-ozet-bos rez-ozet-bos-gun";
+      } else {
+        td.className = "rez-ozet-bos rez-ozet-hucre-tik";
+        td.dataset.daireId = daireId;
+        td.dataset.tarih = tarih;
+        td.title = "Yeni rezervasyon";
+      }
       tr.appendChild(td);
     }
   }
