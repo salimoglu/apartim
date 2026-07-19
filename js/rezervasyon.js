@@ -788,7 +788,7 @@
       const opt = document.createElement("option");
       opt.value = k.id;
       const ad = String(k.ad || "").trim();
-      const kisa = ad.length > 10 ? ad.slice(0, 9) + "…" : ad;
+      const kisa = ad.length > 14 ? ad.slice(0, 13) + "…" : ad;
       opt.textContent = (k.simge ? k.simge + " " : "") + kisa;
       opt.title = (k.simge ? k.simge + " " : "") + ad;
       sel.appendChild(opt);

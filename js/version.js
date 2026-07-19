@@ -1,7 +1,7 @@
 /* Apartım sürüm — artır: node tools/bump-version.cjs (2.99 → 3.0) */
 (function () {
   "use strict";
-  const APP = "3.28";
+  const APP = "3.29";
   window.APARTIM_VERSION = {
     APP,
     CACHE: "apartim-" + APP.replace(/\./g, "-"),

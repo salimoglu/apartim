@@ -2990,17 +2990,35 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .btn-danger:hover { filter: brightness(0.92); }
 
-.rez-toplam-bar {
-  background: var(--vurgu-soluk);
-  border: 1px solid var(--vurgu);
-  border-radius: var(--radius);
-  padding: 10px 14px;
-  display: flex; justify-content: space-between; align-items: center;
+/* Toplam gece/tutar — ücret satırına gömülü kompakt özet */
+.rez-toplam-bar.rez-toplam-inline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1px;
+  min-width: 0;
+  padding: 0 2px 0 4px;
+  margin: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   font-weight: 700;
-  margin-top: 6px;
+  line-height: 1.15;
 }
-.rez-toplam-bar .gece { color: var(--metin-soluk); font-size: 12px; }
-.rez-toplam-bar .tutar { color: var(--vurgu); font-size: 20px; }
+.rez-toplam-bar.rez-toplam-inline .gece {
+  color: var(--metin-soluk);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.rez-toplam-bar.rez-toplam-inline .tutar {
+  color: var(--vurgu);
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
 
 /* Rezervasyon formu — tahsilat gibi etiket | alan (takvim genişliğiyle aynı hiza) */
 #modal-rez .modal-body {
@@ -3031,7 +3049,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   width: 100%;
   min-width: 0;
 }
-/* Telefon + kaynak aynı satır — kaynak minimal sağda */
+/* Telefon + kaynak: telefon ~%15 dar; kazanılan alan kaynağa */
 #modal-rez .rez-telefon-kaynak {
   display: flex;
   align-items: stretch;
@@ -3039,15 +3057,16 @@ html:not(.theme-light) .rez-kaynak-badge {
   min-width: 0;
 }
 #modal-rez .rez-telefon-kaynak > #rez-telefon {
-  flex: 1 1 auto;
+  flex: 1 1 48%;
+  max-width: 52%;
   min-width: 0;
   width: auto;
 }
 #modal-rez .rez-kaynak-mini {
-  flex: 0 1 8.75em;
+  flex: 1 1 11em;
   width: auto;
-  max-width: 38%;
-  min-width: 5.25em;
+  max-width: none;
+  min-width: 6.75em;
   padding-left: 6px;
   padding-right: 2px;
   font-size: 12px;
@@ -3114,9 +3133,9 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rez-tarih-aralik-takvim .mini-takvim-grid {
   gap: 2px;
 }
-/* Boydan ~%10 daha kısa */
+/* Boydan %10 daha kısa; yazı boyutu aynı */
 .rez-tarih-aralik-takvim .mini-takvim-hucre {
-  min-height: 23px;
+  min-height: 21px;
   border: 1px solid transparent;
   cursor: pointer;
   position: relative;
@@ -3263,12 +3282,12 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rez-fiyat-panel.hidden { display: none; }
 .rez-fiyat-panel { margin-top: 0; }
-/* Ücret/Toplam + birim: etiket kolonu Kaynak/Misafir ile aynı */
+/* Ücret + birim + toplam özet: etiket kolonu Misafir ile aynı */
 #modal-rez .rez-fiyat-deger-satir {
   display: grid;
-  grid-template-columns: var(--rez-lbl) minmax(0, 1fr) 2.75em;
+  grid-template-columns: var(--rez-lbl) minmax(0, 1fr) 2.75em minmax(4.75em, max-content);
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-top: 4px;
 }
 #modal-rez .rez-fiyat-deger-sol {
@@ -3295,9 +3314,9 @@ html:not(.theme-light) .rez-kaynak-badge {
 #modal-rez .rez-fiyat-deger-satir .rez-para-sec.hidden {
   display: none;
 }
-/* Ayrı fiyat: üst global birim yok — etiket + açıklama tam genişlik */
+/* Ayrı fiyat: global birim gizli — etiket + açıklama + toplam özet */
 #modal-rez.rez-fiyat-ayri .rez-fiyat-deger-satir {
-  grid-template-columns: var(--rez-lbl) minmax(0, 1fr);
+  grid-template-columns: var(--rez-lbl) minmax(0, 1fr) minmax(4.75em, max-content);
 }
 #modal-rez .rez-ayri-baslik-not {
   display: block;
@@ -3469,13 +3488,27 @@ html:not(.theme-light) .rez-kaynak-badge {
   body.rez-form-mobil #modal-rez .rez-telefon-kaynak {
     gap: 5px;
   }
+  body.rez-form-mobil #modal-rez .rez-telefon-kaynak > #rez-telefon {
+    flex: 1 1 46%;
+    max-width: 50%;
+  }
   body.rez-form-mobil #modal-rez .rez-kaynak-mini {
-    flex: 0 1 7.5em;
-    max-width: 36%;
-    min-width: 4.75em;
+    flex: 1 1 9.5em;
+    max-width: none;
+    min-width: 6em;
     padding-left: 6px;
     padding-right: 2px;
     font-size: 13px;
+  }
+  body.rez-form-mobil #modal-rez .rez-fiyat-deger-satir {
+    grid-template-columns: var(--rez-lbl) minmax(0, 1fr) 2.5em minmax(4.5em, max-content);
+    gap: 5px;
+  }
+  body.rez-form-mobil #modal-rez.rez-fiyat-ayri .rez-fiyat-deger-satir {
+    grid-template-columns: var(--rez-lbl) minmax(0, 1fr) minmax(4.5em, max-content);
+  }
+  body.rez-form-mobil #modal-rez .rez-toplam-bar.rez-toplam-inline .tutar {
+    font-size: 12px;
   }
   body.rez-form-mobil #modal-rez .field-group {
     margin-bottom: 10px;
@@ -3537,10 +3570,6 @@ html:not(.theme-light) .rez-kaynak-badge {
   body.rez-form-mobil.rez-form-klavye #modal-rez .rez-fiyat-mod-kart small {
     font-size: 8px;
   }
-  body.rez-form-mobil.rez-form-klavye #modal-rez .rez-toplam-bar {
-    padding: 6px 10px;
-    margin-top: 2px;
-  }
   body.rez-form-mobil.rez-form-klavye #modal-rez .rez-fiyat-ozet {
     display: none;
   }
@@ -3596,9 +3625,13 @@ html:not(.theme-light) .rez-kaynak-badge {
     min-height: 40px;
     padding: 8px 10px;
   }
+  body.rez-form-mobil.rez-form-yatay #modal-rez .rez-telefon-kaynak > #rez-telefon {
+    flex: 1 1 44%;
+    max-width: 48%;
+  }
   body.rez-form-mobil.rez-form-yatay #modal-rez .rez-kaynak-mini {
-    flex: 0 1 7em;
-    max-width: 34%;
+    flex: 1 1 9em;
+    max-width: none;
     font-size: 12px;
     padding-left: 5px;
     padding-right: 2px;
@@ -3615,7 +3648,7 @@ html:not(.theme-light) .rez-kaynak-badge {
     padding: 3px 2px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .rez-tarih-aralik-takvim .mini-takvim-hucre {
-    min-height: 18px;
+    min-height: 16px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .rez-tarih-aralik-takvim .mini-takvim-gun {
     font-size: 10px;
@@ -5604,7 +5637,7 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
     margin-bottom: 6px;
   }
   body.mobil-yatay-mod #modal-rez .rez-tarih-aralik-takvim .mini-takvim-hucre {
-    min-height: 18px;
+    min-height: 16px;
   }
   body.mobil-yatay-mod #modal-rez .rez-tarih-aralik-takvim .mini-takvim-gun {
     font-size: 10px;
