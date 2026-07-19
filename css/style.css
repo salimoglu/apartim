@@ -3149,11 +3149,24 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rez-fiyat-grup {
   margin-bottom: 10px;
 }
+#modal-rez .modal-header {
+  padding: 8px 14px;
+  min-height: 0;
+}
+#modal-rez .modal-title {
+  font-size: 15px;
+  line-height: 1.2;
+}
+#modal-rez .modal-close {
+  font-size: 16px;
+  padding: 2px 6px;
+  line-height: 1;
+}
 .rez-fiyat-modlari {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 5px;
+  margin-bottom: 8px;
 }
 .rez-fiyat-mod {
   position: relative;
@@ -3172,11 +3185,11 @@ html:not(.theme-light) .rez-kaynak-badge {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
-  min-height: 58px;
-  padding: 8px 4px;
-  border: 2px solid var(--kenar);
-  border-radius: 10px;
+  gap: 1px;
+  min-height: 40px;
+  padding: 5px 3px;
+  border: 1.5px solid var(--kenar);
+  border-radius: 8px;
   background: var(--zemin-2);
   text-align: center;
   transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
@@ -3186,26 +3199,26 @@ html:not(.theme-light) .rez-kaynak-badge {
   font-size: 11px;
   font-weight: 800;
   color: var(--metin);
-  line-height: 1.2;
+  line-height: 1.15;
 }
 .rez-fiyat-mod-kart small {
   font-size: 9px;
   font-weight: 600;
   color: var(--metin-soluk);
-  line-height: 1.2;
+  line-height: 1.15;
 }
 .rez-fiyat-mod-tik {
   position: absolute;
-  top: 4px;
-  right: 5px;
-  width: 14px;
-  height: 14px;
+  top: 3px;
+  right: 4px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--vurgu);
   color: #fff;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 900;
-  line-height: 14px;
+  line-height: 12px;
   text-align: center;
   opacity: 0;
   transform: scale(0.6);
@@ -3400,15 +3413,20 @@ html:not(.theme-light) .rez-kaynak-badge {
   }
   body.rez-form-mobil:not(.rez-form-yatay) #modal-rez .modal-header {
     flex-shrink: 0;
-    padding: 10px 14px;
+    padding: 6px 12px;
   }
   body.rez-form-mobil #modal-rez .modal-title {
-    font-size: 16px;
-    line-height: 1.25;
+    font-size: 14px;
+    line-height: 1.2;
   }
   body.rez-form-mobil #modal-rez .modal-close {
-    min-width: 44px;
-    min-height: 44px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 4px;
+  }
+  body.rez-form-mobil #modal-rez .rez-fiyat-mod-kart {
+    min-height: 38px;
+    padding: 4px 2px;
   }
   body.rez-form-mobil #modal-rez .modal-body {
     flex: 1;
@@ -3476,8 +3494,8 @@ html:not(.theme-light) .rez-kaynak-badge {
     color: var(--vurgu);
   }
   body.rez-form-mobil.rez-form-klavye #modal-rez .rez-fiyat-mod-kart {
-    min-height: 46px;
-    padding: 6px 4px;
+    min-height: 36px;
+    padding: 4px 2px;
   }
   body.rez-form-mobil.rez-form-klavye #modal-rez .rez-fiyat-mod-kart strong {
     font-size: 10px;
@@ -3519,15 +3537,15 @@ html:not(.theme-light) .rez-kaynak-badge {
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .modal-header {
     flex-shrink: 0;
-    padding: 8px 12px;
+    padding: 5px 10px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .modal-title {
-    font-size: 15px;
-    line-height: 1.2;
+    font-size: 14px;
+    line-height: 1.15;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .modal-close {
-    min-width: 40px;
-    min-height: 40px;
+    min-width: 34px;
+    min-height: 34px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .modal-body {
     flex: 1;
@@ -3552,8 +3570,8 @@ html:not(.theme-light) .rez-kaynak-badge {
     margin-bottom: 6px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .rez-fiyat-mod-kart {
-    min-height: 42px;
-    padding: 5px 3px;
+    min-height: 34px;
+    padding: 3px 2px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .rez-tarih-aralik-takvim .mini-takvim-hucre {
     min-height: 20px;
@@ -5427,10 +5445,10 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
   }
   body.mobil-yatay-mod #modal-rez .modal-header {
     flex-shrink: 0;
-    padding: 8px 12px;
+    padding: 5px 10px;
   }
   body.mobil-yatay-mod #modal-rez .modal-title {
-    font-size: 15px;
+    font-size: 14px;
   }
   body.mobil-yatay-mod #modal-rez .modal-body {
     flex: 1;
@@ -5455,7 +5473,8 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
     font-size: 11px;
   }
   body.mobil-yatay-mod #modal-rez .rez-fiyat-mod-kart {
-    min-height: 44px;
+    min-height: 34px;
+    padding: 3px 2px;
   }
 }
 
