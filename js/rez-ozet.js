@@ -495,13 +495,37 @@
     return '<span class="' + cls + '">' + esc(String(n)) + "</span>";
   }
 
-  /** Oda bloğu: G=Kt, Fyt=Odn, Ad en büyük. kompakt=true iken Ad %10 küçülür → Fyt/Odn'ye gider */
+  /* Telefonda "10.000,00₺" (~9px kalın) + hücre padding */
+  const FO_MIN_KOMPAKT = 58;
+
+  /** Oda bloğu: G=Kt, Fyt=Odn, Ad en büyük. kompaktta Fyt/Odn ≥ 10.000,00₺ */
   function odaSutunPaylari(odaBlokPx, kompakt) {
     const blok = Math.max(50, Math.floor(Number(odaBlokPx) || 0));
     let gk = Math.max(11, Math.floor(blok * 0.11));
-    /* Telefonda fiyat/ödeme biraz daha geniş başlasın */
-    let fo = Math.max(16, Math.floor(blok * (kompakt ? 0.19 : 0.17)));
+    let fo = Math.max(
+      kompakt ? FO_MIN_KOMPAKT : 16,
+      Math.floor(blok * (kompakt ? 0.22 : 0.17))
+    );
     let ad = blok - 2 * gk - 2 * fo;
+
+    if (kompakt) {
+      /* Önce Fyt/Odn'yi 10.000,00₺ için garanti et; kalanı G/Kt ve Ad paylaşır */
+      fo = Math.max(FO_MIN_KOMPAKT, fo);
+      const minAd = 22;
+      const kalan = blok - 2 * fo;
+      if (kalan < 2 * gk + minAd) {
+        gk = Math.max(10, Math.floor((kalan - minAd) / 2));
+      }
+      ad = blok - 2 * gk - 2 * fo;
+      if (ad < minAd) {
+        const maxFo = Math.floor((blok - 2 * 10 - minAd) / 2);
+        fo = Math.max(FO_MIN_KOMPAKT, Math.min(fo, Math.max(FO_MIN_KOMPAKT, maxFo)));
+        gk = 10;
+        ad = Math.max(0, blok - 2 * gk - 2 * fo);
+      }
+      return { g: gk, kt: gk, fyt: fo, odn: fo, ad };
+    }
+
     if (ad <= fo) {
       fo = Math.max(12, Math.floor((blok - 2 * gk) / 3));
       ad = blok - 2 * gk - 2 * fo;
@@ -510,12 +534,6 @@
       gk = Math.max(8, Math.floor(blok / 8));
       fo = Math.max(10, Math.floor(blok / 5));
       ad = Math.max(0, blok - 2 * gk - 2 * fo);
-    }
-    if (kompakt && ad > 20) {
-      const kes = Math.floor(ad * 0.10);
-      const foEk = Math.floor(kes / 2);
-      fo += foEk;
-      ad -= 2 * foEk;
     }
     return { g: gk, kt: gk, fyt: fo, odn: fo, ad };
   }
