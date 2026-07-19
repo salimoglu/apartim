@@ -2463,23 +2463,22 @@ body.modal-acik .modal-body {
   padding: 10px 14px;
 }
 
-/* Telefon dikey — alt sheet, tam genişlik */
-@media (max-width: 720px) and (orientation: portrait),
-       (pointer: coarse) and (max-width: 520px) and (orientation: portrait) {
+/* Telefon + tablet — üstten açılan sheet */
+@media (max-width: 1024px) {
   #modal-daireler.modal-overlay {
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: center;
-    padding: 0;
-    padding-top: max(8px, env(safe-area-inset-top));
+    padding: max(0px, env(safe-area-inset-top)) 0 0;
   }
   #modal-daireler .modal-box-odalar {
     width: 100%;
     max-width: 100%;
     max-height: min(86dvh, 88vh);
-    border-radius: 16px 16px 0 0;
+    border-radius: 0 0 16px 16px;
     border-left: none;
     border-right: none;
-    border-bottom: none;
+    border-top: none;
+    animation: slideDownOdalar 200ms ease;
   }
   #modal-daireler .modal-body-odalar {
     padding: 8px 12px;
@@ -2501,17 +2500,24 @@ body.modal-acik .modal-body {
   }
 }
 
-/* Telefon yatay — geniş, alçak, sıkı satırlar */
+@keyframes slideDownOdalar {
+  from { transform: translateY(-16px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Telefon yatay — daha alçak, geniş panel (yine üstte) */
 @media (orientation: landscape) and (max-height: 520px),
        (orientation: landscape) and (max-width: 960px) and (pointer: coarse) {
   #modal-daireler.modal-overlay {
-    align-items: center;
-    padding: 6px max(8px, env(safe-area-inset-right)) 6px max(8px, env(safe-area-inset-left));
+    align-items: flex-start;
+    padding: max(4px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 6px max(8px, env(safe-area-inset-left));
   }
   #modal-daireler .modal-box-odalar {
-    width: min(560px, 94vw);
-    max-width: min(560px, 94vw);
-    max-height: min(94dvh, 96vh);
+    width: min(640px, 96vw);
+    max-width: min(640px, 96vw);
+    max-height: min(92dvh, 94vh);
+    border-radius: 0 0 12px 12px;
+    margin: 0 auto;
   }
   #modal-daireler .modal-header {
     padding: 6px 12px;

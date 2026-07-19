@@ -447,12 +447,11 @@
     return !!tabloGorunum().kompakt;
   }
 
-  /** Telefon / tablet / masaüstü + ekrana sığacak oda sayısı */
-  function tabloGorunum() {
+  /** Telefon / tablet / masaüstü — ekrana sığan oda sayısı genişliğe göre */
+  function tabloGorunum(scrollGenislik) {
     const w = window.visualViewport?.width || window.innerWidth;
     const h = window.visualViewport?.height || window.innerHeight;
     const kisa = Math.min(w, h);
-    /* orientation + boyut + telefon yatay mod sınıfı (güvenilir yatay algı) */
     const yatay =
       w > h ||
       window.matchMedia("(orientation: landscape)").matches ||
@@ -461,19 +460,29 @@
       window.matchMedia("(pointer: coarse)").matches ||
       (navigator.maxTouchPoints || 0) > 1;
 
-    /* Telefon: kısa kenar ≤520 — dikey 1 / yatay 3 */
-    if (kisa <= 520) {
-      return { cihaz: "telefon", kompakt: true, yatay, odaHedef: yatay ? 3 : 1 };
+    let cihaz = "masaustu";
+    if (kisa <= 520 || w < 720) cihaz = "telefon";
+    else if (dokunmatik && kisa <= 900) cihaz = "tablet";
+
+    if (cihaz === "masaustu") {
+      return { cihaz, kompakt: false, yatay, odaHedef: 5, tarihPx: w >= 1200 ? 42 : 38 };
     }
-    /* Tablet: dokunmatik ve kısa kenar ≤900 */
-    if (dokunmatik && kisa <= 900) {
-      return { cihaz: "tablet", kompakt: true, yatay, odaHedef: yatay ? 5 : 3 };
-    }
-    /* Dar pencere (masaüstü daraltılmış) */
-    if (w < 720) {
-      return { cihaz: "telefon", kompakt: true, yatay, odaHedef: yatay ? 3 : 1 };
-    }
-    return { cihaz: "masaustu", kompakt: false, yatay, odaHedef: 5 };
+
+    const tarihPx = cihaz === "tablet" ? 36 : 32;
+    const genislik = Math.max(200, scrollGenislik || w);
+    const kullanilabilir = Math.max(80, genislik - tarihPx);
+
+    /* Okunabilir oda bloğu: Ad + Fiyat + Ödenen sığsın */
+    const minBlok = cihaz === "telefon"
+      ? (yatay ? 128 : 158)
+      : (yatay ? 108 : 122);
+    const tavan = cihaz === "telefon" ? (yatay ? 3 : 2) : (yatay ? 5 : 3);
+
+    let odaHedef = Math.floor(kullanilabilir / minBlok);
+    if (odaHedef < 1) odaHedef = 1;
+    if (odaHedef > tavan) odaHedef = tavan;
+
+    return { cihaz, kompakt: true, yatay, odaHedef, tarihPx, minBlok };
   }
 
   function misafirTabloGoster(ad) {
@@ -1670,7 +1679,7 @@
     if (genislik < 200) {
       genislik = document.querySelector(".content")?.clientWidth || window.innerWidth;
     }
-    const gorunum = tabloGorunum();
+    const gorunum = tabloGorunum(genislik);
     const ayniGenislik = Math.abs(genislik - sonOlculGenislik) < 2;
     if (
       ayniGenislik &&
@@ -1692,16 +1701,16 @@
     table.dataset.odaHedef = String(gorunum.odaHedef);
 
     if (kompakt) {
-      /* Telefon: dikey 1 / yatay 3 · Tablet: dikey 3 / yatay 5 — fazlası yatay kaydırılır */
+      /* Genişliğe göre odaHedef kadar sığdır; fazlası yatay kaydırılır */
       const odaHedef = Math.max(1, gorunum.odaHedef);
-      const tarihPx = gorunum.cihaz === "tablet" ? 38 : 36;
-      /* Tam odaHedef kadar sığdır (telefon yatayda 3); alt sütunlar blok dışına taşmasın */
+      const tarihPx = gorunum.tarihPx || 32;
       const odaBlokPx = Math.max(1, (genislik - tarihPx) / odaHedef);
-      const g = Math.max(8, Math.min(Math.floor(odaBlokPx * 0.12), Math.floor(odaBlokPx * 0.2)));
+      /* G/Kt dar; Ad geniş — isim tek satırda okunsun */
+      const g = Math.max(9, Math.min(16, Math.floor(odaBlokPx * 0.10)));
       const kt = g;
       const rem = Math.max(0, odaBlokPx - 2 * g);
-      const fyt = Math.floor(rem * 0.22);
-      const odn = Math.floor(rem * 0.24);
+      const fyt = Math.floor(rem * 0.18);
+      const odn = Math.floor(rem * 0.20);
       const ad = Math.max(0, rem - fyt - odn);
       const tabloW = tarihPx + n * odaBlokPx;
 
@@ -1723,7 +1732,7 @@
     }
 
     const MASAUSTU_ODA_HEDEF = gorunum.odaHedef;
-    const tarihPx = genislik >= 1200 ? 42 : 38;
+    const tarihPx = gorunum.tarihPx || (genislik >= 1200 ? 42 : 38);
     const odaBlokPx = Math.max(76, (genislik - tarihPx) / MASAUSTU_ODA_HEDEF);
     const g = Math.min(30, Math.max(24, Math.floor(odaBlokPx * 0.12)));
     const kt = g;
