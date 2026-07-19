@@ -953,30 +953,31 @@ body.ptr-cekiliyor { overscroll-behavior-y: contain; }
   align-self: flex-start;
   border-radius: 2px;
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
   line-height: 1;
   margin-bottom: 1px;
-  height: 11px;
+  height: 9px;
   background: #ffeb3b;
 }
 .takvim-io-cift-parca {
-  font-weight: 900;
-  font-size: 7px;
+  font-weight: 800;
+  font-size: 6px;
   letter-spacing: 0;
   text-align: center;
-  padding: 0 2px;
+  padding: 0 1px;
   color: #1a1a1a;
-  line-height: 11px;
+  line-height: 9px;
+  text-transform: lowercase;
 }
 .takvim-io-cift-parca.out { background: #ffc107; }
 .takvim-io-cift-parca.in { background: #ffeb3b; }
 .takvim-io-cift-sep {
-  font-size: 6px;
-  font-weight: 800;
+  font-size: 5px;
+  font-weight: 700;
   color: #1a1a1a;
-  opacity: 0.7;
-  padding: 0 1px;
-  line-height: 11px;
+  opacity: 0.65;
+  padding: 0;
+  line-height: 9px;
 }
 html:not(.theme-light) .takvim-rez-ad,
 html:not(.theme-light) .takvim-rez-ucret,
@@ -1986,19 +1987,15 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   flex-shrink: 0;
   opacity: 0.7;
 }
-/* Çakışan gün: sütunlar durur, iç dikey çizgiler kaybolur → görsel birleşik blok */
+/* Çakışan gün: sütun çizgileri diğer günlerle aynı kalır; taşma yok */
 .rez-ozet-table td.rez-ozet-turnover-hucre {
-  padding: 2px 3px !important;
+  padding: 1px 2px !important;
   vertical-align: middle;
-}
-.rez-ozet-table td.rez-ozet-turnover-hucre:not(.rez-ozet-turnover-bas) {
-  border-left-color: transparent !important;
-}
-.rez-ozet-table td.rez-ozet-turnover-hucre:not(.rez-ozet-turnover-son) {
-  border-right-color: transparent !important;
+  overflow: hidden !important;
 }
 .rez-ozet-table td.rez-ozet-turnover-bas {
   text-align: center !important;
+  overflow: hidden !important;
 }
 .rez-ozet-io-cift {
   display: inline-flex;
@@ -2006,25 +2003,27 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   align-items: center;
   border-radius: 2px;
   overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
   line-height: 1;
   flex-shrink: 0;
-  height: 12px;
+  height: 9px;
   background: #ffeb3b;
+  max-width: 100%;
 }
 .rez-ozet-io-cift-parca {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 900;
-  font-size: 8px;
+  font-weight: 800;
+  font-size: 6px;
   letter-spacing: 0;
-  padding: 0 2px;
+  padding: 0 1px;
   color: #1a1a1a !important;
   cursor: pointer;
   box-sizing: border-box;
   line-height: 1;
-  min-width: 9px;
+  min-width: 6px;
+  text-transform: lowercase;
 }
 .rez-ozet-io-cift-parca.out {
   background: #ffc107;
@@ -2033,12 +2032,12 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   background: #ffeb3b;
 }
 .rez-ozet-io-cift-sep {
-  font-size: 7px;
-  font-weight: 800;
+  font-size: 6px;
+  font-weight: 700;
   color: #1a1a1a;
   line-height: 1;
-  padding: 0 1px;
-  opacity: 0.7;
+  padding: 0;
+  opacity: 0.65;
   background: #ffeb3b;
   pointer-events: none;
 }
@@ -2047,21 +2046,23 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 1px;
   line-height: 1;
   vertical-align: middle;
   max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 .rez-ozet-tablo-telefon .rez-ozet-io-cift {
-  height: 11px;
+  height: 8px;
 }
 .rez-ozet-tablo-telefon .rez-ozet-io-cift-parca {
-  font-size: 7px;
-  min-width: 8px;
+  font-size: 5px;
+  min-width: 5px;
   padding: 0 1px;
 }
 .rez-ozet-tablo-telefon .rez-ozet-io-cift-sep {
-  font-size: 6px;
+  font-size: 5px;
 }
 .rez-ozet-turnover-kompakt,
 .rez-ozet-io-satir {
@@ -2110,13 +2111,17 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   gap: 2px;
 }
 .rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-turnover .rez-ozet-g-sayi {
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   line-height: 1;
   color: #1a1a1a !important;
+  flex-shrink: 0;
 }
-.rez-ozet-table td.rez-ozet-turnover-bas {
-  padding: 1px 2px !important;
+.rez-ozet-table td.rez-ozet-turnover-bas.rez-ozet-io-rozet {
+  overflow: hidden !important;
+  min-width: 32px;
+  max-width: 100%;
+  padding: 1px 1px !important;
 }
 .rez-ozet-g-sayi {
   display: inline-block;

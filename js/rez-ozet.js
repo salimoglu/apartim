@@ -374,13 +374,13 @@
     return '<span class="rez-ozet-io ' + tip + ' rez-ozet-tik" data-rez-id="' + esc(rezId) + '">' + lbl + '</span>';
   }
 
-  /** Çakışan gün: kompakt I/O rozeti (I=giriş, O=çıkış) */
+  /** Çakışan gün: kompakt i/o rozeti (i=giriş, o=çıkış) */
   function ioCiftRozet(cikisRid, girisRid) {
     return (
-      '<span class="rez-ozet-io-cift" title="I/O — aynı gün giriş + çıkış">' +
-        '<span class="rez-ozet-io-cift-parca in rez-ozet-tik" data-rez-id="' + esc(girisRid) + '" title="I — giren misafir">I</span>' +
+      '<span class="rez-ozet-io-cift" title="i/o — aynı gün giriş + çıkış">' +
+        '<span class="rez-ozet-io-cift-parca in rez-ozet-tik" data-rez-id="' + esc(girisRid) + '" title="i — giren misafir">i</span>' +
         '<span class="rez-ozet-io-cift-sep" aria-hidden="true">/</span>' +
-        '<span class="rez-ozet-io-cift-parca out rez-ozet-tik" data-rez-id="' + esc(cikisRid) + '" title="O — çıkan misafir">O</span>' +
+        '<span class="rez-ozet-io-cift-parca out rez-ozet-tik" data-rez-id="' + esc(cikisRid) + '" title="o — çıkan misafir">o</span>' +
       "</span>"
     );
   }
@@ -1420,7 +1420,7 @@
       const det = konakDetay(h.giris, tarih);
       return {
         hucreler: [
-          "I/O · 1",
+          "i/o · 1",
           det.kategori,
           formatHucreFiyat(h.giris, det.prc),
           excelOdnHucre(h.giris, tarih, det.odenenInfo),
