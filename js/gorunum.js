@@ -7,11 +7,14 @@
   "use strict";
 
   const STORAGE_KEY = "apartim-gorunum-yil";
+  const EXTRA_KEY = "apartim-sezon-ekstra";
+  const SEZON_MIN = 2020;
   const SEZON_BAS_AY = 5;
   const SEZON_BIT_AY = 8;
 
   const durum = {
-    yil: new Date().getFullYear()
+    yil: new Date().getFullYear(),
+    menuAcik: false
   };
 
   function pad(n) { return String(n).padStart(2, "0"); }
@@ -22,13 +25,35 @@
       const kayit = localStorage.getItem(STORAGE_KEY);
       if (kayit) {
         const y = Number(kayit);
-        if (Number.isFinite(y) && y >= 2000 && y <= 2100) durum.yil = y;
+        if (Number.isFinite(y) && y >= SEZON_MIN && y <= 2100) durum.yil = y;
       }
     } catch (e) { /* yoksay */ }
   }
 
   function kaydetYil(y) {
     try { localStorage.setItem(STORAGE_KEY, String(y)); } catch (e) { /* yoksay */ }
+  }
+
+  function ekstraYillarOku() {
+    try {
+      const ham = localStorage.getItem(EXTRA_KEY);
+      if (!ham) return [];
+      const arr = JSON.parse(ham);
+      if (!Array.isArray(arr)) return [];
+      return arr
+        .map(Number)
+        .filter((y) => Number.isFinite(y) && y >= SEZON_MIN && y <= 2100);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function ekstraYilKaydet(y) {
+    const set = new Set(ekstraYillarOku());
+    set.add(y);
+    try {
+      localStorage.setItem(EXTRA_KEY, JSON.stringify([...set].sort((a, b) => a - b)));
+    } catch (e) { /* yoksay */ }
   }
 
   function seciliYil() { return durum.yil; }
@@ -39,11 +64,15 @@
 
   function yilSec(yil) {
     const y = Number(yil);
-    if (!Number.isFinite(y) || y < 2000 || y > 2100) return;
-    if (y === durum.yil) return;
+    if (!Number.isFinite(y) || y < SEZON_MIN || y > 2100) return;
+    if (y === durum.yil) {
+      menuKapat();
+      return;
+    }
     durum.yil = y;
     kaydetYil(y);
     guncelleUI();
+    menuKapat();
     document.dispatchEvent(new CustomEvent("apartim:gorunum-degisti", { detail: { yil: y } }));
   }
 
@@ -76,9 +105,10 @@
   function mevcutYillar(db) {
     const set = new Set();
     const cy = gercekYil();
-    set.add(cy);
+
+    for (let y = SEZON_MIN; y <= cy; y++) set.add(y);
     set.add(cy + 1);
-    set.add(cy - 1);
+    ekstraYillarOku().forEach((y) => set.add(y));
 
     const rez = db?.durum?.rezervasyonlar;
     if (rez) {
@@ -93,24 +123,78 @@
       });
     }
 
-    for (let y = cy - 15; y <= cy + 3; y++) set.add(y);
-
     return [...set]
-      .filter((y) => Number.isFinite(y) && y >= 2000 && y <= 2100)
+      .filter((y) => Number.isFinite(y) && y >= SEZON_MIN && y <= 2100)
       .sort((a, b) => b - a);
   }
 
-  function selectDoldur(db) {
-    const sel = document.getElementById("gorunum-yil");
-    if (!sel) return;
+  function yilEtiket(y) {
+    return y === gercekYil() ? y + " · bu yıl" : String(y);
+  }
+
+  function menuDoldur(db) {
+    const liste = document.getElementById("gorunum-yil-liste");
+    if (!liste) return;
     const secili = seciliYil();
     const yillar = mevcutYillar(db);
     if (!yillar.includes(secili)) yillar.unshift(secili);
 
-    sel.innerHTML = yillar.map((y) => {
-      const etiket = y === gercekYil() ? y + " (bu yıl)" : String(y);
-      return '<option value="' + y + '"' + (y === secili ? " selected" : "") + ">" + etiket + "</option>";
+    liste.innerHTML = yillar.map((y) => {
+      const aktif = y === secili ? " aktif" : "";
+      const buYil = y === gercekYil() ? ' <span class="gorunum-yil-badge">bu yıl</span>' : "";
+      return (
+        '<button type="button" class="gorunum-yil-item' + aktif + '" role="option" data-yil="' + y + '"' +
+          (y === secili ? ' aria-selected="true"' : ' aria-selected="false"') + ">" +
+          "<span>" + y + "</span>" + buYil +
+        "</button>"
+      );
     }).join("");
+  }
+
+  function btnMetinGuncelle() {
+    const deger = document.getElementById("gorunum-yil-deger");
+    if (!deger) return;
+    const y = seciliYil();
+    deger.textContent = y === gercekYil() ? y + " · bu yıl" : String(y);
+  }
+
+  function menuAc() {
+    const menu = document.getElementById("gorunum-yil-menu");
+    const btn = document.getElementById("gorunum-yil-btn");
+    if (!menu || !btn) return;
+    menuDoldur(window.APARTIM?.db);
+    menu.classList.remove("hidden");
+    btn.setAttribute("aria-expanded", "true");
+    durum.menuAcik = true;
+    const aktif = menu.querySelector(".gorunum-yil-item.aktif");
+    aktif?.scrollIntoView({ block: "nearest" });
+  }
+
+  function menuKapat() {
+    const menu = document.getElementById("gorunum-yil-menu");
+    const btn = document.getElementById("gorunum-yil-btn");
+    if (!menu || !btn) return;
+    menu.classList.add("hidden");
+    btn.setAttribute("aria-expanded", "false");
+    durum.menuAcik = false;
+  }
+
+  function menuToggle() {
+    if (durum.menuAcik) menuKapat();
+    else menuAc();
+  }
+
+  function sezonEkle() {
+    const yillar = mevcutYillar(window.APARTIM?.db);
+    const max = yillar.length ? Math.max.apply(null, yillar) : gercekYil();
+    const yeni = Math.min(2100, max + 1);
+    if (yillar.includes(yeni)) {
+      yilSec(yeni);
+      return;
+    }
+    ekstraYilKaydet(yeni);
+    yilSec(yeni);
+    window.APARTIM.toast?.(yeni + " sezonu eklendi", "basari");
   }
 
   function bannerGuncelle() {
@@ -129,8 +213,30 @@
     yukleKayitliYil();
     guncelleUI();
 
-    document.getElementById("gorunum-yil")?.addEventListener("change", (e) => {
-      yilSec(Number(e.target.value));
+    document.getElementById("gorunum-yil-btn")?.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menuToggle();
+    });
+
+    document.getElementById("gorunum-yil-menu")?.addEventListener("click", (e) => {
+      const item = e.target.closest("[data-yil]");
+      if (item) {
+        yilSec(Number(item.dataset.yil));
+        return;
+      }
+      if (e.target.closest("#gorunum-yil-ekle")) {
+        sezonEkle();
+      }
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!durum.menuAcik) return;
+      if (e.target.closest("#gorunum-yil-wrap")) return;
+      menuKapat();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && durum.menuAcik) menuKapat();
     });
 
     document.getElementById("gorunum-banner")?.addEventListener("click", (e) => {
@@ -141,22 +247,22 @@
     });
 
     document.addEventListener("apartim:veri-degisti", () => {
-      selectDoldur(window.APARTIM?.db);
+      if (durum.menuAcik) menuDoldur(window.APARTIM?.db);
       guncelleUI();
     });
 
     document.addEventListener("apartim:gorunum-degisti", () => {
-      selectDoldur(window.APARTIM?.db);
+      if (durum.menuAcik) menuDoldur(window.APARTIM?.db);
       guncelleUI();
     });
 
     if (window.APARTIM?.db?.durum?.yuklendi) {
-      selectDoldur(window.APARTIM.db);
+      menuDoldur(window.APARTIM.db);
     }
   }
+
   function guncelleUI() {
-    const sel = document.getElementById("gorunum-yil");
-    if (sel && Number(sel.value) !== seciliYil()) sel.value = String(seciliYil());
+    btnMetinGuncelle();
     bannerGuncelle();
     document.documentElement.dataset.gorunumYil = String(seciliYil());
   }
@@ -172,6 +278,7 @@
     bugunISO,
     sezonBasBit,
     mevcutYillar,
+    sezonEkle,
     guncelleUI
   };
 })();

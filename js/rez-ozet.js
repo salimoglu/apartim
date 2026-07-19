@@ -1819,7 +1819,6 @@
 
   function tabloCiz() {
     const wrap = document.getElementById("rez-ozet-tablo");
-    const baslik = document.getElementById("rez-ozet-ay-baslik");
     if (!wrap) return;
 
     const db = window.APARTIM.db;
@@ -1830,7 +1829,6 @@
 
     const y = sezonYil();
     const myToken = ++renderToken;
-    if (baslik) baslik.textContent = "Haziran – Eylül " + y;
 
     sonOlculGenislik = 0;
     scrollKonumKoru(false);
@@ -2291,8 +2289,6 @@
     rezAraclarYerlestir(false);
     odemeModalBagla();
     etkilesimBagla(document.querySelector("#tab-rezervasyonlar .rez-ozet-scroll"));
-    document.getElementById("rez-ozet-yil-prev")?.addEventListener("click", () => sezonGit(-1));
-    document.getElementById("rez-ozet-yil-next")?.addEventListener("click", () => sezonGit(1));
     document.getElementById("rez-ozet-bugun")?.addEventListener("click", buguneGit);
     document.getElementById("rez-ozet-tam")?.addEventListener("click", tamEkranYatay);
     document.getElementById("rez-ozet-rapor")?.addEventListener("click", excelRaporIndir);
