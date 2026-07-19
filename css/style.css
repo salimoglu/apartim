@@ -644,34 +644,61 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 16px;
+  gap: 10px;
   width: 100%;
   max-width: none;
-  padding: 8px 0 24px;
+  padding: 2px 0 16px;
   box-sizing: border-box;
 }
-.bina-ust-bar { display: contents; }
+.bina-ust-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 16px;
+  width: 100%;
+  min-width: 0;
+  flex-wrap: nowrap;
+}
 .bina-baslik {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
-  text-align: center;
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 10px;
+  text-align: left;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 .bina-baslik h2 {
   font-family: "Bebas Neue", "Nunito", sans-serif;
-  font-size: 28px; letter-spacing: 3px; margin: 0;
+  font-size: 22px;
+  letter-spacing: 2px;
+  margin: 0;
+  line-height: 1;
+  flex-shrink: 0;
 }
-.bina-baslik p { margin: 0; color: var(--metin-soluk); font-size: 14px; }
+.bina-baslik p {
+  margin: 0;
+  color: var(--metin-soluk);
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
 
 .bina-ay-nav {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 14px;
+  justify-content: flex-end;
+  gap: 8px;
+  margin: 0;
+  flex: 0 0 auto;
 }
 .bina-ay-baslik {
   font-weight: 800;
-  font-size: 16px;
-  min-width: 140px;
+  font-size: 14px;
+  min-width: 110px;
   text-align: center;
   color: var(--metin);
 }
@@ -680,7 +707,7 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
-  margin-bottom: 14px;
+  margin-bottom: 0;
   width: 100%;
 }
 .bina-yukleniyor {
@@ -868,6 +895,15 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
 
 /* Tablet: kartlar yan yana, ekranı doldur */
 @media (min-width: 721px) {
+  .bina-wrap { gap: 12px; padding: 0 0 14px; }
+  .bina-baslik h2 { font-size: 24px; letter-spacing: 2px; }
+  .bina-baslik p { font-size: 13px; }
+  .bina-ay-baslik { font-size: 15px; min-width: 124px; }
+  .bina-legend {
+    justify-content: flex-start;
+    gap: 14px;
+    font-size: 12px;
+  }
   .daire-kart-listesi {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
@@ -888,8 +924,8 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
   }
-  .bina-ozet-kart { padding: 14px; }
-  .bina-ozet-kart .val { font-size: 24px; }
+  .bina-ozet-kart { padding: 12px; }
+  .bina-ozet-kart .val { font-size: 22px; }
 }
 
 /* PC: 3 sütun, daha geniş kart / takvim */
