@@ -400,6 +400,7 @@
     }
     if (typeof deger === "object") {
       const yontem = odemeYontemNorm(deger.yontem);
+      const not = String(deger.not || "").trim().slice(0, 200);
       const tutarTl = Number(deger.tutarTl);
       const tutarUsd = Number(deger.tutarUsd);
       const hasSplit =
@@ -419,6 +420,7 @@
         if (Number.isFinite(tutarTl) && tutarTl > 0) out.tutarTl = tutarTl;
         if (Number.isFinite(tutarUsd) && tutarUsd > 0) out.tutarUsd = tutarUsd;
         if (kurUsd) out.kurUsd = kurUsd;
+        if (not) out.not = not;
         return out;
       }
       const tutar = Number(deger.tutar);
@@ -426,6 +428,7 @@
       const out = { tutar, yontem };
       if (deger.tutarBirim === "TL") out.tutarBirim = "TL";
       if (Number(deger.kurUsd) > 0) out.kurUsd = Number(deger.kurUsd);
+      if (not) out.not = not;
       return out;
     }
     return null;
@@ -559,7 +562,8 @@
           kurUsd: kayit.kurUsd,
           tutarPb: odenenKayitPb(kayit, rez),
           manuel: true,
-          yontem: kayit.yontem
+          yontem: kayit.yontem,
+          not: kayit.not || ""
         };
       }
     }
@@ -569,7 +573,8 @@
       tutarUsd: 0,
       tutarPb: 0,
       manuel: false,
-      yontem: ODEME_YONTEM_VARSAYILAN
+      yontem: ODEME_YONTEM_VARSAYILAN,
+      not: ""
     };
   }
 

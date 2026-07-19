@@ -3516,7 +3516,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .tahsilat-gecmis-satir {
   display: grid;
-  grid-template-columns: 72px 1fr auto;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
   gap: 8px;
   align-items: center;
   width: 100%;
@@ -3536,9 +3536,25 @@ html:not(.theme-light) .rez-kaynak-badge {
   border-color: var(--vurgu);
   background: rgba(46, 204, 113, 0.1);
 }
-.tahsilat-gecmis-tarih { font-weight: 700; }
+.tahsilat-gecmis-tarih { font-weight: 700; flex-shrink: 0; }
+.tahsilat-gecmis-orta {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--metin-soluk);
+  font-weight: 600;
+}
 .tahsilat-gecmis-yontem { color: var(--metin-soluk); font-weight: 600; }
-.tahsilat-gecmis-tutar { font-weight: 800; white-space: nowrap; }
+.tahsilat-gecmis-not {
+  color: var(--metin);
+  font-weight: 500;
+}
+.tahsilat-gecmis-tutar {
+  font-weight: 800;
+  white-space: nowrap;
+  justify-self: end;
+}
 /* Sadece yeşil tik — daire/çerçeve yok */
 .rez-ozet-tahsilat-ok {
   display: inline;

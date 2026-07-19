@@ -942,11 +942,15 @@
     wrap.innerHTML = liste.map((k) => {
       const tutar = odenenHucreGoster(rez, Object.assign({ manuel: true }, k));
       const aktif = k.tarih === secili ? " aktif" : "";
+      const not = String(k.not || "").trim();
+      const orta =
+        esc(odenenYontemAd(k.yontem)) +
+        (not ? ' <span class="tahsilat-gecmis-not">· ' + esc(not) + "</span>" : "");
       return (
         '<button type="button" class="tahsilat-gecmis-satir' + aktif + '" data-tahsilat-tarih="' +
-          esc(k.tarih) + '">' +
+          esc(k.tarih) + '"' + (not ? ' title="' + esc(odenenYontemAd(k.yontem) + " · " + not) + '"' : "") + ">" +
           '<span class="tahsilat-gecmis-tarih">' + esc(tarihGoster(k.tarih)) + "</span>" +
-          '<span class="tahsilat-gecmis-yontem">' + esc(odenenYontemAd(k.yontem)) + "</span>" +
+          '<span class="tahsilat-gecmis-orta">' + orta + "</span>" +
           '<span class="tahsilat-gecmis-tutar">' + esc(tutar) + "</span>" +
         "</button>"
       );
@@ -979,6 +983,8 @@
     if (inpTl) inpTl.value = tlVal;
     if (inpUsd) inpUsd.value = usdVal;
     if (sel) sel.value = info.yontem || "elden";
+    const notInp = document.getElementById("odeme-not");
+    if (notInp) notInp.value = info.not || "";
     tahsilatOzetCiz(rez);
     tahsilatGecmisCiz(rez);
     tahsilatKalanOnizle();
@@ -993,6 +999,8 @@
     document.getElementById("odeme-tutar-tl").value = "";
     document.getElementById("odeme-tutar-usd").value = "";
     document.getElementById("odeme-yontem").value = "elden";
+    const notInp = document.getElementById("odeme-not");
+    if (notInp) notInp.value = "";
     tahsilatCeviriciTemizle();
     tahsilatOzetCiz(rez);
     tahsilatGecmisCiz(rez);
@@ -1158,12 +1166,16 @@
         return;
       }
       if (tlSafe > 0 || usdSafe > 0) {
+        const not = String(document.getElementById("odeme-not")?.value || "")
+          .trim()
+          .slice(0, 200);
         kayit = {
           tutarTl: tlSafe > 0 ? tlSafe : undefined,
           tutarUsd: usdSafe > 0 ? usdSafe : undefined,
           kurUsd: tahsilatKurUsd(),
           yontem: document.getElementById("odeme-yontem")?.value || "elden"
         };
+        if (not) kayit.not = not;
       }
     }
 
