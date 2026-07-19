@@ -4096,6 +4096,11 @@ body.mobil-yatay-mod .modal-overlay,
   padding: 10px;
   align-items: center;
 }
+body.mobil-yatay-mod #modal-odeme.modal-overlay,
+.rez-ozet-modal-host #modal-odeme.modal-overlay {
+  align-items: flex-start;
+  padding-top: max(6px, env(safe-area-inset-top));
+}
 body.mobil-yatay-mod .modal-box,
 .rez-ozet-modal-host .modal-box {
   max-height: min(90vh, 90dvh);
