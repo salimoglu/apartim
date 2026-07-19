@@ -64,35 +64,30 @@
   function ozetCiz(ozet) {
     const el = document.getElementById("kasa-ozet");
     if (!el) return;
-    const satirlar = [];
+    const parcalar = [];
     if (aktifPb === "tumu" || aktifPb === "TL") {
       const netTl = ozet.gelirTl - ozet.harcamaTl;
-      satirlar.push(
-        '<div class="kasa-ozet-kart">' +
-          '<span class="label">TL net</span>' +
-          '<span class="val ' + (netTl < 0 ? "eksi" : "arti") + '">' +
+      parcalar.push(
+        '<span class="kasa-ozet-parca">' +
+          '<span class="kasa-ozet-lbl">TL</span>' +
+          '<span class="kasa-ozet-val ' + (netTl < 0 ? "eksi" : "arti") + '">' +
             formatTutar(netTl, "TL") +
           "</span>" +
-          '<span class="alt">+' + formatTutar(ozet.gelirTl, "TL") +
-            " / −" + formatTutar(ozet.harcamaTl, "TL") + "</span>" +
-        "</div>"
+        "</span>"
       );
     }
     if (aktifPb === "tumu" || aktifPb === "USD") {
       const netUsd = ozet.gelirUsd - ozet.harcamaUsd;
-      satirlar.push(
-        '<div class="kasa-ozet-kart">' +
-          '<span class="label">USD net</span>' +
-          '<span class="val ' + (netUsd < 0 ? "eksi" : "arti") + '">' +
+      parcalar.push(
+        '<span class="kasa-ozet-parca">' +
+          '<span class="kasa-ozet-lbl">USD</span>' +
+          '<span class="kasa-ozet-val ' + (netUsd < 0 ? "eksi" : "arti") + '">' +
             formatTutar(netUsd, "USD") +
           "</span>" +
-          '<span class="alt">+' + formatTutar(ozet.gelirUsd, "USD") +
-            " / −" + formatTutar(ozet.harcamaUsd, "USD") + "</span>" +
-        "</div>"
+        "</span>"
       );
     }
-    el.innerHTML = satirlar.join("") ||
-      '<div class="kasa-ozet-kart"><span class="label">Net</span><span class="val">—</span></div>';
+    el.innerHTML = parcalar.join('<span class="kasa-ozet-ayrac">·</span>') || "—";
   }
 
   function listeCiz(liste) {
@@ -102,6 +97,14 @@
       el.innerHTML = '<div class="kasa-bos">Bu görünümde kasa kaydı yok.</div>';
       return;
     }
+    const baslik =
+      '<div class="kasa-satir kasa-satir-baslik" aria-hidden="true">' +
+        '<span class="kasa-tarih">Tarih</span>' +
+        '<span class="kasa-musteri">Müşteri</span>' +
+        '<span class="kasa-not">Not</span>' +
+        '<span class="kasa-miktar">Miktar</span>' +
+        '<span class="kasa-sil-slot"></span>' +
+      "</div>";
     const satirlar = liste.map((h) => {
       const harcamaMi = h.tip === "harcama";
       const miktarSinif = harcamaMi ? "eksi" : "arti";
@@ -109,26 +112,22 @@
       const silBtn = harcamaMi
         ? '<button type="button" class="kasa-sil-btn" data-id="' +
             esc(h.harcamaId) + '" title="Sil" aria-label="Harcama sil">&#10005;</button>'
-        : "";
+        : '<span class="kasa-sil-slot"></span>';
       return (
         '<div class="kasa-satir ' + (harcamaMi ? "harcama" : "gelir") + '">' +
-          '<div class="kasa-satir-ust">' +
-            '<span class="kasa-tarih">' + esc(tarihGoster(h.tarih)) + "</span>" +
-            '<span class="kasa-miktar ' + miktarSinif + '">' +
-              miktarOn + formatTutar(h.tutar, h.pb) +
-            "</span>" +
-            silBtn +
-          "</div>" +
-          '<div class="kasa-satir-alt">' +
-            '<span class="kasa-musteri">' + esc(h.musteri || "—") + "</span>" +
-            (h.not
-              ? '<span class="kasa-not">' + esc(h.not) + "</span>"
-              : '<span class="kasa-not soluk">Not yok</span>') +
-          "</div>" +
+          '<span class="kasa-tarih">' + esc(tarihGoster(h.tarih)) + "</span>" +
+          '<span class="kasa-musteri">' + esc(h.musteri || "—") + "</span>" +
+          '<span class="kasa-not' + (h.not ? "" : " soluk") + '">' +
+            esc(h.not || "—") +
+          "</span>" +
+          '<span class="kasa-miktar ' + miktarSinif + '">' +
+            miktarOn + formatTutar(h.tutar, h.pb) +
+          "</span>" +
+          silBtn +
         "</div>"
       );
     });
-    el.innerHTML = satirlar.join("");
+    el.innerHTML = baslik + satirlar.join("");
   }
 
   function ciz() {

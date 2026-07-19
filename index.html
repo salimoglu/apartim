@@ -316,31 +316,15 @@
           </div>
           <div class="kasa-ozet" id="kasa-ozet"></div>
           <div class="kasa-harcama-form">
-            <div class="kasa-form-baslik">Harcama ekle</div>
-            <div class="kasa-form-grid">
-              <label class="kasa-field">
-                <span>Tarih</span>
-                <input type="date" id="kasa-harcama-tarih" class="field-input" />
-              </label>
-              <label class="kasa-field">
-                <span>Miktar</span>
-                <input type="number" id="kasa-harcama-tutar" class="field-input" min="0" step="0.01" inputmode="decimal" placeholder="0" />
-              </label>
-              <label class="kasa-field kasa-field-pb">
-                <span>Birim</span>
-                <select id="kasa-harcama-pb" class="field-select">
-                  <option value="TL">TL</option>
-                  <option value="USD">USD</option>
-                </select>
-              </label>
-              <label class="kasa-field kasa-field-not">
-                <span>Not</span>
-                <input type="text" id="kasa-harcama-not" class="field-input" maxlength="200" placeholder="Açıklama" />
-              </label>
-              <button type="button" class="kasa-kaydet-btn" id="kasa-harcama-kaydet">Ekle</button>
-            </div>
+            <input type="date" id="kasa-harcama-tarih" class="kasa-inp kasa-inp-tarih" aria-label="Tarih" />
+            <input type="text" id="kasa-harcama-not" class="kasa-inp kasa-inp-not" maxlength="200" placeholder="Not" aria-label="Not" />
+            <input type="number" id="kasa-harcama-tutar" class="kasa-inp kasa-inp-tutar" min="0" step="0.01" inputmode="decimal" placeholder="0" aria-label="Miktar" />
+            <select id="kasa-harcama-pb" class="kasa-inp kasa-inp-pb" aria-label="Birim">
+              <option value="TL">₺</option>
+              <option value="USD">$</option>
+            </select>
+            <button type="button" class="kasa-kaydet-btn" id="kasa-harcama-kaydet" title="Harcama ekle" aria-label="Harcama ekle">+</button>
           </div>
-          <div class="kasa-liste-baslik">Hareketler</div>
           <div class="kasa-liste" id="kasa-liste">
             <div class="kasa-bos">Yükleniyor...</div>
           </div>

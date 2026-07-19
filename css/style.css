@@ -3702,18 +3702,19 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 /* -------------------- Kasa sekmesi -------------------- */
 .kasa-wrap {
+  --kasa-cols: 88px minmax(90px, 1.1fr) minmax(80px, 1.4fr) minmax(96px, auto) 28px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  max-width: 720px;
+  gap: 10px;
+  max-width: 860px;
 }
 .kasa-pb-nav {
   display: flex;
-  gap: 6px;
+  gap: 4px;
   background: var(--zemin-2);
   border: 1px solid var(--kenar);
   border-radius: 999px;
-  padding: 4px;
+  padding: 3px;
   width: fit-content;
   max-width: 100%;
 }
@@ -3721,8 +3722,9 @@ html:not(.theme-light) .rez-kaynak-badge {
   background: transparent;
   border: none;
   color: var(--metin-soluk);
-  padding: 8px 18px;
+  padding: 6px 14px;
   border-radius: 999px;
+  font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
   cursor: pointer;
@@ -3733,171 +3735,181 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .kasa-pb-btn:hover:not(.active) { color: var(--metin); }
 .kasa-ozet {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 10px;
-}
-.kasa-ozet-kart {
-  background: var(--kart);
-  border: 1px solid var(--kenar);
-  border-radius: var(--radius);
-  padding: 12px 14px;
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.kasa-ozet-kart .label {
-  font-size: 12px;
-  color: var(--metin-soluk);
-  font-weight: 700;
-}
-.kasa-ozet-kart .val {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--metin);
-}
-.kasa-ozet-kart .val.arti { color: var(--basari); }
-.kasa-ozet-kart .val.eksi { color: var(--tehlike); }
-.kasa-ozet-kart .alt {
-  font-size: 11px;
-  color: var(--metin-soluk);
-  font-weight: 600;
-}
-.kasa-harcama-form {
-  background: var(--kart);
-  border: 1px solid var(--kenar);
-  border-radius: var(--radius);
-  padding: 12px 14px;
-}
-.kasa-form-baslik {
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 10px;
   font-size: 13px;
-  font-weight: 800;
-  color: var(--metin);
-  margin-bottom: 10px;
-}
-.kasa-form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 8px 10px;
-  align-items: end;
-}
-.kasa-field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-.kasa-field > span {
-  font-size: 11px;
-  font-weight: 700;
   color: var(--metin-soluk);
 }
-.kasa-field-pb { max-width: 88px; }
-.kasa-field-not {
-  grid-column: 1 / -2;
+.kasa-ozet-parca {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.kasa-ozet-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--metin-soluk);
+}
+.kasa-ozet-val {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--metin);
+}
+.kasa-ozet-val.arti { color: var(--basari); }
+.kasa-ozet-val.eksi { color: var(--tehlike); }
+.kasa-ozet-ayrac { color: var(--metin-soluk-2); }
+.kasa-harcama-form {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr) 88px 48px 32px;
+  gap: 6px;
+  align-items: center;
+}
+.kasa-inp {
+  min-width: 0;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 1px solid var(--kenar);
+  border-radius: 8px;
+  background: var(--kart);
+  color: var(--metin);
+  font-size: 13px;
+  font-family: inherit;
+}
+.kasa-inp:focus {
+  outline: none;
+  border-color: var(--vurgu);
+  box-shadow: 0 0 0 2px var(--vurgu-soluk);
+}
+.kasa-inp-pb {
+  padding: 5px 4px;
+  text-align: center;
 }
 .kasa-kaydet-btn {
-  grid-column: -2 / -1;
-  min-height: 42px;
-  padding: 8px 16px;
-  border: none;
-  border-radius: var(--radius);
-  background: var(--vurgu);
-  color: #fff;
-  font-weight: 800;
-  cursor: pointer;
-  white-space: nowrap;
-}
-.kasa-kaydet-btn:hover { background: var(--vurgu-2); }
-.kasa-liste-baslik {
-  font-size: 13px;
-  font-weight: 800;
+  width: 32px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--kenar);
+  border-radius: 8px;
+  background: var(--kart);
   color: var(--metin-soluk);
-  letter-spacing: 0.02em;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+}
+.kasa-kaydet-btn:hover {
+  border-color: var(--vurgu);
+  color: var(--vurgu);
+  background: var(--kart-2);
 }
 .kasa-liste {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-.kasa-bos {
-  padding: 28px 16px;
-  text-align: center;
-  color: var(--metin-soluk);
-  font-size: 14px;
-  background: var(--kart);
-  border: 1px dashed var(--kenar);
-  border-radius: var(--radius);
-}
-.kasa-satir {
-  background: var(--kart);
   border: 1px solid var(--kenar);
   border-radius: var(--radius);
-  padding: 10px 12px;
+  background: var(--kart);
+  overflow: hidden;
 }
-.kasa-satir.harcama {
-  border-left: 3px solid var(--tehlike);
+.kasa-bos {
+  padding: 22px 14px;
+  text-align: center;
+  color: var(--metin-soluk);
+  font-size: 13px;
 }
-.kasa-satir.gelir {
-  border-left: 3px solid var(--basari);
-}
-.kasa-satir-ust {
-  display: flex;
-  align-items: center;
+.kasa-satir {
+  display: grid;
+  grid-template-columns: var(--kasa-cols);
   gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--kenar);
+  min-width: 0;
+}
+.kasa-satir:last-child { border-bottom: none; }
+.kasa-satir-baslik {
+  background: var(--zemin-2);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--metin-soluk);
+  letter-spacing: 0.02em;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+.kasa-satir-baslik .kasa-miktar {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--metin-soluk);
 }
 .kasa-tarih {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--metin-soluk);
-  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kasa-musteri {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--metin);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   min-width: 0;
 }
+.kasa-not {
+  font-size: 12px;
+  color: var(--metin);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.kasa-not.soluk { color: var(--metin-soluk); }
 .kasa-miktar {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 800;
   white-space: nowrap;
+  text-align: right;
+  justify-self: end;
 }
 .kasa-miktar.arti { color: var(--basari); }
 .kasa-miktar.eksi { color: var(--tehlike); }
+.kasa-sil-btn,
+.kasa-sil-slot {
+  width: 24px;
+  height: 24px;
+  justify-self: end;
+}
 .kasa-sil-btn {
   border: none;
   background: transparent;
   color: var(--metin-soluk);
-  font-size: 14px;
-  padding: 2px 6px;
+  font-size: 13px;
+  padding: 0;
   cursor: pointer;
   border-radius: 6px;
-  line-height: 1;
+  line-height: 24px;
+  text-align: center;
 }
 .kasa-sil-btn:hover {
   color: var(--tehlike);
   background: rgba(231, 76, 60, 0.1);
 }
-.kasa-satir-alt {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-top: 4px;
-}
-.kasa-musteri {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--metin);
-}
-.kasa-not {
-  font-size: 12px;
-  color: var(--metin);
-  word-break: break-word;
-}
-.kasa-not.soluk { color: var(--metin-soluk); }
-@media (max-width: 560px) {
-  .kasa-form-grid {
-    grid-template-columns: 1fr 1fr;
+@media (max-width: 640px) {
+  .kasa-wrap {
+    --kasa-cols: 72px minmax(70px, 1fr) minmax(60px, 1.1fr) minmax(78px, auto) 22px;
   }
-  .kasa-field-pb { max-width: none; }
-  .kasa-field-not { grid-column: 1 / -1; }
-  .kasa-kaydet-btn { grid-column: 1 / -1; }
+  .kasa-harcama-form {
+    grid-template-columns: 1fr 64px 44px 32px;
+  }
+  .kasa-inp-tarih { grid-column: 1 / -1; }
+  .kasa-satir { gap: 6px; padding: 7px 8px; }
+  .kasa-musteri, .kasa-not { font-size: 12px; }
+  .kasa-miktar { font-size: 12px; }
 }
 
 .modal-box-kucuk {
