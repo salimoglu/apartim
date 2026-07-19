@@ -381,13 +381,19 @@
       longPressTimer = setTimeout(() => {
         if (!longPressSatir || longPressMoved) return;
         const hid = longPressSatir.dataset.hid;
+        const kayit = hareketMap[hid];
         try { longPressSatir.setPointerCapture?.(e.pointerId); } catch (err) { /* yoksay */ }
         if (navigator.vibrate) {
           try { navigator.vibrate(18); } catch (err) { /* yoksay */ }
         }
         longPressSatir.classList.add("kasa-satir-basili");
         setTimeout(() => longPressSatir?.classList.remove("kasa-satir-basili"), 220);
-        duzenleAc(hid);
+        /* Basılı tut = silme onayı (yalnız manuel gelir/gider) */
+        if (kayit?.harcamaId) {
+          kayitSilIste(kayit.harcamaId);
+        } else {
+          window.APARTIM.toast?.("Tahsilat kaydı buradan silinemez", "uyari");
+        }
         longPressTimer = null;
         ac.abort();
       }, LONG_PRESS_MS);

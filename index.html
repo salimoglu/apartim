@@ -329,17 +329,19 @@
       <!-- KASA -->
       <section id="tab-kasa" class="tab-panel">
         <div class="kasa-wrap">
-          <div class="kasa-pb-nav" role="tablist" aria-label="Para birimi">
-            <button type="button" class="kasa-pb-btn active" data-pb="tumu">Tümü</button>
-            <button type="button" class="kasa-pb-btn" data-pb="TL">TL</button>
-            <button type="button" class="kasa-pb-btn" data-pb="USD">Dolar</button>
-          </div>
-          <div class="kasa-ozet" id="kasa-ozet"></div>
-          <div class="kasa-kayit-form">
+          <div class="kasa-ust-satir">
+            <div class="kasa-pb-nav" role="tablist" aria-label="Para birimi">
+              <button type="button" class="kasa-pb-btn active" data-pb="tumu">Tümü</button>
+              <button type="button" class="kasa-pb-btn" data-pb="TL">TL</button>
+              <button type="button" class="kasa-pb-btn" data-pb="USD">Dolar</button>
+            </div>
             <div class="kasa-tip-nav" role="tablist" aria-label="Kayıt türü">
               <button type="button" class="kasa-tip-btn active" data-tip="gider">Gider</button>
               <button type="button" class="kasa-tip-btn" data-tip="gelir">Gelir</button>
             </div>
+          </div>
+          <div class="kasa-ozet" id="kasa-ozet"></div>
+          <div class="kasa-kayit-form">
             <div class="kasa-harcama-form">
               <input type="date" id="kasa-harcama-tarih" class="kasa-inp kasa-inp-tarih" aria-label="Tarih" />
               <input type="text" id="kasa-harcama-not" class="kasa-inp kasa-inp-not" maxlength="200" placeholder="Not" aria-label="Not" />
