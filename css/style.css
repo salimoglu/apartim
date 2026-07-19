@@ -1945,10 +1945,11 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   text-overflow: ellipsis;
   max-width: 100%;
 }
+/* Ödeme sütunu: Kalan / Eksik / Fazla hep siyah */
 .rez-ozet-out-kalan-stack.rez-ozet-out-fazla .rez-ozet-out-kalan-etiket,
 .rez-ozet-out-kalan-stack.rez-ozet-out-fazla .rez-ozet-out-kalan-tutar,
 .rez-ozet-out-kalan-stack.rez-ozet-out-fazla .rez-ozet-out-kalan-rakam {
-  color: #1565c0 !important;
+  color: #111827 !important;
 }
 .rez-ozet-out-kalan {
   font-size: 9px;
@@ -1958,7 +1959,7 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   flex-shrink: 0;
 }
 .rez-ozet-out-kalan.rez-ozet-out-fazla {
-  color: #1565c0;
+  color: #111827;
   font-weight: 800;
 }
 .rez-ozet-io-sep {
@@ -3819,13 +3820,11 @@ html:not(.theme-light) .tahsilat-kalan-tamam {
 }
 html:not(.theme-light) .rez-ozet-out-kalan-stack .rez-ozet-out-kalan-etiket,
 html:not(.theme-light) .rez-ozet-out-kalan-stack .rez-ozet-out-kalan-rakam,
-html:not(.theme-light) .rez-ozet-out-kalan-stack .rez-ozet-out-kalan-tutar {
-  color: #111827 !important;
-}
+html:not(.theme-light) .rez-ozet-out-kalan-stack .rez-ozet-out-kalan-tutar,
 html:not(.theme-light) .rez-ozet-out-kalan-stack.rez-ozet-out-fazla .rez-ozet-out-kalan-etiket,
 html:not(.theme-light) .rez-ozet-out-kalan-stack.rez-ozet-out-fazla .rez-ozet-out-kalan-tutar,
 html:not(.theme-light) .rez-ozet-out-kalan-stack.rez-ozet-out-fazla .rez-ozet-out-kalan-rakam {
-  color: #64b5f6 !important;
+  color: #111827 !important;
 }
 html:not(.theme-light) .rez-ozet-tahsilat-ok {
   background: none !important;
