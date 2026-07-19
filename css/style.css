@@ -3748,7 +3748,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   overflow: hidden;
 }
 .kasa-wrap {
-  --kasa-cols: 68px minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(70px, auto) 22px;
+  --kasa-cols: 68px minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(70px, auto) 26px 22px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -3968,11 +3968,28 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .kasa-miktar.arti { color: var(--basari); }
 .kasa-miktar.eksi { color: var(--tehlike); }
+.kasa-duzenle-btn,
+.kasa-aksiyon-slot,
 .kasa-sil-btn,
 .kasa-sil-slot {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   justify-self: end;
+}
+.kasa-duzenle-btn {
+  border: none;
+  background: transparent;
+  color: var(--metin-soluk);
+  font-size: 14px;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 6px;
+  line-height: 24px;
+  text-align: center;
+}
+.kasa-duzenle-btn:hover {
+  color: var(--vurgu);
+  background: var(--vurgu-soluk);
 }
 .kasa-sil-btn {
   border: none;
@@ -3982,17 +3999,73 @@ html:not(.theme-light) .rez-kaynak-badge {
   padding: 0;
   cursor: pointer;
   border-radius: 6px;
-  line-height: 22px;
+  line-height: 24px;
   text-align: center;
 }
 .kasa-sil-btn:hover {
   color: var(--tehlike);
   background: rgba(231, 76, 60, 0.1);
 }
+.kasa-satir-basili {
+  background: var(--vurgu-soluk);
+}
+.kasa-duzenle-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.kasa-duzenle-musteri {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--metin);
+}
+.kasa-duzenle-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.kasa-duzenle-field > span {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--metin-soluk);
+}
+.kasa-duzenle-tutar-satir {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px;
+  gap: 8px;
+  align-items: end;
+}
+.kasa-duzenle-tutar-field { min-width: 0; }
+#kasa-duzenle-tutar {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+#kasa-duzenle-tutar::-webkit-outer-spin-button,
+#kasa-duzenle-tutar::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Telefon: düzenle butonu yok — uzun bas */
+@media (max-width: 720px) {
+  .kasa-wrap {
+    --kasa-cols: 54px minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(58px, auto) 0 18px;
+  }
+  .kasa-duzenle-btn,
+  .kasa-aksiyon-slot {
+    display: none;
+  }
+  .kasa-satir {
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+}
 @media (max-width: 640px) {
   #tab-kasa.active { padding: 8px; }
   .kasa-wrap {
-    --kasa-cols: 54px minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(58px, auto) 18px;
+    --kasa-cols: 54px minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(58px, auto) 0 18px;
     gap: 6px;
   }
   .kasa-harcama-form {

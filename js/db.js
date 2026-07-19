@@ -1123,19 +1123,75 @@
   }
 
   function kasaHarcamaEkle(veri) {
+    const id = veri?.id || yeniId();
+    const eski = durum.kasaHarcama[id];
     const kayit = kasaHarcamaNorm(Object.assign({}, veri, {
-      id: veri?.id || yeniId(),
-      olusturulma: Date.now()
+      id,
+      olusturulma: eski?.olusturulma || Date.now()
     }));
     if (!kayit) return Promise.reject(new Error("Geçersiz harcama"));
     durum.kasaHarcama[kayit.id] = kayit;
     return kaydet("kasa-harcama/" + kayit.id, kayit).then(() => kayit);
   }
 
+  function kasaHarcamaGuncelle(id, veri) {
+    if (!id || !durum.kasaHarcama[id]) {
+      return Promise.reject(new Error("Harcama bulunamadı"));
+    }
+    return kasaHarcamaEkle(Object.assign({}, durum.kasaHarcama[id], veri, { id }));
+  }
+
   function kasaHarcamaSil(id) {
     if (!id || !durum.kasaHarcama[id]) return Promise.resolve();
     delete durum.kasaHarcama[id];
     return sil("kasa-harcama/" + id);
+  }
+
+  /** Kasa listesinden gelir (tahsilat) satırını güncelle */
+  function kasaGelirGuncelle(rezId, odemeId, eskiPb, form) {
+    const rez = durum.rezervasyonlar[rezId];
+    if (!rez) return Promise.reject(new Error("Rezervasyon bulunamadı"));
+    if (!odemeId) return Promise.reject(new Error("Ödeme kaydı yok"));
+    const mevcut = rezervasyonOdenenKayitGetir(rez, odemeId);
+    if (!mevcut) return Promise.reject(new Error("Ödeme bulunamadı"));
+    const tarih = tarihNormal(form.tarih);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(tarih)) {
+      return Promise.reject(new Error("Geçersiz tarih"));
+    }
+    const tutar = Number(form.tutar);
+    if (!Number.isFinite(tutar) || tutar <= 0) {
+      return Promise.reject(new Error("Geçerli bir miktar girin"));
+    }
+    const pbYeni = window.APARTIM.para?.paraBirimiSecimNorm?.(form.pb) ||
+      (String(form.pb || "TL").toUpperCase() === "USD" ? "USD" : "TL");
+    const pbEski = window.APARTIM.para?.paraBirimiSecimNorm?.(eskiPb) ||
+      (String(eskiPb || "TL").toUpperCase() === "USD" ? "USD" : "TL");
+    const not = String(form.not || "").trim().slice(0, 200);
+
+    let tl = 0;
+    let usd = 0;
+    const hasSplit =
+      (Number(mevcut.tutarTl) || 0) > 0 || (Number(mevcut.tutarUsd) || 0) > 0;
+    if (hasSplit) {
+      tl = Number(mevcut.tutarTl) || 0;
+      usd = Number(mevcut.tutarUsd) || 0;
+    } else if (pbEski === "USD") {
+      usd = Number(mevcut.tutar) || 0;
+    } else {
+      tl = Number(mevcut.tutar) || 0;
+    }
+    if (pbEski === "USD") usd = 0;
+    else tl = 0;
+    if (pbYeni === "USD") usd = tutar;
+    else tl = tutar;
+
+    const deger = { yontem: "kasa", not, id: odemeId };
+    if (tl > 0) deger.tutarTl = tl;
+    if (usd > 0) deger.tutarUsd = usd;
+    if (Number(mevcut.kurUsd) > 0) deger.kurUsd = Number(mevcut.kurUsd);
+    if (!tl && !usd) return Promise.reject(new Error("Geçerli bir miktar girin"));
+
+    return rezervasyonOdenenHucreKaydet(rezId, tarih, deger, { odemeId });
   }
 
   /**
@@ -1570,7 +1626,9 @@
     temizlikLogListele,
     kasaHarcamaListele,
     kasaHarcamaEkle,
+    kasaHarcamaGuncelle,
     kasaHarcamaSil,
+    kasaGelirGuncelle,
     kasaHareketListele,
     dovizKurlariKaydet,
     musteriKaynaklariListele,

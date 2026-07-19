@@ -7,6 +7,13 @@
   "use strict";
 
   let aktifPb = "tumu";
+  let hareketMap = {};
+  let duzenlenen = null;
+  let longPressTimer = null;
+  let longPressSatir = null;
+  let longPressMoved = false;
+  const LONG_PRESS_MS = 480;
+  const LONG_PRESS_MOVE = 12;
 
   function esc(s) {
     return String(s ?? "")
@@ -19,13 +26,16 @@
   function tarihGoster(iso) {
     if (!iso || !/^\d{4}-\d{2}-\d{2}$/.test(iso)) return iso || "—";
     const [y, m, d] = iso.split("-");
-    /* Dar ekranda sığması için yy */
     return d + "." + m + "." + String(y).slice(-2);
   }
 
   function bugunISO() {
     return window.APARTIM.db?.tarihNormal?.(new Date()) ||
       new Date().toISOString().slice(0, 10);
+  }
+
+  function telefonMu() {
+    return window.matchMedia("(max-width: 720px)").matches;
   }
 
   function formatTutar(tutar, pb) {
@@ -94,6 +104,7 @@
   function listeCiz(liste) {
     const el = document.getElementById("kasa-liste");
     if (!el) return;
+    hareketMap = {};
     if (!liste.length) {
       el.innerHTML = '<div class="kasa-bos">Bu görünümde kasa kaydı yok.</div>';
       return;
@@ -104,18 +115,24 @@
         '<span class="kasa-musteri">Müşteri</span>' +
         '<span class="kasa-not">Not</span>' +
         '<span class="kasa-miktar">Miktar</span>' +
+        '<span class="kasa-aksiyon-slot"></span>' +
         '<span class="kasa-sil-slot"></span>' +
       "</div>";
     const satirlar = liste.map((h) => {
+      hareketMap[h.id] = h;
       const harcamaMi = h.tip === "harcama";
       const miktarSinif = harcamaMi ? "eksi" : "arti";
       const miktarOn = harcamaMi ? "−" : "+";
+      const duzenleBtn =
+        '<button type="button" class="kasa-duzenle-btn" data-hid="' +
+          esc(h.id) + '" title="Düzenle" aria-label="Düzenle">✎</button>';
       const silBtn = harcamaMi
         ? '<button type="button" class="kasa-sil-btn" data-id="' +
             esc(h.harcamaId) + '" title="Sil" aria-label="Harcama sil">&#10005;</button>'
         : '<span class="kasa-sil-slot"></span>';
       return (
-        '<div class="kasa-satir ' + (harcamaMi ? "harcama" : "gelir") + '">' +
+        '<div class="kasa-satir ' + (harcamaMi ? "harcama" : "gelir") +
+          '" data-hid="' + esc(h.id) + '">' +
           '<span class="kasa-tarih">' + esc(tarihGoster(h.tarih)) + "</span>" +
           '<span class="kasa-musteri">' + esc(h.musteri || "—") + "</span>" +
           '<span class="kasa-not' + (h.not ? "" : " soluk") + '">' +
@@ -124,6 +141,7 @@
           '<span class="kasa-miktar ' + miktarSinif + '">' +
             miktarOn + formatTutar(h.tutar, h.pb) +
           "</span>" +
+          duzenleBtn +
           silBtn +
         "</div>"
       );
@@ -158,7 +176,7 @@
     btn.textContent = window.APARTIM.para?.simge?.(sonraki) || (sonraki === "USD" ? "$" : "₺");
     btn.setAttribute(
       "aria-label",
-      "Harcama para birimi: " + sonraki + ". Tıklayınca TL / USD değişir."
+      "Para birimi: " + sonraki + ". Tıklayınca TL / USD değişir."
     );
   }
 
@@ -213,6 +231,149 @@
     }
   }
 
+  function modalAc() {
+    document.getElementById("modal-kasa-duzenle")?.classList.remove("hidden");
+  }
+
+  function modalKapat() {
+    document.getElementById("modal-kasa-duzenle")?.classList.add("hidden");
+    duzenlenen = null;
+  }
+
+  function duzenleAc(hid) {
+    const h = hareketMap[hid];
+    if (!h) return;
+    duzenlenen = h;
+    const title = document.getElementById("kasa-duzenle-title");
+    const musteriEl = document.getElementById("kasa-duzenle-musteri");
+    if (title) {
+      title.textContent = h.tip === "harcama" ? "Harcama düzenle" : "Gelir düzenle";
+    }
+    if (musteriEl) {
+      if (h.tip === "gelir") {
+        musteriEl.textContent = h.musteri || "—";
+        musteriEl.classList.remove("hidden");
+      } else {
+        musteriEl.textContent = "";
+        musteriEl.classList.add("hidden");
+      }
+    }
+    const tarih = document.getElementById("kasa-duzenle-tarih");
+    const not = document.getElementById("kasa-duzenle-not");
+    const tutar = document.getElementById("kasa-duzenle-tutar");
+    if (tarih) tarih.value = h.tarih || bugunISO();
+    if (not) not.value = h.not || "";
+    if (tutar) tutar.value = String(h.tutar ?? "");
+    pbToggleAyarla(document.getElementById("kasa-duzenle-pb"), h.pb || "TL");
+    modalAc();
+  }
+
+  async function duzenleKaydet() {
+    if (!duzenlenen) return;
+    const db = window.APARTIM.db;
+    const tarih = document.getElementById("kasa-duzenle-tarih")?.value || "";
+    const not = document.getElementById("kasa-duzenle-not")?.value || "";
+    const tutar = Number(document.getElementById("kasa-duzenle-tutar")?.value);
+    const pb = pbNorm(document.getElementById("kasa-duzenle-pb")?.dataset.pb || "TL");
+    if (!tarih) {
+      window.APARTIM.toast?.("Tarih gerekli", "uyari");
+      return;
+    }
+    if (!Number.isFinite(tutar) || tutar <= 0) {
+      window.APARTIM.toast?.("Geçerli bir miktar girin", "uyari");
+      return;
+    }
+    try {
+      if (duzenlenen.tip === "harcama") {
+        await db.kasaHarcamaGuncelle(duzenlenen.harcamaId, { tarih, not, tutar, pb });
+      } else {
+        await db.kasaGelirGuncelle(
+          duzenlenen.rezId,
+          duzenlenen.odemeId,
+          duzenlenen.pb,
+          { tarih, not, tutar, pb }
+        );
+      }
+      window.APARTIM.toast?.("Kaydedildi", "basari");
+      modalKapat();
+      ciz();
+    } catch (e) {
+      window.APARTIM.toast?.(e?.message || "Kaydedilemedi", "hata");
+    }
+  }
+
+  function longPressIptal() {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+    longPressSatir = null;
+    longPressMoved = false;
+  }
+
+  function listeBagla(listeEl) {
+    listeEl.addEventListener("click", (e) => {
+      const sil = e.target.closest?.(".kasa-sil-btn");
+      if (sil) {
+        e.preventDefault();
+        harcamaSil(sil.dataset.id);
+        return;
+      }
+      const duzenle = e.target.closest?.(".kasa-duzenle-btn");
+      if (duzenle) {
+        e.preventDefault();
+        duzenleAc(duzenle.dataset.hid);
+      }
+    });
+
+    listeEl.addEventListener("pointerdown", (e) => {
+      if (!telefonMu()) return;
+      if (e.target.closest?.("button")) return;
+      const satir = e.target.closest?.(".kasa-satir:not(.kasa-satir-baslik)");
+      if (!satir?.dataset.hid) return;
+      longPressIptal();
+      longPressSatir = satir;
+      longPressMoved = false;
+      const startX = e.clientX;
+      const startY = e.clientY;
+      longPressTimer = setTimeout(() => {
+        if (!longPressSatir || longPressMoved) return;
+        const hid = longPressSatir.dataset.hid;
+        try { longPressSatir.setPointerCapture?.(e.pointerId); } catch (err) { /* yoksay */ }
+        if (navigator.vibrate) {
+          try { navigator.vibrate(18); } catch (err) { /* yoksay */ }
+        }
+        longPressSatir.classList.add("kasa-satir-basili");
+        setTimeout(() => longPressSatir?.classList.remove("kasa-satir-basili"), 220);
+        duzenleAc(hid);
+        longPressTimer = null;
+      }, LONG_PRESS_MS);
+
+      const onMove = (ev) => {
+        if (Math.abs(ev.clientX - startX) > LONG_PRESS_MOVE ||
+            Math.abs(ev.clientY - startY) > LONG_PRESS_MOVE) {
+          longPressMoved = true;
+          longPressIptal();
+          listeEl.removeEventListener("pointermove", onMove);
+        }
+      };
+      listeEl.addEventListener("pointermove", onMove);
+      const bitir = () => {
+        listeEl.removeEventListener("pointermove", onMove);
+        if (longPressTimer) longPressIptal();
+      };
+      listeEl.addEventListener("pointerup", bitir, { once: true });
+      listeEl.addEventListener("pointercancel", bitir, { once: true });
+    });
+
+    listeEl.addEventListener("contextmenu", (e) => {
+      if (!telefonMu()) return;
+      if (e.target.closest?.(".kasa-satir:not(.kasa-satir-baslik)")) {
+        e.preventDefault();
+      }
+    });
+  }
+
   function bagla() {
     document.querySelectorAll(".kasa-pb-btn").forEach((b) => {
       b.addEventListener("click", () => pbSec(b.dataset.pb));
@@ -221,11 +382,18 @@
     document.getElementById("kasa-harcama-pb")?.addEventListener("click", (e) => {
       pbToggleDegistir(e.currentTarget);
     });
-    document.getElementById("kasa-liste")?.addEventListener("click", (e) => {
-      const btn = e.target.closest?.(".kasa-sil-btn");
-      if (!btn) return;
-      harcamaSil(btn.dataset.id);
+    document.getElementById("kasa-duzenle-pb")?.addEventListener("click", (e) => {
+      pbToggleDegistir(e.currentTarget);
     });
+    document.getElementById("kasa-duzenle-close")?.addEventListener("click", modalKapat);
+    document.getElementById("kasa-duzenle-iptal")?.addEventListener("click", modalKapat);
+    document.getElementById("kasa-duzenle-kaydet")?.addEventListener("click", duzenleKaydet);
+    document.getElementById("modal-kasa-duzenle")?.addEventListener("click", (e) => {
+      if (e.target.id === "modal-kasa-duzenle") modalKapat();
+    });
+
+    const listeEl = document.getElementById("kasa-liste");
+    if (listeEl) listeBagla(listeEl);
     formSifirla();
   }
 
