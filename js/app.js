@@ -15,6 +15,13 @@
     if (el && v) el.textContent = v.LABEL || v.ASSET || "—";
   }
 
+  /** Rezervasyonlar sekme ikonu: takvimde bugünün günü */
+  function rezTakvimIkonGuncelle() {
+    const gunEl = document.getElementById("tab-rez-takvim-gun");
+    if (!gunEl) return;
+    gunEl.textContent = String(new Date().getDate());
+  }
+
   // ---- Güncelleme kontrol + yenile ----
   async function guncellemeYenile() {
     if (yenilemeBekleniyor) return;
@@ -254,9 +261,12 @@
     yatayModBagla();
     cekerekYenileBagla();
     versiyonGoster();
+    rezTakvimIkonGuncelle();
     raporGorunumdenSenkron();
     if (window.APARTIM.kullanici) ilkSekmeAc();
   });
+
+  document.addEventListener("apartim:gun-degisti", rezTakvimIkonGuncelle);
 
   let ilkSekmeAcildi = false;
   function ilkSekmeAc() {

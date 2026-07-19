@@ -543,6 +543,41 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
   background: var(--vurgu); color: #fff; border-color: var(--vurgu);
 }
 .tab-icon { font-size: 16px; }
+.tab-icon-takvim {
+  display: inline-flex;
+  flex-direction: column;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  overflow: hidden;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.tab-takvim-ust {
+  display: block;
+  height: 4px;
+  background: currentColor;
+  opacity: 0.85;
+  flex-shrink: 0;
+}
+.tab-takvim-gun {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.tab-btn.active .tab-icon-takvim {
+  border-color: #fff;
+}
+.tab-btn.active .tab-takvim-ust {
+  background: #fff;
+}
 
 .content {
   flex: 1;
@@ -1393,6 +1428,7 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 0;
   border: 1px solid var(--kenar);
   border-radius: var(--radius-sm);
   background: var(--kart-2);
@@ -1402,6 +1438,9 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   cursor: pointer;
   transition: background var(--gecis), border-color var(--gecis), color var(--gecis);
 }
+.rez-ozet-indir-ikon { line-height: 1; }
+/* Telefon: yalnız ikon — metin gizle */
+.rez-ozet-indir-metin { display: none; }
 .rez-ozet-indir-btn:hover {
   background: var(--basari);
   border-color: var(--basari);
@@ -3783,6 +3822,15 @@ html:not(.theme-light) .rez-kaynak-badge {
   border-color: var(--vurgu);
   box-shadow: 0 0 0 2px var(--vurgu-soluk);
 }
+.kasa-inp-tutar {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.kasa-inp-tutar::-webkit-outer-spin-button,
+.kasa-inp-tutar::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 .kasa-pb-toggle {
   width: 100%;
   min-height: 34px;
@@ -4419,6 +4467,26 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     font-size: 12px;
   }
   .rez-ozet-chip-metin { display: inline; }
+  /* PC: import/export yazıyla daha anlaşılır */
+  #rez-ozet-excel-import,
+  #rez-ozet-rapor {
+    width: auto;
+    min-width: 28px;
+    height: 30px;
+    padding: 0 9px;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  #rez-ozet-excel-import .rez-ozet-indir-metin,
+  #rez-ozet-rapor .rez-ozet-indir-metin {
+    display: inline;
+    white-space: nowrap;
+  }
+  #rez-ozet-excel-import .rez-ozet-indir-ikon,
+  #rez-ozet-rapor .rez-ozet-indir-ikon {
+    font-size: 13px;
+  }
   .rez-ozet-para-bar .rez-ozet-para-ic {
     font-size: 12px;
   }
