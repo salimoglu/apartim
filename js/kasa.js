@@ -253,6 +253,22 @@
     }
   }
 
+  function kayitSilIste(id) {
+    if (!id) return;
+    const kayit = Object.values(hareketMap).find((h) => h.harcamaId === id);
+    const tipAd = kayit?.tip === "gelir" ? "gelir" : "gider";
+    const baslik = tipAd === "gelir" ? "Geliri sil?" : "Gideri sil?";
+    const metin = "Bu " + tipAd + " kaydı kalıcı olarak silinecek. Emin misiniz?";
+    const onayAc = window.APARTIM.rezervasyon?.onayAc;
+    if (typeof onayAc === "function") {
+      onayAc(baslik, metin, () => { kayitSil(id); });
+      return;
+    }
+    if (window.confirm(baslik + "\n\n" + metin)) {
+      kayitSil(id);
+    }
+  }
+
   function modalAc() {
     document.getElementById("modal-kasa-duzenle")?.classList.remove("hidden");
   }
