@@ -128,10 +128,6 @@
       .sort((a, b) => b - a);
   }
 
-  function yilEtiket(y) {
-    return y === gercekYil() ? y + " · bu yıl" : String(y);
-  }
-
   function menuDoldur(db) {
     const liste = document.getElementById("gorunum-yil-liste");
     if (!liste) return;

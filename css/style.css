@@ -521,6 +521,11 @@ body.ptr-cekiliyor { overscroll-behavior-y: contain; }
 }
 body.sekme-rezervasyonlar .tab-nav-rez-slot {
   display: flex;
+  justify-content: flex-end;
+}
+body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
+  width: auto;
+  justify-content: flex-end;
 }
 .tab-btn {
   background: transparent;
