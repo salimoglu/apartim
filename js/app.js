@@ -323,42 +323,36 @@
       para.tlKarsiligi(gelirPB.EUR, "EUR");
   }
 
-  function raporPbParcaHtml(tutar, pb) {
+  function raporPbParcaHtml(tutar, pb, eksi) {
     const para = window.APARTIM.para;
-    if (!tutar || tutar <= 0) return "";
-    const ana = para ? para.formatTutar(tutar, pb) : fmt(tutar) + " " + pb;
-    if (pb === "USD") {
-      const tl = para ? para.tlKarsiligi(tutar, pb) : tutar;
-      return '<span class="rapor-pb-grup">' +
-        '<span class="rapor-pb ' + pb.toLowerCase() + '">' + ana + "</span>" +
-        '<span class="rapor-pb-tl-alt">≈ ' + fmt(Math.round(tl)) + " ₺</span>" +
-        "</span>";
-    }
-    return '<span class="rapor-pb tl">' + ana + "</span>";
+    const n = Number(tutar) || 0;
+    if (!n) return "";
+    const ana = para ? para.formatTutar(Math.abs(n), pb) : fmt(Math.abs(n)) + " " + pb;
+    const on = eksi || n < 0 ? "−" : "";
+    return '<span class="rapor-pb ' + String(pb || "TL").toLowerCase() +
+      (eksi || n < 0 ? " eksi" : "") + '">' + on + ana + "</span>";
   }
 
-  function raporGelirOzetHtml(gelirPB, kompakt) {
+  function raporPbOzetHtml(gelirPB, opts) {
+    const o = opts || {};
     const parcalar = [];
     const tlGoster = (gelirPB.TL || 0) +
       (window.APARTIM.para && gelirPB.EUR
         ? window.APARTIM.para.tlKarsiligi(gelirPB.EUR, "EUR")
         : 0);
-    if (tlGoster > 0) parcalar.push(raporPbParcaHtml(tlGoster, "TL"));
-    if (gelirPB.USD > 0) parcalar.push(raporPbParcaHtml(gelirPB.USD, "USD"));
-    const cls = "rapor-gelir-inline" + (kompakt ? " kompakt" : "");
+    if (tlGoster) parcalar.push(raporPbParcaHtml(tlGoster, "TL", o.eksi));
+    if (gelirPB.USD) parcalar.push(raporPbParcaHtml(gelirPB.USD, "USD", o.eksi));
+    const cls = "rapor-gelir-inline" + (o.kompakt ? " kompakt" : "");
     if (!parcalar.length) {
-      return '<div class="' + cls + '"><span class="rapor-pb tl">0 ₺</span></div>';
+      return '<div class="' + cls + '"><span class="rapor-pb tl">' +
+        (o.eksi ? "−" : "") + "0 ₺</span></div>";
     }
-    const yabanci = gelirPB.USD > 0;
-    const coklu = parcalar.length > 1;
-    let icerik = parcalar.join('<span class="rapor-gelir-ayrac">·</span>');
-    if (yabanci || coklu) {
-      const tlToplam = gelirPbToplamTL(gelirPB);
-      icerik +=
-        '<span class="rapor-gelir-ayrac">|</span>' +
-        '<span class="rapor-gelir-toplam-inline">Toplam ≈ ' + fmt(Math.round(tlToplam)) + " ₺</span>";
-    }
-    return '<div class="' + cls + '">' + icerik + "</div>";
+    return '<div class="' + cls + '">' +
+      parcalar.join('<span class="rapor-gelir-ayrac">·</span>') + "</div>";
+  }
+
+  function raporGelirOzetHtml(gelirPB, kompakt) {
+    return raporPbOzetHtml(gelirPB, { kompakt: !!kompakt });
   }
 
   function ayinGunSayisi(y, m) { return new Date(y, m + 1, 0).getDate(); }
@@ -427,31 +421,83 @@
     return ozet;
   }
 
+  function raporTahsilatToplamPB(tahsilatYontem) {
+    const top = { TL: 0, USD: 0, EUR: 0 };
+    Object.keys(tahsilatYontem || {}).forEach((key) => {
+      const pb = tahsilatYontem[key] || {};
+      top.TL += pb.TL || 0;
+      top.USD += pb.USD || 0;
+      top.EUR += pb.EUR || 0;
+    });
+    return top;
+  }
+
   function raporTahsilatOzetHtml(tahsilatYontem) {
     const db = window.APARTIM.db;
     const yontemler = db?.ODEME_YONTEMLERI || {
       kasa: "Kasa", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
     };
-    const parcalar = [];
+    const toplam = raporTahsilatToplamPB(tahsilatYontem);
+    const ust = raporPbOzetHtml(toplam, { kompakt: true });
+    const satirlar = [];
     Object.keys(yontemler).forEach((key) => {
       const pb = tahsilatYontem[key] || { TL: 0, USD: 0, EUR: 0 };
-      const alt = [];
       const tlY = (pb.TL || 0) +
         (window.APARTIM.para && pb.EUR ? window.APARTIM.para.tlKarsiligi(pb.EUR, "EUR") : 0);
+      if (!tlY && !(pb.USD > 0)) return;
+      const alt = [];
       if (tlY > 0) alt.push(raporPbParcaHtml(tlY, "TL"));
       if (pb.USD > 0) alt.push(raporPbParcaHtml(pb.USD, "USD"));
-      if (!alt.length) return;
-      parcalar.push(
+      satirlar.push(
         '<div class="rapor-tahsilat-yontem">' +
           '<span class="rapor-tahsilat-etiket">' + yontemler[key] + "</span>" +
-          '<div class="rapor-gelir-inline kompakt">' + alt.join('<span class="rapor-gelir-ayrac">·</span>') + "</div>" +
-        "</div>"
+          '<div class="rapor-gelir-inline kompakt">' +
+            alt.join('<span class="rapor-gelir-ayrac">·</span>') +
+          "</div></div>"
       );
     });
+    if (!satirlar.length) return ust;
+    return ust + '<div class="rapor-tahsilat-liste">' + satirlar.join("") + "</div>";
+  }
+
+  /** Dönem içi kasa harcamaları (manuel) */
+  function raporHarcamaHesapla() {
+    const db = window.APARTIM.db;
+    const donem = raporDonemSinirlari();
+    const harcama = { TL: 0, USD: 0, EUR: 0 };
+    const liste = db.kasaHarcamaListele?.() || Object.values(db.durum.kasaHarcama || {});
+    liste.forEach((h) => {
+      if (!h || !h.tarih) return;
+      if (h.tarih < donem.bas || h.tarih >= donem.bit) return;
+      const tutar = Number(h.tutar) || 0;
+      if (tutar <= 0) return;
+      const pb = h.pb === "USD" ? "USD" : "TL";
+      harcama[pb] += tutar;
+    });
+    return harcama;
+  }
+
+  function raporNetHesapla(tahsilatPB, harcamaPB) {
+    return {
+      TL: (tahsilatPB.TL || 0) +
+        (window.APARTIM.para && tahsilatPB.EUR
+          ? window.APARTIM.para.tlKarsiligi(tahsilatPB.EUR, "EUR")
+          : 0) -
+        (harcamaPB.TL || 0),
+      USD: (tahsilatPB.USD || 0) - (harcamaPB.USD || 0),
+      EUR: 0
+    };
+  }
+
+  function raporNetOzetHtml(netPB) {
+    const parcalar = [];
+    if (netPB.TL) parcalar.push(raporPbParcaHtml(netPB.TL, "TL", netPB.TL < 0));
+    if (netPB.USD) parcalar.push(raporPbParcaHtml(netPB.USD, "USD", netPB.USD < 0));
     if (!parcalar.length) {
       return '<div class="rapor-gelir-inline"><span class="rapor-pb tl">0 ₺</span></div>';
     }
-    return '<div class="rapor-tahsilat-liste">' + parcalar.join("") + "</div>";
+    return '<div class="rapor-gelir-inline">' +
+      parcalar.join('<span class="rapor-gelir-ayrac">·</span>') + "</div>";
   }
 
   function raporHesapla() {
@@ -483,12 +529,18 @@
 
     const toplamGelir = gelirPbToplamTL(gelirPB);
     const tahsilatYontem = raporTahsilatYontemHesapla();
+    const tahsilatPB = raporTahsilatToplamPB(tahsilatYontem);
+    const harcamaPB = raporHarcamaHesapla();
+    const netPB = raporNetHesapla(tahsilatPB, harcamaPB);
 
     return {
       toplamGece,
       toplamGelir,
       gelirPB,
       tahsilatYontem,
+      tahsilatPB,
+      harcamaPB,
+      netPB,
       rezSayisi,
       doluluk: toplamKapasite > 0 ? (toplamGece * 100 / toplamKapasite) : 0,
       daireOzet,
@@ -500,11 +552,6 @@
 
   function raporCiz() {
     const baslik = document.getElementById("rapor-ay-baslik");
-    const gelirLabel = document.getElementById("rapor-gelir-label");
-    const tahsilatLabel = document.getElementById("rapor-tahsilat-label");
-    const yillik = raporDurum.mod === "yil";
-    if (gelirLabel) gelirLabel.textContent = yillik ? "Yıllık gelir (gece)" : "Aylık gelir (gece)";
-    if (tahsilatLabel) tahsilatLabel.textContent = yillik ? "Yıllık tahsilat" : "Aylık tahsilat";
     const db = window.APARTIM.db;
     if (!db || !db.durum.yuklendi) {
       if (baslik) baslik.textContent = "—";
@@ -514,12 +561,22 @@
     const r = raporHesapla();
     if (baslik) baslik.textContent = r.baslik;
     const gelirEl = document.getElementById("rapor-gelir");
-    if (gelirEl) gelirEl.innerHTML = raporGelirOzetHtml(r.gelirPB, false);
+    if (gelirEl) gelirEl.innerHTML = raporGelirOzetHtml(r.gelirPB, true);
     const tahsilatEl = document.getElementById("rapor-tahsilat");
     if (tahsilatEl) tahsilatEl.innerHTML = raporTahsilatOzetHtml(r.tahsilatYontem);
-    document.getElementById("rapor-gece").textContent = r.toplamGece + " gece";
+    const harcamaEl = document.getElementById("rapor-harcama");
+    if (harcamaEl) harcamaEl.innerHTML = raporPbOzetHtml(r.harcamaPB, { kompakt: true, eksi: true });
+    const netEl = document.getElementById("rapor-net");
+    if (netEl) {
+      netEl.innerHTML = raporNetOzetHtml(r.netPB);
+      netEl.closest?.(".rapor-kart")?.classList.toggle(
+        "eksi",
+        (r.netPB.TL || 0) < 0 || (r.netPB.USD || 0) < 0
+      );
+    }
+    document.getElementById("rapor-gece").textContent = String(r.toplamGece);
     document.getElementById("rapor-doluluk").textContent = "%" + Math.round(r.doluluk);
-    document.getElementById("rapor-rez").textContent = r.rezSayisi;
+    document.getElementById("rapor-rez").textContent = String(r.rezSayisi);
 
     const tbl = document.getElementById("rapor-daire-tablo");
     tbl.querySelectorAll(".rapor-daire-satir:not(.header)").forEach((x) => x.remove());
@@ -584,20 +641,30 @@
     return para ? para.formatTutar(tutar, pb) : fmt(tutar) + " " + pb;
   }
 
-  function raporGelirMetin(gelirPB) {
+  function raporGelirMetin(gelirPB, eksi) {
     const parcalar = [];
     const tlGoster = (gelirPB.TL || 0) +
       (window.APARTIM.para && gelirPB.EUR
         ? window.APARTIM.para.tlKarsiligi(gelirPB.EUR, "EUR")
         : 0);
-    if (tlGoster > 0) parcalar.push(raporPbMetin(tlGoster, "TL"));
-    if (gelirPB.USD > 0) parcalar.push(raporPbMetin(gelirPB.USD, "USD"));
-    if (!parcalar.length) return "0 ₺";
-    const tlToplam = gelirPbToplamTL(gelirPB);
-    if (gelirPB.USD > 0 || parcalar.length > 1) {
-      return parcalar.join(" · ") + " | Toplam ≈ " + fmt(Math.round(tlToplam)) + " ₺";
-    }
+    const on = eksi ? "−" : "";
+    if (tlGoster) parcalar.push(on + raporPbMetin(Math.abs(tlGoster), "TL"));
+    if (gelirPB.USD) parcalar.push(on + raporPbMetin(Math.abs(gelirPB.USD), "USD"));
+    if (!parcalar.length) return (eksi ? "−" : "") + "0 ₺";
     return parcalar.join(" · ");
+  }
+
+  function raporNetMetin(netPB) {
+    const parcalar = [];
+    if (netPB.TL) {
+      const n = netPB.TL;
+      parcalar.push((n < 0 ? "−" : "") + raporPbMetin(Math.abs(n), "TL"));
+    }
+    if (netPB.USD) {
+      const n = netPB.USD;
+      parcalar.push((n < 0 ? "−" : "") + raporPbMetin(Math.abs(n), "USD"));
+    }
+    return parcalar.length ? parcalar.join(" · ") : "0 ₺";
   }
 
   function raporExportDosyaAdi(r, yillik) {
@@ -624,6 +691,18 @@
     satirlar.push(
       "<tr><td " + td + ">Gelir (gece)</td><td colspan=\"6\" " + td + ">" +
       escHtml(raporGelirMetin(r.gelirPB)) + "</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Tahsilat</td><td colspan=\"6\" " + td + ">" +
+      escHtml(raporGelirMetin(r.tahsilatPB || { TL: 0, USD: 0, EUR: 0 })) + "</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Harcama (kasa)</td><td colspan=\"6\" " + td + ">" +
+      escHtml(raporGelirMetin(r.harcamaPB || { TL: 0, USD: 0, EUR: 0 }, true)) + "</td></tr>"
+    );
+    satirlar.push(
+      "<tr><td " + td + ">Net (tahsilat − harcama)</td><td colspan=\"6\" " + td + ">" +
+      escHtml(raporNetMetin(r.netPB || { TL: 0, USD: 0 })) + "</td></tr>"
     );
     satirlar.push(
       "<tr><td " + td + ">Toplam gece</td><td colspan=\"6\" " + td + ">" + r.toplamGece + " gece</td></tr>"
