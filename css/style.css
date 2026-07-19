@@ -2674,6 +2674,13 @@ html:not(.theme-light) .rez-kaynak-badge {
   font-size: 12px;
   font-weight: 700;
 }
+#modal-rez .rez-fiyat-deger-satir .rez-para-sec.hidden {
+  display: none;
+}
+/* Ayrı fiyat: üst global birim yok — etiket + açıklama tam genişlik */
+#modal-rez.rez-fiyat-ayri .rez-fiyat-deger-satir {
+  grid-template-columns: var(--rez-lbl) minmax(0, 1fr);
+}
 #modal-rez .rez-ayri-baslik-not {
   display: block;
   font-size: 12px;
@@ -2699,7 +2706,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rez-gece-fiyat-satir {
   display: grid;
-  grid-template-columns: 1fr minmax(72px, 100px) minmax(68px, 82px);
+  grid-template-columns: 1fr minmax(72px, 110px) 2.75em;
   gap: 8px;
   align-items: center;
 }
@@ -2718,12 +2725,34 @@ html:not(.theme-light) .rez-kaynak-badge {
   font-size: 12px;
   color: var(--metin-soluk);
 }
-.rez-tarih-pb-sec {
-  padding: 8px 6px;
-  min-width: 0;
-  font-size: 12px;
-  font-weight: 700;
-  text-align: center;
+.rez-tarih-pb-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 0;
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius-sm);
+  background: var(--zemin-2);
+  color: var(--vurgu);
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  user-select: none;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+}
+.rez-tarih-pb-toggle:hover {
+  border-color: var(--vurgu);
+  background: rgba(46, 204, 113, 0.1);
+}
+.rez-tarih-pb-toggle:active {
+  transform: scale(0.96);
+}
+.rez-tarih-pb-toggle:focus-visible {
+  outline: 2px solid var(--vurgu);
+  outline-offset: 2px;
 }
 .rez-ucret-para-satir { align-items: flex-end; }
 .rez-toplam-anlasma-satir {

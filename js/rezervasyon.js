@@ -66,13 +66,32 @@
     return window.APARTIM.para?.simge(pb || seciliParaBirimi()) || "₺";
   }
 
-  function pbSelectHtml(secili) {
+  function pbNormTlUsd(secili) {
     let s = window.APARTIM.para?.paraBirimiNorm(secili) || "TL";
-    if (s !== "TL" && s !== "USD") s = "TL";
-    return ["TL", "USD"].map((p) =>
-      '<option value="' + p + '"' + (p === s ? " selected" : "") + ">" +
-      (window.APARTIM.para?.simge(p) || p) + "</option>"
-    ).join("");
+    return s === "USD" ? "USD" : "TL";
+  }
+
+  function pbToggleHtml(secili, ariaEtiket) {
+    const pb = pbNormTlUsd(secili);
+    const simge = window.APARTIM.para?.simge(pb) || (pb === "USD" ? "$" : "₺");
+    return (
+      '<button type="button" class="rez-tarih-pb-toggle" data-pb="' + pb +
+      '" aria-label="' + esc(ariaEtiket) + ' para birimi: ' + pb +
+      '. Tıklayınca TL / USD değişir." title="TL / USD">' + simge + "</button>"
+    );
+  }
+
+  function pbToggleDegistir(btn) {
+    if (!btn) return;
+    const sonraki = pbNormTlUsd(btn.dataset.pb) === "USD" ? "TL" : "USD";
+    btn.dataset.pb = sonraki;
+    btn.textContent = window.APARTIM.para?.simge(sonraki) || (sonraki === "USD" ? "$" : "₺");
+    const aria = btn.getAttribute("aria-label") || "";
+    const baz = aria.replace(/\s*para birimi:.*/i, "").trim() || "Gece";
+    btn.setAttribute(
+      "aria-label",
+      baz + " para birimi: " + sonraki + ". Tıklayınca TL / USD değişir."
+    );
   }
 
   function geceFiyatOku(deger, varsayilanTutar, varsayilanPb) {
@@ -201,6 +220,8 @@
     document.getElementById("rez-panel-ayri-ust")?.classList.toggle("hidden", fiyatModu !== "ayri");
     document.getElementById("rez-panel-toplu")?.classList.toggle("hidden", fiyatModu !== "toplu");
     document.getElementById("rez-toplu-bol-wrap")?.classList.toggle("hidden", fiyatModu !== "toplu");
+    ay().paraBirimi?.classList.toggle("hidden", fiyatModu === "ayri");
+    modal()?.classList.toggle("rez-fiyat-ayri", fiyatModu === "ayri");
     document.querySelectorAll('input[name="rez-fiyat-mod"]').forEach((r) => {
       r.checked = r.value === fiyatModu;
     });
@@ -219,10 +240,10 @@
         wrap.querySelectorAll(".rez-gece-fiyat-satir").forEach((satir) => {
           const t = satir.dataset.tarih;
           const inp = satir.querySelector(".rez-tarih-ucret");
-          const pbSel = satir.querySelector(".rez-tarih-pb-sec");
+          const pbBtn = satir.querySelector(".rez-tarih-pb-toggle");
           out[t] = {
             tutar: Number(inp?.value) || u,
-            pb: window.APARTIM.para?.paraBirimiNorm(pbSel?.value) || pb
+            pb: pbNormTlUsd(pbBtn?.dataset.pb || pb)
           };
         });
       }
@@ -319,14 +340,17 @@
       const satir = document.createElement("div");
       satir.className = "rez-gece-fiyat-satir";
       satir.dataset.tarih = t;
+      const etiket = tarihGoster(t);
       satir.innerHTML =
-        '<span class="rez-tarih-etiket">' + esc(tarihGoster(t)) + "</span>" +
+        '<span class="rez-tarih-etiket">' + esc(etiket) + "</span>" +
         '<input type="number" class="field-input rez-tarih-ucret" min="0" step="0.01" inputmode="decimal" value="' +
-        kayit.tutar + '" aria-label="' + esc(tarihGoster(t)) + ' fiyat" />' +
-        '<select class="field-select rez-tarih-pb-sec" aria-label="' +
-        esc(tarihGoster(t)) + ' para birimi">' + pbSelectHtml(kayit.pb) + "</select>";
+        kayit.tutar + '" aria-label="' + esc(etiket) + ' fiyat" />' +
+        pbToggleHtml(kayit.pb, etiket);
       satir.querySelector("input").addEventListener("input", toplamHesapla);
-      satir.querySelector("select").addEventListener("change", toplamHesapla);
+      satir.querySelector(".rez-tarih-pb-toggle").addEventListener("click", (ev) => {
+        pbToggleDegistir(ev.currentTarget);
+        toplamHesapla();
+      });
       wrap.appendChild(satir);
     });
   }
