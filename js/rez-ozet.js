@@ -1217,6 +1217,16 @@
     document.getElementById("odeme-modal-temizle")?.addEventListener("click", () => odemeModalKaydet(true));
     document.getElementById("odeme-modal-iptal")?.addEventListener("click", odemeModalKapat);
     document.getElementById("odeme-modal-close")?.addEventListener("click", odemeModalKapat);
+    odemeModal()?.addEventListener("click", (ev) => {
+      /* Overlay (modal kutusu dışı) → X gibi kapat */
+      if (ev.target.closest(".modal-box")) return;
+      odemeModalKapat();
+    });
+    document.addEventListener("keydown", (ev) => {
+      if (ev.key !== "Escape") return;
+      const m = odemeModal();
+      if (m && !m.classList.contains("hidden")) odemeModalKapat();
+    });
     ["odeme-tutar-tl", "odeme-tutar-usd"].forEach((id) => {
       const el = document.getElementById(id);
       el?.addEventListener("input", tahsilatKalanOnizle);
@@ -1225,7 +1235,6 @@
           e.preventDefault();
           odemeModalKaydet(false);
         }
-        if (e.key === "Escape") odemeModalKapat();
       });
     });
     document.getElementById("odeme-cevir-tl")?.addEventListener("input", () => {
