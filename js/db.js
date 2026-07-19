@@ -251,6 +251,13 @@
     return ODEME_YONTEMLERI[y] ? y : ODEME_YONTEM_VARSAYILAN;
   }
 
+  function odenenKayitDoluMu(kayit) {
+    if (!kayit) return false;
+    if ((Number(kayit.tutarTl) || 0) > 0) return true;
+    if ((Number(kayit.tutarUsd) || 0) > 0) return true;
+    return (Number(kayit.tutar) || 0) > 0;
+  }
+
   function odenenGunKaydiNorm(deger) {
     if (deger == null || deger === "") return null;
     if (typeof deger === "number" || typeof deger === "string") {
@@ -259,11 +266,49 @@
       return { tutar, yontem: ODEME_YONTEM_VARSAYILAN };
     }
     if (typeof deger === "object") {
+      const yontem = odemeYontemNorm(deger.yontem);
+      const tutarTl = Number(deger.tutarTl);
+      const tutarUsd = Number(deger.tutarUsd);
+      const hasSplit =
+        (Number.isFinite(tutarTl) && tutarTl > 0) ||
+        (Number.isFinite(tutarUsd) && tutarUsd > 0);
+      if (hasSplit) {
+        const kurUsd = Number(deger.kurUsd) > 0 ? Number(deger.kurUsd) : undefined;
+        const para = window.APARTIM.para;
+        const tlTop = para
+          ? para.tahsilatTlToplam(
+            Number.isFinite(tutarTl) && tutarTl > 0 ? tutarTl : 0,
+            Number.isFinite(tutarUsd) && tutarUsd > 0 ? tutarUsd : 0,
+            kurUsd
+          )
+          : (Number.isFinite(tutarTl) ? tutarTl : 0);
+        const out = { tutar: tlTop, yontem };
+        if (Number.isFinite(tutarTl) && tutarTl > 0) out.tutarTl = tutarTl;
+        if (Number.isFinite(tutarUsd) && tutarUsd > 0) out.tutarUsd = tutarUsd;
+        if (kurUsd) out.kurUsd = kurUsd;
+        return out;
+      }
       const tutar = Number(deger.tutar);
       if (!Number.isFinite(tutar) || tutar < 0) return null;
-      return { tutar, yontem: odemeYontemNorm(deger.yontem) };
+      return { tutar, yontem };
     }
     return null;
+  }
+
+  /** Tek tahsilat kaydının TL karşılığı (kayıtlı kur tercih edilir) */
+  function odenenKayitTl(kayit, rez) {
+    if (!kayit) return 0;
+    const para = window.APARTIM.para;
+    const pb = para?.rezParaBirimi(rez) || "TL";
+    if ((kayit.tutarTl != null && kayit.tutarTl > 0) || (kayit.tutarUsd != null && kayit.tutarUsd > 0)) {
+      return para
+        ? para.tahsilatTlToplam(kayit.tutarTl, kayit.tutarUsd, kayit.kurUsd)
+        : (Number(kayit.tutarTl) || 0);
+    }
+    const tutar = Number(kayit.tutar) || 0;
+    if (!para) return tutar;
+    /* Eski kayıtlar: tutar rezervasyon para biriminde */
+    return para.tlKarsiligi(tutar, pb, kayit.kurUsd);
   }
 
   function odenenGunleriTemizle(rez) {
@@ -273,23 +318,47 @@
     Object.keys(rez.odenenGunleri).forEach((t) => {
       if (!gecerli.has(t)) return;
       const kayit = odenenGunKaydiNorm(rez.odenenGunleri[t]);
-      if (kayit && kayit.tutar > 0) out[t] = kayit;
+      if (kayit && odenenKayitDoluMu(kayit)) out[t] = kayit;
     });
     return Object.keys(out).length ? out : undefined;
   }
 
-  function rezervasyonOdenenToplam(rez) {
+  function rezervasyonToplamTl(rez) {
+    const para = window.APARTIM.para;
+    const toplam = rezervasyonToplamTutar(rez);
+    const pb = para?.rezParaBirimi(rez) || "TL";
+    return para ? para.tlKarsiligi(toplam, pb) : toplam;
+  }
+
+  function rezervasyonOdenenToplamTl(rez) {
     const og = odenenGunleriTemizle(rez) || rez.odenenGunleri;
     if (!og) return 0;
     return Object.values(og).reduce((s, v) => {
       const kayit = odenenGunKaydiNorm(v);
-      return s + (kayit ? kayit.tutar : 0);
+      return s + odenenKayitTl(kayit, rez);
     }, 0);
   }
 
-  /** Toplam ücret − girilen ödemeler (negatif = fazla ödeme) */
+  /** Eski API: rezervasyon para biriminde ödenen toplam (yaklaşık) */
+  function rezervasyonOdenenToplam(rez) {
+    const para = window.APARTIM.para;
+    const pb = para?.rezParaBirimi(rez) || "TL";
+    const tl = rezervasyonOdenenToplamTl(rez);
+    if (!para || pb === "TL") return tl;
+    return para.tlDenPb(tl, pb);
+  }
+
+  function rezervasyonKalanTl(rez) {
+    return rezervasyonToplamTl(rez) - rezervasyonOdenenToplamTl(rez);
+  }
+
+  /** Toplam ücret − girilen ödemeler (rezervasyon para biriminde; negatif = fazla) */
   function rezervasyonKalanHesapla(rez) {
-    return rezervasyonToplamTutar(rez) - rezervasyonOdenenToplam(rez);
+    const para = window.APARTIM.para;
+    const pb = para?.rezParaBirimi(rez) || "TL";
+    const kalanTl = rezervasyonKalanTl(rez);
+    if (!para || pb === "TL") return kalanTl;
+    return para.tlDenPb(kalanTl, pb);
   }
 
   function rezervasyonFazlaOdenen(rez) {
@@ -297,18 +366,37 @@
     return k < 0 ? -k : 0;
   }
 
+  function rezervasyonTahsilatTamamMi(rez) {
+    if (!rez) return false;
+    if (rez.tahsilatTamamlandi) return true;
+    return rezervasyonKalanTl(rez) <= 0.009 && rezervasyonOdenenToplamTl(rez) > 0;
+  }
+
   function rezervasyonOdenenGosterim(rez, tarih) {
     const og = rez.odenenGunleri;
     if (og && Object.prototype.hasOwnProperty.call(og, tarih)) {
       const kayit = odenenGunKaydiNorm(og[tarih]);
-      if (kayit) {
-        return { tutar: kayit.tutar, manuel: true, yontem: kayit.yontem };
+      if (kayit && odenenKayitDoluMu(kayit)) {
+        return {
+          tutar: kayit.tutar,
+          tutarTl: kayit.tutarTl || 0,
+          tutarUsd: kayit.tutarUsd || 0,
+          kurUsd: kayit.kurUsd,
+          manuel: true,
+          yontem: kayit.yontem
+        };
       }
     }
-    return { tutar: 0, manuel: false, yontem: ODEME_YONTEM_VARSAYILAN };
+    return {
+      tutar: 0,
+      tutarTl: 0,
+      tutarUsd: 0,
+      manuel: false,
+      yontem: ODEME_YONTEM_VARSAYILAN
+    };
   }
 
-  function rezervasyonOdenenHucreKaydet(rezId, tarih, deger) {
+  function rezervasyonOdenenHucreKaydet(rezId, tarih, deger, ekstra) {
     const mevcut = durum.rezervasyonlar[rezId];
     if (!mevcut) throw new Error("Rezervasyon bulunamadı");
     const odenenGunleri = Object.assign({}, mevcut.odenenGunleri || {});
@@ -316,13 +404,18 @@
       delete odenenGunleri[tarih];
     } else {
       const kayit = odenenGunKaydiNorm(deger);
-      if (!kayit || kayit.tutar <= 0) {
+      if (!kayit || !odenenKayitDoluMu(kayit)) {
         delete odenenGunleri[tarih];
       } else {
         odenenGunleri[tarih] = kayit;
       }
     }
-    const partial = { odenenGunleri: Object.keys(odenenGunleri).length ? odenenGunleri : null };
+    const partial = {
+      odenenGunleri: Object.keys(odenenGunleri).length ? odenenGunleri : null
+    };
+    if (ekstra && Object.prototype.hasOwnProperty.call(ekstra, "tahsilatTamamlandi")) {
+      partial.tahsilatTamamlandi = !!ekstra.tahsilatTamamlandi;
+    }
     return rezervasyonGuncelle(rezId, partial);
   }
 
@@ -335,10 +428,15 @@
     Object.keys(og).forEach((t) => {
       if (t < donemBas || t >= donemBit) return;
       const kayit = odenenGunKaydiNorm(og[t]);
-      if (!kayit || kayit.tutar <= 0) return;
+      if (!kayit || !odenenKayitDoluMu(kayit)) return;
       const y = kayit.yontem;
       if (!yontemToplam[y]) yontemToplam[y] = { TL: 0, USD: 0, EUR: 0 };
-      yontemToplam[y][pb] += kayit.tutar;
+      if ((kayit.tutarTl || 0) > 0 || (kayit.tutarUsd || 0) > 0) {
+        if ((kayit.tutarTl || 0) > 0) yontemToplam[y].TL += kayit.tutarTl;
+        if ((kayit.tutarUsd || 0) > 0) yontemToplam[y].USD += kayit.tutarUsd;
+      } else {
+        yontemToplam[y][pb] += kayit.tutar;
+      }
     });
     return Object.keys(yontemToplam).length ? yontemToplam : null;
   }
@@ -382,6 +480,8 @@
     const og = odenenGunleriTemizle(kayit);
     if (og) kayit.odenenGunleri = og;
     else delete kayit.odenenGunleri;
+    if (kayit.tahsilatTamamlandi) kayit.tahsilatTamamlandi = true;
+    else delete kayit.tahsilatTamamlandi;
     delete kayit.kalanGunleri;
     return kayit;
   }
@@ -857,6 +957,9 @@
     if (Object.prototype.hasOwnProperty.call(partial, "odenenGunleri") && partial.odenenGunleri == null) {
       delete yeni.odenenGunleri;
     }
+    if (Object.prototype.hasOwnProperty.call(partial, "tahsilatTamamlandi") && !partial.tahsilatTamamlandi) {
+      delete yeni.tahsilatTamamlandi;
+    }
     delete yeni.kalanGunleri;
     if (partial.kaynakId != null) {
       rezervasyonKaynakDogrula(yeni);
@@ -959,8 +1062,12 @@
     rezervasyonTutarHesapla,
     rezervasyonToplamTutar,
     rezervasyonOdenenToplam,
+    rezervasyonOdenenToplamTl,
+    rezervasyonToplamTl,
+    rezervasyonKalanTl,
     rezervasyonKalanHesapla,
     rezervasyonFazlaOdenen,
+    rezervasyonTahsilatTamamMi,
     rezervasyonOdenenGosterim,
     rezervasyonOdenenHucreKaydet,
     rezervasyonOdemeDonemToplam,

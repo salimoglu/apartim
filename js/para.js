@@ -68,12 +68,32 @@
     return Number.isFinite(t) ? Date.now() - t : Infinity;
   }
 
-  function tlKarsiligi(miktar, pb) {
+  function tlKarsiligi(miktar, pb, kurUsdOverride) {
     const n = Number(miktar) || 0;
     const p = paraBirimiNorm(pb);
-    if (p === "USD") return n * kurlar.USD;
+    const usd = Number(kurUsdOverride) > 0 ? Number(kurUsdOverride) : kurlar.USD;
+    if (p === "USD") return n * usd;
     if (p === "EUR") return n * kurlar.EUR;
     return n;
+  }
+
+  /** TL tutarını para birimine çevir (USD için kurUsdOverride kullanılabilir) */
+  function tlDenPb(miktarTl, pb, kurUsdOverride) {
+    const n = Number(miktarTl) || 0;
+    const p = paraBirimiNorm(pb);
+    if (p === "TL") return n;
+    const usd = Number(kurUsdOverride) > 0 ? Number(kurUsdOverride) : kurlar.USD;
+    if (p === "USD") return usd > 0 ? n / usd : 0;
+    if (p === "EUR") return kurlar.EUR > 0 ? n / kurlar.EUR : 0;
+    return n;
+  }
+
+  /** Tahsilat satırı: TL + USD → TL toplam (kayıtlı kur varsa onu kullanır) */
+  function tahsilatTlToplam(tutarTl, tutarUsd, kurUsdOverride) {
+    const tl = Number(tutarTl) || 0;
+    const usd = Number(tutarUsd) || 0;
+    const kur = Number(kurUsdOverride) > 0 ? Number(kurUsdOverride) : kurlar.USD;
+    return yuvarla(tl + usd * kur);
   }
 
   function formatTutar(miktar, pb) {
@@ -228,6 +248,8 @@
     kurlariCanliCek,
     kurlariOtomatikGuncelle,
     tlKarsiligi,
+    tlDenPb,
+    tahsilatTlToplam,
     formatTutar,
     formatTutarKisa,
     formatKur,

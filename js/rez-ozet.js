@@ -53,67 +53,91 @@
     return fmt(miktar);
   }
 
-  function formatKalanKisa(rez, miktar) {
-    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
-    if (window.APARTIM.para) return window.APARTIM.para.formatTutarKisa(miktar, pb);
-    return fmt(miktar);
+  function formatTlKisa(miktar) {
+    if (window.APARTIM.para) return window.APARTIM.para.formatTutarKisa(miktar, "TL");
+    return fmt(miktar) + "₺";
+  }
+
+  function formatTl(miktar) {
+    if (window.APARTIM.para) return window.APARTIM.para.formatTutar(miktar, "TL");
+    return fmt(miktar) + " ₺";
   }
 
   const ODEME_YONTEM_KISA = { elden: "Elden", havale: "Havale", booking: "Booking", diger: "Diğer" };
 
-  function formatOdemeTutar(rez, miktar) {
-    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
-    if (window.APARTIM.para) return window.APARTIM.para.formatTutarKisa(miktar, pb);
-    return fmt(miktar);
-  }
-
   function odenenHucreGoster(rez, info) {
-    if (!info || !info.manuel || !info.tutar) return "—";
-    return formatOdemeTutar(rez, info.tutar);
+    if (!info || !info.manuel) return "—";
+    const parcalar = [];
+    if ((info.tutarTl || 0) > 0) parcalar.push(formatTlKisa(info.tutarTl));
+    if ((info.tutarUsd || 0) > 0) {
+      parcalar.push(
+        window.APARTIM.para
+          ? window.APARTIM.para.formatTutarKisa(info.tutarUsd, "USD")
+          : ("$" + fmt(info.tutarUsd))
+      );
+    }
+    if (parcalar.length) return parcalar.join("+");
+    if (info.tutar) {
+      const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+      return window.APARTIM.para
+        ? window.APARTIM.para.formatTutarKisa(info.tutar, pb)
+        : fmt(info.tutar);
+    }
+    return "—";
   }
 
   function odenenHucreBaslik(rez, info) {
-    if (!info || !info.manuel || !info.tutar) return "Ödeme girmek için tıklayın";
+    if (!info || !info.manuel) return "Tahsilat girmek için tıklayın";
     const yontem = window.APARTIM.db?.ODEME_YONTEMLERI?.[info.yontem] ||
       ODEME_YONTEM_KISA[info.yontem] || "Elden";
-    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
-    const tam = window.APARTIM.para
-      ? window.APARTIM.para.formatTutar(info.tutar, pb)
-      : fmt(info.tutar);
-    return yontem + " · " + tam;
+    return yontem + " · " + odenenHucreGoster(rez, info);
   }
 
   function rezervasyonBakiyeMetin(rez) {
     const db = window.APARTIM.db;
     if (!db) return "";
-    const toplam = db.rezervasyonToplamTutar(rez);
-    if (toplam <= 0) return "";
-    const kalan = db.rezervasyonKalanHesapla(rez);
-    if (kalan < 0) return "Fazla " + formatKalanKisa(rez, -kalan);
-    if (kalan > 0) return "Kalan " + formatKalanKisa(rez, kalan);
-    return "Kalan " + formatKalanKisa(rez, 0);
+    const toplamTl = db.rezervasyonToplamTl(rez);
+    if (toplamTl <= 0) return "";
+    const kalanTl = db.rezervasyonKalanTl(rez);
+    const tamam = !!rez.tahsilatTamamlandi;
+    if (tamam && kalanTl > 0.5) return formatTlKisa(kalanTl) + " eksik ✓";
+    if (tamam) return "Tamam ✓";
+    if (kalanTl < -0.5) return "Fazla " + formatTlKisa(-kalanTl);
+    if (kalanTl > 0.5) return "Kalan " + formatTlKisa(kalanTl);
+    return "Kalan 0₺";
   }
 
   function rezOutKalanParca(rez) {
     const db = window.APARTIM.db;
     if (!db) return null;
-    const toplam = db.rezervasyonToplamTutar(rez);
-    if (toplam <= 0) return null;
-    const kalan = db.rezervasyonKalanHesapla(rez);
-    if (kalan < 0) {
-      return { etiket: "Fazla", tutar: formatKalanKisa(rez, -kalan), fazla: true };
+    const toplamTl = db.rezervasyonToplamTl(rez);
+    if (toplamTl <= 0) return null;
+    const kalanTl = db.rezervasyonKalanTl(rez);
+    const tamam = !!rez.tahsilatTamamlandi;
+    if (tamam && kalanTl > 0.5) {
+      return { etiket: "Eksik", tutar: formatTlKisa(kalanTl), fazla: false, tamam: true };
     }
-    return { etiket: "Kalan", tutar: formatKalanKisa(rez, kalan), fazla: false };
+    if (tamam) {
+      return { etiket: "Tamam", tutar: "", fazla: false, tamam: true };
+    }
+    if (kalanTl < -0.5) {
+      return { etiket: "Fazla", tutar: formatTlKisa(-kalanTl), fazla: true, tamam: false };
+    }
+    return { etiket: "Kalan", tutar: formatTlKisa(Math.max(0, kalanTl)), fazla: false, tamam: false };
   }
 
   function rezOutKalanStackHtml(rez) {
     const p = rezOutKalanParca(rez);
     if (!p) return "";
-    const cls = p.fazla ? " rez-ozet-out-fazla" : "";
+    let cls = p.fazla ? " rez-ozet-out-fazla" : "";
+    if (p.tamam) cls += " rez-ozet-tahsilat-tamam";
+    const ok = p.tamam
+      ? '<span class="rez-ozet-tahsilat-ok" aria-hidden="true">✓</span>'
+      : "";
     return (
-      '<span class="rez-ozet-out-kalan-stack' + cls + '" title="Toplam − ödenen">' +
+      '<span class="rez-ozet-out-kalan-stack' + cls + '" title="Toplam − tahsilat (güncel kur)">' +
         '<span class="rez-ozet-out-kalan-etiket">' + esc(p.etiket) + "</span>" +
-        '<span class="rez-ozet-out-kalan-tutar">' + esc(p.tutar) + "</span>" +
+        '<span class="rez-ozet-out-kalan-tutar">' + esc(p.tutar) + ok + "</span>" +
       "</span>"
     );
   }
@@ -610,10 +634,11 @@
       td.title = odenenHucreBaslik(rez, info);
     } else if (sonGece) {
       td.innerHTML = rezOutKalanHucreIcerik(rez);
-      td.title = "Toplam − ödenen · Ödeme girmek için tıklayın";
+      td.title = "Toplam − tahsilat · Tahsilat girmek için tıklayın";
+      if (rez.tahsilatTamamlandi) td.classList.add("rez-ozet-tahsilat-tamam-hucre");
     } else {
       td.textContent = "—";
-      td.title = "Ödeme girmek için tıklayın";
+      td.title = "Tahsilat girmek için tıklayın";
     }
     return td;
   }
@@ -699,7 +724,10 @@
   function rezCikisKalanHucreleriYenile(rezId, rez) {
     if (!rezId || !rez) return;
     document.querySelectorAll('td.rez-ozet-out-kalan-hucre[data-rez-id="' + rezId + '"]')
-      .forEach((td) => { td.innerHTML = rezOutKalanHucreIcerik(rez); });
+      .forEach((td) => {
+        td.innerHTML = rezOutKalanHucreIcerik(rez);
+        td.classList.toggle("rez-ozet-tahsilat-tamam-hucre", !!rez.tahsilatTamamlandi);
+      });
   }
 
   function odenenHucreyiYenile(hucre, rez) {
@@ -711,18 +739,84 @@
     hucre.classList.toggle("manuel", info.manuel);
     hucre.classList.toggle("bos", !info.manuel);
     hucre.classList.toggle("rez-ozet-out-kalan-hucre", sonGece && !info.manuel);
+    hucre.classList.toggle("rez-ozet-tahsilat-tamam-hucre", !!(rez.tahsilatTamamlandi && sonGece && !info.manuel));
     if (info.manuel) {
       hucre.textContent = odenenHucreGoster(rez, info);
       hucre.title = odenenHucreBaslik(rez, info);
       hucre.dataset.yontem = info.yontem;
     } else if (sonGece) {
       hucre.innerHTML = rezOutKalanHucreIcerik(rez);
-      hucre.title = "Toplam − ödenen · Ödeme girmek için tıklayın";
+      hucre.title = "Toplam − tahsilat · Tahsilat girmek için tıklayın";
       delete hucre.dataset.yontem;
     } else {
       hucre.textContent = "—";
-      hucre.title = "Ödeme girmek için tıklayın";
+      hucre.title = "Tahsilat girmek için tıklayın";
       delete hucre.dataset.yontem;
+    }
+  }
+
+  function tahsilatKurUsd() {
+    return window.APARTIM.para?.kurlariGetir()?.USD || 0;
+  }
+
+  function tahsilatGirisOku() {
+    const tlHam = document.getElementById("odeme-tutar-tl")?.value?.trim() || "";
+    const usdHam = document.getElementById("odeme-tutar-usd")?.value?.trim() || "";
+    const tl = tlHam === "" ? 0 : parseTutarGiris(tlHam);
+    const usd = usdHam === "" ? 0 : parseTutarGiris(usdHam);
+    return { tlHam, usdHam, tl, usd };
+  }
+
+  function tahsilatKalanOnizle() {
+    const ctx = odemeDuzenleDurum;
+    const el = document.getElementById("odeme-modal-kalan");
+    if (!ctx || !el) return;
+    const db = window.APARTIM.db;
+    const rez = db?.durum.rezervasyonlar[ctx.rezId];
+    if (!db || !rez) return;
+
+    const para = window.APARTIM.para;
+    const kur = tahsilatKurUsd();
+    const { tl, usd } = tahsilatGirisOku();
+    const tlSafe = Number.isFinite(tl) && tl > 0 ? tl : 0;
+    const usdSafe = Number.isFinite(usd) && usd > 0 ? usd : 0;
+    const buGunTl = para ? para.tahsilatTlToplam(tlSafe, usdSafe, kur) : tlSafe;
+
+    const mevcutGun = db.rezervasyonOdenenGosterim(rez, ctx.tarih);
+    let mevcutGunTl = 0;
+    if (mevcutGun.manuel) {
+      if ((mevcutGun.tutarTl || 0) > 0 || (mevcutGun.tutarUsd || 0) > 0) {
+        mevcutGunTl = para
+          ? para.tahsilatTlToplam(mevcutGun.tutarTl, mevcutGun.tutarUsd, mevcutGun.kurUsd)
+          : (mevcutGun.tutarTl || 0);
+      } else if (mevcutGun.tutar > 0) {
+        mevcutGunTl = para
+          ? para.tlKarsiligi(mevcutGun.tutar, para.rezParaBirimi(rez))
+          : mevcutGun.tutar;
+      }
+    }
+
+    const toplamTl = db.rezervasyonToplamTl(rez);
+    const odenenTl = db.rezervasyonOdenenToplamTl(rez) - mevcutGunTl + buGunTl;
+    const kalanTl = toplamTl - odenenTl;
+    const tamam = !!document.getElementById("tahsilat-tamamla")?.checked;
+
+    if (tamam && kalanTl > 0.5) {
+      el.textContent = formatTl(kalanTl) + " eksik ✓ — tahsilat tamamlandı sayılacak";
+      el.className = "tahsilat-kalan tahsilat-kalan-tamam";
+    } else if (tamam) {
+      el.textContent = "Tahsilat tamam ✓";
+      el.className = "tahsilat-kalan tahsilat-kalan-tamam";
+    } else if (kalanTl < -0.5) {
+      el.textContent = "Fazla: " + formatTl(-kalanTl);
+      el.className = "tahsilat-kalan tahsilat-kalan-fazla";
+    } else if (kalanTl > 0.5) {
+      el.textContent = "Kalan: " + formatTl(kalanTl) + " (1$ = " +
+        (para ? para.formatKur(kur) : kur) + "₺)";
+      el.className = "tahsilat-kalan";
+    } else {
+      el.textContent = "Kalan: 0 ₺";
+      el.className = "tahsilat-kalan tahsilat-kalan-tamam";
     }
   }
 
@@ -730,7 +824,7 @@
     const rezId = hucre.dataset.rezId;
     const tarih = hucre.dataset.tarih;
     if (!rezId || !tarih) {
-      window.APARTIM.toast?.("Ödeme hücresi tanınmadı", "uyari");
+      window.APARTIM.toast?.("Tahsilat hücresi tanınmadı", "uyari");
       return;
     }
     durum.seciliTarih = tarih;
@@ -745,35 +839,65 @@
     const info = db.rezervasyonOdenenGosterim(rez, tarih);
     const modal = odemeModalAc();
     if (!modal) {
-      window.APARTIM.toast?.("Ödeme formu yüklenemedi", "hata");
+      window.APARTIM.toast?.("Tahsilat formu yüklenemedi", "hata");
       return;
     }
 
     odemeDuzenleDurum = { rezId, tarih, hucre };
 
+    const para = window.APARTIM.para;
+    const pb = para?.rezParaBirimi(rez) || "TL";
+    const kur = tahsilatKurUsd();
     const baslik = document.getElementById("odeme-modal-baslik");
     const aciklama = document.getElementById("odeme-modal-aciklama");
-    const inp = document.getElementById("odeme-tutar");
+    const ozet = document.getElementById("odeme-modal-ozet");
+    const kurEl = document.getElementById("odeme-kur-bilgi");
+    const inpTl = document.getElementById("odeme-tutar-tl");
+    const inpUsd = document.getElementById("odeme-tutar-usd");
     const sel = document.getElementById("odeme-yontem");
+    const chk = document.getElementById("tahsilat-tamamla");
+
     if (baslik) {
-      baslik.textContent = "Ödeme — " + (rez.misafirAdi || "Misafir") + " · " + tarihGoster(tarih);
+      baslik.textContent = "Tahsilat — " + (rez.misafirAdi || "Misafir");
     }
     if (aciklama) {
-      const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
-      const geceUcret = db.rezervasyonTarihUcreti(rez, tarih);
-      const geceMetin = window.APARTIM.para
-        ? window.APARTIM.para.formatTutar(geceUcret, pb)
-        : fmt(geceUcret) + " " + pb;
-      aciklama.textContent = "Bu gece ücreti: " + geceMetin;
+      aciklama.textContent = tarihGoster(tarih) + " · Konaklama: " +
+        (para ? para.formatTutar(db.rezervasyonToplamTutar(rez), pb) : fmt(db.rezervasyonToplamTutar(rez)));
     }
-    if (inp) {
-      inp.value = info.manuel ? String(info.tutar) : "";
+    if (ozet) {
+      const toplamTl = db.rezervasyonToplamTl(rez);
+      const odenenTl = db.rezervasyonOdenenToplamTl(rez);
+      ozet.innerHTML =
+        "<span><b>Toplam</b> " + esc(formatTl(toplamTl)) + "</span>" +
+        "<span><b>Ödenen</b> " + esc(formatTl(odenenTl)) + "</span>" +
+        "<span><b>Kalan</b> " + esc(formatTl(Math.max(0, toplamTl - odenenTl))) + "</span>";
     }
-    if (sel) sel.value = info.yontem || "elden";
+    if (kurEl) {
+      kurEl.textContent = "Bugünkü kur: 1 USD = " +
+        (para ? para.formatKur(kur) : String(kur)) + " ₺";
+    }
 
+    let tlVal = "";
+    let usdVal = "";
+    if (info.manuel) {
+      if ((info.tutarTl || 0) > 0 || (info.tutarUsd || 0) > 0) {
+        if ((info.tutarTl || 0) > 0) tlVal = String(info.tutarTl);
+        if ((info.tutarUsd || 0) > 0) usdVal = String(info.tutarUsd);
+      } else if (info.tutar > 0) {
+        if (pb === "USD") usdVal = String(info.tutar);
+        else tlVal = String(info.tutar);
+      }
+    }
+    if (inpTl) inpTl.value = tlVal;
+    if (inpUsd) inpUsd.value = usdVal;
+    if (sel) sel.value = info.yontem || "elden";
+    if (chk) chk.checked = !!rez.tahsilatTamamlandi;
+
+    tahsilatKalanOnizle();
     setTimeout(() => {
-      inp?.focus({ preventScroll: true });
-      inp?.select?.();
+      const hedef = inpTl || inpUsd;
+      hedef?.focus({ preventScroll: true });
+      hedef?.select?.();
     }, 80);
   }
 
@@ -784,29 +908,52 @@
     const rez = db?.durum.rezervasyonlar[ctx.rezId];
     if (!db || !rez) return odemeModalKapat();
 
+    const tamamla = !!document.getElementById("tahsilat-tamamla")?.checked;
     let kayit = null;
+
     if (!temizle) {
-      const inp = document.getElementById("odeme-tutar");
-      const sel = document.getElementById("odeme-yontem");
-      const ham = inp?.value?.trim() || "";
-      const tutar = ham === "" ? null : parseTutarGiris(ham);
-      if (ham !== "" && (!Number.isFinite(tutar) || tutar < 0)) {
-        window.APARTIM.toast("Geçerli bir tutar girin", "uyari");
+      const { tlHam, usdHam, tl, usd } = tahsilatGirisOku();
+      if (tlHam !== "" && (!Number.isFinite(tl) || tl < 0)) {
+        window.APARTIM.toast("Geçerli bir TL tutarı girin", "uyari");
         return;
       }
-      if (tutar == null || tutar <= 0) {
-        window.APARTIM.toast("Tutar girin veya Temizle kullanın", "uyari");
+      if (usdHam !== "" && (!Number.isFinite(usd) || usd < 0)) {
+        window.APARTIM.toast("Geçerli bir USD tutarı girin", "uyari");
         return;
       }
-      kayit = { tutar, yontem: sel?.value || "elden" };
+      const tlSafe = Number.isFinite(tl) && tl > 0 ? tl : 0;
+      const usdSafe = Number.isFinite(usd) && usd > 0 ? usd : 0;
+      if (tlSafe <= 0 && usdSafe <= 0 && !tamamla) {
+        window.APARTIM.toast("Tutar girin, tamamla seçin veya Temizle kullanın", "uyari");
+        return;
+      }
+      if (tlSafe > 0 || usdSafe > 0) {
+        kayit = {
+          tutarTl: tlSafe > 0 ? tlSafe : undefined,
+          tutarUsd: usdSafe > 0 ? usdSafe : undefined,
+          kurUsd: tahsilatKurUsd(),
+          yontem: document.getElementById("odeme-yontem")?.value || "elden"
+        };
+      }
     }
 
     try {
-      await db.rezervasyonOdenenHucreKaydet(ctx.rezId, ctx.tarih, kayit);
+      const ekstra = { tahsilatTamamlandi: temizle ? false : tamamla };
+      if (temizle) {
+        await db.rezervasyonOdenenHucreKaydet(ctx.rezId, ctx.tarih, null, ekstra);
+      } else if (kayit) {
+        await db.rezervasyonOdenenHucreKaydet(ctx.rezId, ctx.tarih, kayit, ekstra);
+      } else {
+        await db.rezervasyonGuncelle(ctx.rezId, { tahsilatTamamlandi: true });
+      }
       const guncel = db.durum.rezervasyonlar[ctx.rezId] || rez;
       odenenHucreyiYenile(ctx.hucre, guncel);
       rezCikisKalanHucreleriYenile(ctx.rezId, guncel);
       odemeModalKapat();
+      window.APARTIM.toast?.(
+        temizle ? "Tahsilat temizlendi" : (tamamla ? "Tahsilat tamamlandı" : "Tahsilat kaydedildi"),
+        "ok"
+      );
     } catch (err) {
       window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
     }
@@ -817,13 +964,18 @@
     document.getElementById("odeme-modal-temizle")?.addEventListener("click", () => odemeModalKaydet(true));
     document.getElementById("odeme-modal-iptal")?.addEventListener("click", odemeModalKapat);
     document.getElementById("odeme-modal-close")?.addEventListener("click", odemeModalKapat);
-    document.getElementById("odeme-tutar")?.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        odemeModalKaydet(false);
-      }
-      if (e.key === "Escape") odemeModalKapat();
+    ["odeme-tutar-tl", "odeme-tutar-usd"].forEach((id) => {
+      const el = document.getElementById(id);
+      el?.addEventListener("input", tahsilatKalanOnizle);
+      el?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          odemeModalKaydet(false);
+        }
+        if (e.key === "Escape") odemeModalKapat();
+      });
     });
+    document.getElementById("tahsilat-tamamla")?.addEventListener("change", tahsilatKalanOnizle);
   }
 
   function colgroupOlustur(daireler) {
