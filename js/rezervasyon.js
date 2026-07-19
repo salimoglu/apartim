@@ -752,11 +752,15 @@
     const sel = ay().kaynak;
     if (!sel) return;
     const liste = window.APARTIM.db.musteriKaynaklariListele();
-    sel.innerHTML = '<option value="">— Seçin —</option>';
+    /* Kapalı halde minimal: simge + kısa ad; açılır listede tam ad title ile */
+    sel.innerHTML = '<option value="">—</option>';
     liste.forEach((k) => {
       const opt = document.createElement("option");
       opt.value = k.id;
-      opt.textContent = (k.simge ? k.simge + " " : "") + k.ad;
+      const ad = String(k.ad || "").trim();
+      const kisa = ad.length > 10 ? ad.slice(0, 9) + "…" : ad;
+      opt.textContent = (k.simge ? k.simge + " " : "") + kisa;
+      opt.title = (k.simge ? k.simge + " " : "") + ad;
       sel.appendChild(opt);
     });
     if (seciliId && liste.some((k) => k.id === seciliId)) {

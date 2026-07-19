@@ -3026,9 +3026,32 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 #modal-rez .rez-satir-yatay > .field-input,
 #modal-rez .rez-satir-yatay > .field-select,
+#modal-rez .rez-satir-yatay > .rez-telefon-kaynak,
 #modal-rez .rez-satir-yatay > .rez-tarih-aralik-ozet {
   width: 100%;
   min-width: 0;
+}
+/* Telefon + kaynak aynı satır — kaynak minimal sağda */
+#modal-rez .rez-telefon-kaynak {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  min-width: 0;
+}
+#modal-rez .rez-telefon-kaynak > #rez-telefon {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+#modal-rez .rez-kaynak-mini {
+  flex: 0 1 8.75em;
+  width: auto;
+  max-width: 38%;
+  min-width: 5.25em;
+  padding-left: 6px;
+  padding-right: 2px;
+  font-size: 12px;
+  font-weight: 600;
 }
 #modal-rez .rez-tarih-baslik-satir {
   margin-bottom: 6px;
@@ -3443,6 +3466,17 @@ html:not(.theme-light) .rez-kaynak-badge {
     font-size: 16px;
     min-height: 44px;
     padding: 10px 12px;
+  }
+  body.rez-form-mobil #modal-rez .rez-telefon-kaynak {
+    gap: 5px;
+  }
+  body.rez-form-mobil #modal-rez .rez-kaynak-mini {
+    flex: 0 1 7.5em;
+    max-width: 36%;
+    min-width: 4.75em;
+    padding-left: 6px;
+    padding-right: 2px;
+    font-size: 13px;
   }
   body.rez-form-mobil #modal-rez .field-group {
     margin-bottom: 10px;
