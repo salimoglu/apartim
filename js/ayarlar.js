@@ -114,8 +114,8 @@
 
   // ---- Odalar (ekle + isim değiştir) ----
   function daireKatEtiket(d) {
-    if (d.sira) return "Oda " + d.sira;
-    return d.id || "";
+    if (d.sira) return String(d.sira);
+    return "·";
   }
 
   function daireEkranYenile() {
@@ -129,15 +129,16 @@
     if (!ul) return;
     const liste = window.APARTIM.db.dairelerListele();
     ul.innerHTML = "";
-    liste.forEach((d) => {
+    liste.forEach((d, i) => {
       const li = document.createElement("li");
       li.className = "daire-ayar-item";
-      const etiket = daireKatEtiket(d);
+      const no = daireKatEtiket(d) || String(i + 1);
+      const aria = "Oda " + no;
       li.innerHTML =
-        '<span class="daire-ayar-kat">' + esc(etiket) + "</span>" +
+        '<span class="daire-ayar-kat" title="' + esc(aria) + '">' + esc(no) + "</span>" +
         '<input type="text" class="field-input daire-ayar-ad" data-id="' + esc(d.id) + '" ' +
-        'value="' + esc(d.ad) + '" maxlength="40" aria-label="' + esc(etiket) + ' adı" />' +
-        '<button type="button" class="daire-sil-btn" data-id="' + esc(d.id) + '" title="Sil" aria-label="Sil">×</button>';
+        'value="' + esc(d.ad) + '" maxlength="40" aria-label="' + esc(aria) + ' adı" />' +
+        '<button type="button" class="daire-sil-btn" data-id="' + esc(d.id) + '" title="Sil" aria-label="' + esc(aria) + ' sil">×</button>';
       li.querySelector(".daire-sil-btn")?.addEventListener("click", () => daireSil(d.id));
       ul.appendChild(li);
     });

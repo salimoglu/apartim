@@ -2364,64 +2364,193 @@ body.modal-acik .modal-body {
   box-shadow: 0 0 0 2px var(--vurgu);
 }
 
+/* ---- Odalar modal (kompakt; telefon dikey/yatay uyumlu) ---- */
+.modal-box-odalar {
+  max-width: 400px;
+}
 .modal-body-odalar {
-  padding-top: 12px;
-  padding-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 10px 14px;
+  min-height: 0;
 }
 .daire-ayar-liste {
   list-style: none;
-  margin: 0 0 8px;
+  margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.daire-ekle-wrap {
+  flex-shrink: 0;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--kenar);
 }
 .daire-ayar-item,
 .daire-ekle-row {
   display: grid;
-  grid-template-columns: 3.4em minmax(0, 1fr) auto;
+  grid-template-columns: 1.6em minmax(0, 1fr) 2.6em;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin: 0;
   padding: 0;
   background: none;
   border: none;
 }
+.daire-ekle-row {
+  grid-template-columns: 1.6em minmax(0, 1fr) auto;
+}
 .daire-ayar-kat {
   margin: 0;
   font-size: 12px;
   color: var(--metin-soluk);
-  font-weight: 700;
+  font-weight: 800;
   white-space: nowrap;
-  text-align: right;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 .daire-ayar-ad,
 .daire-ekle-row .field-input {
   width: 100%;
   min-width: 0;
-  padding: 7px 10px;
-  font-size: 13px;
+  padding: 8px 10px;
+  font-size: 14px;
+  height: 36px;
+  box-sizing: border-box;
 }
 .daire-sil-btn {
   border: none;
   background: transparent;
   color: var(--tehlike);
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
   line-height: 1;
   cursor: pointer;
-  padding: 4px 6px;
-  min-width: 28px;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
   flex-shrink: 0;
 }
-.daire-sil-btn:hover { opacity: 0.8; }
+.daire-sil-btn:hover { background: rgba(220, 38, 38, 0.1); }
 .daire-ekle-btn {
-  padding: 7px 12px;
+  padding: 0 12px;
+  height: 36px;
   font-size: 13px;
   white-space: nowrap;
 }
 #modal-daireler .modal-uyari {
-  margin-top: 8px;
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+#modal-daireler .modal-header {
+  padding: 10px 14px;
+}
+#modal-daireler .modal-title {
+  font-size: 16px;
+}
+#modal-daireler .modal-footer {
+  padding: 10px 14px;
+}
+
+/* Telefon dikey — alt sheet, tam genişlik */
+@media (max-width: 720px) and (orientation: portrait),
+       (pointer: coarse) and (max-width: 520px) and (orientation: portrait) {
+  #modal-daireler.modal-overlay {
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    padding-top: max(8px, env(safe-area-inset-top));
+  }
+  #modal-daireler .modal-box-odalar {
+    width: 100%;
+    max-width: 100%;
+    max-height: min(86dvh, 88vh);
+    border-radius: 16px 16px 0 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+  }
+  #modal-daireler .modal-body-odalar {
+    padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+  }
+  #modal-daireler .daire-ayar-ad,
+  #modal-daireler .daire-ekle-row .field-input {
+    font-size: 16px; /* iOS zoom engeli */
+    height: 40px;
+  }
+  #modal-daireler .daire-sil-btn,
+  #modal-daireler .daire-ekle-btn {
+    height: 40px;
+  }
+  #modal-daireler .daire-sil-btn {
+    width: 40px;
+  }
+  #modal-daireler .modal-footer {
+    padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Telefon yatay — geniş, alçak, sıkı satırlar */
+@media (orientation: landscape) and (max-height: 520px),
+       (orientation: landscape) and (max-width: 960px) and (pointer: coarse) {
+  #modal-daireler.modal-overlay {
+    align-items: center;
+    padding: 6px max(8px, env(safe-area-inset-right)) 6px max(8px, env(safe-area-inset-left));
+  }
+  #modal-daireler .modal-box-odalar {
+    width: min(560px, 94vw);
+    max-width: min(560px, 94vw);
+    max-height: min(94dvh, 96vh);
+  }
+  #modal-daireler .modal-header {
+    padding: 6px 12px;
+  }
+  #modal-daireler .modal-title {
+    font-size: 15px;
+  }
+  #modal-daireler .modal-body-odalar {
+    padding: 6px 12px;
+  }
+  #modal-daireler .daire-ayar-liste {
+    gap: 4px;
+  }
+  #modal-daireler .daire-ayar-ad,
+  #modal-daireler .daire-ekle-row .field-input {
+    font-size: 16px;
+    height: 34px;
+    padding: 4px 8px;
+  }
+  #modal-daireler .daire-sil-btn,
+  #modal-daireler .daire-ekle-btn {
+    height: 34px;
+  }
+  #modal-daireler .daire-sil-btn {
+    width: 34px;
+    font-size: 18px;
+  }
+  #modal-daireler .daire-ekle-wrap {
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+  #modal-daireler .modal-footer {
+    padding: 6px 12px;
+  }
+  #modal-daireler .modal-footer .btn-primary,
+  #modal-daireler .modal-footer .btn-secondary {
+    padding: 7px 14px;
+    font-size: 13px;
+  }
 }
 
 .rez-kaynak-badge {
