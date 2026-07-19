@@ -1688,12 +1688,12 @@
     table.dataset.odaHedef = String(gorunum.odaHedef);
 
     if (kompakt) {
-      /* Telefon: dikey 1 / yatay 3 · Tablet: dikey 3 / yatay 5 — fazlası yatay kaydırılır */
+      /* Telefon: dikey 2 / yatay 4 · Tablet: dikey 3 / yatay 5 — fazlası yatay kaydırılır */
       const odaHedef = gorunum.odaHedef;
       const tarihPx = gorunum.cihaz === "tablet" ? 38 : 36;
-      const minBlok = gorunum.cihaz === "tablet" ? 72 : (odaHedef <= 1 ? 120 : 64);
+      const minBlok = gorunum.cihaz === "tablet" ? 72 : 64;
       const odaBlokPx = Math.max(minBlok, (genislik - tarihPx) / odaHedef);
-      const g = Math.max(10, Math.floor(odaBlokPx * (odaHedef <= 1 ? 0.10 : 0.12)));
+      const g = Math.max(10, Math.floor(odaBlokPx * 0.12));
       const kt = g;
       const rem = odaBlokPx - 2 * g;
       /* Ad sütununa daha geniş pay — tek satırda sığsın, alta kaymasın */
