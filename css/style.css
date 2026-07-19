@@ -1752,10 +1752,11 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   overflow-wrap: anywhere;
   overflow: visible;
   font-weight: 600;
-  font-size: 9px;
+  font-size: 10.35px; /* 9px × 1.15 */
   line-height: 1.25;
   padding: 1px 2px !important;
   vertical-align: middle;
+  text-align: center;
 }
 .rez-ozet-bos {
   height: 18px;

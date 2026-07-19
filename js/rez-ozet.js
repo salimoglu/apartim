@@ -442,9 +442,8 @@
     const rid = rezIdAl(rez);
     const bg = hucreBg(renk, ioVurgu);
     const tdG = document.createElement("td");
-    tdG.className = "rez-ozet-sayi rez-ozet-out-gun rez-ozet-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
+    tdG.className = "rez-ozet-sayi rez-ozet-out-gun" + (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdG.style.background = bg;
-    if (rid) tdG.dataset.rezId = rid;
     tdG.title = "Çıkış" + (rez?.misafirAdi ? ": " + rez.misafirAdi : "");
     tdG.textContent = "—";
     tr.appendChild(tdG);
@@ -486,9 +485,8 @@
 
     const tdG = document.createElement("td");
     tdG.className =
-      "rez-ozet-sayi rez-ozet-turnover-hucre rez-ozet-turnover-bas rez-ozet-io-hucre rez-ozet-tik";
+      "rez-ozet-sayi rez-ozet-turnover-hucre rez-ozet-turnover-bas rez-ozet-io-hucre";
     tdG.style.background = bg;
-    if (girisRid) tdG.dataset.rezId = girisRid;
     tdG.title = "Çıkış: " + cikisAd + " → Giriş: " + girisAd;
     tdG.innerHTML = '<span class="rez-ozet-g-sayi">1</span>';
     tr.appendChild(tdG);
