@@ -3688,36 +3688,32 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rapor-grid {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
 }
 .rapor-kart {
-  grid-column: span 3;
   background: var(--kart);
   border: 1px solid var(--kenar);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 8px 8px;
   min-width: 0;
 }
 .rapor-kart .label {
   display: block;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   color: var(--metin-soluk);
   letter-spacing: 0.02em;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 .rapor-kart .val {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 800;
   color: var(--metin);
   line-height: 1.2;
 }
 .rapor-kart-val { min-width: 0; }
-.rapor-kart-kucuk {
-  grid-column: span 4;
-  text-align: left;
-}
+.rapor-kart-kucuk { text-align: left; }
 .rapor-kart.doluluk .val { color: var(--vurgu); }
 .rapor-kart-net .rapor-pb { color: var(--basari); }
 .rapor-kart-net.eksi .rapor-pb { color: var(--tehlike); }
@@ -3729,8 +3725,8 @@ html:not(.theme-light) .rez-kaynak-badge {
   line-height: 1.25;
 }
 .rapor-gelir-inline.kompakt { gap: 2px 5px; }
-.rapor-pb { font-weight: 800; white-space: nowrap; font-size: 14px; }
-.rapor-gelir-inline.kompakt .rapor-pb { font-size: 12px; }
+.rapor-pb { font-weight: 800; white-space: nowrap; font-size: 12px; }
+.rapor-gelir-inline.kompakt .rapor-pb { font-size: 11px; }
 .rapor-pb.tl { color: var(--basari); }
 .rapor-pb.usd { color: var(--bilgi); }
 .rapor-pb.eur { color: var(--vurgu); }
@@ -3744,41 +3740,43 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rapor-tahsilat-liste {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  margin-top: 6px;
-  padding-top: 6px;
+  gap: 2px;
+  margin-top: 4px;
+  padding-top: 4px;
   border-top: 1px solid var(--kenar);
 }
 .rapor-tahsilat-yontem {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
   min-width: 0;
 }
 .rapor-tahsilat-etiket {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: var(--metin-soluk);
-  flex-shrink: 0;
 }
 .rapor-tahsilat-yontem .rapor-gelir-inline {
-  justify-content: flex-end;
   min-width: 0;
 }
 @media (max-width: 720px) {
-  .rapor-kart,
-  .rapor-kart-kucuk {
-    grid-column: span 6;
+  .rapor-grid {
+    gap: 4px;
+    overflow-x: auto;
+    grid-template-columns: repeat(7, minmax(72px, 1fr));
+    -webkit-overflow-scrolling: touch;
   }
   .rapor-ust { gap: 4px; }
   .rapor-mod-btn { padding: 5px 8px; font-size: 11px; }
   .rapor-ay-baslik { font-size: 11px; }
   .rapor-export-btn { width: 30px; height: 30px; }
   .rapor-ay-nav { min-height: 30px; padding: 1px 2px; }
-  .rapor-kart { padding: 8px 10px; }
-  .rapor-pb { font-size: 13px; }
-  .rapor-gelir-inline.kompakt .rapor-pb { font-size: 11px; }
+  .rapor-kart { padding: 6px 6px; }
+  .rapor-kart .label { font-size: 9px; }
+  .rapor-kart .val { font-size: 14px; }
+  .rapor-pb { font-size: 11px; }
+  .rapor-gelir-inline.kompakt .rapor-pb { font-size: 10px; }
 }
 /* -------------------- Kasa sekmesi -------------------- */
 #tab-kasa.active {
