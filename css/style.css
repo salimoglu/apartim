@@ -602,17 +602,24 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
   margin: 0 auto;
 }
 @media (min-width: 721px) {
-  .content.content-rez-genis {
+  .content.content-rez-genis,
+  .content.content-bina-genis {
     max-width: none;
     margin: 0;
   }
   #tab-rezervasyonlar.active {
     padding: 10px 10px 12px;
   }
+  #tab-bina.active {
+    padding: 12px 18px 18px;
+  }
 }
 @media (min-width: 1200px) {
   #tab-rezervasyonlar.active {
     padding: 12px 14px 14px;
+  }
+  #tab-bina.active {
+    padding: 14px 22px 22px;
   }
 }
 .tab-panel { display: none; padding: 16px; box-sizing: border-box; }
@@ -634,8 +641,14 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
 
 /* -------------------- 6. Bina ana ekranı -------------------- */
 .bina-wrap {
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  max-width: none;
   padding: 8px 0 24px;
+  box-sizing: border-box;
 }
 .bina-ust-bar { display: contents; }
 .bina-baslik {
@@ -668,6 +681,7 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin-bottom: 14px;
+  width: 100%;
 }
 .bina-yukleniyor {
   text-align: center;
@@ -819,7 +833,8 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
-  width: 100%; max-width: 640px;
+  width: 100%;
+  max-width: none;
 }
 .bina-ozet-kart {
   background: var(--kart);
@@ -851,19 +866,66 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
 .bina-legend-dot.turnover { background: var(--uyari); }
 .bina-legend-dot.kirli { background: var(--bos-kirli); }
 
-@media (min-width: 960px) {
+/* Tablet: kartlar yan yana, ekranı doldur */
+@media (min-width: 721px) {
   .daire-kart-listesi {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
   }
   .daire-kart-icerik {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.2fr);
     gap: 12px;
-    padding: 14px;
+    padding: 14px 16px;
   }
   .daire-kart-ad { font-size: 17px; }
-  .daire-kart-ozet-satir { font-size: 12px; }
-  .mini-takvim-hucre { min-height: 24px; }
+  .daire-kart-ozet-satir { font-size: 13px; }
+  .daire-kart-durum { font-size: 12px; padding: 5px 9px; }
+  .mini-takvim-baslik { font-size: 10px; margin-bottom: 4px; }
+  .mini-takvim-hucre { min-height: 26px; }
+  .mini-takvim-gun { font-size: 10px; }
+  .mini-takvim-boncuk { width: 8px; height: 8px; }
+  .bina-ozet {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .bina-ozet-kart { padding: 14px; }
+  .bina-ozet-kart .val { font-size: 24px; }
+}
+
+/* PC: 3 sütun, daha geniş kart / takvim */
+@media (min-width: 1100px) {
+  .daire-kart-listesi {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .daire-kart-icerik {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    gap: 14px;
+    padding: 16px 18px;
+  }
+  .daire-kart-ad { font-size: 18px; }
+  .daire-kart-ozet-satir { font-size: 13px; }
+  .mini-takvim-baslik { font-size: 11px; }
+  .mini-takvim-hucre { min-height: 28px; }
+  .mini-takvim-gun { font-size: 11px; }
+  .mini-takvim-grid { gap: 3px; }
+  .mini-takvim-boncuk { width: 8px; height: 8px; }
+}
+
+/* Geniş PC: kartları daha da büyüt */
+@media (min-width: 1400px) {
+  #tab-bina.active {
+    padding: 16px 28px 24px;
+  }
+  .daire-kart-listesi { gap: 18px; }
+  .daire-kart-icerik {
+    padding: 18px 20px;
+    gap: 16px;
+  }
+  .daire-kart-ad { font-size: 19px; }
+  .daire-kart-ozet-satir { font-size: 14px; }
+  .mini-takvim-hucre { min-height: 30px; }
+  .mini-takvim-gun { font-size: 12px; }
 }
 
 /* -------------------- 7. Daire ekranı -------------------- */
