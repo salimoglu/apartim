@@ -808,6 +808,73 @@
     return /^\d{4}-\d{2}-\d{2}$/.test(t) ? t : "";
   }
 
+  let tahsilatCeviriciKilit = false;
+
+  function tahsilatCeviriciTemizle() {
+    const tl = document.getElementById("odeme-cevir-tl");
+    const usd = document.getElementById("odeme-cevir-usd");
+    if (tl) tl.value = "";
+    if (usd) usd.value = "";
+  }
+
+  function tahsilatCeviriciYuvarla(n) {
+    return Math.round(Number(n) * 100) / 100;
+  }
+
+  function tahsilatCeviriciYaz(el, n) {
+    if (!el) return;
+    if (!Number.isFinite(n) || n <= 0) {
+      el.value = "";
+      return;
+    }
+    el.value = String(tahsilatCeviriciYuvarla(n)).replace(".", ",");
+  }
+
+  function tahsilatCeviriciGuncelle(kaynak) {
+    if (tahsilatCeviriciKilit) return;
+    const kur = tahsilatKurUsd();
+    if (!(kur > 0)) return;
+    const tlEl = document.getElementById("odeme-cevir-tl");
+    const usdEl = document.getElementById("odeme-cevir-usd");
+    if (!tlEl || !usdEl) return;
+    tahsilatCeviriciKilit = true;
+    try {
+      if (kaynak === "tl") {
+        const ham = tlEl.value.trim();
+        if (ham === "") {
+          usdEl.value = "";
+          return;
+        }
+        const tl = parseTutarGiris(ham);
+        if (!Number.isFinite(tl) || tl < 0) return;
+        tahsilatCeviriciYaz(usdEl, tl / kur);
+      } else if (kaynak === "usd") {
+        const ham = usdEl.value.trim();
+        if (ham === "") {
+          tlEl.value = "";
+          return;
+        }
+        const usd = parseTutarGiris(ham);
+        if (!Number.isFinite(usd) || usd < 0) return;
+        tahsilatCeviriciYaz(tlEl, usd * kur);
+      }
+    } finally {
+      tahsilatCeviriciKilit = false;
+    }
+  }
+
+  function tahsilatCeviriciTakas() {
+    const tlEl = document.getElementById("odeme-cevir-tl");
+    const usdEl = document.getElementById("odeme-cevir-usd");
+    if (!tlEl || !usdEl) return;
+    const a = tlEl.value;
+    tlEl.value = usdEl.value;
+    usdEl.value = a;
+    /* Takas sonrası TL kaynağı varsay: USD'yi kur ile yeniden hesapla */
+    if (tlEl.value.trim() !== "") tahsilatCeviriciGuncelle("tl");
+    else if (usdEl.value.trim() !== "") tahsilatCeviriciGuncelle("usd");
+  }
+
   function tahsilatGirisOku() {
     const tlHam = document.getElementById("odeme-tutar-tl")?.value?.trim() || "";
     const usdHam = document.getElementById("odeme-tutar-usd")?.value?.trim() || "";
@@ -926,6 +993,7 @@
     document.getElementById("odeme-tutar-tl").value = "";
     document.getElementById("odeme-tutar-usd").value = "";
     document.getElementById("odeme-yontem").value = "elden";
+    tahsilatCeviriciTemizle();
     tahsilatOzetCiz(rez);
     tahsilatGecmisCiz(rez);
     tahsilatKalanOnizle();
@@ -1041,10 +1109,11 @@
         " · Para birimi: " + pb;
     }
     if (kurEl) {
-      kurEl.textContent = "Kur: 1 USD = " +
-        (para ? para.formatKur(kur) : String(kur)) + " ₺";
+      kurEl.textContent = "1$ = " +
+        (para ? para.formatKur(kur) : String(kur)) + "₺";
     }
     if (chk) chk.checked = !!rez.tahsilatTamamlandi;
+    tahsilatCeviriciTemizle();
 
     tahsilatFormaYukle(rez, tarih);
     setTimeout(() => {
@@ -1147,6 +1216,13 @@
         if (e.key === "Escape") odemeModalKapat();
       });
     });
+    document.getElementById("odeme-cevir-tl")?.addEventListener("input", () => {
+      tahsilatCeviriciGuncelle("tl");
+    });
+    document.getElementById("odeme-cevir-usd")?.addEventListener("input", () => {
+      tahsilatCeviriciGuncelle("usd");
+    });
+    document.getElementById("odeme-cevir-yon")?.addEventListener("click", tahsilatCeviriciTakas);
     document.getElementById("tahsilat-tamamla")?.addEventListener("change", tahsilatKalanOnizle);
     document.getElementById("odeme-tarih")?.addEventListener("change", () => {
       const ctx = odemeDuzenleDurum;
