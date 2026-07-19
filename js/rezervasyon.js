@@ -22,7 +22,6 @@
     ucret: document.getElementById("rez-ucret"),
     ucretLabel: document.getElementById("rez-ucret-label"),
     paraBirimi: document.getElementById("rez-para-birimi"),
-    ucretGrup: document.getElementById("rez-ucret-grup"),
     toplamAnlasma: document.getElementById("rez-toplam-anlasma"),
     toplamAnlasmaLabel: document.getElementById("rez-toplam-anlasma-label"),
     topluBolOzet: document.getElementById("rez-toplu-bol-ozet"),
@@ -104,9 +103,9 @@
 
   function ucretEtiketGuncelle() {
     const lbl = ay().ucretLabel;
-    if (lbl) lbl.textContent = "Gecelik ücret *";
+    if (lbl) lbl.textContent = "Ücret *";
     const anlasmaLbl = ay().toplamAnlasmaLabel;
-    if (anlasmaLbl) anlasmaLbl.textContent = "Toplam tutar *";
+    if (anlasmaLbl) anlasmaLbl.textContent = "Toplam *";
   }
 
   let anlasmaBolTimer = null;

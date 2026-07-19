@@ -2419,6 +2419,44 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rez-toplam-bar .gece { color: var(--metin-soluk); font-size: 12px; }
 .rez-toplam-bar .tutar { color: var(--vurgu); font-size: 20px; }
 
+/* Rezervasyon formu — tahsilat gibi etiket | alan (takvim genişliğiyle aynı hiza) */
+#modal-rez .modal-body {
+  --rez-lbl: 5.6em;
+}
+#modal-rez .rez-form-ust {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0 0 10px;
+}
+#modal-rez .rez-satir-yatay {
+  display: grid;
+  grid-template-columns: var(--rez-lbl) minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+#modal-rez .rez-satir-yatay > .field-label {
+  margin: 0;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+#modal-rez .rez-satir-yatay > .field-input,
+#modal-rez .rez-satir-yatay > .field-select,
+#modal-rez .rez-satir-yatay > .rez-tarih-aralik-ozet {
+  width: 100%;
+  min-width: 0;
+}
+#modal-rez .rez-tarih-baslik-satir {
+  margin-bottom: 6px;
+}
+#modal-rez .rez-tarih-baslik-satir > .rez-tarih-aralik-ozet {
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
 .rez-tarih-aralik-grup {
   margin-bottom: 12px;
 }
@@ -2605,35 +2643,43 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rez-fiyat-panel.hidden { display: none; }
 .rez-fiyat-panel { margin-top: 0; }
-.rez-fiyat-deger-satir {
-  align-items: flex-end;
-  gap: 10px;
+/* Ücret/Toplam + birim: etiket kolonu Kaynak/Misafir ile aynı */
+#modal-rez .rez-fiyat-deger-satir {
+  display: grid;
+  grid-template-columns: var(--rez-lbl) minmax(0, 1fr) minmax(92px, 108px);
+  align-items: center;
+  gap: 8px;
   margin-top: 4px;
 }
-.rez-fiyat-deger-sol {
-  flex: 1;
-  min-width: 0;
-  position: relative;
+#modal-rez .rez-fiyat-deger-sol {
+  display: contents;
 }
-.rez-fiyat-deger-sol .field-group {
-  margin-bottom: 0;
+#modal-rez .rez-fiyat-deger-sol .rez-fiyat-panel:not(.hidden) {
+  display: contents;
 }
-.rez-fiyat-deger-satir .rez-para-grup {
-  flex: 0 0 118px;
-  min-width: 100px;
-  margin-bottom: 0;
-}
-.rez-fiyat-deger-sol .rez-fiyat-panel:not(.hidden) {
-  width: 100%;
-}
-.rez-ayri-baslik-grup {
-  display: flex;
-  align-items: flex-end;
-  min-height: 42px;
-  padding-bottom: 10px;
-}
-.rez-ayri-baslik-grup .field-label {
+#modal-rez .rez-fiyat-deger-satir .field-label {
   margin: 0;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+#modal-rez .rez-fiyat-deger-satir .field-input,
+#modal-rez .rez-fiyat-deger-satir .rez-ayri-baslik-not {
+  width: 100%;
+  min-width: 0;
+}
+#modal-rez .rez-fiyat-deger-satir .rez-para-sec {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 6px;
+  font-size: 12px;
+  font-weight: 700;
+}
+#modal-rez .rez-ayri-baslik-not {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--metin-soluk);
+  line-height: 1.3;
 }
 #rez-panel-ayri {
   margin-top: 6px;
@@ -2685,17 +2731,12 @@ html:not(.theme-light) .rez-kaynak-badge {
   gap: 10px;
   margin-top: 4px;
 }
-.rez-toplam-anlasma-grup {
-  flex: 1 1 auto;
-  min-width: 0;
-}
 .rez-toplam-bol-btn {
   flex: 0 0 auto;
   white-space: nowrap;
   margin-bottom: 1px;
   min-height: 42px;
 }
-.rez-para-grup { flex: 0 0 120px; min-width: 100px; }
 .rez-fiyat-ipucu {
   font-size: 11px;
   color: var(--metin-soluk);

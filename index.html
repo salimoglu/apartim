@@ -9,13 +9,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="msapplication-TileColor" content="#15202b" />
-  <meta name="msapplication-TileImage" content="icons/icon-192.png?v=2.99" />
+  <meta name="msapplication-TileImage" content="icons/icon-192.png?v=2.100" />
   <title>Apartım — Apart-otel takip</title>
-  <link rel="icon" href="icons/favicon.ico?v=2.99" sizes="48x48" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=2.99" />
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=2.99" />
-  <link rel="manifest" href="manifest.json?v=2.99" />
-  <link rel="stylesheet" href="css/style.css?v=2.99" />
+  <link rel="icon" href="icons/favicon.ico?v=2.100" sizes="48x48" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=2.100" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=2.100" />
+  <link rel="manifest" href="manifest.json?v=2.100" />
+  <link rel="stylesheet" href="css/style.css?v=2.100" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
@@ -37,7 +37,7 @@
   <div id="lock-screen" class="lock-screen">
     <div class="lock-inner">
       <div class="lock-logo">
-        <img class="lock-app-icon" src="icons/icon-256.png?v=2.99" alt="Apartım" width="96" height="96" decoding="async" />
+        <img class="lock-app-icon" src="icons/icon-256.png?v=2.100" alt="Apartım" width="96" height="96" decoding="async" />
         <h1 class="lock-title">APARTIM</h1>
         <p class="lock-sub">Apart-otel takip uygulaması</p>
       </div>
@@ -68,7 +68,7 @@
   <div id="app" class="app hidden">
     <header class="topbar">
       <div class="topbar-left" id="topbar-home" title="Rezervasyonlar">
-        <span><img class="app-logo-img" src="icons/icon-256.png?v=2.99" alt="" width="36" height="36" decoding="async" /></span>
+        <span><img class="app-logo-img" src="icons/icon-256.png?v=2.100" alt="" width="36" height="36" decoding="async" /></span>
         <div class="topbar-brand">
           <span class="app-name">APARTIM</span>
           <span class="app-version" id="app-version">—</span>
@@ -83,7 +83,7 @@
         <button class="icon-btn hidden" id="install-btn" title="Uygulamayı yükle">&#11015;</button>
         <div class="ayar-wrap" id="ayar-wrap">
           <button type="button" class="ayar-trigger" id="ayar-trigger" aria-label="Ayarlar" aria-haspopup="true" title="Ayarlar">
-            <img class="ayar-avatar" id="ayar-avatar" src="icons/icon-256.png?v=2.99" alt="" width="32" height="32" decoding="async" referrerpolicy="no-referrer" />
+            <img class="ayar-avatar" id="ayar-avatar" src="icons/icon-256.png?v=2.100" alt="" width="32" height="32" decoding="async" referrerpolicy="no-referrer" />
           </button>
           <div class="ayar-menu hidden" id="ayar-menu" role="menu">
             <div class="ayar-user">
@@ -305,21 +305,25 @@
       </div>
       <div class="modal-body">
         <div id="rez-modal-uyari" class="modal-uyari hidden"></div>
-        <div class="field-group">
-          <label class="field-label" for="rez-kaynak">Müşteri kaynağı *</label>
-          <select id="rez-kaynak" class="field-select"></select>
-        </div>
-        <div class="field-group">
-          <label class="field-label" for="rez-misafir">Misafir adı *</label>
-          <input type="text" id="rez-misafir" class="field-input" placeholder="Ad Soyad" maxlength="80" autocomplete="name" />
-        </div>
-        <div class="field-group">
-          <label class="field-label" for="rez-telefon">Telefon</label>
-          <input type="tel" id="rez-telefon" class="field-input" placeholder="05XX XXX XX XX" maxlength="30" inputmode="tel" autocomplete="tel" />
+        <div class="rez-form-ust">
+          <div class="rez-satir-yatay">
+            <label class="field-label" for="rez-kaynak">Kaynak *</label>
+            <select id="rez-kaynak" class="field-select"></select>
+          </div>
+          <div class="rez-satir-yatay">
+            <label class="field-label" for="rez-misafir">Misafir *</label>
+            <input type="text" id="rez-misafir" class="field-input" placeholder="Ad Soyad" maxlength="80" autocomplete="name" />
+          </div>
+          <div class="rez-satir-yatay">
+            <label class="field-label" for="rez-telefon">Telefon</label>
+            <input type="tel" id="rez-telefon" class="field-input" placeholder="05XX XXX XX XX" maxlength="30" inputmode="tel" autocomplete="tel" />
+          </div>
         </div>
         <div class="field-group rez-tarih-aralik-grup">
-          <label class="field-label">Konaklama tarihleri *</label>
-          <p class="rez-tarih-aralik-ozet" id="rez-tarih-aralik-ozet">Giriş gününü, ardından çıkış gününü seçin</p>
+          <div class="rez-satir-yatay rez-tarih-baslik-satir">
+            <label class="field-label">Tarihler *</label>
+            <p class="rez-tarih-aralik-ozet" id="rez-tarih-aralik-ozet">Giriş gününü, ardından çıkış gününü seçin</p>
+          </div>
           <div class="rez-tarih-aralik-takvim" id="rez-tarih-aralik-takvim" role="application" aria-label="Konaklama tarihi seçici"></div>
           <input type="hidden" id="rez-giris" />
           <input type="hidden" id="rez-cikis" />
@@ -352,33 +356,25 @@
               </span>
             </label>
           </div>
-          <div class="field-row rez-fiyat-deger-satir">
+          <div class="rez-fiyat-deger-satir">
             <div class="rez-fiyat-deger-sol">
               <div class="rez-fiyat-panel" id="rez-panel-tek">
-                <div class="field-group rez-ucret-grup" id="rez-ucret-grup">
-                  <label class="field-label" for="rez-ucret" id="rez-ucret-label">Gecelik ücret *</label>
-                  <input type="number" id="rez-ucret" class="field-input" min="0" step="0.01" placeholder="1500" inputmode="decimal" />
-                </div>
+                <label class="field-label" for="rez-ucret" id="rez-ucret-label">Ücret *</label>
+                <input type="number" id="rez-ucret" class="field-input" min="0" step="0.01" placeholder="1500" inputmode="decimal" />
               </div>
               <div class="rez-fiyat-panel hidden" id="rez-panel-toplu">
-                <div class="field-group rez-toplam-anlasma-grup">
-                  <label class="field-label" for="rez-toplam-anlasma" id="rez-toplam-anlasma-label">Toplam tutar *</label>
-                  <input type="number" id="rez-toplam-anlasma" class="field-input" min="0" step="0.01" placeholder="190" inputmode="decimal" />
-                </div>
+                <label class="field-label" for="rez-toplam-anlasma" id="rez-toplam-anlasma-label">Toplam *</label>
+                <input type="number" id="rez-toplam-anlasma" class="field-input" min="0" step="0.01" placeholder="190" inputmode="decimal" />
               </div>
               <div class="rez-fiyat-panel hidden" id="rez-panel-ayri-ust">
-                <div class="field-group rez-ayri-baslik-grup">
-                  <span class="field-label">Gece başına fiyat</span>
-                </div>
+                <span class="field-label">Gecelik</span>
+                <span class="rez-ayri-baslik-not">Gece başına fiyat</span>
               </div>
             </div>
-            <div class="field-group rez-para-grup">
-              <label class="field-label" for="rez-para-birimi">Para birimi</label>
-              <select id="rez-para-birimi" class="field-select">
-                <option value="TL">₺ TL</option>
-                <option value="USD">$ USD</option>
-              </select>
-            </div>
+            <select id="rez-para-birimi" class="field-select rez-para-sec" aria-label="Birim">
+              <option value="TL">₺ TL</option>
+              <option value="USD">$ USD</option>
+            </select>
           </div>
           <div class="rez-fiyat-panel hidden" id="rez-panel-ayri">
             <div class="field-group rez-tarih-fiyat-grup" id="rez-tarih-fiyat-grup">
@@ -390,7 +386,7 @@
           </p>
         </div>
         <div id="rez-fiyat-ozet" class="rez-fiyat-ozet"></div>
-        <div class="field-group">
+        <div class="rez-satir-yatay">
           <label class="field-label" for="rez-notlar">Notlar</label>
           <input type="text" id="rez-notlar" class="field-input" placeholder="İsteğe bağlı..." maxlength="200" />
         </div>
@@ -583,7 +579,7 @@
   <!-- PWA YÜKLEME BANNER -->
   <div id="pwa-install-bar" class="pwa-install-bar hidden" role="dialog" aria-label="Uygulamayı yükle">
     <div class="pwa-install-inner">
-      <img class="pwa-install-ikon" src="icons/icon-192.png?v=2.99" alt="" width="44" height="44" decoding="async" />
+      <img class="pwa-install-ikon" src="icons/icon-192.png?v=2.100" alt="" width="44" height="44" decoding="async" />
       <div class="pwa-install-metin">
         <strong class="pwa-install-baslik">Apartım'ı telefona yükle</strong>
         <span class="pwa-install-aciklama" id="pwa-install-aciklama">Ana ekrana ekleyin, çevrimdışı da çalışır</span>
@@ -599,22 +595,22 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="js/version.js?v=2.99"></script>
-  <script src="js/firebase.js?v=2.99"></script>
-  <script src="js/pwa-install.js?v=2.99"></script>
-  <script src="js/avatar.js?v=2.99"></script>
-  <script src="js/auth.js?v=2.99"></script>
-  <script src="js/db.js?v=2.99"></script>
-  <script src="js/gorunum.js?v=2.99"></script>
+  <script src="js/version.js?v=2.100"></script>
+  <script src="js/firebase.js?v=2.100"></script>
+  <script src="js/pwa-install.js?v=2.100"></script>
+  <script src="js/avatar.js?v=2.100"></script>
+  <script src="js/auth.js?v=2.100"></script>
+  <script src="js/db.js?v=2.100"></script>
+  <script src="js/gorunum.js?v=2.100"></script>
   <script src="js/para.js?v=20260812"></script>
   <script src="js/bina.js?v=20260829"></script>
   <script src="js/takvim.js?v=20260829"></script>
-  <script src="js/rez-ozet.js?v=2.99"></script>
-  <script src="js/rezervasyon.js?v=2.99"></script>
-  <script src="js/rez-form-mobil.js?v=2.99"></script>
+  <script src="js/rez-ozet.js?v=2.100"></script>
+  <script src="js/rezervasyon.js?v=2.100"></script>
+  <script src="js/rez-form-mobil.js?v=2.100"></script>
   <script src="js/daire.js?v=20260822"></script>
-  <script src="js/tema.js?v=2.99"></script>
+  <script src="js/tema.js?v=2.100"></script>
   <script src="js/ayarlar.js?v=20260819"></script>
-  <script src="js/app.js?v=2.99"></script>
+  <script src="js/app.js?v=2.100"></script>
 </body>
 </html>
