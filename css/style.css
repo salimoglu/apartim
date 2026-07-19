@@ -1407,6 +1407,57 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   border-color: var(--basari);
   color: #fff;
 }
+#rez-ozet-excel-import:hover {
+  background: var(--vurgu);
+  border-color: var(--vurgu);
+  color: #fff;
+}
+.modal-box-excel-import {
+  max-width: min(520px, 96vw);
+}
+.excel-import-adimlar {
+  margin: 0 0 12px;
+  padding-left: 18px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--metin-soluk);
+}
+.excel-import-adimlar li { margin-bottom: 4px; }
+.excel-import-dosya {
+  padding: 8px;
+  font-size: 13px;
+}
+.excel-import-onizleme {
+  margin-top: 12px;
+  max-height: min(40vh, 280px);
+  overflow: auto;
+  border: 1px solid var(--kenar);
+  border-radius: 8px;
+  background: var(--zemin-2);
+  padding: 8px;
+  font-size: 12px;
+}
+.excel-import-ozet {
+  margin-bottom: 8px;
+  color: var(--metin);
+}
+.excel-import-grup {
+  margin: 8px 0 4px;
+  font-weight: 800;
+  font-size: 11px;
+  color: var(--metin-soluk);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.excel-import-satir {
+  padding: 3px 4px;
+  border-radius: 4px;
+  line-height: 1.3;
+}
+.excel-import-satir.ekle { color: var(--basari); }
+.excel-import-satir.guncelle { color: var(--bilgi, #3b82f6); }
+.excel-import-satir.atla,
+.excel-import-satir.hata { color: var(--tehlike); }
 .rez-ozet-sezon-nav {
   display: flex;
   align-items: center;
