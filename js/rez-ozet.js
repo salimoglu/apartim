@@ -1266,6 +1266,7 @@
     ctx.tarih = tarih;
 
     const tamamla = !!document.getElementById("tahsilat-tamamla")?.checked;
+    const oncekiTamam = !!rez.tahsilatTamamlandi;
     let kayit = null;
 
     if (!temizle) {
@@ -1280,7 +1281,8 @@
       }
       const tlSafe = Number.isFinite(tl) && tl > 0 ? tl : 0;
       const usdSafe = Number.isFinite(usd) && usd > 0 ? usd : 0;
-      if (tlSafe <= 0 && usdSafe <= 0 && !tamamla) {
+      /* Tutar yoksa: yalnızca tamamla tiki değiştiyse kaydet (kaldırma dahil) */
+      if (tlSafe <= 0 && usdSafe <= 0 && tamamla === oncekiTamam) {
         window.APARTIM.toast("Tutar girin, tamamla seçin veya Temizle kullanın", "uyari");
         return;
       }
@@ -1312,7 +1314,7 @@
       } else if (kayit) {
         await db.rezervasyonOdenenHucreKaydet(ctx.rezId, tarih, kayit, ekstra);
       } else {
-        await db.rezervasyonGuncelle(ctx.rezId, { tahsilatTamamlandi: true });
+        await db.rezervasyonGuncelle(ctx.rezId, { tahsilatTamamlandi: tamamla });
       }
       const guncel = db.durum.rezervasyonlar[ctx.rezId] || rez;
       if (ctx.hucre) odenenHucreyiYenile(ctx.hucre, guncel);

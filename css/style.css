@@ -3793,9 +3793,10 @@ html:not(.theme-light) .rez-kaynak-badge {
   vertical-align: -1px;
   flex-shrink: 0;
 }
+/* Tamamlanınca yalnızca ✓ yeşil; etiket ve rakamlar siyah kalır */
 .rez-ozet-out-kalan-stack.rez-ozet-tahsilat-tamam .rez-ozet-out-kalan-etiket,
 .rez-ozet-out-kalan-stack.rez-ozet-tahsilat-tamam .rez-ozet-out-kalan-tutar {
-  color: #22c55e;
+  color: #111827;
   font-weight: 800;
 }
 .rez-ozet-out-kalan-stack .rez-ozet-out-kalan-tutar {
@@ -3806,10 +3807,12 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rez-ozet-tablo-telefon .rez-ozet-tahsilat-ok {
   font-size: 15px;
 }
-html:not(.theme-light) .tahsilat-kalan-tamam,
+html:not(.theme-light) .tahsilat-kalan-tamam {
+  color: #4ade80;
+}
 html:not(.theme-light) .rez-ozet-out-kalan-stack.rez-ozet-tahsilat-tamam .rez-ozet-out-kalan-etiket,
 html:not(.theme-light) .rez-ozet-out-kalan-stack.rez-ozet-tahsilat-tamam .rez-ozet-out-kalan-tutar {
-  color: #4ade80;
+  color: #e5e7eb;
 }
 html:not(.theme-light) .rez-ozet-tahsilat-ok {
   background: none !important;
