@@ -184,8 +184,6 @@
       uygulamaAc(firebaseKullaniciBilgi(kullanici));
     };
 
-    /* Yalnız onAuthStateChanged — currentUser senkron yolu dinleyicilerden önce
-       auth-hazir yayınlayıp db bağlanmadan kilidi açabiliyordu */
     auth.onAuthStateChanged((kullanici) => {
       authIlkCozum = true;
       if (kullanici) {
@@ -196,12 +194,18 @@
       uygulamaKilitle();
     });
 
+    /* Persistence hazırsa kilidi hemen aç; db.js APARTIM.kullanici ile bağlanır */
+    if (auth.currentUser) {
+      authIlkCozum = true;
+      oturumAc(auth.currentUser);
+    }
+
     /* Splash takılırsa giriş formunu geri getir */
     setTimeout(() => {
       if (!authIlkCozum) {
         oturumBeklemeBitir();
       }
-    }, 12000);
+    }, 3000);
 
     btnGiris.addEventListener("click", async () => {
       hataGoster("");

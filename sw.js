@@ -1,7 +1,9 @@
-/* Apartım — basit cache-first service worker */
-/* Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
-const CACHE_VERSION = "apartim-3-13";
-const ASSET_V = "3.13";
+/* Apartım — service worker
+   JS/CSS: stale-while-revalidate (hızlı yenileme + arka planda güncelleme)
+   HTML navigate: network-first (kısa zaman aşımı → cache)
+   Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
+const CACHE_VERSION = "apartim-3-14";
+const ASSET_V = "3.14";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -31,8 +33,6 @@ const CORE_ASSETS = [
   "./icons/icon-180.png",
   "./icons/icon-192.png",
   "./icons/icon-256.png",
-  "./icons/icon-512.png",
-  "./icons/logo-ev.png?v=" + ASSET_V,
   "./icons/avatars/ev.svg?v=" + ASSET_V,
   "./icons/avatars/apart.svg?v=" + ASSET_V,
   "./icons/avatars/kamp.svg?v=" + ASSET_V,
@@ -43,26 +43,66 @@ const CORE_ASSETS = [
   "./icons/avatars/orman.svg?v=" + ASSET_V
 ];
 
+const NAV_TIMEOUT_MS = 2500;
+
+function putCache(request, resp) {
+  if (resp && resp.status === 200 && resp.type === "basic") {
+    const copy = resp.clone();
+    caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
+  }
+}
+
+/** Önce cache (anında), arka planda ağı güncelle — telefon yenilemesini hızlandırır */
+function staleWhileRevalidate(request) {
+  return caches.open(CACHE_VERSION).then((cache) =>
+    cache.match(request).then((cached) => {
+      const networkPromise = fetch(request)
+        .then((resp) => {
+          putCache(request, resp);
+          return resp;
+        })
+        .catch(() => cached);
+      return cached || networkPromise;
+    })
+  );
+}
+
 function networkFirstThenCache(request) {
   return fetch(request)
     .then((resp) => {
-      if (resp && resp.status === 200 && resp.type === "basic") {
-        const copy = resp.clone();
-        caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
-      }
+      putCache(request, resp);
       return resp;
     })
     .catch(() => caches.match(request));
+}
+
+/** Navigate: ağı dene, yavaşsa cache’e düş */
+function networkFirstWithTimeout(request, ms) {
+  const network = fetch(request)
+    .then((resp) => {
+      putCache(request, resp);
+      return resp;
+    })
+    .catch(() => null);
+
+  const timeout = new Promise((resolve) => {
+    setTimeout(() => resolve(null), ms);
+  });
+
+  return Promise.race([network, timeout]).then((resp) => {
+    if (resp) return resp;
+    return caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return network.then((r) => r || Response.error());
+    });
+  });
 }
 
 function cacheFirstThenNetwork(request) {
   return caches.match(request).then((cached) => {
     if (cached) return cached;
     return fetch(request).then((resp) => {
-      if (resp && resp.status === 200 && resp.type === "basic") {
-        const copy = resp.clone();
-        caches.open(CACHE_VERSION).then((cache) => cache.put(request, copy));
-      }
+      putCache(request, resp);
       return resp;
     });
   });
@@ -96,16 +136,16 @@ self.addEventListener("fetch", (event) => {
   const path = url.pathname.replace(/\/$/, "");
   const isRoot = path.endsWith("/apartim") || path.endsWith("/apartim/index.html") || path === "" || path.endsWith("/index.html");
   if (isRoot && event.request.mode === "navigate") {
-    event.respondWith(networkFirstThenCache(event.request));
+    event.respondWith(networkFirstWithTimeout(event.request, NAV_TIMEOUT_MS));
     return;
   }
   if (/\.(js|css)$/i.test(url.pathname)) {
-    event.respondWith(networkFirstThenCache(event.request));
+    event.respondWith(staleWhileRevalidate(event.request));
     return;
   }
   if (/\.(png|svg|json|ico|webp)$/i.test(url.pathname) || url.pathname.includes("/icons/")) {
     event.respondWith(cacheFirstThenNetwork(event.request));
     return;
   }
-  event.respondWith(networkFirstThenCache(event.request));
+  event.respondWith(staleWhileRevalidate(event.request));
 });
