@@ -2653,7 +2653,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rez-gece-fiyat-satir {
   display: grid;
-  grid-template-columns: 1fr minmax(88px, 110px) auto;
+  grid-template-columns: 1fr minmax(72px, 100px) minmax(68px, 82px);
   gap: 8px;
   align-items: center;
 }
@@ -2671,6 +2671,13 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rez-tarih-pb {
   font-size: 12px;
   color: var(--metin-soluk);
+}
+.rez-tarih-pb-sec {
+  padding: 8px 6px;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  text-align: center;
 }
 .rez-ucret-para-satir { align-items: flex-end; }
 .rez-toplam-anlasma-satir {

@@ -47,14 +47,17 @@
   function iso(y, m, d) { return y + "-" + pad(m + 1) + "-" + pad(d); }
   function fmt(n) { return Number(n || 0).toLocaleString("tr-TR"); }
 
-  function formatHucreFiyat(rez, miktar) {
-    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+  function formatHucreFiyat(rez, miktar, pbOverride) {
+    const pb = pbOverride ||
+      window.APARTIM.db?.rezervasyonGosterimPb?.(rez) ||
+      window.APARTIM.para?.rezParaBirimi(rez) || "TL";
     if (window.APARTIM.para) return window.APARTIM.para.formatTutarKisa(miktar, pb);
     return fmt(miktar);
   }
 
   function rezPb(rez) {
-    return window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    return window.APARTIM.db?.rezervasyonGosterimPb?.(rez) ||
+      window.APARTIM.para?.rezParaBirimi(rez) || "TL";
   }
 
   function formatPb(rez, miktar) {
@@ -129,7 +132,9 @@
   function rezervasyonBakiyeMetin(rez) {
     const db = window.APARTIM.db;
     if (!db) return "";
-    const toplam = db.rezervasyonToplamTutar(rez);
+    const toplam = db.rezervasyonToplamTl
+      ? db.rezervasyonToplamTl(rez)
+      : db.rezervasyonToplamTutar(rez);
     if (toplam <= 0) return "";
     const kalan = db.rezervasyonKalanHesapla(rez);
     const esik = kalanEsik(rez);
@@ -476,7 +481,7 @@
     const girisRid = rezIdAl(giris);
     const bg = hucreBg(renk, true);
     const det = konakDetay(giris, tarih);
-    const fiyat = formatHucreFiyat(giris, det.prc);
+    const fiyat = formatHucreFiyat(giris, det.prc, det.prcPb);
     const ad = misafirTabloGoster(det.misafir);
     const cikisAd = (cikis && cikis.misafirAdi) || "—";
     const girisAd = (giris && giris.misafirAdi) || "—";
@@ -543,7 +548,7 @@
     [
       { cls: "rez-ozet-sayi", txt: String(det.g) },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
-      { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
+      { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc, det.prcPb) },
       { type: "odn" },
       { cls: "rez-ozet-ad", txt: det.misafir || "" }
     ].forEach((c, ci) => {
@@ -626,7 +631,7 @@
     return [
       { cls: "rez-ozet-sayi", html: '<span class="rez-ozet-g-sayi">1</span>' },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
-      { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
+      { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc, det.prcPb) },
       { type: "odn" },
       { cls: "rez-ozet-ad", txt: det.misafir || "" }
     ];
@@ -635,16 +640,23 @@
   function konakDetay(rez, tarih) {
     const db = window.APARTIM.db;
     const g = db.geceSayisi(rez.giris, tarih) + 1;
-    const prc = db.rezervasyonGeceUcreti(rez, g);
+    const geceKayit = db.rezervasyonGeceKaydi
+      ? db.rezervasyonGeceKaydi(rez, g)
+      : { tutar: db.rezervasyonGeceUcreti(rez, g), pb: rezPb(rez) };
+    const prc = geceKayit.tutar;
+    const prcPb = geceKayit.pb || rezPb(rez);
     const odenenInfo = db.rezervasyonOdenenGosterim(rez, tarih);
-    const toplam = rez.toplamTutar != null
-      ? rez.toplamTutar
-      : db.rezervasyonTutarHesapla(rez).toplam;
+    const toplam = db.rezervasyonToplamGosterim
+      ? db.rezervasyonToplamGosterim(rez)
+      : (rez.toplamTutar != null
+        ? rez.toplamTutar
+        : db.rezervasyonTutarHesapla(rez).toplam);
     return {
       g,
       kategori: kaynakSimge(rez),
       kategoriHtml: kaynakSimgeHtml(rez),
       prc,
+      prcPb,
       odenen: odenenInfo.tutar,
       odenenManuel: odenenInfo.manuel,
       odenenYontem: odenenInfo.yontem,
@@ -827,7 +839,9 @@
     const db = window.APARTIM.db;
     const ozet = document.getElementById("odeme-modal-ozet");
     if (!db || !rez || !ozet) return;
-    const toplam = db.rezervasyonToplamTutar(rez);
+    const toplam = db.rezervasyonToplamGosterim
+      ? db.rezervasyonToplamGosterim(rez)
+      : db.rezervasyonToplamTutar(rez);
     const odenen = db.rezervasyonOdenenToplam(rez);
     const kalan = db.rezervasyonKalanHesapla(rez);
     ozet.innerHTML =
@@ -927,28 +941,43 @@
     const toplamTl = db.rezervasyonToplamTl(rez);
     const odenenTl = db.rezervasyonOdenenToplamTl(rez) - mevcutGunTl + buGunTl;
     const kalanTl = toplamTl - odenenTl;
-    const pb = rezPb(rez);
-    const kalanPb = para && pb !== "TL" ? para.tlDenPb(kalanTl, pb) : kalanTl;
-    const esik = kalanEsik(rez);
+
+    /* Canlı giriş de gösterim PB'sine dahil (TL+USD → USD) */
+    const pbAdaylari = [rezPb(rez)];
+    if (tlSafe > 0) pbAdaylari.push("TL");
+    if (usdSafe > 0) pbAdaylari.push("USD");
+    const uniq = [...new Set(pbAdaylari)];
+    let pb = uniq[0] || "TL";
+    if (uniq.length > 1) {
+      if (uniq.includes("USD")) pb = "USD";
+      else if (uniq.includes("EUR")) pb = "EUR";
+      else pb = uniq.find((p) => p !== "TL") || "TL";
+    }
+
+    const kurCift = db.rezervasyonKurCift ? db.rezervasyonKurCift(rez) : { USD: kur };
+    kurCift.USD = kur;
+    const kalanPb = para && pb !== "TL" ? para.tlDenPb(kalanTl, pb, kurCift) : kalanTl;
+    const esik = pb === "USD" ? 0.01 : 0.5;
     const tamam = !!document.getElementById("tahsilat-tamamla")?.checked;
     const ok = ' <span class="rez-ozet-tahsilat-ok" aria-hidden="true">✓</span>';
+    const yaz = (m) => para ? para.formatTutar(m, pb) : (fmt(m) + " " + pb);
 
     if (tamam && kalanPb > esik) {
-      el.innerHTML = esc(formatPb(rez, kalanPb) + " eksik") + ok +
+      el.innerHTML = esc(yaz(kalanPb) + " eksik") + ok +
         " — tahsilat tamamlandı sayılacak";
       el.className = "tahsilat-kalan tahsilat-kalan-tamam";
     } else if (tamam) {
       el.innerHTML = "Tahsilat tamam" + ok;
       el.className = "tahsilat-kalan tahsilat-kalan-tamam";
     } else if (kalanPb < -esik) {
-      el.textContent = "Fazla: " + formatPb(rez, -kalanPb);
+      el.textContent = "Fazla: " + yaz(-kalanPb);
       el.className = "tahsilat-kalan tahsilat-kalan-fazla";
     } else if (kalanPb > esik) {
-      el.textContent = "Kalan: " + formatPb(rez, kalanPb) +
+      el.textContent = "Kalan: " + yaz(kalanPb) +
         (pb === "USD" ? " (1$ = " + (para ? para.formatKur(kur) : kur) + "₺)" : "");
       el.className = "tahsilat-kalan";
     } else {
-      el.textContent = "Kalan: " + formatPb(rez, 0);
+      el.textContent = "Kalan: " + yaz(0);
       el.className = "tahsilat-kalan tahsilat-kalan-tamam";
     }
   }
@@ -989,7 +1018,10 @@
       baslik.textContent = "Tahsilat — " + (rez.misafirAdi || "Misafir");
     }
     if (aciklama) {
-      aciklama.textContent = "Konaklama: " + formatPb(rez, db.rezervasyonToplamTutar(rez)) +
+      const toplamG = db.rezervasyonToplamGosterim
+        ? db.rezervasyonToplamGosterim(rez)
+        : db.rezervasyonToplamTutar(rez);
+      aciklama.textContent = "Konaklama: " + formatPb(rez, toplamG) +
         " · Para birimi: " + pb;
     }
     if (kurEl) {
@@ -1673,7 +1705,7 @@
         hucreler: [
           "1",
           det.kategori,
-          formatHucreFiyat(h.giris, det.prc),
+          formatHucreFiyat(h.giris, det.prc, det.prcPb),
           excelOdnHucre(h.giris, tarih, det.odenenInfo),
           det.misafir || "",
           rezNotMetni(h.giris)
@@ -1698,7 +1730,7 @@
         hucreler: [
           "1",
           det.kategori,
-          formatHucreFiyat(h.rez, det.prc),
+          formatHucreFiyat(h.rez, det.prc, det.prcPb),
           excelOdnHucre(h.rez, tarih, det.odenenInfo),
           det.misafir || "",
           rezNotMetni(h.rez)
@@ -1711,7 +1743,7 @@
         hucreler: [
           String(det.g),
           det.kategori,
-          formatHucreFiyat(h.rez, det.prc),
+          formatHucreFiyat(h.rez, det.prc, det.prcPb),
           excelOdnHucre(h.rez, tarih, det.odenenInfo),
           det.misafir || "",
           rezNotMetni(h.rez)

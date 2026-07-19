@@ -140,7 +140,8 @@
     const kaynak = db.musteriKaynagiAd(rez.kaynakId) || "—";
     const odenen = db.rezervasyonOdenenToplam(rez);
     const kalan = db.rezervasyonKalanHesapla(rez);
-    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    const pb = db.rezervasyonGosterimPb?.(rez) ||
+      window.APARTIM.para?.rezParaBirimi(rez) || "TL";
     const fmtPb = (n) => window.APARTIM.para
       ? window.APARTIM.para.formatTutar(n, pb)
       : fmt(n) + " TL";

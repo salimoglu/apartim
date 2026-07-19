@@ -96,28 +96,90 @@
     return liste;
   }
 
-  function tarihFiyatlariToObject(fiyatlar) {
-    if (!fiyatlar) return null;
-    if (typeof fiyatlar === "object" && !Array.isArray(fiyatlar)) {
-      const out = {};
-      Object.keys(fiyatlar).forEach((k) => {
-        const u = Number(fiyatlar[k]);
-        if (u > 0) out[k] = u;
-      });
-      return Object.keys(out).length ? out : null;
+  /** Tek gece fiyat kaydı: { tutar, pb } — sayı veya nesne kabul eder */
+  function tarihFiyatKaydiNorm(deger, varsayilanPb) {
+    const para = window.APARTIM.para;
+    const defPb = para?.paraBirimiNorm(varsayilanPb) || "TL";
+    if (deger == null || deger === "") return null;
+    if (typeof deger === "number" || typeof deger === "string") {
+      const tutar = Number(deger);
+      if (!Number.isFinite(tutar) || tutar <= 0) return null;
+      return { tutar, pb: defPb };
+    }
+    if (typeof deger === "object") {
+      const raw = deger.tutar != null ? deger.tutar
+        : (deger.ucret != null ? deger.ucret : deger.fiyat);
+      const tutar = Number(raw);
+      if (!Number.isFinite(tutar) || tutar <= 0) return null;
+      const pb = para?.paraBirimiNorm(deger.pb || deger.paraBirimi) || defPb;
+      return { tutar, pb };
     }
     return null;
   }
 
-  /** Tüm geceler aynı fiyatsa true (tek fiyat modu) */
-  function tarihFiyatlariTekMi(giris, cikis, fiyatlar, varsayilanUcret) {
-    const tf = tarihFiyatlariToObject(fiyatlar);
+  /** { tarih: { tutar, pb } } */
+  function tarihFiyatlariNorm(fiyatlar, varsayilanPb) {
+    if (!fiyatlar || typeof fiyatlar !== "object" || Array.isArray(fiyatlar)) return null;
+    const out = {};
+    Object.keys(fiyatlar).forEach((k) => {
+      const kayit = tarihFiyatKaydiNorm(fiyatlar[k], varsayilanPb);
+      if (kayit) out[k] = kayit;
+    });
+    return Object.keys(out).length ? out : null;
+  }
+
+  /**
+   * Geriye uyumlu okuma:
+   * - Tek PB ise { tarih: tutar }
+   * - Karışık PB ise { tarih: { tutar, pb } }
+   * İç kullanım için tarihFiyatlariNorm tercih edin.
+   */
+  function tarihFiyatlariToObject(fiyatlar, varsayilanPb) {
+    const norm = tarihFiyatlariNorm(fiyatlar, varsayilanPb);
+    if (!norm) return null;
+    const pbs = new Set(Object.values(norm).map((k) => k.pb));
+    if (pbs.size <= 1) {
+      const out = {};
+      Object.keys(norm).forEach((k) => { out[k] = norm[k].tutar; });
+      return out;
+    }
+    const out = {};
+    Object.keys(norm).forEach((k) => {
+      out[k] = { tutar: norm[k].tutar, pb: norm[k].pb };
+    });
+    return out;
+  }
+
+  /** Kayıt için sıkıştır: tek PB → sayılar; karışık → nesneler */
+  function tarihFiyatlariKayitIcin(fiyatlar, varsayilanPb) {
+    const norm = tarihFiyatlariNorm(fiyatlar, varsayilanPb);
+    if (!norm) return null;
+    return tarihFiyatlariToObject(norm, varsayilanPb);
+  }
+
+  /** Tüm geceler aynı fiyat ve aynı para birimiyse true (tek fiyat modu) */
+  function tarihFiyatlariTekMi(giris, cikis, fiyatlar, varsayilanUcret, varsayilanPb) {
+    const defPb = window.APARTIM.para?.paraBirimiNorm(varsayilanPb) || "TL";
+    const tf = tarihFiyatlariNorm(fiyatlar, defPb);
     if (!tf) return true;
     const tarihler = geceTarihleri(giris, cikis);
     if (!tarihler.length) return true;
     const fallback = Number(varsayilanUcret) || 0;
-    const vals = tarihler.map((t) => Number(tf[t]) || fallback);
-    return vals.every((v) => v === vals[0]);
+    const kayitlar = tarihler.map((t) => tf[t] || { tutar: fallback, pb: defPb });
+    const ilk = kayitlar[0];
+    return kayitlar.every((k) => k.tutar === ilk.tutar && k.pb === ilk.pb);
+  }
+
+  /** Gece fiyatlarından gösterim PB: yalnızca TL → TL; TL+döviz → döviz */
+  function fiyatPbListesindenGosterim(pbs) {
+    const list = [...new Set((pbs || []).map((p) =>
+      window.APARTIM.para?.paraBirimiNorm(p) || "TL"
+    ))];
+    if (!list.length) return "TL";
+    if (list.length === 1) return list[0];
+    if (list.includes("USD")) return "USD";
+    if (list.includes("EUR")) return "EUR";
+    return list.find((p) => p !== "TL") || "TL";
   }
 
   /** Kademeleri nesne olarak döndürebilir */
@@ -201,16 +263,40 @@
     return liste[0].ucret;
   }
 
-  function rezervasyonGeceUcreti(rez, geceNo) {
+  function rezervasyonKurCift(rez) {
+    const para = window.APARTIM.para;
+    const canli = para?.kurlariGetir?.() || { USD: 46.5, EUR: 50.5 };
+    let usd = Number(rez?.kurUsd) > 0 ? Number(rez.kurUsd) : 0;
+    let eur = Number(rez?.kurEur) > 0 ? Number(rez.kurEur) : 0;
+    const og = rez?.odenenGunleri;
+    if (og && typeof og === "object") {
+      Object.keys(og).sort().forEach((t) => {
+        const kayit = odenenGunKaydiNorm(og[t]);
+        if (Number(kayit?.kurUsd) > 0) usd = Number(kayit.kurUsd);
+        if (Number(kayit?.kurEur) > 0) eur = Number(kayit.kurEur);
+      });
+    }
+    return {
+      USD: usd > 0 ? usd : canli.USD,
+      EUR: eur > 0 ? eur : canli.EUR
+    };
+  }
+
+  function rezervasyonGeceKaydi(rez, geceNo) {
     const fallback = Number(rez.gunlukUcret) || 0;
+    const defPb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
     const tarih = gunEkleISO(rez.giris, geceNo - 1);
-    const tf = tarihFiyatlariToObject(rez.tarihFiyatlari);
-    if (tf && tf[tarih] != null) return Number(tf[tarih]) || fallback;
+    const tf = tarihFiyatlariNorm(rez.tarihFiyatlari, defPb);
+    if (tf && tf[tarih]) return tf[tarih];
     const kademeler = ucretKademeleriToArray(rez.ucretKademeleri);
     if (kademeler && kademeler.length) {
-      return geceUcretiBul(kademeler, geceNo, fallback);
+      return { tutar: geceUcretiBul(kademeler, geceNo, fallback), pb: defPb };
     }
-    return fallback;
+    return { tutar: fallback, pb: defPb };
+  }
+
+  function rezervasyonGeceUcreti(rez, geceNo) {
+    return rezervasyonGeceKaydi(rez, geceNo).tutar;
   }
 
   function rezervasyonTarihUcreti(rez, tarihISO) {
@@ -221,21 +307,69 @@
   }
 
   function rezervasyonTutarHesapla(rez) {
+    const para = window.APARTIM.para;
     const gece = geceSayisi(rez.giris, rez.cikis);
+    const kur = rezervasyonKurCift(rez);
     const gecelik = [];
-    let toplam = 0;
+    let toplamTl = 0;
     for (let i = 1; i <= gece; i++) {
       const tarih = gunEkleISO(rez.giris, i - 1);
-      const ucret = rezervasyonGeceUcreti(rez, i);
-      gecelik.push({ gece: i, tarih, ucret });
-      toplam += ucret;
+      const kayit = rezervasyonGeceKaydi(rez, i);
+      const ucretTl = para
+        ? para.tlKarsiligi(kayit.tutar, kayit.pb, kur)
+        : kayit.tutar;
+      gecelik.push({
+        gece: i,
+        tarih,
+        ucret: kayit.tutar,
+        pb: kayit.pb,
+        ucretTl
+      });
+      toplamTl += ucretTl;
     }
-    return { gece, toplam, gecelik };
+    const gosterimPb = fiyatPbListesindenGosterim(gecelik.map((g) => g.pb));
+    const toplam = para
+      ? para.tlDenPb(toplamTl, gosterimPb, kur)
+      : toplamTl;
+    return { gece, toplam, toplamTl, gecelik, gosterimPb };
   }
 
   function rezervasyonToplamTutar(rez) {
     if (rez.toplamTutar != null) return Number(rez.toplamTutar) || 0;
     return rezervasyonTutarHesapla(rez).toplam;
+  }
+
+  /**
+   * Kalan / özet gösterim PB:
+   * yalnızca TL → TL; TL yanında başka birim varsa o birim (USD tercih).
+   * Fiyat geceleri + tahsilat girdileri birlikte değerlendirilir.
+   */
+  function rezervasyonGosterimPb(rez) {
+    const para = window.APARTIM.para;
+    const pbs = [];
+    const defPb = para?.rezParaBirimi(rez) || "TL";
+    pbs.push(defPb);
+    const gece = geceSayisi(rez?.giris, rez?.cikis);
+    for (let i = 1; i <= gece; i++) {
+      pbs.push(rezervasyonGeceKaydi(rez, i).pb);
+    }
+    const og = odenenGunleriTemizle(rez) || rez?.odenenGunleri;
+    if (og && typeof og === "object") {
+      Object.values(og).forEach((v) => {
+        const kayit = odenenGunKaydiNorm(v);
+        if (!kayit) return;
+        if ((Number(kayit.tutarTl) || 0) > 0) pbs.push("TL");
+        if ((Number(kayit.tutarUsd) || 0) > 0) pbs.push("USD");
+        if (
+          !(Number(kayit.tutarTl) > 0) &&
+          !(Number(kayit.tutarUsd) > 0) &&
+          (Number(kayit.tutar) || 0) > 0
+        ) {
+          pbs.push(kayit.tutarBirim === "TL" ? "TL" : defPb);
+        }
+      });
+    }
+    return fiyatPbListesindenGosterim(pbs);
   }
 
   const ODEME_YONTEMLERI = {
@@ -303,25 +437,29 @@
     if (!kayit) return 0;
     const para = window.APARTIM.para;
     const pb = para?.rezParaBirimi(rez) || "TL";
+    const kur = rezervasyonKurCift(rez);
+    if (Number(kayit.kurUsd) > 0) kur.USD = Number(kayit.kurUsd);
     if ((Number(kayit.tutarTl) || 0) > 0 || (Number(kayit.tutarUsd) || 0) > 0) {
       return para
-        ? para.tahsilatTlToplam(kayit.tutarTl, kayit.tutarUsd, kayit.kurUsd)
+        ? para.tahsilatTlToplam(kayit.tutarTl, kayit.tutarUsd, kur.USD)
         : (Number(kayit.tutarTl) || 0);
     }
     const tutar = Number(kayit.tutar) || 0;
     if (!para) return tutar;
     /* Yeni kayıtlar: tutar TL toplamı; eski kayıtlar: rezervasyon PB'si */
     if (kayit.tutarBirim === "TL") return tutar;
-    return para.tlKarsiligi(tutar, pb, kayit.kurUsd);
+    return para.tlKarsiligi(tutar, pb, kur);
   }
 
-  /** Tahsilatın rezervasyon para birimindeki karşılığı */
+  /** Tahsilatın gösterim para birimindeki karşılığı */
   function odenenKayitPb(kayit, rez) {
     const para = window.APARTIM.para;
-    const pb = para?.rezParaBirimi(rez) || "TL";
+    const pb = rezervasyonGosterimPb(rez);
     const tl = odenenKayitTl(kayit, rez);
     if (!para || pb === "TL") return tl;
-    return para.tlDenPb(tl, pb, kayit?.kurUsd);
+    const kur = rezervasyonKurCift(rez);
+    if (Number(kayit?.kurUsd) > 0) kur.USD = Number(kayit.kurUsd);
+    return para.tlDenPb(tl, pb, kur);
   }
 
   function odenenGunleriTemizle(rez) {
@@ -348,9 +486,11 @@
 
   function rezervasyonToplamTl(rez) {
     const para = window.APARTIM.para;
+    const hesap = rezervasyonTutarHesapla(rez);
+    if (hesap.gece > 0 && hesap.toplamTl != null) return hesap.toplamTl;
     const toplam = rezervasyonToplamTutar(rez);
     const pb = para?.rezParaBirimi(rez) || "TL";
-    return para ? para.tlKarsiligi(toplam, pb) : toplam;
+    return para ? para.tlKarsiligi(toplam, pb, rezervasyonKurCift(rez)) : toplam;
   }
 
   function rezervasyonOdenenToplamTl(rez) {
@@ -362,26 +502,38 @@
     }, 0);
   }
 
-  /** Eski API: rezervasyon para biriminde ödenen toplam (yaklaşık) */
+  /** Gösterim PB'sinde ödenen toplam (kayıt günü kuru) */
   function rezervasyonOdenenToplam(rez) {
     const para = window.APARTIM.para;
-    const pb = para?.rezParaBirimi(rez) || "TL";
+    const pb = rezervasyonGosterimPb(rez);
     const tl = rezervasyonOdenenToplamTl(rez);
     if (!para || pb === "TL") return tl;
-    return para.tlDenPb(tl, pb);
+    return para.tlDenPb(tl, pb, rezervasyonKurCift(rez));
   }
 
   function rezervasyonKalanTl(rez) {
     return rezervasyonToplamTl(rez) - rezervasyonOdenenToplamTl(rez);
   }
 
-  /** Toplam ücret − girilen ödemeler (rezervasyon para biriminde; negatif = fazla) */
+  /** Gösterim PB'sinde toplam tutar (kayıt günü kuru) */
+  function rezervasyonToplamGosterim(rez) {
+    const para = window.APARTIM.para;
+    const pb = rezervasyonGosterimPb(rez);
+    const tl = rezervasyonToplamTl(rez);
+    if (!para || pb === "TL") return tl;
+    return para.tlDenPb(tl, pb, rezervasyonKurCift(rez));
+  }
+
+  /**
+   * Toplam − ödemeler (gösterim PB'sinde).
+   * Yalnızca TL → TL; TL + döviz → döviz (kayıt günü kuru).
+   */
   function rezervasyonKalanHesapla(rez) {
     const para = window.APARTIM.para;
-    const pb = para?.rezParaBirimi(rez) || "TL";
+    const pb = rezervasyonGosterimPb(rez);
     const kalanTl = rezervasyonKalanTl(rez);
     if (!para || pb === "TL") return kalanTl;
-    return para.tlDenPb(kalanTl, pb);
+    return para.tlDenPb(kalanTl, pb, rezervasyonKurCift(rez));
   }
 
   function rezervasyonFazlaOdenen(rez) {
@@ -468,10 +620,12 @@
   }
 
   function rezervasyonOzeti(rez) {
-    const { gece, toplam, gecelik } = rezervasyonTutarHesapla(rez);
+    const { gece, toplam, gecelik, gosterimPb } = rezervasyonTutarHesapla(rez);
     const gunluk = Number(rez.gunlukUcret) || 0;
-    const tf = tarihFiyatlariToObject(rez.tarihFiyatlari);
-    const tarihliFiyat = tf && !tarihFiyatlariTekMi(rez.giris, rez.cikis, tf, gunluk);
+    const defPb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    const tfNorm = tarihFiyatlariNorm(rez.tarihFiyatlari, defPb);
+    const tarihliFiyat = tfNorm &&
+      !tarihFiyatlariTekMi(rez.giris, rez.cikis, tfNorm, gunluk, defPb);
     const kademeler = ucretKademeleriNormalize(
       rez.ucretKademeleri,
       rez.gunlukUcret
@@ -482,7 +636,8 @@
       toplamGece: gece,
       toplamTutar: toplam,
       gecelik,
-      tarihFiyatlari: tarihliFiyat ? tf : null,
+      gosterimPb,
+      tarihFiyatlari: tarihliFiyat ? tarihFiyatlariKayitIcin(tfNorm, defPb) : null,
       kademeler: !tarihliFiyat && !tekKademe ? kademeler : null,
       gunlukUcret: gunluk || kademeler[0]?.ucret || 0
     };
@@ -495,6 +650,7 @@
       toplamTutar: ozet.toplamTutar,
       gunlukUcret: ozet.gunlukUcret
     });
+    if (ozet.gosterimPb) kayit.paraBirimi = ozet.gosterimPb;
     if (ozet.tarihFiyatlari) {
       kayit.tarihFiyatlari = ozet.tarihFiyatlari;
       delete kayit.ucretKademeleri;
@@ -508,6 +664,8 @@
     else delete kayit.odenenGunleri;
     if (kayit.tahsilatTamamlandi) kayit.tahsilatTamamlandi = true;
     else delete kayit.tahsilatTamamlandi;
+    if (!(Number(kayit.kurUsd) > 0)) delete kayit.kurUsd;
+    if (!(Number(kayit.kurEur) > 0)) delete kayit.kurEur;
     delete kayit.kalanGunleri;
     return kayit;
   }
@@ -848,16 +1006,24 @@
 
   // ---------- Domain API ----------
   function rezAyKesisimGelir(rez, ayBas, ayBit) {
+    const para = window.APARTIM.para;
+    const kur = rezervasyonKurCift(rez);
     const tarihler = geceTarihleri(rez.giris, rez.cikis);
     let gece = 0;
-    let gelir = 0;
+    let gelirTl = 0;
+    const gelirPb = { TL: 0, USD: 0, EUR: 0 };
     tarihler.forEach((t, idx) => {
       if (t >= ayBas && t < ayBit) {
         gece++;
-        gelir += rezervasyonGeceUcreti(rez, idx + 1);
+        const kayit = rezervasyonGeceKaydi(rez, idx + 1);
+        gelirPb[kayit.pb] = (gelirPb[kayit.pb] || 0) + kayit.tutar;
+        gelirTl += para
+          ? para.tlKarsiligi(kayit.tutar, kayit.pb, kur)
+          : kayit.tutar;
       }
     });
-    return { gece, gelir };
+    /* gelir: geriye uyumluluk — TL karşılığı */
+    return { gece, gelir: gelirTl, gelirTl, gelirPb };
   }
 
   function daireAylikOzet(daireId, yil, ay) {
@@ -873,8 +1039,7 @@
       if (!rez || rez.daireId !== daireId) return;
       const k = rezAyKesisimGelir(rez, ayBas, ayBit);
       gece += k.gece;
-      const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
-      gelir += window.APARTIM.para?.tlKarsiligi(k.gelir, pb) ?? k.gelir;
+      gelir += k.gelirTl != null ? k.gelirTl : k.gelir;
     });
     return {
       gece,
@@ -986,6 +1151,12 @@
     if (Object.prototype.hasOwnProperty.call(partial, "tahsilatTamamlandi") && !partial.tahsilatTamamlandi) {
       delete yeni.tahsilatTamamlandi;
     }
+    if (Object.prototype.hasOwnProperty.call(partial, "kurUsd") && !(Number(partial.kurUsd) > 0)) {
+      delete yeni.kurUsd;
+    }
+    if (Object.prototype.hasOwnProperty.call(partial, "kurEur") && !(Number(partial.kurEur) > 0)) {
+      delete yeni.kurEur;
+    }
     delete yeni.kalanGunleri;
     if (partial.kaynakId != null) {
       rezervasyonKaynakDogrula(yeni);
@@ -1078,15 +1249,22 @@
     geceSayisi,
     gunEkleISO,
     geceTarihleri,
+    tarihFiyatKaydiNorm,
+    tarihFiyatlariNorm,
     tarihFiyatlariToObject,
+    tarihFiyatlariKayitIcin,
     tarihFiyatlariTekMi,
     ucretKademeleriNormalize,
     ucretKademeleriToArray,
     geceUcretiBul,
+    rezervasyonGeceKaydi,
     rezervasyonGeceUcreti,
     rezervasyonTarihUcreti,
     rezervasyonTutarHesapla,
     rezervasyonToplamTutar,
+    rezervasyonToplamGosterim,
+    rezervasyonGosterimPb,
+    rezervasyonKurCift,
     rezervasyonOdenenToplam,
     rezervasyonOdenenToplamTl,
     rezervasyonToplamTl,

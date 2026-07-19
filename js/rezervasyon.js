@@ -60,8 +60,43 @@
     return window.APARTIM.para?.paraBirimiNorm(ay().paraBirimi?.value) || "TL";
   }
 
-  function paraSimge() {
-    return window.APARTIM.para?.simge(seciliParaBirimi()) || "₺";
+  function paraSimge(pb) {
+    return window.APARTIM.para?.simge(pb || seciliParaBirimi()) || "₺";
+  }
+
+  function pbSelectHtml(secili) {
+    const s = window.APARTIM.para?.paraBirimiNorm(secili) || "TL";
+    return ["TL", "USD", "EUR"].map((p) =>
+      '<option value="' + p + '"' + (p === s ? " selected" : "") + ">" +
+      (window.APARTIM.para?.simge(p) || p) + "</option>"
+    ).join("");
+  }
+
+  function geceFiyatOku(deger, varsayilanTutar, varsayilanPb) {
+    const defPb = window.APARTIM.para?.paraBirimiNorm(varsayilanPb) || "TL";
+    if (deger != null && typeof deger === "object") {
+      return {
+        tutar: Number(deger.tutar) > 0 ? Number(deger.tutar) : varsayilanTutar,
+        pb: window.APARTIM.para?.paraBirimiNorm(deger.pb) || defPb
+      };
+    }
+    if (deger != null && deger !== "") {
+      const n = Number(deger);
+      return { tutar: Number.isFinite(n) && n > 0 ? n : varsayilanTutar, pb: defPb };
+    }
+    return { tutar: varsayilanTutar, pb: defPb };
+  }
+
+  function formGosterimPb(tf) {
+    const defPb = seciliParaBirimi();
+    if (!tf || typeof tf !== "object") return defPb;
+    const pbs = Object.keys(tf).map((t) => geceFiyatOku(tf[t], 0, defPb).pb);
+    if (!pbs.length) return defPb;
+    const uniq = [...new Set(pbs)];
+    if (uniq.length === 1) return uniq[0];
+    if (uniq.includes("USD")) return "USD";
+    if (uniq.includes("EUR")) return "EUR";
+    return uniq.find((p) => p !== "TL") || defPb;
   }
 
   function ucretEtiketGuncelle() {
@@ -69,9 +104,6 @@
     if (lbl) lbl.textContent = "Gecelik ücret *";
     const anlasmaLbl = ay().toplamAnlasmaLabel;
     if (anlasmaLbl) anlasmaLbl.textContent = "Toplam tutar *";
-    document.querySelectorAll(".rez-tarih-pb").forEach((el) => {
-      el.textContent = paraSimge();
-    });
   }
 
   let anlasmaBolTimer = null;
@@ -174,6 +206,7 @@
 
   function tarihFiyatlariHamOku() {
     const u = Number(ay().ucret?.value) || varsayilanUcret();
+    const pb = seciliParaBirimi();
     const tarihler = geceTarihleriAl();
     const out = {};
     if (!tarihler.length) return out;
@@ -184,11 +217,15 @@
         wrap.querySelectorAll(".rez-gece-fiyat-satir").forEach((satir) => {
           const t = satir.dataset.tarih;
           const inp = satir.querySelector(".rez-tarih-ucret");
-          out[t] = Number(inp?.value) || u;
+          const pbSel = satir.querySelector(".rez-tarih-pb-sec");
+          out[t] = {
+            tutar: Number(inp?.value) || u,
+            pb: window.APARTIM.para?.paraBirimiNorm(pbSel?.value) || pb
+          };
         });
       }
       tarihler.forEach((t) => {
-        if (out[t] == null) out[t] = u;
+        if (out[t] == null) out[t] = { tutar: u, pb };
       });
       return out;
     }
@@ -198,13 +235,15 @@
       if (Number.isFinite(toplam) && toplam > 0) {
         const parcalar = toplamGeceyeBol(toplam, tarihler.length);
         if (parcalar) {
-          tarihler.forEach((t, i) => { out[t] = parcalar[i]; });
+          tarihler.forEach((t, i) => {
+            out[t] = { tutar: parcalar[i], pb };
+          });
           return out;
         }
       }
     }
 
-    tarihler.forEach((t) => { out[t] = u; });
+    tarihler.forEach((t) => { out[t] = { tutar: u, pb }; });
     return out;
   }
 
@@ -219,13 +258,19 @@
     } else if (fiyatModu === "toplu") {
       if (onceki !== "toplu") {
         const tarihler = geceTarihleriAl();
-        const toplam = tarihler.reduce((s, t) => s + (Number(mevcut[t]) || 0), 0);
+        const toplam = tarihler.reduce((s, t) => {
+          return s + geceFiyatOku(mevcut[t], 0, seciliParaBirimi()).tutar;
+        }, 0);
         if (toplam > 0) alanYaz(ay().toplamAnlasma, fiyatYuvarla(toplam));
       }
       topluBolOzetGuncelle();
     } else {
       const vals = Object.values(mevcut);
-      if (vals.length) alanYaz(ay().ucret, vals[0]);
+      if (vals.length) {
+        alanYaz(ay().ucret, geceFiyatOku(vals[0], varsayilanUcret(), seciliParaBirimi()).tutar);
+        const pb0 = geceFiyatOku(vals[0], 0, seciliParaBirimi()).pb;
+        if (ay().paraBirimi && pb0) ay().paraBirimi.value = pb0;
+      }
     }
     toplamHesapla();
   }
@@ -247,7 +292,7 @@
     if (fiyatModu === "tek") return true;
     const db = window.APARTIM.db;
     if (!tf || !db) return fiyatModu === "tek";
-    return db.tarihFiyatlariTekMi(giris, cikis, tf, varsayilan);
+    return db.tarihFiyatlariTekMi(giris, cikis, tf, varsayilan, seciliParaBirimi());
   }
 
   function tarihFiyatlariOku() {
@@ -260,6 +305,7 @@
     if (!wrap) return;
     const tarihler = geceTarihleriAl();
     const u = Number(e.ucret?.value) || varsayilanUcret();
+    const defPb = seciliParaBirimi();
     const mevcut = fiyatlar || tarihFiyatlariOku();
     wrap.innerHTML = "";
     if (!tarihler.length) {
@@ -267,15 +313,18 @@
       return;
     }
     tarihler.forEach((t) => {
+      const kayit = geceFiyatOku(mevcut[t], u, defPb);
       const satir = document.createElement("div");
       satir.className = "rez-gece-fiyat-satir";
       satir.dataset.tarih = t;
       satir.innerHTML =
         '<span class="rez-tarih-etiket">' + esc(tarihGoster(t)) + "</span>" +
         '<input type="number" class="field-input rez-tarih-ucret" min="0" step="0.01" inputmode="decimal" value="' +
-        (mevcut[t] != null ? mevcut[t] : u) + '" aria-label="' + esc(tarihGoster(t)) + ' fiyat" />' +
-        '<span class="rez-tarih-pb">' + paraSimge() + "</span>";
+        kayit.tutar + '" aria-label="' + esc(tarihGoster(t)) + ' fiyat" />' +
+        '<select class="field-select rez-tarih-pb-sec" aria-label="' +
+        esc(tarihGoster(t)) + ' para birimi">' + pbSelectHtml(kayit.pb) + "</select>";
       satir.querySelector("input").addEventListener("input", toplamHesapla);
+      satir.querySelector("select").addEventListener("change", toplamHesapla);
       wrap.appendChild(satir);
     });
   }
@@ -283,22 +332,26 @@
   function fiyatFormYukle(rez) {
     const db = window.APARTIM.db;
     const varsayilan = Number(rez.gunlukUcret) || varsayilanUcret();
+    const rezPb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
 
-    let tf = db?.tarihFiyatlariToObject?.(rez.tarihFiyatlari);
+    let tf = db?.tarihFiyatlariNorm?.(rez.tarihFiyatlari, rezPb) || null;
     if (!tf && rez.ucretKademeleri) {
       tf = {};
       const tarihler = db.geceTarihleri(rez.giris, rez.cikis);
       tarihler.forEach((t, i) => {
-        tf[t] = db.rezervasyonGeceUcreti(rez, i + 1);
+        const kayit = db.rezervasyonGeceKaydi
+          ? db.rezervasyonGeceKaydi(rez, i + 1)
+          : { tutar: db.rezervasyonGeceUcreti(rez, i + 1), pb: rezPb };
+        tf[t] = kayit;
       });
     }
 
-    const hepsiAyni = !tf || db.tarihFiyatlariTekMi(rez.giris, rez.cikis, tf, varsayilan);
+    const hepsiAyni = !tf || db.tarihFiyatlariTekMi(rez.giris, rez.cikis, tf, varsayilan, rezPb);
     let u = varsayilan;
     if (hepsiAyni && tf) {
       const tarihler = db.geceTarihleri(rez.giris, rez.cikis);
       if (tarihler.length && tf[tarihler[0]] != null) {
-        u = Number(tf[tarihler[0]]) || varsayilan;
+        u = geceFiyatOku(tf[tarihler[0]], varsayilan, rezPb).tutar;
       }
     }
 
@@ -311,7 +364,10 @@
       giris: rez.giris,
       cikis: rez.cikis,
       gunlukUcret: u,
-      tarihFiyatlari: hepsiAyni ? null : tf
+      paraBirimi: rezPb,
+      tarihFiyatlari: hepsiAyni ? null : tf,
+      kurUsd: rez.kurUsd,
+      kurEur: rez.kurEur
     });
     topluBolOzetGuncelle();
   }
@@ -583,19 +639,32 @@
     let i = 0;
     while (i < gecelik.length) {
       const u = gecelik[i].ucret;
+      const pb = gecelik[i].pb || seciliParaBirimi();
       const basTarih = gecelik[i].tarih;
       let bitTarih = basTarih;
-      while (i + 1 < gecelik.length && gecelik[i + 1].ucret === u) {
+      while (
+        i + 1 < gecelik.length &&
+        gecelik[i + 1].ucret === u &&
+        (gecelik[i + 1].pb || seciliParaBirimi()) === pb
+      ) {
         i++;
         bitTarih = gecelik[i].tarih;
       }
       const aralik = basTarih === bitTarih
         ? tarihGoster(basTarih)
         : tarihGoster(basTarih) + "–" + tarihGoster(bitTarih);
-      parcalar.push(aralik + " " + aralikFormatla(u) + " " + paraSimge());
+      parcalar.push(aralik + " " + aralikFormatla(u) + " " + paraSimge(pb));
       i++;
     }
     return parcalar.join(" · ");
+  }
+
+  function formKurCift() {
+    const k = window.APARTIM.para?.kurlariGetir?.() || {};
+    return {
+      USD: Number(k.USD) > 0 ? Number(k.USD) : undefined,
+      EUR: Number(k.EUR) > 0 ? Number(k.EUR) : undefined
+    };
   }
 
   function toplamHesapla() {
@@ -606,17 +675,23 @@
       const u = Number(e.ucret?.value) || varsayilanUcret();
       const tf = tarihFiyatlariOku();
       const tekKayit = tekFiyatKayitMi(tf, g, c, u);
+      const gPb = fiyatModu === "ayri" ? formGosterimPb(tf) : seciliParaBirimi();
+      const kur = formKurCift();
       const rez = {
         giris: g,
         cikis: c,
         gunlukUcret: u,
-        tarihFiyatlari: tekKayit ? null : tf
+        paraBirimi: gPb,
+        tarihFiyatlari: tekKayit ? null : tf,
+        kurUsd: kur.USD,
+        kurEur: kur.EUR
       };
-      const { gece, toplam } = tutarHesapla(rez);
+      const { gece, toplam, gosterimPb } = tutarHesapla(rez);
+      const gosterPb = gosterimPb || gPb;
       if (e.tGece) e.tGece.textContent = gece + " gece";
       if (e.tTutar) {
         e.tTutar.textContent = window.APARTIM.para
-          ? window.APARTIM.para.formatTutar(toplam, seciliParaBirimi())
+          ? window.APARTIM.para.formatTutar(toplam, gosterPb)
           : aralikFormatla(toplam) + " TL";
       }
       if (e.fiyatOzet) {
@@ -764,7 +839,7 @@
       return "";
     }
     for (const t of tarihler) {
-      const f = Number(tf[t]) || 0;
+      const f = geceFiyatOku(tf[t], 0, seciliParaBirimi()).tutar;
       if (f <= 0) return tarihGoster(t) + " için fiyat 0'dan büyük olmalı.";
     }
     return "";
@@ -791,10 +866,15 @@
       const cikis = e.cikis?.value || "";
       const tfHam = tarihFiyatlariOku();
       const ucretTek = Number(e.ucret?.value) || varsayilanUcret() || 1000;
-      const ucretDeger = fiyatModu === "tek"
-        ? ucretTek
-        : (Object.values(tfHam)[0] || varsayilanUcret());
+      const ilkGece = geceFiyatOku(
+        Object.values(tfHam)[0],
+        ucretTek,
+        seciliParaBirimi()
+      );
+      const ucretDeger = fiyatModu === "tek" ? ucretTek : ilkGece.tutar;
       const tekKayit = tekFiyatKayitMi(tfHam, giris, cikis, ucretTek);
+      const gPb = fiyatModu === "ayri" ? formGosterimPb(tfHam) : seciliParaBirimi();
+      const kur = formKurCift();
 
       if (!misafir) { kaydetHata("Misafir adı zorunlu."); return; }
       if (!giris || !cikis) { kaydetHata("Tarihler zorunlu."); return; }
@@ -811,6 +891,12 @@
 
       if (!mevcutDaireId) { kaydetHata("Daire seçilemedi. Modalı kapatıp tekrar deneyin."); return; }
 
+      const pbs = tf
+        ? Object.keys(tf).map((t) => geceFiyatOku(tf[t], 0, gPb).pb)
+        : [gPb];
+      const usdVar = pbs.includes("USD") || gPb === "USD";
+      const eurVar = pbs.includes("EUR") || gPb === "EUR";
+
       const veri = {
         daireId: mevcutDaireId,
         kaynakId,
@@ -819,10 +905,12 @@
         giris,
         cikis,
         gunlukUcret: ucretDeger,
-        paraBirimi: seciliParaBirimi(),
+        paraBirimi: gPb,
         notlar: (e.notlar?.value || "").trim(),
         tarihFiyatlari: tf,
-        ucretKademeleri: null
+        ucretKademeleri: null,
+        kurUsd: usdVar ? kur.USD : null,
+        kurEur: eurVar ? kur.EUR : null
       };
 
       kaydediliyor = true;
@@ -925,14 +1013,18 @@
     const kaynakAd = rez.kaynakAd || window.APARTIM.db.musteriKaynagiAd(rez.kaynakId) || "—";
     const kaynakSimge = window.APARTIM.db.musteriKaynagiSimge(rez.kaynakId);
     const db = window.APARTIM.db;
-    const fiyatNot = db?.tarihFiyatlariToObject?.(rez.tarihFiyatlari) &&
-      !db.tarihFiyatlariTekMi(rez.giris, rez.cikis, rez.tarihFiyatlari, rez.gunlukUcret)
+    const rezPb0 = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    const fiyatNot = db?.tarihFiyatlariNorm?.(rez.tarihFiyatlari, rezPb0) &&
+      !db.tarihFiyatlariTekMi(rez.giris, rez.cikis, rez.tarihFiyatlari, rez.gunlukUcret, rezPb0)
       ? " · Tarihli fiyat"
       : (rez.ucretKademeleri ? " · Kademeli fiyat" : "");
-    const pb = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+    const pb = db?.rezervasyonGosterimPb?.(rez) || rezPb0;
+    const tutarDeger = db?.rezervasyonToplamGosterim
+      ? db.rezervasyonToplamGosterim(rez)
+      : (rez.toplamTutar || 0);
     const tutarMetin = window.APARTIM.para
-      ? window.APARTIM.para.formatTutar(rez.toplamTutar || 0, pb)
-      : aralikFormatla(rez.toplamTutar || 0) + " TL";
+      ? window.APARTIM.para.formatTutar(tutarDeger, pb)
+      : aralikFormatla(tutarDeger) + " TL";
 
     div.innerHTML =
       '<div class="rez-kart-ust">' +
@@ -1015,7 +1107,19 @@
     e.ucret?.addEventListener("input", toplamHesapla);
     e.paraBirimi?.addEventListener("change", () => {
       ucretEtiketGuncelle();
-      if (fiyatModu === "ayri") tarihFiyatListeCiz(tarihFiyatlariOku());
+      if (fiyatModu === "ayri") {
+        /* Global seçim yeni geceler için varsayılan; mevcut satır PB'lerini koru */
+        const mevcut = tarihFiyatlariOku();
+        const pb = seciliParaBirimi();
+        Object.keys(mevcut).forEach((t) => {
+          if (mevcut[t] && typeof mevcut[t] === "object") {
+            /* bilinçli olarak satır PB'sini değiştirme — yalnızca boşsa */
+          } else {
+            mevcut[t] = { tutar: Number(mevcut[t]) || varsayilanUcret(), pb };
+          }
+        });
+        tarihFiyatListeCiz(mevcut);
+      }
       if (fiyatModu === "toplu") topluBolOzetGuncelle();
       toplamHesapla();
     });

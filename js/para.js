@@ -68,23 +68,36 @@
     return Number.isFinite(t) ? Date.now() - t : Infinity;
   }
 
-  function tlKarsiligi(miktar, pb, kurUsdOverride) {
+  /** kurOverride: sayı (USD kuru) veya { USD, EUR } */
+  function kurCift(kurOverride) {
+    if (kurOverride && typeof kurOverride === "object") {
+      return {
+        USD: Number(kurOverride.USD) > 0 ? Number(kurOverride.USD) : kurlar.USD,
+        EUR: Number(kurOverride.EUR) > 0 ? Number(kurOverride.EUR) : kurlar.EUR
+      };
+    }
+    const usd = Number(kurOverride) > 0 ? Number(kurOverride) : kurlar.USD;
+    return { USD: usd, EUR: kurlar.EUR };
+  }
+
+  function tlKarsiligi(miktar, pb, kurOverride) {
     const n = Number(miktar) || 0;
     const p = paraBirimiNorm(pb);
-    const usd = Number(kurUsdOverride) > 0 ? Number(kurUsdOverride) : kurlar.USD;
-    if (p === "USD") return n * usd;
-    if (p === "EUR") return n * kurlar.EUR;
+    if (p === "TL") return n;
+    const k = kurCift(kurOverride);
+    if (p === "USD") return n * k.USD;
+    if (p === "EUR") return n * k.EUR;
     return n;
   }
 
-  /** TL tutarını para birimine çevir (USD için kurUsdOverride kullanılabilir) */
-  function tlDenPb(miktarTl, pb, kurUsdOverride) {
+  /** TL tutarını para birimine çevir (kurOverride: sayı veya { USD, EUR }) */
+  function tlDenPb(miktarTl, pb, kurOverride) {
     const n = Number(miktarTl) || 0;
     const p = paraBirimiNorm(pb);
     if (p === "TL") return n;
-    const usd = Number(kurUsdOverride) > 0 ? Number(kurUsdOverride) : kurlar.USD;
-    if (p === "USD") return usd > 0 ? n / usd : 0;
-    if (p === "EUR") return kurlar.EUR > 0 ? n / kurlar.EUR : 0;
+    const k = kurCift(kurOverride);
+    if (p === "USD") return k.USD > 0 ? n / k.USD : 0;
+    if (p === "EUR") return k.EUR > 0 ? n / k.EUR : 0;
     return n;
   }
 
@@ -136,18 +149,23 @@
   /** basISO dahil, bitISO hariç */
   function aralikToplamlari(db, basISO, bitISO) {
     const toplam = { TL: 0, USD: 0, EUR: 0 };
+    let tlToplam = 0;
 
     Object.values(db.durum.rezervasyonlar || {}).forEach((rez) => {
       if (!rez) return;
       const k = db.rezAyKesisimGelir(rez, basISO, bitISO);
       if (k.gece <= 0) return;
-      const pb = rezParaBirimi(rez);
-      toplam[pb] += k.gelir;
+      if (k.gelirPb) {
+        toplam.TL += k.gelirPb.TL || 0;
+        toplam.USD += k.gelirPb.USD || 0;
+        toplam.EUR += k.gelirPb.EUR || 0;
+        tlToplam += k.gelirTl != null ? k.gelirTl : k.gelir;
+      } else {
+        const pb = rezParaBirimi(rez);
+        toplam[pb] += k.gelir;
+        tlToplam += tlKarsiligi(k.gelir, pb);
+      }
     });
-
-    const tlToplam = toplam.TL +
-      tlKarsiligi(toplam.USD, "USD") +
-      tlKarsiligi(toplam.EUR, "EUR");
 
     return { toplam, tlToplam };
   }
