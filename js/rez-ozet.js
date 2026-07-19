@@ -976,21 +976,25 @@
       pb !== "TL" ? ' <span class="tahsilat-kalan-tl">(' + esc(yazTl(mTl)) + ")</span>" : "";
 
     if (tamam && kalanPb > esik) {
-      el.innerHTML = esc(yaz(kalanPb) + " eksik") + tlParantez(kalanPb, kalanTl) + ok +
-        " — tahsilat tamamlandı sayılacak";
+      el.innerHTML = esc(yaz(kalanPb) + " eksik") + tlParantez(kalanPb, kalanTl) + ok;
       el.className = "tahsilat-kalan tahsilat-kalan-tamam";
+      el.title = "Eksik kalsa bile tahsilat tamamlandı sayılacak";
     } else if (tamam) {
-      el.innerHTML = "Tahsilat tamam" + ok;
+      el.innerHTML = "Tamam" + ok;
       el.className = "tahsilat-kalan tahsilat-kalan-tamam";
+      el.title = "Tahsilat tamam";
     } else if (kalanPb < -esik) {
-      el.innerHTML = "Fazla: " + esc(yaz(-kalanPb)) + tlParantez(-kalanPb, -kalanTl);
+      el.innerHTML = "Fazla " + esc(yaz(-kalanPb)) + tlParantez(-kalanPb, -kalanTl);
       el.className = "tahsilat-kalan tahsilat-kalan-fazla";
+      el.title = "";
     } else if (kalanPb > esik) {
-      el.innerHTML = "Kalan: " + esc(yaz(kalanPb)) + tlParantez(kalanPb, kalanTl);
+      el.innerHTML = esc(yaz(kalanPb)) + tlParantez(kalanPb, kalanTl);
       el.className = "tahsilat-kalan";
+      el.title = "Kalan";
     } else {
-      el.innerHTML = "Kalan: " + esc(yaz(0)) + tlParantez(0, 0);
+      el.innerHTML = esc(yaz(0)) + tlParantez(0, 0);
       el.className = "tahsilat-kalan tahsilat-kalan-tamam";
+      el.title = "Kalan";
     }
   }
 

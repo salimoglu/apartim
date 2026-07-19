@@ -3202,17 +3202,14 @@ html:not(.theme-light) .rez-kaynak-badge {
   max-width: 360px;
 }
 .modal-box-tahsilat {
-  max-width: 420px;
-}
-.modal-box-tahsilat .field-row {
-  margin-bottom: 8px;
+  max-width: 400px;
 }
 .tahsilat-ozet {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 0 0 12px;
-  padding: 10px 12px;
+  gap: 4px;
+  margin: 0 0 10px;
+  padding: 8px 10px;
   background: var(--zemin-2);
   border: 1px solid var(--kenar);
   border-radius: 8px;
@@ -3222,7 +3219,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 .tahsilat-ozet-satir {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px 14px;
+  gap: 6px 12px;
 }
 .tahsilat-ozet-satir.tl {
   font-size: 11px;
@@ -3233,99 +3230,103 @@ html:not(.theme-light) .rez-kaynak-badge {
   color: var(--metin-soluk);
   margin-right: 4px;
 }
-.tahsilat-satir-yatay {
+.tahsilat-form {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
+  gap: 7px;
+  margin: 0 0 10px;
+}
+.tahsilat-satir-yatay {
+  display: grid;
+  grid-template-columns: 3.6em minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin: 0;
 }
 .tahsilat-satir-yatay > .field-label {
-  flex: 0 0 auto;
-  min-width: 4.5em;
   margin: 0;
   white-space: nowrap;
+  letter-spacing: 0.02em;
 }
 .tahsilat-satir-yatay > .field-input,
 .tahsilat-satir-yatay > .field-select {
-  flex: 1 1 auto;
+  width: 100%;
   min-width: 0;
+  padding: 8px 10px;
+}
+.tahsilat-tutar-satir {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 0;
 }
 .tahsilat-tutar-satir .tahsilat-satir-yatay {
-  margin-bottom: 0;
-}
-.tahsilat-tutar-satir .tahsilat-satir-yatay > .field-label {
-  min-width: 2.2em;
-}
-/* Kur + ödeme yöntemi: flex gap ile üst üste binme engellenir */
-.tahsilat-kur-yontem {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin: 0 0 10px;
+  grid-template-columns: 2.2em minmax(0, 1fr);
+  gap: 6px;
 }
 .tahsilat-kur {
   display: block;
   margin: 0;
-  padding: 7px 10px;
-  font-size: 12px;
+  padding: 0 0 0 3.6em;
+  font-size: 11px;
   font-weight: 600;
-  line-height: 1.35;
-  color: var(--metin);
-  background: var(--zemin-2);
-  border: 1px solid var(--kenar);
-  border-radius: 8px;
-  flex: 0 0 auto;
-}
-.tahsilat-yontem-grup {
-  margin: 0;
-  flex: 0 0 auto;
-}
-.tahsilat-yontem-grup.tahsilat-satir-yatay > .field-label {
-  min-width: 7.5em;
+  line-height: 1.3;
+  color: var(--metin-soluk);
+  background: none;
+  border: none;
 }
 .tahsilat-kalan-tl {
   font-weight: 600;
   color: var(--metin-soluk);
 }
-.tahsilat-tamamla-satir {
+.tahsilat-tamamla-kalan {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  margin: 4px 0 10px;
-  padding: 10px 12px;
+  min-height: 40px;
+  padding: 6px 10px;
   border: 1px solid var(--kenar);
   border-radius: 8px;
   background: var(--zemin-2);
+}
+.tahsilat-tamamla-satir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
   cursor: pointer;
   font-size: 13px;
   font-weight: 600;
   color: var(--metin);
   user-select: none;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .tahsilat-tamamla-satir input {
-  margin-top: 2px;
+  margin: 0;
   width: 16px;
   height: 16px;
   flex-shrink: 0;
 }
-.tahsilat-tamamla-satir small {
-  display: block;
-  font-weight: 500;
-  font-size: 11px;
-  color: var(--metin-soluk);
-  margin-top: 2px;
-}
 .tahsilat-kalan {
-  margin: 0 0 12px;
-  font-size: 13px;
+  margin: 0;
+  padding: 0;
+  font-size: 12px;
   font-weight: 700;
   color: var(--metin);
-  line-height: 1.35;
+  line-height: 1.25;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 2px 4px;
+  text-align: right;
+  flex: 0 1 auto;
+  max-width: 55%;
 }
 .tahsilat-kalan-tamam { color: #2e7d32; }
 .tahsilat-kalan-fazla { color: #1565c0; }
