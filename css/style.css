@@ -1412,6 +1412,46 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   border-color: var(--vurgu);
   color: #fff;
 }
+.rez-ozet-temizle-btn:hover,
+#rez-ozet-sezon-temizle:hover {
+  background: var(--tehlike);
+  border-color: var(--tehlike);
+  color: #fff;
+}
+.modal-box-sezon-temizle {
+  max-width: min(440px, 96vw);
+}
+.sezon-temizle-uyari-kisa {
+  color: var(--tehlike);
+  font-weight: 700;
+}
+.sezon-temizle-geri-sayim {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0 16px;
+}
+.sezon-temizle-geri-sayim span {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 900;
+  color: #fff;
+  background: var(--tehlike);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--tehlike) 25%, transparent);
+}
+#sezon-temizle-google {
+  width: 100%;
+  margin-top: 8px;
+}
+#sezon-temizle-hata:empty { display: none; }
+#modal-sezon-temizle .modal-footer [data-temizle-adim].hidden {
+  display: none !important;
+}
 .modal-box-excel-import {
   max-width: min(520px, 96vw);
 }
