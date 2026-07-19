@@ -98,27 +98,8 @@
       document.body.classList.toggle("rez-form-klavye", klavye);
       document.documentElement.style.setProperty("--rez-vvh", Math.round(vv.height) + "px");
 
-      if (yatay) {
-        /* Yatay: ortalanmış kutu; klavye yokken inline konum yok */
-        if (klavye) {
-          el.style.top = vv.offsetTop + "px";
-          el.style.left = "0";
-          el.style.right = "0";
-          el.style.height = vv.height + "px";
-          el.style.bottom = "auto";
-          el.classList.add("rez-takvim-kapali");
-        } else {
-          el.style.top = "";
-          el.style.left = "";
-          el.style.right = "";
-          el.style.height = "";
-          el.style.bottom = "";
-        }
-        return;
-      }
-
-      /* Dikey: alt panel + görünür viewport */
-      el.style.top = vv.offsetTop + "px";
+      /* Telefon/tablet: her zaman üstten görünür viewport’a yasla (altta boş klavye alanı yok) */
+      el.style.top = Math.max(0, vv.offsetTop) + "px";
       el.style.left = "0";
       el.style.right = "0";
       el.style.height = vv.height + "px";

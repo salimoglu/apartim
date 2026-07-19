@@ -544,7 +544,17 @@
         });
       };
 
-      if (gd.tip === "turnover" || rez) {
+      if (gd.tip === "checkout") {
+        /* Out günü: kısa tık → yeni rezervasyon; uzun bas → çıkan misafiri düzenle */
+        if (hoverDestekli()) {
+          h.addEventListener("mouseenter", () => ozetHoverGoster(h, durum.daireId, isoT));
+          h.addEventListener("mouseleave", ozetHoverGizle);
+        }
+        hucreTiklamaBagla(h, bosTik, () => {
+          const id = window.APARTIM.rezervasyon?.rezIdAl?.(gd.rez);
+          if (id) window.APARTIM.rezervasyon.duzenle(id);
+        });
+      } else if (gd.tip === "turnover" || rez) {
         if (hoverDestekli()) {
           h.addEventListener("mouseenter", () => ozetHoverGoster(h, durum.daireId, isoT));
           h.addEventListener("mouseleave", ozetHoverGizle);
@@ -597,6 +607,7 @@
     durum,
     ozetKartGoster,
     ozetHoverBagla,
+    ozetHoverGoster,
     ozetHoverGizle
   };
 })();

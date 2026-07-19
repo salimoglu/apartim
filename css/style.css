@@ -3386,21 +3386,22 @@ html:not(.theme-light) .rez-kaynak-badge {
   margin-bottom: 10px;
 }
 
-/* Rezervasyon modal — mobil dikey (alt panel + klavye) */
+/* Rezervasyon modal — telefon/tablet dikey: üstten açılır (klavye boşluğu yok) */
 @media (max-width: 720px) and (orientation: portrait),
        (pointer: coarse) and (max-width: 900px) and (orientation: portrait) {
   body.rez-form-mobil:not(.rez-form-yatay) #modal-rez.modal-overlay {
-    align-items: flex-end;
+    align-items: flex-start;
     justify-content: center;
     padding: 0;
   }
   body.rez-form-mobil:not(.rez-form-yatay) #modal-rez .modal-box {
     width: 100%;
     max-width: none;
-    max-height: min(94dvh, var(--rez-vvh, 94dvh));
+    max-height: min(96dvh, var(--rez-vvh, 96dvh));
+    height: min(96dvh, var(--rez-vvh, 96dvh));
     display: flex;
     flex-direction: column;
-    border-radius: 16px 16px 0 0;
+    border-radius: 0 0 14px 14px;
     margin: 0;
   }
   body.rez-form-mobil:not(.rez-form-yatay).rez-form-klavye #modal-rez .modal-box,
@@ -3512,22 +3513,22 @@ html:not(.theme-light) .rez-kaynak-badge {
   }
 }
 
-/* Rezervasyon modal — mobil yatay (ortalanmış kompakt kutu) */
+/* Rezervasyon modal — yatay telefon/tablet: üstte */
 @media (orientation: landscape) and (max-height: 520px) {
   body.rez-form-mobil.rez-form-yatay #modal-rez.modal-overlay {
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
-    padding: 8px;
+    padding: 0;
     z-index: 100050;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .modal-box {
     width: 100%;
-    max-width: min(540px, 96vw);
-    max-height: min(calc(100dvh - 16px), var(--rez-vvh, calc(100dvh - 16px)));
-    height: auto;
+    max-width: min(640px, 100vw);
+    max-height: min(100dvh, var(--rez-vvh, 100dvh));
+    height: min(100dvh, var(--rez-vvh, 100dvh));
     display: flex;
     flex-direction: column;
-    border-radius: 12px;
+    border-radius: 0;
     margin: 0;
     overflow: hidden;
   }

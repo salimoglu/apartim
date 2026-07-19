@@ -512,39 +512,30 @@
     return { g: gk, kt: gk, fyt: fo, odn: fo, ad };
   }
 
-  function checkoutHucreleriEkle(tr, rez, tarih, renk, ioVurgu) {
-    const rid = rezIdAl(rez);
+  function checkoutHucreleriEkle(tr, rez, tarih, renk, ioVurgu, daireId) {
     const bg = hucreBg(renk, ioVurgu);
+    const odaId = daireId || rez?.daireId || "";
     const tdG = document.createElement("td");
-    tdG.className = "rez-ozet-sayi rez-ozet-out-gun" + (ioVurgu ? " rez-ozet-io-hucre" : "");
+    tdG.className = "rez-ozet-sayi rez-ozet-out-gun rez-ozet-bos rez-ozet-bos-gun" +
+      (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdG.style.background = bg;
-    tdG.title = "Çıkış" + (rez?.misafirAdi ? ": " + rez.misafirAdi : "");
+    tdG.title = "Çıkış" + (rez?.misafirAdi ? ": " + rez.misafirAdi : "") +
+      " · Yeni rezervasyon için diğer hücrelere tıklayın";
     tdG.textContent = "—";
     tr.appendChild(tdG);
 
-    const tdKt = document.createElement("td");
-    tdKt.className = "rez-ozet-kategori" + (ioVurgu ? " rez-ozet-io-hucre" : "");
-    tdKt.style.background = bg;
-    tdKt.textContent = "—";
-    tr.appendChild(tdKt);
-
-    const tdF = document.createElement("td");
-    tdF.className = "rez-ozet-sayi" + (ioVurgu ? " rez-ozet-io-hucre" : "");
-    tdF.style.background = bg;
-    tdF.textContent = "—";
-    tr.appendChild(tdF);
-
-    const tdO = document.createElement("td");
-    tdO.className = "rez-ozet-sayi" + (ioVurgu ? " rez-ozet-io-hucre" : "");
-    tdO.style.background = bg;
-    tdO.textContent = "—";
-    tr.appendChild(tdO);
-
-    const tdA = document.createElement("td");
-    tdA.className = "rez-ozet-ad" + (ioVurgu ? " rez-ozet-io-hucre" : "");
-    tdA.style.background = bg;
-    tdA.textContent = "—";
-    tr.appendChild(tdA);
+    for (let i = 0; i < 4; i++) {
+      const td = document.createElement("td");
+      td.className = (i === 3 ? "rez-ozet-ad" : "rez-ozet-sayi") +
+        " rez-ozet-bos rez-ozet-hucre-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
+      if (i === 0) td.classList.add("rez-ozet-kategori");
+      td.style.background = bg;
+      td.dataset.daireId = odaId;
+      td.dataset.tarih = tarih;
+      td.title = "Yeni rezervasyon (çıkış günü)";
+      td.textContent = "—";
+      tr.appendChild(td);
+    }
   }
 
   /** Çakışan gün: yalnızca sarı vurgu — i/o simgesi yok, sütunlar korunur */
@@ -670,7 +661,7 @@
       return;
     }
     if (h.tip === "checkout") {
-      checkoutHucreleriEkle(tr, h.rez, tarih, renk, true);
+      checkoutHucreleriEkle(tr, h.rez, tarih, renk, true, d.id);
       return;
     }
     if (h.tip === "konak") {

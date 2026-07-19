@@ -205,6 +205,28 @@
       const isoT = hucre.getAttribute("data-tarih");
       if (!daireId || !isoT) return;
 
+      const gd = window.APARTIM.db?.daireGunDurumu?.(daireId, isoT);
+      const yeniRezAc = (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const rezervasyon = window.APARTIM.rezervasyon;
+        if (!rezervasyon) {
+          window.APARTIM.toast("Rezervasyon modülü yüklenemedi", "hata");
+          return;
+        }
+        rezervasyon.yeni({ daireId, girisOnseci: isoT });
+      };
+
+      /* Out günü: yeni giriş rezervasyonu açılabilir */
+      if (gd?.tip === "checkout") {
+        hucre.addEventListener("mouseenter", () =>
+          window.APARTIM.takvim?.ozetHoverGoster?.(hucre, daireId, isoT));
+        hucre.addEventListener("mouseleave", () =>
+          window.APARTIM.takvim?.ozetHoverGizle?.());
+        hucre.addEventListener("click", yeniRezAc);
+        return;
+      }
+
       if (hucre.classList.contains("mini-takvim-dolu")) {
         const onDuzenle = () => {
           const db = window.APARTIM.db;
@@ -213,18 +235,18 @@
             window.APARTIM.toast("Rezervasyon modülü yüklenemedi", "hata");
             return;
           }
-          const gd = db.daireGunDurumu(daireId, isoT);
-          if (gd.tip === "turnover") {
+          const guncel = db.daireGunDurumu(daireId, isoT);
+          if (guncel.tip === "turnover") {
             const sec = confirm(
-              "CHECK OUT: " + (gd.cikis?.misafirAdi || "—") + "\nCHECK IN: " +
-              (gd.giris?.misafirAdi || "—") +
+              "CHECK OUT: " + (guncel.cikis?.misafirAdi || "—") + "\nCHECK IN: " +
+              (guncel.giris?.misafirAdi || "—") +
               "\n\nGiriş rezervasyonunu düzenlemek için Tamam, çıkış için İptal'e basın."
             );
-            const id = rezervasyon.rezIdAl(sec ? gd.giris : gd.cikis);
+            const id = rezervasyon.rezIdAl(sec ? guncel.giris : guncel.cikis);
             if (id) rezervasyon.duzenle(id);
             return;
           }
-          const rez = gd.rez;
+          const rez = guncel.rez;
           if (!rez) return;
           const id = rezervasyon.rezIdAl(rez);
           if (id) rezervasyon.duzenle(id);
@@ -234,16 +256,7 @@
       }
 
       /* Boş gün → Rezervasyonlar’daki gibi rezervasyon formu */
-      hucre.addEventListener("click", (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-        const rezervasyon = window.APARTIM.rezervasyon;
-        if (!rezervasyon) {
-          window.APARTIM.toast("Rezervasyon modülü yüklenemedi", "hata");
-          return;
-        }
-        rezervasyon.yeni({ daireId, girisOnseci: isoT });
-      });
+      hucre.addEventListener("click", yeniRezAc);
     });
     ozetGuncelle();
   }
