@@ -495,9 +495,9 @@
   }
 
   /* Kompakt sütunlar sabit — ekran genişleyince Ad şişmesin */
-  const GK_KOMPAKT = 14;
+  const GK_KOMPAKT = 15;  /* 14 → %10 (telefon/tablet); fark Ad'den */
   const FO_KOMPAKT = 58;   /* 10.000,00₺ */
-  const AD_KOMPAKT = 112;  /* feyzullah kandemir */
+  const AD_KOMPAKT = 110;  /* 112 − 2×1 (G+Kt büyütmesi) */
   const ODA_BLOK_KOMPAKT = 2 * GK_KOMPAKT + 2 * FO_KOMPAKT + AD_KOMPAKT; /* 256 */
 
   /** Oda bloğu: kompaktta G/Kt/Fyt/Odn/Ad sabit px (diğerlerine karışılmaz) */
