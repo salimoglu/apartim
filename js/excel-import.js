@@ -42,90 +42,118 @@
     return y + "-" + String(mo).padStart(2, "0") + "-" + String(d).padStart(2, "0");
   }
 
+  function paraBirimiBul(s) {
+    const t = String(s || "");
+    if (/\$|USD/i.test(t)) return "USD";
+    if (/€|EUR/i.test(t)) return "EUR";
+    return "TL";
+  }
+
+  /** Sayıyı agresif okur: 1.000,00₺ | 1000 | 1,000.00 | 1000.5 */
+  function sayiParse(metin) {
+    let s = hucreMetin(metin);
+    if (!s || s === "—" || s === "-" || s === "–") return null;
+    s = s.replace(/[₺$€]/g, " ").replace(/\b(TL|USD|EUR)\b/gi, " ").trim();
+    if (!s) return null;
+    /* Excel bazen sayı bırakır */
+    if (/^-?\d+(\.\d+)?$/.test(s)) {
+      const n = Number(s);
+      return Number.isFinite(n) && n >= 0 ? n : null;
+    }
+    /* TR: 1.000,50 veya 1000,50 */
+    if (/\d,\d{1,2}$/.test(s) || (s.indexOf(",") >= 0 && s.indexOf(".") >= 0)) {
+      const ham = s.replace(/\s/g, "").replace(/\./g, "").replace(",", ".");
+      const n = Number(ham);
+      return Number.isFinite(n) && n >= 0 ? n : null;
+    }
+    /* US: 1,000.50 */
+    if (/\d\.\d{1,2}$/.test(s) && s.indexOf(",") >= 0) {
+      const ham = s.replace(/\s/g, "").replace(/,/g, "");
+      const n = Number(ham);
+      return Number.isFinite(n) && n >= 0 ? n : null;
+    }
+    /* Düz rakam kümesi */
+    const m = s.match(/-?[\d.\s,]+/);
+    if (!m) return null;
+    let ham = m[0].replace(/\s/g, "");
+    if (ham.indexOf(",") >= 0 && ham.indexOf(".") >= 0) {
+      if (ham.lastIndexOf(",") > ham.lastIndexOf(".")) {
+        ham = ham.replace(/\./g, "").replace(",", ".");
+      } else {
+        ham = ham.replace(/,/g, "");
+      }
+    } else if (ham.indexOf(",") >= 0) {
+      ham = ham.replace(",", ".");
+    }
+    const n = Number(ham);
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  }
+
   function tutarParse(metin) {
     const s = hucreMetin(metin);
     if (!s || s === "—" || s === "-") return null;
-    const m = s.match(/([\d.\s]+,\d{2}|\d+)(\s*)(₺|\$|€|TL|USD|EUR)?/i);
-    if (!m) return null;
-    let ham = m[1].replace(/\s/g, "");
-    if (ham.indexOf(",") >= 0) ham = ham.replace(/\./g, "").replace(",", ".");
-    const n = Number(ham);
-    if (!Number.isFinite(n) || n < 0) return null;
-    let pb = "TL";
-    const birim = (m[3] || "").toUpperCase();
-    if (birim === "$" || birim === "USD") pb = "USD";
-    else if (birim === "€" || birim === "EUR") pb = "EUR";
-    else if (s.indexOf("$") >= 0) pb = "USD";
-    else if (s.indexOf("€") >= 0) pb = "EUR";
-    return { tutar: n, pb };
+    const n = sayiParse(s);
+    if (n == null || n < 0) return null;
+    return { tutar: n, pb: paraBirimiBul(s) };
   }
 
   function fiyatParse(metin) {
-    return tutarParse(metin);
+    const t = tutarParse(metin);
+    if (!t || !(t.tutar > 0)) return null;
+    return t;
   }
 
   function odemeBakiyeMi(metin) {
     const s = hucreMetin(metin).toLocaleLowerCase("tr");
     if (!s || s === "—" || s === "-") return true;
-    return /^(kalan|fazla|tamam|eksik)/.test(s) || /\b(kalan|fazla|eksik)\b/.test(s);
+    return /^(kalan|fazla|tamam|eksik)/.test(s) || /\b(kalan|fazla|eksik)\b/.test(s) || s.indexOf("✓") >= 0;
   }
 
+  /** Ödeme okunamazsa null — import’u engellemez */
   function odemeParse(metin) {
-    const s = hucreMetin(metin);
-    if (!s || odemeBakiyeMi(s)) return null;
+    try {
+      const s = hucreMetin(metin);
+      if (!s || odemeBakiyeMi(s)) return null;
 
-    const yontemler = window.APARTIM.db?.ODEME_YONTEMLERI || {
-      kasa: "Kasa", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
-    };
-    let yontem = "kasa";
-    const ym = s.match(/\(([^)]+)\)\s*$/);
-    if (ym) {
-      const etiket = ym[1].trim().toLocaleLowerCase("tr");
-      const bulunan = Object.keys(yontemler).find((k) =>
-        String(yontemler[k]).toLocaleLowerCase("tr") === etiket || k === etiket
-      );
-      if (bulunan) yontem = bulunan;
-    }
-
-    const govde = s.replace(/\([^)]*\)\s*$/, "").trim();
-    const parcalar = govde.split(/\s*\+\s*/);
-    let tutarTl = 0;
-    let tutarUsd = 0;
-    let tekPb = "TL";
-    let tekTutar = 0;
-    parcalar.forEach((p) => {
-      const t = tutarParse(p);
-      if (!t) return;
-      if (t.pb === "USD") {
-        tutarUsd += t.tutar;
-        tekPb = "USD";
-        tekTutar = t.tutar;
-      } else {
-        tutarTl += t.tutar;
-        tekPb = "TL";
-        tekTutar = t.tutar;
+      const yontemler = window.APARTIM.db?.ODEME_YONTEMLERI || {
+        kasa: "Kasa", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
+      };
+      let yontem = "kasa";
+      const ym = s.match(/\(([^)]+)\)\s*$/);
+      if (ym) {
+        const etiket = ym[1].trim().toLocaleLowerCase("tr");
+        const bulunan = Object.keys(yontemler).find((k) =>
+          String(yontemler[k]).toLocaleLowerCase("tr") === etiket || k === etiket
+        );
+        if (bulunan) yontem = bulunan;
       }
-    });
-    if (tutarTl <= 0 && tutarUsd <= 0) return null;
-    const kayit = { yontem };
-    if (tutarTl > 0 && tutarUsd > 0) {
-      kayit.tutarTl = tutarTl;
-      kayit.tutarUsd = tutarUsd;
-    } else if (tutarUsd > 0) {
-      kayit.tutar = tutarUsd;
-      kayit.tutarUsd = tutarUsd;
-    } else {
-      kayit.tutar = tutarTl || tekTutar;
-      kayit.tutarTl = tutarTl || tekTutar;
-    }
-    return kayit;
-  }
 
-  function tamamlandiMi(sonOdn) {
-    const s = hucreMetin(sonOdn).toLocaleLowerCase("tr");
-    if (!s) return false;
-    if (s.indexOf("✓") >= 0 || s.indexOf("tamam") >= 0) return true;
-    return false;
+      const govde = s.replace(/\([^)]*\)\s*$/, "").trim();
+      const parcalar = govde.split(/\s*\+\s*/);
+      let tutarTl = 0;
+      let tutarUsd = 0;
+      parcalar.forEach((p) => {
+        const t = tutarParse(p);
+        if (!t || !(t.tutar > 0)) return;
+        if (t.pb === "USD") tutarUsd += t.tutar;
+        else tutarTl += t.tutar;
+      });
+      if (tutarTl <= 0 && tutarUsd <= 0) return null;
+      const kayit = { yontem };
+      if (tutarTl > 0 && tutarUsd > 0) {
+        kayit.tutarTl = tutarTl;
+        kayit.tutarUsd = tutarUsd;
+      } else if (tutarUsd > 0) {
+        kayit.tutar = tutarUsd;
+        kayit.tutarUsd = tutarUsd;
+      } else {
+        kayit.tutar = tutarTl;
+        kayit.tutarTl = tutarTl;
+      }
+      return kayit;
+    } catch (e) {
+      return null;
+    }
   }
 
   /* Referans: Booking, Eski müşteri, Kapıdan gelen, Misafir, Albatros (+ kullanıcı kategorileri) */
@@ -349,21 +377,44 @@
           kt,
           not,
           gunler: [],
+          fytHam: {},
           fiyatlar: {},
-          odemeler: {},
-          sonOdn: ""
+          odemeler: {}
         };
       }
       aktif.gunler.push(iso);
+      aktif.fytHam[iso] = fyt;
       const fiyat = fiyatParse(fyt);
       if (fiyat) aktif.fiyatlar[iso] = fiyat;
+      /* Ödeme: okunamazsa atla — rezervasyonu engelleme */
       const odeme = odemeParse(odn);
       if (odeme) aktif.odemeler[iso] = odeme;
-      if (odn) aktif.sonOdn = odn;
       if (kt && kt !== "—") aktif.kt = kt;
       if (not) aktif.not = not;
     });
     flush();
+    /* Fiyatı ileri doldur: boş geceye önceki gece fiyatı */
+    bloklar.forEach((b) => {
+      let son = null;
+      b.gunler.forEach((iso) => {
+        if (b.fiyatlar[iso]) son = b.fiyatlar[iso];
+        else if (son) b.fiyatlar[iso] = son;
+        else {
+          const tekrar = fiyatParse(b.fytHam[iso]);
+          if (tekrar) {
+            b.fiyatlar[iso] = tekrar;
+            son = tekrar;
+          }
+        }
+      });
+      /* Hâlâ yoksa geriye doğru doldur */
+      let sonGeri = null;
+      for (let i = b.gunler.length - 1; i >= 0; i--) {
+        const iso = b.gunler[i];
+        if (b.fiyatlar[iso]) sonGeri = b.fiyatlar[iso];
+        else if (sonGeri) b.fiyatlar[iso] = sonGeri;
+      }
+    });
     return bloklar;
   }
 
@@ -398,25 +449,42 @@
         const kaynakId = kaynakIdBul(b.kt);
 
         const fiyatDegerleri = Object.values(b.fiyatlar);
+        if (!fiyatDegerleri.length) {
+          plan.atla.push({
+            etiket: (daire.ad || daire.id) + " · " + b.ad + " · " + giris,
+            neden: "Fiyat (Fyt) okunamadı — satırı kontrol edin"
+          });
+          return;
+        }
+
         let gunlukUcret = 0;
         let paraBirimi = "TL";
         let tarihFiyatlari = null;
-        if (fiyatDegerleri.length) {
-          paraBirimi = fiyatDegerleri[0].pb === "USD" ? "USD" : "TL";
-          const tutarlar = fiyatDegerleri.map((f) => f.tutar);
-          const tek = tutarlar.every((t) => t === tutarlar[0]);
-          gunlukUcret = tutarlar[0];
-          if (!tek) {
-            tarihFiyatlari = {};
-            Object.keys(b.fiyatlar).forEach((t) => {
-              const f = b.fiyatlar[t];
+        paraBirimi = fiyatDegerleri[0].pb === "USD" ? "USD" : "TL";
+        const tutarlar = fiyatDegerleri.map((f) => f.tutar);
+        const tek = tutarlar.every((t) => t === tutarlar[0]);
+        gunlukUcret = tutarlar[0];
+        if (!(gunlukUcret > 0)) {
+          plan.atla.push({
+            etiket: (daire.ad || daire.id) + " · " + b.ad + " · " + giris,
+            neden: "Fiyat 0 veya geçersiz"
+          });
+          return;
+        }
+        if (!tek) {
+          tarihFiyatlari = {};
+          Object.keys(b.fiyatlar).forEach((t) => {
+            const f = b.fiyatlar[t];
+            if (f && f.tutar > 0) {
               tarihFiyatlari[t] = { tutar: f.tutar, pb: f.pb === "USD" ? "USD" : "TL" };
-            });
-          }
+            }
+          });
         }
 
-        const odenenGunleri = Object.keys(b.odemeler).length ? Object.assign({}, b.odemeler) : null;
-        const tahsilatTamamlandi = tamamlandiMi(b.sonOdn);
+        /* Ödeme opsiyonel — okunamazsa atlanır, rezervasyon yine oluşur */
+        const odenenGunleri = Object.keys(b.odemeler).length
+          ? Object.assign({}, b.odemeler)
+          : null;
 
         const veri = {
           daireId: daire.id,
@@ -428,10 +496,9 @@
           gunlukUcret,
           paraBirimi,
           notlar: b.not || "",
-          tarihFiyatlari,
-          odenenGunleri,
-          tahsilatTamamlandi: tahsilatTamamlandi || undefined
+          tarihFiyatlari
         };
+        if (odenenGunleri) veri.odenenGunleri = odenenGunleri;
 
         const cakis = db.dairedeCakisanRez(daire.id, giris, cikis);
         if (cakis) {
@@ -475,7 +542,7 @@
     for (const item of plan.ekle) {
       try {
         const v = item.veri;
-        await db.rezervasyonEkle({
+        const payload = {
           daireId: v.daireId,
           kaynakId: v.kaynakId,
           misafirAdi: v.misafirAdi,
@@ -484,10 +551,10 @@
           gunlukUcret: v.gunlukUcret,
           paraBirimi: v.paraBirimi,
           notlar: v.notlar,
-          tarihFiyatlari: v.tarihFiyatlari,
-          odenenGunleri: v.odenenGunleri,
-          tahsilatTamamlandi: v.tahsilatTamamlandi
-        });
+          tarihFiyatlari: v.tarihFiyatlari
+        };
+        if (v.odenenGunleri) payload.odenenGunleri = v.odenenGunleri;
+        await db.rezervasyonEkle(payload);
         ok++;
       } catch (e) {
         hata++;
@@ -498,7 +565,7 @@
     for (const item of plan.guncelle) {
       try {
         const v = item.veri;
-        await db.rezervasyonGuncelle(item.id, {
+        const payload = {
           kaynakId: v.kaynakId,
           misafirAdi: v.misafirAdi,
           giris: v.giris,
@@ -506,10 +573,11 @@
           gunlukUcret: v.gunlukUcret,
           paraBirimi: v.paraBirimi,
           notlar: v.notlar,
-          tarihFiyatlari: v.tarihFiyatlari,
-          odenenGunleri: v.odenenGunleri,
-          tahsilatTamamlandi: !!v.tahsilatTamamlandi
-        });
+          tarihFiyatlari: v.tarihFiyatlari
+        };
+        /* Ödeme okunduysa yaz; okunamadıysa mevcut tahsilatlara dokunma */
+        if (v.odenenGunleri) payload.odenenGunleri = v.odenenGunleri;
+        await db.rezervasyonGuncelle(item.id, payload);
         ok++;
       } catch (e) {
         hata++;
