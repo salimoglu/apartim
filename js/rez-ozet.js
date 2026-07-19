@@ -472,10 +472,10 @@
     const genislik = Math.max(200, scrollGenislik || w);
     const kullanilabilir = Math.max(80, genislik - tarihPx);
 
-    /* Okunabilir oda bloğu: Ad + Fiyat + Ödenen sığsın */
+    /* Oda bloğu: 2×Fyt(10.000,00₺) + G + Kt + Ad sığsın */
     const minBlok = cihaz === "telefon"
-      ? (yatay ? 128 : 158)
-      : (yatay ? 108 : 122);
+      ? (yatay ? 168 : 178)
+      : (yatay ? 150 : 160);
     const tavan = cihaz === "telefon" ? (yatay ? 3 : 2) : (yatay ? 5 : 3);
 
     let odaHedef = Math.floor(kullanilabilir / minBlok);
