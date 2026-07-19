@@ -3198,10 +3198,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   max-width: 420px;
 }
 .modal-box-tahsilat .field-row {
-  margin-bottom: 10px;
-}
-.modal-box-tahsilat .field-row + .tahsilat-kur {
-  margin-top: 0;
+  margin-bottom: 12px;
 }
 .tahsilat-ozet {
   display: flex;
@@ -3220,19 +3217,29 @@ html:not(.theme-light) .rez-kaynak-badge {
   color: var(--metin-soluk);
   margin-right: 4px;
 }
+/* Kur + ödeme yöntemi: flex gap ile üst üste binme engellenir */
+.tahsilat-kur-yontem {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0 0 12px;
+}
 .tahsilat-kur {
   display: block;
-  margin: 0 0 14px;
-  padding: 8px 10px;
+  margin: 0;
+  padding: 9px 12px;
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.4;
   color: var(--metin);
   background: var(--zemin-2);
   border: 1px solid var(--kenar);
   border-radius: 8px;
-  position: relative;
-  z-index: 1;
+  flex: 0 0 auto;
+}
+.tahsilat-yontem-grup {
+  margin: 0;
+  flex: 0 0 auto;
 }
 .tahsilat-tamamla-satir {
   display: flex;
