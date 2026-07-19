@@ -57,7 +57,10 @@
   }
 
   function seciliParaBirimi() {
-    return window.APARTIM.para?.paraBirimiNorm(ay().paraBirimi?.value) || "TL";
+    const para = window.APARTIM.para;
+    if (para?.paraBirimiSecimNorm) return para.paraBirimiSecimNorm(ay().paraBirimi?.value);
+    const p = para?.paraBirimiNorm(ay().paraBirimi?.value) || "TL";
+    return p === "USD" ? "USD" : "TL";
   }
 
   function paraSimge(pb) {
@@ -65,8 +68,9 @@
   }
 
   function pbSelectHtml(secili) {
-    const s = window.APARTIM.para?.paraBirimiNorm(secili) || "TL";
-    return ["TL", "USD", "EUR"].map((p) =>
+    let s = window.APARTIM.para?.paraBirimiNorm(secili) || "TL";
+    if (s !== "TL" && s !== "USD") s = "TL";
+    return ["TL", "USD"].map((p) =>
       '<option value="' + p + '"' + (p === s ? " selected" : "") + ">" +
       (window.APARTIM.para?.simge(p) || p) + "</option>"
     ).join("");
@@ -93,10 +97,9 @@
     const pbs = Object.keys(tf).map((t) => geceFiyatOku(tf[t], 0, defPb).pb);
     if (!pbs.length) return defPb;
     const uniq = [...new Set(pbs)];
-    if (uniq.length === 1) return uniq[0];
+    if (uniq.length === 1) return uniq[0] === "EUR" ? "TL" : uniq[0];
     if (uniq.includes("USD")) return "USD";
-    if (uniq.includes("EUR")) return "EUR";
-    return uniq.find((p) => p !== "TL") || defPb;
+    return "TL";
   }
 
   function ucretEtiketGuncelle() {
@@ -807,7 +810,9 @@
       alanYaz(e.cikis, rez.cikis);
       fiyatFormYukle(rez);
       if (e.paraBirimi) {
-        e.paraBirimi.value = window.APARTIM.para?.rezParaBirimi(rez) || "TL";
+        const pb = window.APARTIM.para?.paraBirimiSecimNorm?.(rez.paraBirimi) ||
+          (window.APARTIM.para?.rezParaBirimi(rez) === "USD" ? "USD" : "TL");
+        e.paraBirimi.value = pb;
       }
       ucretEtiketGuncelle();
       alanYaz(e.notlar, rez.notlar || "");
@@ -895,7 +900,6 @@
         ? Object.keys(tf).map((t) => geceFiyatOku(tf[t], 0, gPb).pb)
         : [gPb];
       const usdVar = pbs.includes("USD") || gPb === "USD";
-      const eurVar = pbs.includes("EUR") || gPb === "EUR";
 
       const veri = {
         daireId: mevcutDaireId,
@@ -905,12 +909,12 @@
         giris,
         cikis,
         gunlukUcret: ucretDeger,
-        paraBirimi: gPb,
+        paraBirimi: gPb === "EUR" ? "TL" : gPb,
         notlar: (e.notlar?.value || "").trim(),
         tarihFiyatlari: tf,
         ucretKademeleri: null,
         kurUsd: usdVar ? kur.USD : null,
-        kurEur: eurVar ? kur.EUR : null
+        kurEur: null
       };
 
       kaydediliyor = true;

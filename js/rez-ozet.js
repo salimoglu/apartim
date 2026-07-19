@@ -832,17 +832,34 @@
 
   function tahsilatOzetCiz(rez) {
     const db = window.APARTIM.db;
+    const para = window.APARTIM.para;
     const ozet = document.getElementById("odeme-modal-ozet");
     if (!db || !rez || !ozet) return;
+    const pb = rezPb(rez);
     const toplam = db.rezervasyonToplamGosterim
       ? db.rezervasyonToplamGosterim(rez)
       : db.rezervasyonToplamTutar(rez);
     const odenen = db.rezervasyonOdenenToplam(rez);
     const kalan = db.rezervasyonKalanHesapla(rez);
-    ozet.innerHTML =
-      "<span><b>Toplam</b> " + esc(formatPb(rez, toplam)) + "</span>" +
-      "<span><b>Ödenen</b> " + esc(formatPb(rez, odenen)) + "</span>" +
-      "<span><b>Kalan</b> " + esc(formatPb(rez, Math.max(0, kalan))) + "</span>";
+    const toplamTl = db.rezervasyonToplamTl(rez);
+    const odenenTl = db.rezervasyonOdenenToplamTl(rez);
+    const kalanTl = Math.max(0, db.rezervasyonKalanTl(rez));
+    const yazPb = (m) => para ? para.formatTutar(m, pb) : (fmt(m) + " " + pb);
+    const yazTl = (m) => para ? para.formatTutar(m, "TL") : (fmt(m) + " ₺");
+    const satir = (cls, t, o, k) =>
+      '<div class="tahsilat-ozet-satir' + (cls ? " " + cls : "") + '">' +
+        "<span><b>Toplam</b> " + esc(t) + "</span>" +
+        "<span><b>Ödenen</b> " + esc(o) + "</span>" +
+        "<span><b>Kalan</b> " + esc(k) + "</span>" +
+      "</div>";
+    /* 1. satır: gösterim PB (USD/TL); 2. satır: her zaman TL karşılığı */
+    if (pb === "TL") {
+      ozet.innerHTML = satir("", yazTl(toplamTl), yazTl(odenenTl), yazTl(kalanTl));
+    } else {
+      ozet.innerHTML =
+        satir("", yazPb(toplam), yazPb(odenen), yazPb(Math.max(0, kalan))) +
+        satir("tl", yazTl(toplamTl), yazTl(odenenTl), yazTl(kalanTl));
+    }
   }
 
   function tahsilatGecmisCiz(rez) {
@@ -944,9 +961,7 @@
     const uniq = [...new Set(pbAdaylari)];
     let pb = uniq[0] || "TL";
     if (uniq.length > 1) {
-      if (uniq.includes("USD")) pb = "USD";
-      else if (uniq.includes("EUR")) pb = "EUR";
-      else pb = uniq.find((p) => p !== "TL") || "TL";
+      pb = uniq.includes("USD") ? "USD" : (uniq.find((p) => p !== "TL") || "TL");
     }
 
     const kurCift = db.rezervasyonKurCift ? db.rezervasyonKurCift(rez) : { USD: kur };
@@ -956,23 +971,25 @@
     const tamam = !!document.getElementById("tahsilat-tamamla")?.checked;
     const ok = ' <span class="rez-ozet-tahsilat-ok" aria-hidden="true">✓</span>';
     const yaz = (m) => para ? para.formatTutar(m, pb) : (fmt(m) + " " + pb);
+    const yazTl = (m) => para ? para.formatTutar(Math.abs(m), "TL") : (fmt(Math.abs(m)) + " ₺");
+    const tlParantez = (mPb, mTl) =>
+      pb !== "TL" ? ' <span class="tahsilat-kalan-tl">(' + esc(yazTl(mTl)) + ")</span>" : "";
 
     if (tamam && kalanPb > esik) {
-      el.innerHTML = esc(yaz(kalanPb) + " eksik") + ok +
+      el.innerHTML = esc(yaz(kalanPb) + " eksik") + tlParantez(kalanPb, kalanTl) + ok +
         " — tahsilat tamamlandı sayılacak";
       el.className = "tahsilat-kalan tahsilat-kalan-tamam";
     } else if (tamam) {
       el.innerHTML = "Tahsilat tamam" + ok;
       el.className = "tahsilat-kalan tahsilat-kalan-tamam";
     } else if (kalanPb < -esik) {
-      el.textContent = "Fazla: " + yaz(-kalanPb);
+      el.innerHTML = "Fazla: " + esc(yaz(-kalanPb)) + tlParantez(-kalanPb, -kalanTl);
       el.className = "tahsilat-kalan tahsilat-kalan-fazla";
     } else if (kalanPb > esik) {
-      el.textContent = "Kalan: " + yaz(kalanPb) +
-        (pb === "USD" ? " (1$ = " + (para ? para.formatKur(kur) : kur) + "₺)" : "");
+      el.innerHTML = "Kalan: " + esc(yaz(kalanPb)) + tlParantez(kalanPb, kalanTl);
       el.className = "tahsilat-kalan";
     } else {
-      el.textContent = "Kalan: " + yaz(0);
+      el.innerHTML = "Kalan: " + esc(yaz(0)) + tlParantez(0, 0);
       el.className = "tahsilat-kalan tahsilat-kalan-tamam";
     }
   }
@@ -1756,7 +1773,11 @@
     const parcalar = [];
     if (toplam.TL > 0) parcalar.push(window.APARTIM.para.formatTutar(toplam.TL, "TL"));
     if (toplam.USD > 0) parcalar.push(window.APARTIM.para.formatTutar(toplam.USD, "USD"));
-    if (toplam.EUR > 0) parcalar.push(window.APARTIM.para.formatTutar(toplam.EUR, "EUR"));
+    if (toplam.EUR > 0) {
+      parcalar.push(window.APARTIM.para.formatTutar(
+        window.APARTIM.para.tlKarsiligi(toplam.EUR, "EUR"), "TL"
+      ));
+    }
     const gelir = parcalar.length ? parcalar.join("  |  ") : "0 ₺";
     return gelir + "  —  Sezon toplam ≈ " + fmt(Math.round(tlToplam)) + " ₺";
   }

@@ -19,8 +19,16 @@
   function paraBirimiNorm(pb) {
     const p = String(pb || "TL").toUpperCase();
     if (p === "TRY" || p === "TL") return "TL";
-    if (p === "USD" || p === "EUR") return p;
+    if (p === "USD") return "USD";
+    /* EUR artık seçilmez; eski kayıtlar için dönüşümde tanınır */
+    if (p === "EUR") return "EUR";
     return "TL";
+  }
+
+  /** Kullanıcı seçiminde yalnızca TL / USD */
+  function paraBirimiSecimNorm(pb) {
+    const p = paraBirimiNorm(pb);
+    return p === "USD" ? "USD" : "TL";
   }
 
   function simge(pb) {
@@ -259,6 +267,7 @@
 
   window.APARTIM.para = {
     paraBirimiNorm,
+    paraBirimiSecimNorm,
     simge,
     kurlariYukle,
     kurlariGetir,

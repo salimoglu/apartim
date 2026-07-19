@@ -176,10 +176,9 @@
       window.APARTIM.para?.paraBirimiNorm(p) || "TL"
     ))];
     if (!list.length) return "TL";
-    if (list.length === 1) return list[0];
     if (list.includes("USD")) return "USD";
-    if (list.includes("EUR")) return "EUR";
-    return list.find((p) => p !== "TL") || "TL";
+    if (list.length === 1) return list[0] === "EUR" ? "TL" : list[0];
+    return "TL";
   }
 
   /** Kademeleri nesne olarak döndürebilir */

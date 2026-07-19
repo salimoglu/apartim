@@ -3205,12 +3205,12 @@ html:not(.theme-light) .rez-kaynak-badge {
   max-width: 420px;
 }
 .modal-box-tahsilat .field-row {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 .tahsilat-ozet {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px 14px;
+  flex-direction: column;
+  gap: 6px;
   margin: 0 0 12px;
   padding: 10px 12px;
   background: var(--zemin-2);
@@ -3219,25 +3219,58 @@ html:not(.theme-light) .rez-kaynak-badge {
   font-size: 12px;
   color: var(--metin);
 }
+.tahsilat-ozet-satir {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+.tahsilat-ozet-satir.tl {
+  font-size: 11px;
+  color: var(--metin-soluk);
+}
 .tahsilat-ozet span b {
   font-weight: 700;
   color: var(--metin-soluk);
   margin-right: 4px;
 }
+.tahsilat-satir-yatay {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.tahsilat-satir-yatay > .field-label {
+  flex: 0 0 auto;
+  min-width: 4.5em;
+  margin: 0;
+  white-space: nowrap;
+}
+.tahsilat-satir-yatay > .field-input,
+.tahsilat-satir-yatay > .field-select {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.tahsilat-tutar-satir .tahsilat-satir-yatay {
+  margin-bottom: 0;
+}
+.tahsilat-tutar-satir .tahsilat-satir-yatay > .field-label {
+  min-width: 2.2em;
+}
 /* Kur + ödeme yöntemi: flex gap ile üst üste binme engellenir */
 .tahsilat-kur-yontem {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  margin: 0 0 12px;
+  gap: 8px;
+  margin: 0 0 10px;
 }
 .tahsilat-kur {
   display: block;
   margin: 0;
-  padding: 9px 12px;
+  padding: 7px 10px;
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1.35;
   color: var(--metin);
   background: var(--zemin-2);
   border: 1px solid var(--kenar);
@@ -3247,6 +3280,13 @@ html:not(.theme-light) .rez-kaynak-badge {
 .tahsilat-yontem-grup {
   margin: 0;
   flex: 0 0 auto;
+}
+.tahsilat-yontem-grup.tahsilat-satir-yatay > .field-label {
+  min-width: 7.5em;
+}
+.tahsilat-kalan-tl {
+  font-weight: 600;
+  color: var(--metin-soluk);
 }
 .tahsilat-tamamla-satir {
   display: flex;

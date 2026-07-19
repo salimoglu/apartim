@@ -188,11 +188,9 @@
 
   function dovizAc() {
     uyari("doviz-uyari", "");
-    const k = window.APARTIM.para?.kurlariGetir() || { USD: 46.5, EUR: 50.5 };
+    const k = window.APARTIM.para?.kurlariGetir() || { USD: 46.5 };
     const usd = document.getElementById("doviz-usd");
-    const eur = document.getElementById("doviz-eur");
     if (usd) usd.value = k.USD;
-    if (eur) eur.value = k.EUR;
     dovizSonGuncellemeGoster();
     modalDoviz()?.classList.remove("hidden");
     usd?.focus();
@@ -214,9 +212,7 @@
       const live = await window.APARTIM.app?.dovizKurlariCanliGuncelle(true);
       if (!live) throw new Error("Kurlar alınamadı.");
       const usd = document.getElementById("doviz-usd");
-      const eur = document.getElementById("doviz-eur");
       if (usd) usd.value = live.USD;
-      if (eur) eur.value = live.EUR;
       dovizSonGuncellemeGoster();
       window.APARTIM.toast("Güncel kurlar yüklendi", "basari");
     } catch (err) {
@@ -231,15 +227,15 @@
 
   async function dovizKaydet() {
     const usd = Number(document.getElementById("doviz-usd")?.value);
-    const eur = Number(document.getElementById("doviz-eur")?.value);
-    if (!usd || !eur || usd <= 0 || eur <= 0) {
-      uyari("doviz-uyari", "Geçerli kur değerleri girin.");
+    if (!usd || usd <= 0) {
+      uyari("doviz-uyari", "Geçerli USD kuru girin.");
       return;
     }
     try {
+      const mevcut = window.APARTIM.para?.kurlariGetir() || {};
       await window.APARTIM.db.dovizKurlariKaydet({
         USD: usd,
-        EUR: eur,
+        EUR: Number(mevcut.EUR) > 0 ? Number(mevcut.EUR) : 50.5,
         guncelleme: new Date().toISOString(),
         kaynak: "manuel"
       });

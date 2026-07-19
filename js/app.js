@@ -303,7 +303,7 @@
     const para = window.APARTIM.para;
     if (!tutar || tutar <= 0) return "";
     const ana = para ? para.formatTutar(tutar, pb) : fmt(tutar) + " " + pb;
-    if (pb === "USD" || pb === "EUR") {
+    if (pb === "USD") {
       const tl = para ? para.tlKarsiligi(tutar, pb) : tutar;
       return '<span class="rapor-pb-grup">' +
         '<span class="rapor-pb ' + pb.toLowerCase() + '">' + ana + "</span>" +
@@ -315,14 +315,17 @@
 
   function raporGelirOzetHtml(gelirPB, kompakt) {
     const parcalar = [];
-    if (gelirPB.TL > 0) parcalar.push(raporPbParcaHtml(gelirPB.TL, "TL"));
+    const tlGoster = (gelirPB.TL || 0) +
+      (window.APARTIM.para && gelirPB.EUR
+        ? window.APARTIM.para.tlKarsiligi(gelirPB.EUR, "EUR")
+        : 0);
+    if (tlGoster > 0) parcalar.push(raporPbParcaHtml(tlGoster, "TL"));
     if (gelirPB.USD > 0) parcalar.push(raporPbParcaHtml(gelirPB.USD, "USD"));
-    if (gelirPB.EUR > 0) parcalar.push(raporPbParcaHtml(gelirPB.EUR, "EUR"));
     const cls = "rapor-gelir-inline" + (kompakt ? " kompakt" : "");
     if (!parcalar.length) {
       return '<div class="' + cls + '"><span class="rapor-pb tl">0 ₺</span></div>';
     }
-    const yabanci = gelirPB.USD > 0 || gelirPB.EUR > 0;
+    const yabanci = gelirPB.USD > 0;
     const coklu = parcalar.length > 1;
     let icerik = parcalar.join('<span class="rapor-gelir-ayrac">·</span>');
     if (yabanci || coklu) {
@@ -407,9 +410,10 @@
     Object.keys(yontemler).forEach((key) => {
       const pb = tahsilatYontem[key] || { TL: 0, USD: 0, EUR: 0 };
       const alt = [];
-      if (pb.TL > 0) alt.push(raporPbParcaHtml(pb.TL, "TL"));
+      const tlY = (pb.TL || 0) +
+        (window.APARTIM.para && pb.EUR ? window.APARTIM.para.tlKarsiligi(pb.EUR, "EUR") : 0);
+      if (tlY > 0) alt.push(raporPbParcaHtml(tlY, "TL"));
       if (pb.USD > 0) alt.push(raporPbParcaHtml(pb.USD, "USD"));
-      if (pb.EUR > 0) alt.push(raporPbParcaHtml(pb.EUR, "EUR"));
       if (!alt.length) return;
       parcalar.push(
         '<div class="rapor-tahsilat-yontem">' +
@@ -556,12 +560,15 @@
 
   function raporGelirMetin(gelirPB) {
     const parcalar = [];
-    if (gelirPB.TL > 0) parcalar.push(raporPbMetin(gelirPB.TL, "TL"));
+    const tlGoster = (gelirPB.TL || 0) +
+      (window.APARTIM.para && gelirPB.EUR
+        ? window.APARTIM.para.tlKarsiligi(gelirPB.EUR, "EUR")
+        : 0);
+    if (tlGoster > 0) parcalar.push(raporPbMetin(tlGoster, "TL"));
     if (gelirPB.USD > 0) parcalar.push(raporPbMetin(gelirPB.USD, "USD"));
-    if (gelirPB.EUR > 0) parcalar.push(raporPbMetin(gelirPB.EUR, "EUR"));
     if (!parcalar.length) return "0 ₺";
     const tlToplam = gelirPbToplamTL(gelirPB);
-    if (gelirPB.USD > 0 || gelirPB.EUR > 0 || parcalar.length > 1) {
+    if (gelirPB.USD > 0 || parcalar.length > 1) {
       return parcalar.join(" · ") + " | Toplam ≈ " + fmt(Math.round(tlToplam)) + " ₺";
     }
     return parcalar.join(" · ");
@@ -603,37 +610,41 @@
     );
     satirlar.push("<tr><td colspan=\"7\" " + bas + ">Tahsilat (ödeme yöntemi)</td></tr>");
     satirlar.push(
-      "<tr><th " + th + ">Yöntem</th><th " + th + ">TL</th><th " + th + ">USD</th><th " + th +
-      ">EUR</th><th colspan=\"3\" " + th + "></th></tr>"
+      "<tr><th " + th + ">Yöntem</th><th " + th + ">TL</th><th " + th + ">USD</th><th colspan=\"4\" " +
+      th + "></th></tr>"
     );
     Object.keys(yontemler).forEach((key) => {
       const pb = r.tahsilatYontem[key] || { TL: 0, USD: 0, EUR: 0 };
-      if (!pb.TL && !pb.USD && !pb.EUR) return;
+      const tlY = (pb.TL || 0) +
+        (window.APARTIM.para && pb.EUR ? window.APARTIM.para.tlKarsiligi(pb.EUR, "EUR") : 0);
+      if (!tlY && !pb.USD) return;
       satirlar.push(
         "<tr><td " + td + ">" + escHtml(yontemler[key]) + "</td>" +
-        "<td " + td + ">" + escHtml(raporPbMetin(pb.TL, "TL")) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(tlY, "TL")) + "</td>" +
         "<td " + td + ">" + escHtml(raporPbMetin(pb.USD, "USD")) + "</td>" +
-        "<td " + td + ">" + escHtml(raporPbMetin(pb.EUR, "EUR")) + "</td>" +
-        "<td colspan=\"3\" " + td + "></td></tr>"
+        "<td colspan=\"4\" " + td + "></td></tr>"
       );
     });
     satirlar.push("<tr><td colspan=\"7\" " + bas + ">Daire özeti</td></tr>");
     satirlar.push(
       "<tr><th " + th + ">Daire</th><th " + th + ">Gece</th><th " + th + ">Gelir TL</th><th " +
-      th + ">Gelir USD</th><th " + th + ">Gelir EUR</th><th " + th + ">Toplam ≈ TL</th><th " +
+      th + ">Gelir USD</th><th " + th + ">Toplam ≈ TL</th><th colspan=\"2\" " +
       th + ">Doluluk</th></tr>"
     );
     r.daireler.forEach((d) => {
       const o = r.daireOzet[d.id] || { gece: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
       const doluluk = r.gunSayisi > 0 ? Math.round(o.gece * 100 / r.gunSayisi) : 0;
+      const tlD = (o.gelirPB.TL || 0) +
+        (window.APARTIM.para && o.gelirPB.EUR
+          ? window.APARTIM.para.tlKarsiligi(o.gelirPB.EUR, "EUR")
+          : 0);
       satirlar.push(
         "<tr><td " + td + ">" + escHtml(d.ad) + "</td>" +
         "<td " + td + ">" + o.gece + "</td>" +
-        "<td " + td + ">" + escHtml(raporPbMetin(o.gelirPB.TL, "TL")) + "</td>" +
+        "<td " + td + ">" + escHtml(raporPbMetin(tlD, "TL")) + "</td>" +
         "<td " + td + ">" + escHtml(raporPbMetin(o.gelirPB.USD, "USD")) + "</td>" +
-        "<td " + td + ">" + escHtml(raporPbMetin(o.gelirPB.EUR, "EUR")) + "</td>" +
         "<td " + td + ">" + fmt(Math.round(gelirPbToplamTL(o.gelirPB))) + " ₺</td>" +
-        "<td " + td + ">%" + doluluk + "</td></tr>"
+        "<td colspan=\"2\" " + td + ">%" + doluluk + "</td></tr>"
       );
     });
 

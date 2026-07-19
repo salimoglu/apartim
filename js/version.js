@@ -1,7 +1,7 @@
 /* Apartım sürüm — sw.js + index.html ?v= için: node tools/sync-version.cjs */
 (function () {
   "use strict";
-  const APP = "2.94";
+  const APP = "2.95";
   window.APARTIM_VERSION = {
     APP,
     CACHE: "apartim-" + APP.replace(".", "-"),
