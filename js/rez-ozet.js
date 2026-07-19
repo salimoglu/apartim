@@ -444,7 +444,32 @@
   }
 
   function telefonTabloMu() {
-    return document.body.classList.contains("mobil-yatay-mod") || window.innerWidth < 720;
+    return !!tabloGorunum().kompakt;
+  }
+
+  /** Telefon / tablet / masaüstü + ekrana sığacak oda sayısı */
+  function tabloGorunum() {
+    const w = window.visualViewport?.width || window.innerWidth;
+    const h = window.visualViewport?.height || window.innerHeight;
+    const kisa = Math.min(w, h);
+    const yatay = w >= h;
+    const dokunmatik =
+      window.matchMedia("(pointer: coarse)").matches ||
+      (navigator.maxTouchPoints || 0) > 1;
+
+    /* Telefon: kısa kenar ≤520 (app.js yatay mod ile aynı) */
+    if (kisa <= 520) {
+      return { cihaz: "telefon", kompakt: true, yatay, odaHedef: yatay ? 3 : 1 };
+    }
+    /* Tablet: dokunmatik ve kısa kenar ≤900 */
+    if (dokunmatik && kisa <= 900) {
+      return { cihaz: "tablet", kompakt: true, yatay, odaHedef: yatay ? 5 : 3 };
+    }
+    /* Dar pencere (masaüstü daraltılmış) */
+    if (w < 720) {
+      return { cihaz: "telefon", kompakt: true, yatay, odaHedef: yatay ? 3 : 1 };
+    }
+    return { cihaz: "masaustu", kompakt: false, yatay, odaHedef: 5 };
   }
 
   function misafirTabloGoster(ad) {
@@ -1641,29 +1666,40 @@
     if (genislik < 200) {
       genislik = document.querySelector(".content")?.clientWidth || window.innerWidth;
     }
-    if (Math.abs(genislik - sonOlculGenislik) < 2 && table.dataset.sutunOlculdu === "1") {
+    const gorunum = tabloGorunum();
+    const ayniGenislik = Math.abs(genislik - sonOlculGenislik) < 2;
+    if (
+      ayniGenislik &&
+      table.dataset.sutunOlculdu === "1" &&
+      table.dataset.odaHedef === String(gorunum.odaHedef)
+    ) {
       return;
     }
     sonOlculGenislik = genislik;
     table.dataset.sutunOlculdu = "1";
 
+    const kompakt = gorunum.kompakt;
     const mobilYatay = document.body.classList.contains("mobil-yatay-mod");
-    const telefon = mobilYatay || genislik < 720;
 
     if (wrap) wrap.style.width = "100%";
-    table.classList.toggle("rez-ozet-tablo-telefon", telefon);
-    table.classList.toggle("rez-ozet-tablo-masaustu", !telefon);
+    table.classList.toggle("rez-ozet-tablo-telefon", kompakt);
+    table.classList.toggle("rez-ozet-tablo-masaustu", !kompakt);
+    table.classList.toggle("rez-ozet-tablo-tablet", gorunum.cihaz === "tablet");
+    table.dataset.odaHedef = String(gorunum.odaHedef);
 
-    if (telefon) {
-      const MOBIL_ODA_HEDEF = mobilYatay ? 5 : 2;
-      const tarihPx = 36;
-      const odaBlokPx = Math.max(58, (genislik - tarihPx) / MOBIL_ODA_HEDEF);
-      const g = Math.max(10, Math.floor(odaBlokPx * 0.14));
+    if (kompakt) {
+      /* Telefon: dikey 1 / yatay 3 · Tablet: dikey 3 / yatay 5 — fazlası yatay kaydırılır */
+      const odaHedef = gorunum.odaHedef;
+      const tarihPx = gorunum.cihaz === "tablet" ? 38 : 36;
+      const minBlok = gorunum.cihaz === "tablet" ? 72 : (odaHedef <= 1 ? 120 : 64);
+      const odaBlokPx = Math.max(minBlok, (genislik - tarihPx) / odaHedef);
+      const g = Math.max(10, Math.floor(odaBlokPx * (odaHedef <= 1 ? 0.10 : 0.12)));
       const kt = g;
       const rem = odaBlokPx - 2 * g;
-      const fyt = Math.floor(rem / 3);
-      const odn = fyt;
-      const ad = rem - 2 * fyt;
+      /* Ad sütununa daha geniş pay — tek satırda sığsın, alta kaymasın */
+      const fyt = Math.max(22, Math.floor(rem * 0.22));
+      const odn = Math.max(26, Math.floor(rem * 0.24));
+      const ad = Math.max(28, rem - fyt - odn);
       const tabloW = tarihPx + n * odaBlokPx;
 
       applyColGenislik(table, {
@@ -1679,11 +1715,11 @@
       table.style.width = tabloW + "px";
       table.style.minWidth = tabloW + "px";
       table.style.maxWidth = tabloW + "px";
-      table.style.fontSize = mobilYatay ? "10px" : "11px";
+      table.style.fontSize = mobilYatay || gorunum.yatay ? "10px" : "11px";
       return;
     }
 
-    const MASAUSTU_ODA_HEDEF = 5;
+    const MASAUSTU_ODA_HEDEF = gorunum.odaHedef;
     const tarihPx = genislik >= 1200 ? 42 : 38;
     const odaBlokPx = Math.max(76, (genislik - tarihPx) / MASAUSTU_ODA_HEDEF);
     const g = Math.min(30, Math.max(24, Math.floor(odaBlokPx * 0.12)));

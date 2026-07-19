@@ -1477,6 +1477,14 @@ html.theme-light .rez-ozet-ay-ayrac td {
 .rez-ozet-tablo-telefon .rez-ozet-ad {
   font-size: 10.35px; /* sıkı satırda %15 büyük Ad */
   text-align: center;
+  /* Tek satır — alta kayıp satır yüksekliğini bozmasın */
+  white-space: nowrap !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis;
+  max-height: var(--rez-satir-h, 16px);
+  line-height: var(--rez-satir-h, 16px);
 }
 .rez-ozet-tablo-telefon .rez-ozet-out-kalan-tutar {
   font-size: 9px;
