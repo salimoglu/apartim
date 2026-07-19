@@ -3265,7 +3265,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 /* Ücret/Toplam + birim: etiket kolonu Kaynak/Misafir ile aynı */
 #modal-rez .rez-fiyat-deger-satir {
   display: grid;
-  grid-template-columns: var(--rez-lbl) minmax(0, 1fr) minmax(92px, 108px);
+  grid-template-columns: var(--rez-lbl) minmax(0, 1fr) 2.75em;
   align-items: center;
   gap: 8px;
   margin-top: 4px;
@@ -3289,9 +3289,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 #modal-rez .rez-fiyat-deger-satir .rez-para-sec {
   width: 100%;
   min-width: 0;
-  padding: 8px 6px;
-  font-size: 12px;
-  font-weight: 700;
+  min-height: 40px;
 }
 #modal-rez .rez-fiyat-deger-satir .rez-para-sec.hidden {
   display: none;

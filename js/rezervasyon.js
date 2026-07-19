@@ -57,8 +57,9 @@
 
   function seciliParaBirimi() {
     const para = window.APARTIM.para;
-    if (para?.paraBirimiSecimNorm) return para.paraBirimiSecimNorm(ay().paraBirimi?.value);
-    const p = para?.paraBirimiNorm(ay().paraBirimi?.value) || "TL";
+    const ham = ay().paraBirimi?.dataset?.pb || ay().paraBirimi?.value;
+    if (para?.paraBirimiSecimNorm) return para.paraBirimiSecimNorm(ham);
+    const p = para?.paraBirimiNorm(ham) || "TL";
     return p === "USD" ? "USD" : "TL";
   }
 
@@ -69,6 +70,19 @@
   function pbNormTlUsd(secili) {
     let s = window.APARTIM.para?.paraBirimiNorm(secili) || "TL";
     return s === "USD" ? "USD" : "TL";
+  }
+
+  /** Ana fiyat satırı ₺/$ düğmesi (eski select yerine) */
+  function paraBirimiAyarla(pb) {
+    const btn = ay().paraBirimi;
+    if (!btn) return;
+    const sonraki = pbNormTlUsd(pb);
+    btn.dataset.pb = sonraki;
+    btn.textContent = window.APARTIM.para?.simge(sonraki) || (sonraki === "USD" ? "$" : "₺");
+    btn.setAttribute(
+      "aria-label",
+      "Para birimi: " + sonraki + ". Tıklayınca TL / USD değişir."
+    );
   }
 
   function pbToggleHtml(secili, ariaEtiket) {
@@ -92,6 +106,22 @@
       "aria-label",
       baz + " para birimi: " + sonraki + ". Tıklayınca TL / USD değişir."
     );
+  }
+
+  function paraBirimiDegisti() {
+    ucretEtiketGuncelle();
+    if (fiyatModu === "ayri") {
+      const mevcut = tarihFiyatlariOku();
+      const pb = seciliParaBirimi();
+      Object.keys(mevcut).forEach((t) => {
+        if (!(mevcut[t] && typeof mevcut[t] === "object")) {
+          mevcut[t] = { tutar: Number(mevcut[t]) || varsayilanUcret(), pb };
+        }
+      });
+      tarihFiyatListeCiz(mevcut);
+    }
+    if (fiyatModu === "toplu") topluBolOzetGuncelle();
+    toplamHesapla();
   }
 
   function geceFiyatOku(deger, varsayilanTutar, varsayilanPb) {
@@ -292,7 +322,7 @@
       if (vals.length) {
         alanYaz(ay().ucret, geceFiyatOku(vals[0], varsayilanUcret(), seciliParaBirimi()).tutar);
         const pb0 = geceFiyatOku(vals[0], 0, seciliParaBirimi()).pb;
-        if (ay().paraBirimi && pb0) ay().paraBirimi.value = pb0;
+        if (pb0) paraBirimiAyarla(pb0);
       }
     }
     toplamHesapla();
@@ -796,7 +826,7 @@
       takvimAyAyarla(gIso);
       const u = daire ? daire.gunlukUcret : 1000;
       alanYaz(e.ucret, u);
-      if (e.paraBirimi) e.paraBirimi.value = "TL";
+      paraBirimiAyarla("TL");
       ucretEtiketGuncelle();
       fiyatModuAyarla("tek");
       alanYaz(e.toplamAnlasma, "");
@@ -836,11 +866,9 @@
       alanYaz(e.giris, rez.giris);
       alanYaz(e.cikis, rez.cikis);
       fiyatFormYukle(rez);
-      if (e.paraBirimi) {
-        const pb = window.APARTIM.para?.paraBirimiSecimNorm?.(rez.paraBirimi) ||
-          (window.APARTIM.para?.rezParaBirimi(rez) === "USD" ? "USD" : "TL");
-        e.paraBirimi.value = pb;
-      }
+      const pb = window.APARTIM.para?.paraBirimiSecimNorm?.(rez.paraBirimi) ||
+        (window.APARTIM.para?.rezParaBirimi(rez) === "USD" ? "USD" : "TL");
+      paraBirimiAyarla(pb);
       ucretEtiketGuncelle();
       alanYaz(e.notlar, rez.notlar || "");
       e.btnSil?.classList.remove("hidden");
@@ -1143,23 +1171,9 @@
       if (m && !m.classList.contains("hidden")) modalKapat();
     });
     e.ucret?.addEventListener("input", toplamHesapla);
-    e.paraBirimi?.addEventListener("change", () => {
-      ucretEtiketGuncelle();
-      if (fiyatModu === "ayri") {
-        /* Global seçim yeni geceler için varsayılan; mevcut satır PB'lerini koru */
-        const mevcut = tarihFiyatlariOku();
-        const pb = seciliParaBirimi();
-        Object.keys(mevcut).forEach((t) => {
-          if (mevcut[t] && typeof mevcut[t] === "object") {
-            /* bilinçli olarak satır PB'sini değiştirme — yalnızca boşsa */
-          } else {
-            mevcut[t] = { tutar: Number(mevcut[t]) || varsayilanUcret(), pb };
-          }
-        });
-        tarihFiyatListeCiz(mevcut);
-      }
-      if (fiyatModu === "toplu") topluBolOzetGuncelle();
-      toplamHesapla();
+    e.paraBirimi?.addEventListener("click", () => {
+      paraBirimiAyarla(seciliParaBirimi() === "USD" ? "TL" : "USD");
+      paraBirimiDegisti();
     });
     document.querySelectorAll('input[name="rez-fiyat-mod"]').forEach((r) => {
       r.addEventListener("change", () => {
