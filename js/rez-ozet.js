@@ -1695,15 +1695,14 @@
       /* Telefon: dikey 1 / yatay 3 · Tablet: dikey 3 / yatay 5 — fazlası yatay kaydırılır */
       const odaHedef = Math.max(1, gorunum.odaHedef);
       const tarihPx = gorunum.cihaz === "tablet" ? 38 : 36;
-      /* Tam odaHedef kadar sığdır (telefon yatayda 3); fazlası kaydırılır */
+      /* Tam odaHedef kadar sığdır (telefon yatayda 3); alt sütunlar blok dışına taşmasın */
       const odaBlokPx = Math.max(1, (genislik - tarihPx) / odaHedef);
-      const g = Math.max(10, Math.floor(odaBlokPx * (odaHedef <= 1 ? 0.10 : 0.12)));
+      const g = Math.max(8, Math.min(Math.floor(odaBlokPx * 0.12), Math.floor(odaBlokPx * 0.2)));
       const kt = g;
-      const rem = Math.max(30, odaBlokPx - 2 * g);
-      /* Ad sütununa daha geniş pay — tek satırda sığsın, alta kaymasın */
+      const rem = Math.max(0, odaBlokPx - 2 * g);
       const fyt = Math.floor(rem * 0.22);
       const odn = Math.floor(rem * 0.24);
-      const ad = Math.max(20, rem - fyt - odn);
+      const ad = Math.max(0, rem - fyt - odn);
       const tabloW = tarihPx + n * odaBlokPx;
 
       applyColGenislik(table, {
