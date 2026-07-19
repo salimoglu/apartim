@@ -34,7 +34,7 @@
     rezervasyonlar: {},// { rezId: {...} }
     temizlikKayit: {}, // { kayitId: {...} }
     musteriKaynaklari: {}, // { id: { id, ad, simge, sira, sistem } }
-    kasaHarcama: {},   // { id: { id, tarih, not, tutar, pb, olusturulma } }
+    kasaHarcama: {},   // { id: { id, tarih, not, tutar, pb, tip: gelir|gider, olusturulma } }
     dovizKurlari: { USD: 46.5, EUR: 50.5 },
     yuklendi: false
   };
@@ -1131,6 +1131,8 @@
     const pb = window.APARTIM.para?.paraBirimiSecimNorm?.(deger.pb) ||
       (String(deger.pb || "TL").toUpperCase() === "USD" ? "USD" : "TL");
     const not = String(deger.not || "").trim().slice(0, 200);
+    const tipHam = String(deger.tip || deger.yon || "gider").toLowerCase();
+    const tip = tipHam === "gelir" ? "gelir" : "gider";
     const id = deger.id != null && String(deger.id).trim()
       ? String(deger.id).trim()
       : yeniId();
@@ -1140,6 +1142,7 @@
       not,
       tutar,
       pb,
+      tip,
       olusturulma: Number(deger.olusturulma) || Date.now()
     };
   }
@@ -1161,7 +1164,7 @@
       id,
       olusturulma: eski?.olusturulma || Date.now()
     }));
-    if (!kayit) return Promise.reject(new Error("Geçersiz harcama"));
+    if (!kayit) return Promise.reject(new Error("Geçersiz kasa kaydı"));
     durum.kasaHarcama[kayit.id] = kayit;
     return kaydet("kasa-harcama/" + kayit.id, kayit).then(() => kayit);
   }
@@ -1292,12 +1295,14 @@
     });
 
     kasaHarcamaListele().forEach((h) => {
+      const gelirMi = h.tip === "gelir";
       hareketler.push({
-        tip: "harcama",
+        tip: gelirMi ? "gelir" : "harcama",
         id: "h-" + h.id,
         harcamaId: h.id,
+        manuel: true,
         tarih: h.tarih,
-        musteri: "Harcama",
+        musteri: gelirMi ? "Gelir" : "Gider",
         not: h.not || "",
         tutar: h.tutar,
         pb: h.pb,

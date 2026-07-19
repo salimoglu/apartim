@@ -4049,6 +4049,44 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-ozet-val.arti { color: var(--basari); }
 .kasa-ozet-val.eksi { color: var(--tehlike); }
 .kasa-ozet-ayrac { color: var(--metin-soluk-2); }
+.kasa-kayit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+  min-width: 0;
+  width: 100%;
+}
+.kasa-tip-nav {
+  display: flex;
+  gap: 2px;
+  background: var(--zemin-2);
+  border: 1px solid var(--kenar);
+  border-radius: 999px;
+  padding: 2px;
+  width: fit-content;
+  max-width: 100%;
+}
+.kasa-tip-btn {
+  background: transparent;
+  border: none;
+  color: var(--metin-soluk);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.kasa-tip-btn.active[data-tip="gider"] {
+  background: var(--tehlike);
+  color: #fff;
+}
+.kasa-tip-btn.active[data-tip="gelir"] {
+  background: var(--basari);
+  color: #fff;
+}
+.kasa-tip-btn:hover:not(.active) { color: var(--metin); }
 .kasa-harcama-form {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.2fr) minmax(56px, 0.7fr) 34px 30px;
@@ -4111,6 +4149,14 @@ html:not(.theme-light) .rez-kaynak-badge {
   border-color: var(--vurgu);
   color: var(--vurgu);
   background: var(--kart-2);
+}
+.kasa-kaydet-btn.gelir:hover {
+  border-color: var(--basari);
+  color: var(--basari);
+}
+.kasa-kaydet-btn.gider:hover {
+  border-color: var(--tehlike);
+  color: var(--tehlike);
 }
 .kasa-liste {
   display: flex;
@@ -4204,9 +4250,11 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-aksiyon-slot,
 .kasa-sil-btn,
 .kasa-sil-slot {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   justify-self: end;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 .kasa-duzenle-btn {
   border: none;
@@ -4216,7 +4264,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   padding: 0;
   cursor: pointer;
   border-radius: 6px;
-  line-height: 24px;
+  line-height: 26px;
   text-align: center;
 }
 .kasa-duzenle-btn:hover {
@@ -4224,14 +4272,17 @@ html:not(.theme-light) .rez-kaynak-badge {
   background: var(--vurgu-soluk);
 }
 .kasa-sil-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: none;
   background: transparent;
   color: var(--metin-soluk);
-  font-size: 12px;
+  font-size: 13px;
   padding: 0;
   cursor: pointer;
   border-radius: 6px;
-  line-height: 24px;
+  line-height: 1;
   text-align: center;
 }
 .kasa-sil-btn:hover {
@@ -4279,27 +4330,40 @@ html:not(.theme-light) .rez-kaynak-badge {
   -webkit-appearance: none;
   margin: 0;
 }
-/* Telefon: düzenle butonu yok — uzun bas */
+/* Telefon: düzenle yok (uzun bas); 5 sütun — X miktarın üstüne binmesin */
 @media (max-width: 720px) {
   .kasa-wrap {
-    --kasa-cols: 54px minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(58px, auto) 0 18px;
+    --kasa-cols: 50px minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, max-content) 30px;
   }
   .kasa-duzenle-btn,
   .kasa-aksiyon-slot {
-    display: none;
+    display: none !important;
+  }
+  .kasa-sil-btn,
+  .kasa-sil-slot {
+    width: 30px;
+    height: 30px;
+    justify-self: center;
+  }
+  .kasa-miktar {
+    padding-right: 2px;
+    max-width: 100%;
   }
   .kasa-satir {
     -webkit-user-select: none;
     user-select: none;
     touch-action: manipulation;
+    gap: 5px;
+    padding: 7px 6px;
   }
 }
 @media (max-width: 640px) {
   #tab-kasa.active { padding: 8px; }
   .kasa-wrap {
-    --kasa-cols: 54px minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(58px, auto) 0 18px;
+    --kasa-cols: 48px minmax(0, 1fr) minmax(0, 1fr) minmax(0, max-content) 30px;
     gap: 6px;
   }
+  .kasa-tip-btn { padding: 4px 10px; font-size: 11px; }
   .kasa-harcama-form {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(52px, 0.75fr) 32px 28px;
     gap: 4px;
@@ -4307,7 +4371,6 @@ html:not(.theme-light) .rez-kaynak-badge {
   .kasa-inp { min-height: 32px; font-size: 12px; padding: 4px 5px; }
   .kasa-pb-toggle { min-height: 32px; height: 32px; font-size: 13px; }
   .kasa-kaydet-btn { width: 28px; height: 32px; font-size: 16px; }
-  .kasa-satir { gap: 4px; padding: 6px 6px; }
   .kasa-musteri, .kasa-not, .kasa-miktar { font-size: 11px; }
   .kasa-tarih { font-size: 10px; }
   .kasa-pb-btn { padding: 5px 10px; font-size: 11px; }

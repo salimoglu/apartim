@@ -438,30 +438,38 @@
   }
 
   /** Dönem içi kasa harcamaları (manuel) */
-  function raporHarcamaHesapla() {
+  function raporKasaManuelTopla(tipFiltre) {
     const db = window.APARTIM.db;
     const donem = raporDonemSinirlari();
-    const harcama = { TL: 0, USD: 0, EUR: 0 };
+    const toplam = { TL: 0, USD: 0, EUR: 0 };
     const liste = db.kasaHarcamaListele?.() || Object.values(db.durum.kasaHarcama || {});
     liste.forEach((h) => {
       if (!h || !h.tarih) return;
       if (h.tarih < donem.bas || h.tarih >= donem.bit) return;
+      const tip = h.tip === "gelir" ? "gelir" : "gider";
+      if (tipFiltre && tip !== tipFiltre) return;
       const tutar = Number(h.tutar) || 0;
       if (tutar <= 0) return;
       const pb = h.pb === "USD" ? "USD" : "TL";
-      harcama[pb] += tutar;
+      toplam[pb] += tutar;
     });
-    return harcama;
+    return toplam;
   }
 
-  function raporNetHesapla(tahsilatPB, harcamaPB) {
+  function raporHarcamaHesapla() {
+    return raporKasaManuelTopla("gider");
+  }
+
+  function raporNetHesapla(tahsilatPB, harcamaPB, manuelGelirPB) {
+    const ekstra = manuelGelirPB || { TL: 0, USD: 0 };
     return {
       TL: (tahsilatPB.TL || 0) +
         (window.APARTIM.para && tahsilatPB.EUR
           ? window.APARTIM.para.tlKarsiligi(tahsilatPB.EUR, "EUR")
-          : 0) -
+          : 0) +
+        (ekstra.TL || 0) -
         (harcamaPB.TL || 0),
-      USD: (tahsilatPB.USD || 0) - (harcamaPB.USD || 0),
+      USD: (tahsilatPB.USD || 0) + (ekstra.USD || 0) - (harcamaPB.USD || 0),
       EUR: 0
     };
   }
@@ -508,7 +516,8 @@
     const tahsilatYontem = raporTahsilatYontemHesapla();
     const tahsilatPB = raporTahsilatToplamPB(tahsilatYontem);
     const harcamaPB = raporHarcamaHesapla();
-    const netPB = raporNetHesapla(tahsilatPB, harcamaPB);
+    const manuelGelirPB = raporKasaManuelTopla("gelir");
+    const netPB = raporNetHesapla(tahsilatPB, harcamaPB, manuelGelirPB);
 
     return {
       toplamGece,

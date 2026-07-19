@@ -1,12 +1,13 @@
 /* =========================================================
    APARTIM — Kasa modülü
-   Tahsilatta "Kasa" yöntemiyle girilen ödemeler + manuel harcama
+   Tahsilatta "Kasa" ödemeleri + manuel gelir/gider
    ========================================================= */
 
 (function () {
   "use strict";
 
   let aktifPb = "tumu";
+  let aktifTip = "gider";
   let hareketMap = {};
   let duzenlenen = null;
   let longPressTimer = null;
@@ -126,10 +127,10 @@
       const duzenleBtn =
         '<button type="button" class="kasa-duzenle-btn" data-hid="' +
           esc(h.id) + '" title="Düzenle" aria-label="Düzenle">✎</button>';
-      const silBtn = harcamaMi
+      const silBtn = h.harcamaId
         ? '<button type="button" class="kasa-sil-btn" data-id="' +
-            esc(h.harcamaId) + '" title="Sil" aria-label="Harcama sil">&#10005;</button>'
-        : '<span class="kasa-sil-slot"></span>';
+            esc(h.harcamaId) + '" title="Sil" aria-label="Kaydı sil">&#10005;</button>'
+        : '<span class="kasa-sil-slot" aria-hidden="true"></span>';
       return (
         '<div class="kasa-satir ' + (harcamaMi ? "harcama" : "gelir") +
           '" data-hid="' + esc(h.id) + '">' +
@@ -185,6 +186,25 @@
     pbToggleAyarla(btn, pbNorm(btn.dataset.pb) === "USD" ? "TL" : "USD");
   }
 
+  function tipNavGuncelle() {
+    document.querySelectorAll(".kasa-tip-btn").forEach((b) => {
+      b.classList.toggle("active", b.dataset.tip === aktifTip);
+    });
+    const kaydet = document.getElementById("kasa-harcama-kaydet");
+    if (kaydet) {
+      const etiket = aktifTip === "gelir" ? "Gelir ekle" : "Gider ekle";
+      kaydet.title = etiket;
+      kaydet.setAttribute("aria-label", etiket);
+      kaydet.classList.toggle("gelir", aktifTip === "gelir");
+      kaydet.classList.toggle("gider", aktifTip === "gider");
+    }
+  }
+
+  function tipSec(tip) {
+    aktifTip = tip === "gelir" ? "gelir" : "gider";
+    tipNavGuncelle();
+  }
+
   function formSifirla() {
     const tarih = document.getElementById("kasa-harcama-tarih");
     const not = document.getElementById("kasa-harcama-not");
@@ -194,14 +214,16 @@
     if (not) not.value = "";
     if (tutar) tutar.value = "";
     pbToggleAyarla(pbBtn, "TL");
+    tipNavGuncelle();
   }
 
-  async function harcamaKaydet() {
+  async function kayitEkle() {
     const db = window.APARTIM.db;
     const tarih = document.getElementById("kasa-harcama-tarih")?.value || "";
     const not = document.getElementById("kasa-harcama-not")?.value || "";
     const tutar = Number(document.getElementById("kasa-harcama-tutar")?.value);
     const pb = pbNorm(document.getElementById("kasa-harcama-pb")?.dataset.pb || "TL");
+    const tip = aktifTip === "gelir" ? "gelir" : "gider";
     if (!tarih) {
       window.APARTIM.toast?.("Tarih gerekli", "uyari");
       return;
@@ -211,20 +233,20 @@
       return;
     }
     try {
-      await db.kasaHarcamaEkle({ tarih, not, tutar, pb });
-      window.APARTIM.toast?.("Harcama eklendi", "basari");
+      await db.kasaHarcamaEkle({ tarih, not, tutar, pb, tip });
+      window.APARTIM.toast?.(tip === "gelir" ? "Gelir eklendi" : "Gider eklendi", "basari");
       formSifirla();
       ciz();
     } catch (e) {
-      window.APARTIM.toast?.(e?.message || "Harcama kaydedilemedi", "hata");
+      window.APARTIM.toast?.(e?.message || "Kayıt eklenemedi", "hata");
     }
   }
 
-  async function harcamaSil(id) {
+  async function kayitSil(id) {
     if (!id) return;
     try {
       await window.APARTIM.db.kasaHarcamaSil(id);
-      window.APARTIM.toast?.("Harcama silindi", "basari");
+      window.APARTIM.toast?.("Kayıt silindi", "basari");
       ciz();
     } catch (e) {
       window.APARTIM.toast?.("Silinemedi", "hata");
@@ -247,7 +269,8 @@
     const title = document.getElementById("kasa-duzenle-title");
     const musteriEl = document.getElementById("kasa-duzenle-musteri");
     if (title) {
-      title.textContent = h.tip === "harcama" ? "Harcama düzenle" : "Gelir düzenle";
+      if (h.manuel) title.textContent = h.tip === "gelir" ? "Gelir düzenle" : "Gider düzenle";
+      else title.textContent = "Gelir düzenle";
     }
     if (musteriEl) {
       if (h.tip === "gelir") {
@@ -284,8 +307,9 @@
       return;
     }
     try {
-      if (duzenlenen.tip === "harcama") {
-        await db.kasaHarcamaGuncelle(duzenlenen.harcamaId, { tarih, not, tutar, pb });
+      if (duzenlenen.harcamaId) {
+        const tip = duzenlenen.tip === "gelir" ? "gelir" : "gider";
+        await db.kasaHarcamaGuncelle(duzenlenen.harcamaId, { tarih, not, tutar, pb, tip });
       } else {
         await db.kasaGelirGuncelle(
           duzenlenen.rezId,
@@ -316,7 +340,7 @@
       const sil = e.target.closest?.(".kasa-sil-btn");
       if (sil) {
         e.preventDefault();
-        harcamaSil(sil.dataset.id);
+        kayitSil(sil.dataset.id);
         return;
       }
       const duzenle = e.target.closest?.(".kasa-duzenle-btn");
@@ -381,7 +405,10 @@
     document.querySelectorAll(".kasa-pb-btn").forEach((b) => {
       b.addEventListener("click", () => pbSec(b.dataset.pb));
     });
-    document.getElementById("kasa-harcama-kaydet")?.addEventListener("click", harcamaKaydet);
+    document.querySelectorAll(".kasa-tip-btn").forEach((b) => {
+      b.addEventListener("click", () => tipSec(b.dataset.tip));
+    });
+    document.getElementById("kasa-harcama-kaydet")?.addEventListener("click", kayitEkle);
     document.getElementById("kasa-harcama-pb")?.addEventListener("click", (e) => {
       pbToggleDegistir(e.currentTarget);
     });
