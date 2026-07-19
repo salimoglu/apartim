@@ -13,7 +13,6 @@
 
   const SEZON_BAS_AY = 5;
   const SEZON_BIT_AY = 8;
-  const CHUNK_GUN = 14;
 
   const IO_HUCRE_RENK = "#ffeb3b";
 
@@ -28,7 +27,6 @@
 
   const durum = {
     seciliTarih: null,
-    pendingOdenenFocus: null,
     buguneKaydir: false,
     ayKaydir: null
   };
@@ -209,10 +207,6 @@
     if (!s) return null;
     const n = Number(s.replace(/\./g, "").replace(",", "."));
     return Number.isFinite(n) ? n : NaN;
-  }
-
-  function rezOutKalanHtml(rez) {
-    return rezOutKalanStackHtml(rez);
   }
 
   function rezSonGeceMi(rez, tarih) {
@@ -436,16 +430,6 @@
     td.style.fontWeight = "300";
     tr.appendChild(td);
     return tr;
-  }
-
-  function kisaAd(ad, maxLen) {
-    const s = String(ad || "");
-    const m = maxLen || 9;
-    return s.length > m ? s.slice(0, m - 1) + "…" : s;
-  }
-
-  function telefonTabloMu() {
-    return !!tabloGorunum().kompakt;
   }
 
   /** Telefon / tablet / masaüstü — ekrana sığan oda sayısı genişliğe göre */
@@ -697,7 +681,7 @@
   }
 
   function satirlarOlustur(tarih, y, m, g, daireler, harita, bugun) {
-    const haftaSonu = new Date(y, m, g - 1).getDay();
+    const haftaSonu = new Date(y, m, g).getDay();
     const ioGun = daireler.some((d) => {
       const tip = gunDurumuHarita(harita, d.id, tarih).tip;
       return tip === "checkout" || tip === "checkin" || tip === "turnover";
@@ -828,20 +812,6 @@
     }
     window.APARTIM.rezervasyon.yeni({ daireId, girisOnseci: tarih });
     durum.seciliTarih = tarih;
-  }
-
-  function sonrakiOdenenHucre(td) {
-    const rezId = td.dataset.rezId;
-    if (!rezId) return null;
-    const tbody = td.closest("tbody");
-    if (!tbody) return null;
-    let tr = td.closest("tr")?.nextElementSibling;
-    while (tr && tr.parentElement === tbody) {
-      const hucre = tr.querySelector('.rez-ozet-odenen[data-rez-id="' + rezId + '"]');
-      if (hucre) return hucre;
-      tr = tr.nextElementSibling;
-    }
-    return null;
   }
 
   let odemeDuzenleDurum = null;
@@ -1607,20 +1577,6 @@
     const sc = scrollKapsayici || document.querySelector(".rez-ozet-scroll");
     if (!sc) return;
 
-    if (durum.pendingOdenenFocus) {
-      const pf = durum.pendingOdenenFocus;
-      const hucre = wrap.querySelector(
-        '.rez-ozet-odenen[data-rez-id="' + pf.rezId + '"][data-tarih="' + pf.tarih + '"]'
-      );
-      if (hucre) {
-        scrollElemana(sc, hucre, true);
-        durum.pendingOdenenFocus = null;
-        odenenHucreDuzenle(hucre);
-        return;
-      }
-      durum.pendingOdenenFocus = null;
-    }
-
     if (durum.buguneKaydir) {
       durum.buguneKaydir = false;
       const bugun = window.APARTIM.db?.bugunISO?.();
@@ -1886,13 +1842,6 @@
     hedef.appendChild(frag);
   }
 
-  function sezonGit(yon) {
-    const y = sezonYil() + yon;
-    window.APARTIM.gorunum?.yilSec?.(y);
-    korunanScroll = null;
-    tabloCiz();
-  }
-
   function buguneGit() {
     const ortalandi = buguneOrtalaAyarla();
     if (!ortalandi) {
@@ -1906,7 +1855,12 @@
   }
 
   function excelOdemeGoster(rez, info) {
-    if (!info || !info.manuel || !info.tutar) return "—";
+    if (!info || !info.manuel) return "—";
+    const dolu =
+      (Number(info.tutarTl) || 0) > 0 ||
+      (Number(info.tutarUsd) || 0) > 0 ||
+      (Number(info.tutar) || 0) > 0;
+    if (!dolu) return "—";
     const yontem = window.APARTIM.db?.ODEME_YONTEMLERI?.[info.yontem] || info.yontem || "";
     return odenenHucreGoster(rez, info) + (yontem ? " (" + yontem + ")" : "");
   }
@@ -1916,11 +1870,6 @@
   function rezNotMetni(rez) {
     if (!rez) return "";
     return String(rez.notlar || rez.not || "").trim();
-  }
-
-  function excelNotEki(rez) {
-    const n = rezNotMetni(rez);
-    return n ? " · Not: " + n : "";
   }
 
   const XL = {
@@ -1937,7 +1886,6 @@
       ";color:#ffffff;font-size:10px;border:1px solid #6b7280;vertical-align:middle;white-space:nowrap;",
     tdHucre: (bg) => "padding:1px 3px;background:" + bg + ";color:#111827;font-size:10px;border:1px solid #6b7280;vertical-align:middle;text-align:center;white-space:nowrap;",
     tdAyAyirici: "padding:5px 8px;background:#1a2633;color:#ffffff;font-weight:300;font-size:11px;letter-spacing:1px;text-align:center;border:1px solid #6b7280;",
-    tdBirlesik: (bg) => "padding:2px 4px;background:" + bg + ";color:#111827;font-size:10px;border:1px solid #6b7280;vertical-align:middle;text-align:left;white-space:nowrap;",
     tdNot: (bg) => "padding:2px 4px;background:" + bg + ";color:#374151;font-size:9px;border:1px solid #6b7280;vertical-align:middle;text-align:left;white-space:normal;min-width:80px;"
   };
 
@@ -2055,7 +2003,7 @@
     let oncekiAy = -1;
     gunler.forEach(({ tarih, ay }) => {
       const gun = Number(tarih.slice(8, 10));
-      const haftaSonu = new Date(y, ay, gun - 1).getDay();
+      const haftaSonu = new Date(y, ay, gun).getDay();
       const hs = haftaSonu === 0 || haftaSonu === 6;
 
       if (ay !== oncekiAy) {
@@ -2068,14 +2016,10 @@
         const h = gunDurumuHarita(harita, d.id, tarih);
         const renk = daireRenk(d, di);
         const hucre = excelDaireHucreleri(h, tarih);
-        if (hucre.birlesik) {
-          satir += xlHucre(hucre.birlesik, XL.tdBirlesik(renk), XL_DAIRE_COL);
-        } else {
-          hucre.hucreler.forEach((txt, ci) => {
-            const stil = ci === 5 ? XL.tdNot(renk) : XL.tdHucre(renk);
-            satir += xlHucre(txt, stil);
-          });
-        }
+        (hucre.hucreler || []).forEach((txt, ci) => {
+          const stil = ci === 5 ? XL.tdNot(renk) : XL.tdHucre(renk);
+          satir += xlHucre(txt, stil);
+        });
       });
       satirlar.push("<tr>" + satir + "</tr>");
     });
@@ -2325,7 +2269,7 @@
   document.addEventListener("apartim:gun-degisti", tabloCizPlanla);
 
   window.APARTIM.rezOzet = {
-    tabloCiz, tabloCizPlanla, rezSekmeAc, sezonGit, buguneGit, konumKoru, excelRaporIndir,
+    tabloCiz, tabloCizPlanla, rezSekmeAc, buguneGit, konumKoru, excelRaporIndir,
     yatayModGuncelle, tamEkranYatay, tamEkranKapat, tamEkranAcikMi,
     tamEkranaModallariTasi, modalRezBodyeAl, yonKilidiAc, sutunOlculYenile
   };

@@ -26,6 +26,7 @@
   let mod = "giris"; // "giris" | "kayit"
   let lockAcik = true;
   let authIlkCozum = false;
+  let authHazirGonderildi = false;
 
   function hataGoster(msg) {
     if (!errorEl) return;
@@ -118,32 +119,27 @@
   function uygulamaAc(kullanici) {
     oturumBeklemeBitir();
     oturumIsaretle(true);
-    if (!lockAcik) {
-      /* Zaten açık — kullanıcı bilgisini yine güncelle */
-      const k = window.APARTIM.avatar
-        ? window.APARTIM.avatar.kullaniciyaEkle(kullanici)
-        : kullanici;
-      window.APARTIM.kullanici = k;
-      return;
-    }
-    lockAcik = false;
-    lockScreen.classList.add("hidden");
-    app.classList.remove("hidden");
     const k = window.APARTIM.avatar
       ? window.APARTIM.avatar.kullaniciyaEkle(kullanici)
       : kullanici;
     window.APARTIM.kullanici = k;
-    document.dispatchEvent(new CustomEvent("apartim:auth-hazir", { detail: k }));
+    if (lockAcik) {
+      lockAcik = false;
+      lockScreen.classList.add("hidden");
+      app.classList.remove("hidden");
+    }
+    /* db/app dinleyicileri yüklenmeden önce gelirse bile bir kez yayınla;
+       erken yayın kaybolursa sonraki onAuthStateChanged tekrar dener */
+    if (!authHazirGonderildi) {
+      authHazirGonderildi = true;
+      document.dispatchEvent(new CustomEvent("apartim:auth-hazir", { detail: k }));
+    }
   }
 
   function uygulamaKilitle() {
     oturumBeklemeBitir();
     oturumIsaretle(false);
-    if (lockAcik) {
-      lockScreen.classList.remove("hidden");
-      app.classList.add("hidden");
-      return;
-    }
+    authHazirGonderildi = false;
     lockAcik = true;
     lockScreen.classList.remove("hidden");
     app.classList.add("hidden");
@@ -188,11 +184,8 @@
       uygulamaAc(firebaseKullaniciBilgi(kullanici));
     };
 
-    if (auth.currentUser) {
-      authIlkCozum = true;
-      oturumAc(auth.currentUser);
-    }
-
+    /* Yalnız onAuthStateChanged — currentUser senkron yolu dinleyicilerden önce
+       auth-hazir yayınlayıp db bağlanmadan kilidi açabiliyordu */
     auth.onAuthStateChanged((kullanici) => {
       authIlkCozum = true;
       if (kullanici) {
@@ -200,9 +193,15 @@
         return;
       }
       window.APARTIM.syncDurum("");
-      /* Oturum yok / çıkış — giriş formunu göster */
       uygulamaKilitle();
     });
+
+    /* Splash takılırsa giriş formunu geri getir */
+    setTimeout(() => {
+      if (!authIlkCozum) {
+        oturumBeklemeBitir();
+      }
+    }, 12000);
 
     btnGiris.addEventListener("click", async () => {
       hataGoster("");
@@ -269,10 +268,10 @@
     inpSifre.classList.add("hidden");
     document.querySelector(".lock-auth-veya")?.classList.add("hidden");
 
-    /* Yerel oturum işareti varsa doğrudan aç */
     let yerelOturumVar = false;
     try { yerelOturumVar = localStorage.getItem(OTURUM_KEY) === "1"; } catch (e) {}
     const yerelBaslat = () => {
+      authIlkCozum = true;
       const yerelKullanici = {
         uid: "yerel",
         eposta: "",
@@ -284,8 +283,13 @@
       window.APARTIM.syncDurum("beklemede");
       uygulamaAc(yerelKullanici);
     };
+    /* db.js dinleyicilerinden sonra aç — auth.js parse anında çağırma */
     if (yerelOturumVar) {
-      yerelBaslat();
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", yerelBaslat, { once: true });
+      } else {
+        setTimeout(yerelBaslat, 0);
+      }
     }
 
     btnGoogle.addEventListener("click", yerelBaslat);

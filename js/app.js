@@ -43,14 +43,19 @@
             return;
           }
           if (reg.installing) {
+            const installing = reg.installing;
             await new Promise((resolve) => {
-              reg.installing.addEventListener("statechange", function onState() {
-                if (reg.installing.state === "installed") {
-                  reg.installing.removeEventListener("statechange", onState);
-                  if (navigator.serviceWorker.controller && reg.waiting) {
+              installing.addEventListener("statechange", function onState() {
+                if (installing.state === "installed") {
+                  installing.removeEventListener("statechange", onState);
+                  const waiting = reg.waiting || installing;
+                  if (navigator.serviceWorker.controller && waiting) {
                     window.APARTIM_SW_RELOAD = true;
-                    reg.waiting.postMessage({ type: "SKIP_WAITING" });
+                    waiting.postMessage({ type: "SKIP_WAITING" });
                   }
+                  resolve();
+                } else if (installing.state === "redundant") {
+                  installing.removeEventListener("statechange", onState);
                   resolve();
                 }
               });
@@ -373,9 +378,11 @@
       };
     }
     const m = raporDurum.ay;
+    const sonrakiY = m === 11 ? y + 1 : y;
+    const sonrakiM = m === 11 ? 0 : m + 1;
     return {
       bas: iso(y, m, 1),
-      bit: iso(y, m, ayinGunSayisi(y, m) + 1),
+      bit: iso(sonrakiY, sonrakiM, 1),
       gunSayisi: ayinGunSayisi(y, m),
       baslik: AY_ADLARI[m] + " " + y
     };
@@ -561,8 +568,8 @@
   }
 
   document.addEventListener("apartim:gorunum-degisti", (e) => {
+    /* Yalnız yılı senkronla — ayı bugüne sıfırlama (raporGit ay kaybı bug'ı) */
     raporDurum.yil = e.detail?.yil ?? window.APARTIM.gorunum?.seciliYil?.() ?? raporDurum.yil;
-    if (raporDurum.mod === "ay") raporGorunumdenSenkron();
     raporCiz();
   });
 

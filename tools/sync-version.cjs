@@ -25,14 +25,13 @@ if (!/^\d+\.\d+$/.test(APP)) {
 const CACHE = "apartim-" + APP.replace(/\./g, "-");
 
 let indexHtml = fs.readFileSync(indexPath, "utf8");
-/* Eski 2.x ve yeni 3.x+ ?v= değerlerini yakala */
-indexHtml = indexHtml.replace(/\?v=\d+\.\d+/g, "?v=" + APP);
+/* Tüm ?v=… sorgularını APP ile senkronla (2.x, 3.x, tarihli 20260812 vb.) */
+indexHtml = indexHtml.replace(/\?v=[^"'&\s#]+/g, "?v=" + APP);
 fs.writeFileSync(indexPath, indexHtml, "utf8");
 
 let sw = fs.readFileSync(swPath, "utf8");
 sw = sw.replace(/const CACHE_VERSION = "[^"]+";/, 'const CACHE_VERSION = "' + CACHE + '";');
 sw = sw.replace(/const ASSET_V = "[^"]+";/, 'const ASSET_V = "' + APP + '";');
-/* Açıklama satırı */
 sw = sw.replace(
   /\/\* Sürüm:.*\*\//,
   "/* Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */"

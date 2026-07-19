@@ -140,15 +140,19 @@
       });
       if (tutarTl <= 0 && tutarUsd <= 0) return null;
       const kayit = { yontem };
+      const kurUsd = Number(window.APARTIM.para?.kurlariGetir?.()?.USD) || 0;
       if (tutarTl > 0 && tutarUsd > 0) {
         kayit.tutarTl = tutarTl;
         kayit.tutarUsd = tutarUsd;
+        if (kurUsd > 0) kayit.kurUsd = kurUsd;
       } else if (tutarUsd > 0) {
         kayit.tutar = tutarUsd;
         kayit.tutarUsd = tutarUsd;
+        if (kurUsd > 0) kayit.kurUsd = kurUsd;
       } else {
         kayit.tutar = tutarTl;
         kayit.tutarTl = tutarTl;
+        kayit.tutarBirim = "TL";
       }
       return kayit;
     } catch (e) {

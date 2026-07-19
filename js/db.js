@@ -247,7 +247,12 @@
   function dovizKurlariKaydet(kurlar) {
     durum.dovizKurlari = dovizKurlariNorm(kurlar);
     dovizKurlariSenkron();
-    return kaydet("doviz-kurlari", durum.dovizKurlari);
+    if (window.APARTIM.firebaseAktif) {
+      return kaydet("doviz-kurlari", durum.dovizKurlari);
+    }
+    yereliKaydet();
+    bildir("veri-degisti", { sebep: "doviz-kurlari" });
+    return Promise.resolve();
   }
 
   /** Konak gecesi (1 tabanlı) için ücret */
@@ -271,7 +276,7 @@
     const og = rez?.odenenGunleri;
     if (og && typeof og === "object") {
       Object.keys(og).sort().forEach((t) => {
-        odenenGunDegerListe(og[t]).forEach((kayit) => {
+        odenenGunDegerListe(og[t], t).forEach((kayit) => {
           if (Number(kayit?.kurUsd) > 0) usd = Number(kayit.kurUsd);
           if (Number(kayit?.kurEur) > 0) eur = Number(kayit.kurEur);
         });
@@ -356,8 +361,8 @@
     }
     const og = odenenGunleriTemizle(rez) || rez?.odenenGunleri;
     if (og && typeof og === "object") {
-      Object.values(og).forEach((v) => {
-        odenenGunDegerListe(v).forEach((kayit) => {
+      Object.keys(og).forEach((t) => {
+        odenenGunDegerListe(og[t], t).forEach((kayit) => {
           if (!kayit) return;
           if ((Number(kayit.tutarTl) || 0) > 0) pbs.push("TL");
           if ((Number(kayit.tutarUsd) || 0) > 0) pbs.push("USD");
@@ -448,15 +453,31 @@
     return null;
   }
 
-  /** Eski tek kayıt veya dizi → id'li kayıt listesi */
-  function odenenGunDegerListe(deger) {
+  /** Eski tek kayıt veya dizi → id'li kayıt listesi (id yoksa kararlı parmak izi) */
+  function odenenGunDegerListe(deger, tarihHint) {
     if (deger == null || deger === "") return [];
     const arr = Array.isArray(deger) ? deger : [deger];
     const out = [];
-    arr.forEach((item) => {
+    arr.forEach((item, idx) => {
       const kayit = odenenGunKaydiNorm(item);
       if (!kayit || !odenenKayitDoluMu(kayit)) return;
-      if (!kayit.id) kayit.id = odemeIdUret();
+      if (!kayit.id) {
+        const hamId = item && typeof item === "object" && item.id != null
+          ? String(item.id).trim()
+          : "";
+        if (hamId) {
+          kayit.id = hamId;
+        } else {
+          const iz =
+            String(tarihHint || "") + "|" + idx + "|" +
+            (Number(kayit.tutarTl) || 0) + "|" +
+            (Number(kayit.tutarUsd) || 0) + "|" +
+            (Number(kayit.tutar) || 0) + "|" +
+            (kayit.yontem || "") + "|" +
+            String(kayit.not || "").slice(0, 40);
+          kayit.id = "p_leg_" + iz.replace(/\s+/g, "_").slice(0, 96);
+        }
+      }
       out.push(kayit);
     });
     return out;
@@ -497,7 +518,7 @@
     const out = {};
     Object.keys(rez.odenenGunleri).forEach((t) => {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(t)) return;
-      const liste = odenenGunDegerListe(rez.odenenGunleri[t]);
+      const liste = odenenGunDegerListe(rez.odenenGunleri[t], t);
       if (liste.length) out[t] = liste;
     });
     return Object.keys(out).length ? out : undefined;
@@ -509,7 +530,7 @@
     if (!og) return [];
     const liste = [];
     Object.keys(og).sort().forEach((tarih) => {
-      odenenGunDegerListe(og[tarih]).forEach((kayit) => {
+      odenenGunDegerListe(og[tarih], tarih).forEach((kayit) => {
         liste.push(Object.assign(
           { tarih, manuel: true, tutarPb: odenenKayitPb(kayit, rez) },
           kayit
@@ -537,8 +558,8 @@
   function rezervasyonOdenenToplamTl(rez) {
     const og = odenenGunleriTemizle(rez) || rez.odenenGunleri;
     if (!og) return 0;
-    return Object.values(og).reduce((s, v) => {
-      return s + odenenGunDegerListe(v).reduce((s2, kayit) => {
+    return Object.keys(og).reduce((s, t) => {
+      return s + odenenGunDegerListe(og[t], t).reduce((s2, kayit) => {
         return s2 + odenenKayitTl(kayit, rez);
       }, 0);
     }, 0);
@@ -592,7 +613,7 @@
   function rezervasyonOdenenGosterim(rez, tarih) {
     const og = rez.odenenGunleri;
     const liste = og && Object.prototype.hasOwnProperty.call(og, tarih)
-      ? odenenGunDegerListe(og[tarih])
+      ? odenenGunDegerListe(og[tarih], tarih)
       : [];
     if (liste.length) {
       let tutarTl = 0;
@@ -652,13 +673,13 @@
     /* Aynı id başka günde varsa önce oradan çıkar (tarih taşıma / silme) */
     if (odemeId) {
       Object.keys(odenenGunleri).forEach((t) => {
-        const L = odenenGunDegerListe(odenenGunleri[t]).filter((k) => k.id !== odemeId);
+        const L = odenenGunDegerListe(odenenGunleri[t], t).filter((k) => k.id !== odemeId);
         if (L.length) odenenGunleri[t] = L;
         else delete odenenGunleri[t];
       });
     }
 
-    let liste = odenenGunDegerListe(odenenGunleri[tarih]);
+    let liste = odenenGunDegerListe(odenenGunleri[tarih], tarih);
 
     if (deger == null || deger === "") {
       if (!odemeId) liste = [];
@@ -691,7 +712,7 @@
     const yontemToplam = {};
     Object.keys(og).forEach((t) => {
       if (t < donemBas || t >= donemBit) return;
-      odenenGunDegerListe(og[t]).forEach((kayit) => {
+      odenenGunDegerListe(og[t], t).forEach((kayit) => {
         if (!kayit || !odenenKayitDoluMu(kayit)) return;
         const y = kayit.yontem;
         if (!yontemToplam[y]) yontemToplam[y] = { TL: 0, USD: 0, EUR: 0 };
@@ -929,6 +950,10 @@
   function kullaniciHazir(kullanici) {
     kullaniciUid = kullanici.uid;
     profilAvatarDinlemeyiKaldir();
+    if (fbRef) {
+      try { fbRef.off(); } catch (e) { /* yoksay */ }
+      fbRef = null;
+    }
     fbIlkSenkronBitti = false;
     fbIlkDaireler = false;
     fbIlkRez = false;
@@ -953,7 +978,6 @@
         setTimeout(profilGuncelle, 300);
       }
 
-      // Daireler
       fbRef.child("daireler").on("value", (snap) => {
         durum.daireler = snap.val() || {};
         dairelerSeedEt();
@@ -970,6 +994,12 @@
         veriDegistiBildir("rezervasyonlar");
       });
 
+      /* Kasa harcamaları ana veriyle birlikte — boş flaş olmasın */
+      fbRef.child("kasa-harcama").on("value", (snap) => {
+        durum.kasaHarcama = snap.val() || {};
+        veriDegistiBildir("kasa-harcama");
+      });
+
       const ikincilDinleyicileriBagla = () => {
         if (!fbRef) return;
         fbRef.child("temizlik-kayit").on("value", (snap) => {
@@ -980,10 +1010,6 @@
           durum.musteriKaynaklari = snap.val() || {};
           musteriKaynaklariSeedEt();
           veriDegistiBildir("musteri-kaynaklari");
-        });
-        fbRef.child("kasa-harcama").on("value", (snap) => {
-          durum.kasaHarcama = snap.val() || {};
-          veriDegistiBildir("kasa-harcama");
         });
         fbRef.child("doviz-kurlari").on("value", (snap) => {
           const v = snap.val();
@@ -1051,6 +1077,12 @@
       });
     }
     // yerel mod
+    if (yol === "doviz-kurlari") {
+      if (deger != null) durum.dovizKurlari = dovizKurlariNorm(deger);
+      yereliKaydet();
+      bildir("veri-degisti", { sebep: "doviz-kurlari" });
+      return Promise.resolve();
+    }
     const [tip, id] = yol.split("/");
     const kok = tipKovasi(tip);
     if (!kok) return Promise.resolve();
@@ -1175,15 +1207,23 @@
     if (hasSplit) {
       tl = Number(mevcut.tutarTl) || 0;
       usd = Number(mevcut.tutarUsd) || 0;
+      if (pbEski === pbYeni) {
+        if (pbYeni === "USD") usd = tutar;
+        else tl = tutar;
+      } else {
+        /* Diğer para birimini koru; taşınan tutarı yeni birime ekle */
+        if (pbEski === "USD") usd = 0;
+        else tl = 0;
+        if (pbYeni === "USD") usd += tutar;
+        else tl += tutar;
+      }
     } else if (pbEski === "USD") {
-      usd = Number(mevcut.tutar) || 0;
+      if (pbYeni === "USD") usd = tutar;
+      else tl = tutar;
     } else {
-      tl = Number(mevcut.tutar) || 0;
+      if (pbYeni === "TL") tl = tutar;
+      else usd = tutar;
     }
-    if (pbEski === "USD") usd = 0;
-    else tl = 0;
-    if (pbYeni === "USD") usd = tutar;
-    else tl = tutar;
 
     const deger = { yontem: "kasa", not, id: odemeId };
     if (tl > 0) deger.tutarTl = tl;
@@ -1567,6 +1607,10 @@
   document.addEventListener("apartim:auth-hazir", (e) => {
     kullaniciHazir(e.detail);
   });
+  /* auth.js bazen db'den önce oturum açar — kaçırılan olayı yakala */
+  if (window.APARTIM.kullanici) {
+    kullaniciHazir(window.APARTIM.kullanici);
+  }
 
   // ---------- Public API ----------
   window.APARTIM.db = {

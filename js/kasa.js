@@ -336,6 +336,8 @@
       longPressMoved = false;
       const startX = e.clientX;
       const startY = e.clientY;
+      const ac = new AbortController();
+      const { signal } = ac;
       longPressTimer = setTimeout(() => {
         if (!longPressSatir || longPressMoved) return;
         const hid = longPressSatir.dataset.hid;
@@ -347,6 +349,7 @@
         setTimeout(() => longPressSatir?.classList.remove("kasa-satir-basili"), 220);
         duzenleAc(hid);
         longPressTimer = null;
+        ac.abort();
       }, LONG_PRESS_MS);
 
       const onMove = (ev) => {
@@ -354,16 +357,16 @@
             Math.abs(ev.clientY - startY) > LONG_PRESS_MOVE) {
           longPressMoved = true;
           longPressIptal();
-          listeEl.removeEventListener("pointermove", onMove);
+          ac.abort();
         }
       };
-      listeEl.addEventListener("pointermove", onMove);
       const bitir = () => {
-        listeEl.removeEventListener("pointermove", onMove);
         if (longPressTimer) longPressIptal();
+        ac.abort();
       };
-      listeEl.addEventListener("pointerup", bitir, { once: true });
-      listeEl.addEventListener("pointercancel", bitir, { once: true });
+      listeEl.addEventListener("pointermove", onMove, { signal });
+      listeEl.addEventListener("pointerup", bitir, { signal });
+      listeEl.addEventListener("pointercancel", bitir, { signal });
     });
 
     listeEl.addEventListener("contextmenu", (e) => {
