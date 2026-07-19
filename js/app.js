@@ -179,6 +179,7 @@
     document.querySelectorAll(".tab-panel").forEach((p) =>
       p.classList.toggle("active", p.id === "tab-" + ad));
     if (ad === "rapor") raporCiz();
+    if (ad === "kasa") window.APARTIM.kasa?.ciz();
     if (ad === "bina") window.APARTIM.bina?.ciz();
     if (ad === "rezervasyonlar") {
       if (window.APARTIM.rezOzet?.rezSekmeAc) {
@@ -268,6 +269,8 @@
   document.addEventListener("apartim:veri-degisti", () => {
     const aktifRapor = document.getElementById("tab-rapor")?.classList.contains("active");
     if (aktifRapor) raporCiz();
+    const aktifKasa = document.getElementById("tab-kasa")?.classList.contains("active");
+    if (aktifKasa) window.APARTIM.kasa?.ciz();
   });
 
   // ---- Gün değişimi yayını (gece yarısı) ----

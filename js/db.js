@@ -34,6 +34,7 @@
     rezervasyonlar: {},// { rezId: {...} }
     temizlikKayit: {}, // { kayitId: {...} }
     musteriKaynaklari: {}, // { id: { id, ad, simge, sira, sistem } }
+    kasaHarcama: {},   // { id: { id, tarih, not, tutar, pb, olusturulma } }
     dovizKurlari: { USD: 46.5, EUR: 50.5 },
     yuklendi: false
   };
@@ -980,6 +981,10 @@
           musteriKaynaklariSeedEt();
           veriDegistiBildir("musteri-kaynaklari");
         });
+        fbRef.child("kasa-harcama").on("value", (snap) => {
+          durum.kasaHarcama = snap.val() || {};
+          veriDegistiBildir("kasa-harcama");
+        });
         fbRef.child("doviz-kurlari").on("value", (snap) => {
           const v = snap.val();
           if (v) durum.dovizKurlari = dovizKurlariNorm(v);
@@ -999,6 +1004,7 @@
       durum.rezervasyonlar = rezervasyonlariNormalize(v.rezervasyonlar || {});
       durum.temizlikKayit = v.temizlikKayit || {};
       durum.musteriKaynaklari = v.musteriKaynaklari || {};
+      durum.kasaHarcama = v.kasaHarcama || {};
       if (v.dovizKurlari) durum.dovizKurlari = dovizKurlariNorm(v.dovizKurlari);
       dovizKurlariSenkron();
       musteriKaynaklariSeedEt();
@@ -1016,6 +1022,7 @@
       rezervasyonlar: durum.rezervasyonlar,
       temizlikKayit: durum.temizlikKayit,
       musteriKaynaklari: durum.musteriKaynaklari,
+      kasaHarcama: durum.kasaHarcama,
       dovizKurlari: durum.dovizKurlari
     });
   }
@@ -1079,7 +1086,140 @@
     if (tip === "rezervasyonlar") return durum.rezervasyonlar;
     if (tip === "temizlik-kayit") return durum.temizlikKayit;
     if (tip === "musteri-kaynaklari") return durum.musteriKaynaklari;
+    if (tip === "kasa-harcama") return durum.kasaHarcama;
     return null;
+  }
+
+  function kasaHarcamaNorm(deger) {
+    if (!deger || typeof deger !== "object") return null;
+    const tarih = tarihNormal(deger.tarih);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(tarih)) return null;
+    const tutar = Number(deger.tutar);
+    if (!Number.isFinite(tutar) || tutar <= 0) return null;
+    const pb = window.APARTIM.para?.paraBirimiSecimNorm?.(deger.pb) ||
+      (String(deger.pb || "TL").toUpperCase() === "USD" ? "USD" : "TL");
+    const not = String(deger.not || "").trim().slice(0, 200);
+    const id = deger.id != null && String(deger.id).trim()
+      ? String(deger.id).trim()
+      : yeniId();
+    return {
+      id,
+      tarih,
+      not,
+      tutar,
+      pb,
+      olusturulma: Number(deger.olusturulma) || Date.now()
+    };
+  }
+
+  function kasaHarcamaListele() {
+    return Object.values(durum.kasaHarcama || {})
+      .map(kasaHarcamaNorm)
+      .filter(Boolean)
+      .sort((a, b) => {
+        if (a.tarih !== b.tarih) return b.tarih.localeCompare(a.tarih);
+        return (b.olusturulma || 0) - (a.olusturulma || 0);
+      });
+  }
+
+  function kasaHarcamaEkle(veri) {
+    const kayit = kasaHarcamaNorm(Object.assign({}, veri, {
+      id: veri?.id || yeniId(),
+      olusturulma: Date.now()
+    }));
+    if (!kayit) return Promise.reject(new Error("Geçersiz harcama"));
+    durum.kasaHarcama[kayit.id] = kayit;
+    return kaydet("kasa-harcama/" + kayit.id, kayit).then(() => kayit);
+  }
+
+  function kasaHarcamaSil(id) {
+    if (!id || !durum.kasaHarcama[id]) return Promise.resolve();
+    delete durum.kasaHarcama[id];
+    return sil("kasa-harcama/" + id);
+  }
+
+  /**
+   * Tahsilattan kasa yöntemiyle girilen ödemeler + manuel harcamalar.
+   * pbFiltre: null/"tumu" | "TL" | "USD"
+   */
+  function kasaHareketListele(pbFiltre) {
+    const para = window.APARTIM.para;
+    const filtre = !pbFiltre || pbFiltre === "tumu"
+      ? null
+      : (para?.paraBirimiSecimNorm?.(pbFiltre) || String(pbFiltre).toUpperCase());
+    const hareketler = [];
+
+    Object.values(durum.rezervasyonlar || {}).forEach((rez) => {
+      if (!rez) return;
+      const misafir = String(rez.misafirAdi || rez.misafir || "").trim() || "—";
+      const rezPb = para?.rezParaBirimi?.(rez) || "TL";
+      rezervasyonOdenenListe(rez).forEach((kayit) => {
+        if (odemeYontemNorm(kayit.yontem) !== "kasa") return;
+        const not = String(kayit.not || "").trim();
+        const ortak = {
+          tip: "gelir",
+          tarih: kayit.tarih,
+          musteri: misafir,
+          not,
+          rezId: rez.id,
+          odemeId: kayit.id || ""
+        };
+        const hasSplit =
+          (Number(kayit.tutarTl) || 0) > 0 || (Number(kayit.tutarUsd) || 0) > 0;
+        if (hasSplit) {
+          if ((Number(kayit.tutarTl) || 0) > 0) {
+            hareketler.push(Object.assign({}, ortak, {
+              id: "g-" + (kayit.id || kayit.tarih) + "-tl",
+              tutar: Number(kayit.tutarTl),
+              pb: "TL"
+            }));
+          }
+          if ((Number(kayit.tutarUsd) || 0) > 0) {
+            hareketler.push(Object.assign({}, ortak, {
+              id: "g-" + (kayit.id || kayit.tarih) + "-usd",
+              tutar: Number(kayit.tutarUsd),
+              pb: "USD"
+            }));
+          }
+        } else {
+          const tutar = Number(kayit.tutar) || 0;
+          if (tutar <= 0) return;
+          const pb = kayit.tutarBirim === "TL" ? "TL" : rezPb;
+          const pbSec = pb === "USD" ? "USD" : "TL";
+          hareketler.push(Object.assign({}, ortak, {
+            id: "g-" + (kayit.id || kayit.tarih) + "-" + pbSec.toLowerCase(),
+            tutar,
+            pb: pbSec
+          }));
+        }
+      });
+    });
+
+    kasaHarcamaListele().forEach((h) => {
+      hareketler.push({
+        tip: "harcama",
+        id: "h-" + h.id,
+        harcamaId: h.id,
+        tarih: h.tarih,
+        musteri: "Harcama",
+        not: h.not || "",
+        tutar: h.tutar,
+        pb: h.pb,
+        olusturulma: h.olusturulma
+      });
+    });
+
+    const filtreli = filtre
+      ? hareketler.filter((h) => h.pb === filtre)
+      : hareketler;
+
+    return filtreli.sort((a, b) => {
+      if (a.tarih !== b.tarih) return b.tarih.localeCompare(a.tarih);
+      const ao = a.olusturulma || 0;
+      const bo = b.olusturulma || 0;
+      if (ao !== bo) return bo - ao;
+      return String(a.id).localeCompare(String(b.id));
+    });
   }
 
   function yeniId() {
@@ -1428,6 +1568,10 @@
     daireDurumuBugun,
     temizlikLogEkle,
     temizlikLogListele,
+    kasaHarcamaListele,
+    kasaHarcamaEkle,
+    kasaHarcamaSil,
+    kasaHareketListele,
     dovizKurlariKaydet,
     musteriKaynaklariListele,
     musteriKaynagiGetir,
