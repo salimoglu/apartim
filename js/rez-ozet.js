@@ -369,52 +369,20 @@
     return String(ad || "");
   }
 
-  function ioBadge(tip, rezId) {
-    const lbl = tip === "in" ? "IN" : "OUT";
-    return '<span class="rez-ozet-io ' + tip + ' rez-ozet-tik" data-rez-id="' + esc(rezId) + '">' + lbl + '</span>';
-  }
-
   function gSayiHtml(rez, tarih) {
     const det = konakDetay(rez, tarih);
     return '<span class="rez-ozet-g-sayi">' + esc(String(det.g)) + "</span>";
-  }
-
-  function gOutHtml(rezId) {
-    return ioBadge("out", rezId);
-  }
-
-  function gInHtml(rezId) {
-    return ioBadge("in", rezId);
-  }
-
-  function gCheckinHtml(rezId) {
-    return (
-      '<span class="rez-ozet-g-dikey">' +
-        gInHtml(rezId) +
-        '<span class="rez-ozet-g-sayi">1</span>' +
-      "</span>"
-    );
-  }
-
-  function checkoutHtml(rez) {
-    const rid = rezIdAl(rez);
-    const kalan = rezOutKalanHtml(rez);
-    return (
-      '<div class="rez-ozet-io-satir">' +
-        '<span class="rez-ozet-turnover-grup out-grup">' + gOutHtml(rid) + "</span>" +
-        (kalan ? '<span class="rez-ozet-turnover-grup sag-grup">' + kalan + "</span>" : "") +
-      "</div>"
-    );
   }
 
   function checkoutHucreleriEkle(tr, rez, tarih, renk, ioVurgu) {
     const rid = rezIdAl(rez);
     const bg = hucreBg(renk, ioVurgu);
     const tdG = document.createElement("td");
-    tdG.className = "rez-ozet-sayi rez-ozet-io-rozet rez-ozet-out-gun" + (ioVurgu ? " rez-ozet-io-hucre" : "");
+    tdG.className = "rez-ozet-sayi rez-ozet-out-gun rez-ozet-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
     tdG.style.background = bg;
     if (rid) tdG.dataset.rezId = rid;
-    tdG.innerHTML = '<div class="rez-ozet-g-hucre-orta">' + gOutHtml(rid) + "</div>";
+    tdG.title = "Çıkış" + (rez?.misafirAdi ? ": " + rez.misafirAdi : "");
+    tdG.textContent = "—";
     tr.appendChild(tdG);
 
     const tdKt = document.createElement("td");
@@ -594,9 +562,8 @@
 
   function checkinHucreler(rez, tarih) {
     const det = konakDetay(rez, tarih);
-    const rid = rezIdAl(rez);
     return [
-      { cls: "rez-ozet-sayi rez-ozet-io-rozet", html: gCheckinHtml(rid) },
+      { cls: "rez-ozet-sayi", html: '<span class="rez-ozet-g-sayi">1</span>' },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc) },
       { type: "odn" },
@@ -1419,7 +1386,7 @@
     if (h.tip === "checkout") {
       return {
         hucreler: [
-          "OUT",
+          "—",
           "—",
           "—",
           "",
@@ -1432,7 +1399,7 @@
       const det = konakDetay(h.rez, tarih);
       return {
         hucreler: [
-          "IN · 1",
+          "1",
           det.kategori,
           formatHucreFiyat(h.rez, det.prc),
           excelOdnHucre(h.rez, tarih, det.odenenInfo),
