@@ -193,9 +193,9 @@
       '<span class="rez-ozet-out-kalan-stack' + cls + '" title="Toplam − tahsilat">' +
         '<span class="rez-ozet-out-kalan-etiket">' + esc(p.etiket) + "</span>" +
         '<span class="rez-ozet-out-kalan-tutar">' +
-          (p.tutar ? esc(p.tutar) : "") +
+          (p.tutar ? '<span class="rez-ozet-out-kalan-rakam">' + esc(p.tutar) + "</span>" : "") +
+          ok +
         "</span>" +
-        ok +
       "</span>"
     );
   }
