@@ -8,6 +8,7 @@
   "use strict";
 
   const KULLANICI_EMAIL_DOMAIN = "@users.apartim.app";
+  const OTURUM_KEY = "apartim-oturum";
 
   const lockScreen = document.getElementById("lock-screen");
   const app = document.getElementById("app");
@@ -24,10 +25,22 @@
 
   let mod = "giris"; // "giris" | "kayit"
   let lockAcik = true;
+  let authIlkCozum = false;
 
   function hataGoster(msg) {
     if (!errorEl) return;
     errorEl.textContent = msg || "";
+  }
+
+  function oturumIsaretle(varMi) {
+    try {
+      if (varMi) localStorage.setItem(OTURUM_KEY, "1");
+      else localStorage.removeItem(OTURUM_KEY);
+    } catch (e) { /* yoksay */ }
+  }
+
+  function oturumBeklemeBitir() {
+    document.documentElement.classList.remove("auth-oturum-bekleniyor");
   }
 
   /** Türkçe karakterli görünen ad + Firebase için ASCII anahtar */
@@ -103,7 +116,16 @@
   toggleGiris?.addEventListener("click", () => { mod = "giris"; modGuncelle(); });
 
   function uygulamaAc(kullanici) {
-    if (!lockAcik) return;
+    oturumBeklemeBitir();
+    oturumIsaretle(true);
+    if (!lockAcik) {
+      /* Zaten açık — kullanıcı bilgisini yine güncelle */
+      const k = window.APARTIM.avatar
+        ? window.APARTIM.avatar.kullaniciyaEkle(kullanici)
+        : kullanici;
+      window.APARTIM.kullanici = k;
+      return;
+    }
     lockAcik = false;
     lockScreen.classList.add("hidden");
     app.classList.remove("hidden");
@@ -115,7 +137,13 @@
   }
 
   function uygulamaKilitle() {
-    if (lockAcik) return;
+    oturumBeklemeBitir();
+    oturumIsaretle(false);
+    if (lockAcik) {
+      lockScreen.classList.remove("hidden");
+      app.classList.add("hidden");
+      return;
+    }
     lockAcik = true;
     lockScreen.classList.remove("hidden");
     app.classList.add("hidden");
@@ -160,14 +188,20 @@
       uygulamaAc(firebaseKullaniciBilgi(kullanici));
     };
 
-    if (auth.currentUser) oturumAc(auth.currentUser);
+    if (auth.currentUser) {
+      authIlkCozum = true;
+      oturumAc(auth.currentUser);
+    }
 
     auth.onAuthStateChanged((kullanici) => {
-      if (kullanici) oturumAc(kullanici);
-      else {
-        window.APARTIM.syncDurum("");
-        uygulamaKilitle();
+      authIlkCozum = true;
+      if (kullanici) {
+        oturumAc(kullanici);
+        return;
       }
+      window.APARTIM.syncDurum("");
+      /* Oturum yok / çıkış — giriş formunu göster */
+      uygulamaKilitle();
     });
 
     btnGiris.addEventListener("click", async () => {
@@ -217,6 +251,7 @@
     });
 
     window.APARTIM.cikis = async function () {
+      oturumIsaretle(false);
       try { await auth.signOut(); }
       catch (e) { console.warn("signOut hatası:", e); }
     };
@@ -234,7 +269,10 @@
     inpSifre.classList.add("hidden");
     document.querySelector(".lock-auth-veya")?.classList.add("hidden");
 
-    btnGoogle.addEventListener("click", () => {
+    /* Yerel oturum işareti varsa doğrudan aç */
+    let yerelOturumVar = false;
+    try { yerelOturumVar = localStorage.getItem(OTURUM_KEY) === "1"; } catch (e) {}
+    const yerelBaslat = () => {
       const yerelKullanici = {
         uid: "yerel",
         eposta: "",
@@ -245,7 +283,12 @@
       };
       window.APARTIM.syncDurum("beklemede");
       uygulamaAc(yerelKullanici);
-    });
+    };
+    if (yerelOturumVar) {
+      yerelBaslat();
+    }
+
+    btnGoogle.addEventListener("click", yerelBaslat);
 
     window.APARTIM.cikis = function () { uygulamaKilitle(); };
   }

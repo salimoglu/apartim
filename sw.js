@@ -1,7 +1,7 @@
 /* Apartım — basit cache-first service worker */
 /* Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
-const CACHE_VERSION = "apartim-3-4";
-const ASSET_V = "3.4";
+const CACHE_VERSION = "apartim-3-5";
+const ASSET_V = "3.5";
 const CORE_ASSETS = [
   "./",
   "./index.html",

@@ -103,6 +103,18 @@ html.theme-light {
   color: var(--metin);
 }
 .lock-sub { color: var(--metin-soluk); margin: 0; font-size: 14px; }
+.lock-bekle {
+  display: none;
+  margin: 2px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--metin-soluk);
+  letter-spacing: 0.02em;
+}
+/* Önceki oturum var: giriş formu gizle, splash bekle */
+html.auth-oturum-bekleniyor .lock-auth-panel { display: none !important; }
+html.auth-oturum-bekleniyor .lock-sub { display: none; }
+html.auth-oturum-bekleniyor .lock-bekle { display: block; }
 .lock-auth-panel {
   background: var(--kart);
   border: 1px solid var(--kenar);
