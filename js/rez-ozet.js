@@ -452,12 +452,16 @@
     const w = window.visualViewport?.width || window.innerWidth;
     const h = window.visualViewport?.height || window.innerHeight;
     const kisa = Math.min(w, h);
-    const yatay = w >= h;
+    /* orientation + boyut + telefon yatay mod sınıfı (güvenilir yatay algı) */
+    const yatay =
+      w > h ||
+      window.matchMedia("(orientation: landscape)").matches ||
+      (document.body.classList.contains("mobil-yatay-mod") && kisa <= 520);
     const dokunmatik =
       window.matchMedia("(pointer: coarse)").matches ||
       (navigator.maxTouchPoints || 0) > 1;
 
-    /* Telefon: kısa kenar ≤520 (app.js yatay mod ile aynı) — dikey 1 / yatay 3 */
+    /* Telefon: kısa kenar ≤520 — dikey 1 / yatay 3 */
     if (kisa <= 520) {
       return { cihaz: "telefon", kompakt: true, yatay, odaHedef: yatay ? 3 : 1 };
     }
@@ -1689,17 +1693,17 @@
 
     if (kompakt) {
       /* Telefon: dikey 1 / yatay 3 · Tablet: dikey 3 / yatay 5 — fazlası yatay kaydırılır */
-      const odaHedef = gorunum.odaHedef;
+      const odaHedef = Math.max(1, gorunum.odaHedef);
       const tarihPx = gorunum.cihaz === "tablet" ? 38 : 36;
-      const minBlok = gorunum.cihaz === "tablet" ? 72 : (odaHedef <= 1 ? 120 : 64);
-      const odaBlokPx = Math.max(minBlok, (genislik - tarihPx) / odaHedef);
+      /* Tam odaHedef kadar sığdır (telefon yatayda 3); fazlası kaydırılır */
+      const odaBlokPx = Math.max(1, (genislik - tarihPx) / odaHedef);
       const g = Math.max(10, Math.floor(odaBlokPx * (odaHedef <= 1 ? 0.10 : 0.12)));
       const kt = g;
-      const rem = odaBlokPx - 2 * g;
+      const rem = Math.max(30, odaBlokPx - 2 * g);
       /* Ad sütununa daha geniş pay — tek satırda sığsın, alta kaymasın */
-      const fyt = Math.max(22, Math.floor(rem * 0.22));
-      const odn = Math.max(26, Math.floor(rem * 0.24));
-      const ad = Math.max(28, rem - fyt - odn);
+      const fyt = Math.floor(rem * 0.22);
+      const odn = Math.floor(rem * 0.24);
+      const ad = Math.max(20, rem - fyt - odn);
       const tabloW = tarihPx + n * odaBlokPx;
 
       applyColGenislik(table, {

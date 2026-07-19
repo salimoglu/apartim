@@ -200,8 +200,12 @@
   function yatayModGuncelle() {
     const tamEkran = document.querySelector("#tab-rezervasyonlar .rez-ozet-wrap.rez-ozet-tam-ekran");
     const yatay = yatayModMu() || !!document.fullscreenElement || !!tamEkran;
+    const onceki = document.body.classList.contains("mobil-yatay-mod");
     document.documentElement.classList.toggle("mobil-yatay-mod", yatay);
     document.body.classList.toggle("mobil-yatay-mod", yatay);
+    if (onceki !== yatay) {
+      window.APARTIM.rezOzet?.sutunOlculYenile?.();
+    }
   }
 
   async function yonKilidiAc() {
