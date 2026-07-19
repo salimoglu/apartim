@@ -2482,7 +2482,7 @@ body.modal-acik .modal-body {
     border-bottom: none;
   }
   #modal-daireler .modal-body-odalar {
-    padding: 8px 12px calc(8px + env(safe-area-inset-bottom));
+    padding: 8px 12px;
   }
   #modal-daireler .daire-ayar-ad,
   #modal-daireler .daire-ekle-row .field-input {
