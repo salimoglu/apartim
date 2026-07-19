@@ -946,39 +946,6 @@ body.ptr-cekiliyor { overscroll-behavior-y: contain; }
   color: #1a1a1a;
   flex-shrink: 0;
 }
-.takvim-io-cift {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  align-self: flex-start;
-  border-radius: 2px;
-  overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
-  line-height: 1;
-  margin-bottom: 1px;
-  height: 9px;
-  background: #ffeb3b;
-}
-.takvim-io-cift-parca {
-  font-weight: 800;
-  font-size: 6px;
-  letter-spacing: 0;
-  text-align: center;
-  padding: 0 1px;
-  color: #1a1a1a;
-  line-height: 9px;
-  text-transform: lowercase;
-}
-.takvim-io-cift-parca.out { background: #ffc107; }
-.takvim-io-cift-parca.in { background: #ffeb3b; }
-.takvim-io-cift-sep {
-  font-size: 5px;
-  font-weight: 700;
-  color: #1a1a1a;
-  opacity: 0.65;
-  padding: 0;
-  line-height: 9px;
-}
 html:not(.theme-light) .takvim-rez-ad,
 html:not(.theme-light) .takvim-rez-ucret,
 html:not(.theme-light) .takvim-turnover-ad {
@@ -1987,7 +1954,7 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   flex-shrink: 0;
   opacity: 0.7;
 }
-/* Çakışan gün: sütun çizgileri diğer günlerle aynı kalır; taşma yok */
+/* Çakışan gün: yalnızca sarı vurgu; sütun çizgileri korunur */
 .rez-ozet-table td.rez-ozet-turnover-hucre {
   padding: 1px 2px !important;
   vertical-align: middle;
@@ -1996,73 +1963,6 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 .rez-ozet-table td.rez-ozet-turnover-bas {
   text-align: center !important;
   overflow: hidden !important;
-}
-.rez-ozet-io-cift {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  border-radius: 2px;
-  overflow: hidden;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
-  line-height: 1;
-  flex-shrink: 0;
-  height: 9px;
-  background: #ffeb3b;
-  max-width: 100%;
-}
-.rez-ozet-io-cift-parca {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 6px;
-  letter-spacing: 0;
-  padding: 0 1px;
-  color: #1a1a1a !important;
-  cursor: pointer;
-  box-sizing: border-box;
-  line-height: 1;
-  min-width: 6px;
-  text-transform: lowercase;
-}
-.rez-ozet-io-cift-parca.out {
-  background: #ffc107;
-}
-.rez-ozet-io-cift-parca.in {
-  background: #ffeb3b;
-}
-.rez-ozet-io-cift-sep {
-  font-size: 6px;
-  font-weight: 700;
-  color: #1a1a1a;
-  line-height: 1;
-  padding: 0;
-  opacity: 0.65;
-  background: #ffeb3b;
-  pointer-events: none;
-}
-.rez-ozet-g-yatay {
-  display: inline-flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  line-height: 1;
-  vertical-align: middle;
-  max-width: 100%;
-  min-width: 0;
-  overflow: hidden;
-}
-.rez-ozet-tablo-telefon .rez-ozet-io-cift {
-  height: 8px;
-}
-.rez-ozet-tablo-telefon .rez-ozet-io-cift-parca {
-  font-size: 5px;
-  min-width: 5px;
-  padding: 0 1px;
-}
-.rez-ozet-tablo-telefon .rez-ozet-io-cift-sep {
-  font-size: 5px;
 }
 .rez-ozet-turnover-kompakt,
 .rez-ozet-io-satir {
@@ -2106,22 +2006,6 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   vertical-align: middle;
   flex-wrap: nowrap;
   max-width: 100%;
-}
-.rez-ozet-g-turnover {
-  gap: 2px;
-}
-.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-turnover .rez-ozet-g-sayi {
-  font-size: 9px;
-  font-weight: 800;
-  line-height: 1;
-  color: #1a1a1a !important;
-  flex-shrink: 0;
-}
-.rez-ozet-table td.rez-ozet-turnover-bas.rez-ozet-io-rozet {
-  overflow: hidden !important;
-  min-width: 32px;
-  max-width: 100%;
-  padding: 1px 1px !important;
 }
 .rez-ozet-g-sayi {
   display: inline-block;
@@ -2181,18 +2065,8 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   font-size: 8px;
   flex-shrink: 0;
 }
-.rez-ozet-g-turnover .rez-ozet-io {
-  font-size: 7px;
-}
 .rez-ozet-tablo-telefon td.rez-ozet-io-rozet {
   min-width: 38px;
-}
-.rez-ozet-tablo-telefon .rez-ozet-g-turnover .rez-ozet-io {
-  font-size: 6px;
-  padding: 2px 3px;
-}
-.rez-ozet-tablo-telefon .rez-ozet-g-turnover .rez-ozet-g-sayi {
-  font-size: 10px;
 }
 /* Sarı IO hücreleri — çakışan / giriş / çıkış günleri (tarih sütunu hariç) */
 .rez-ozet-table td.rez-ozet-io-hucre {
@@ -2213,10 +2087,6 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   color: #1a1a1a !important;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
 }
-.rez-ozet-table td.rez-ozet-io-hucre .rez-ozet-io-cift-parca {
-  color: #1a1a1a !important;
-}
-
 /* -------------------- 10. Temizlik -------------------- */
 .temizlik-wrap { display: flex; flex-direction: column; gap: 14px; }
 .temizlik-oda-liste {

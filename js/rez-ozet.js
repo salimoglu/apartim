@@ -374,17 +374,6 @@
     return '<span class="rez-ozet-io ' + tip + ' rez-ozet-tik" data-rez-id="' + esc(rezId) + '">' + lbl + '</span>';
   }
 
-  /** Çakışan gün: kompakt i/o rozeti (i=giriş, o=çıkış) */
-  function ioCiftRozet(cikisRid, girisRid) {
-    return (
-      '<span class="rez-ozet-io-cift" title="i/o — aynı gün giriş + çıkış">' +
-        '<span class="rez-ozet-io-cift-parca in rez-ozet-tik" data-rez-id="' + esc(girisRid) + '" title="i — giren misafir">i</span>' +
-        '<span class="rez-ozet-io-cift-sep" aria-hidden="true">/</span>' +
-        '<span class="rez-ozet-io-cift-parca out rez-ozet-tik" data-rez-id="' + esc(cikisRid) + '" title="o — çıkan misafir">o</span>' +
-      "</span>"
-    );
-  }
-
   function gSayiHtml(rez, tarih) {
     const det = konakDetay(rez, tarih);
     return '<span class="rez-ozet-g-sayi">' + esc(String(det.g)) + "</span>";
@@ -453,25 +442,23 @@
     tr.appendChild(tdA);
   }
 
-  /** Çakışan gün: 5 sütun korunur (colspan yok), hücreler görsel olarak birleşir */
+  /** Çakışan gün: yalnızca sarı vurgu — i/o simgesi yok, sütunlar korunur */
   function turnoverHucreleriEkle(tr, cikis, giris, tarih, renk) {
-    const cikisRid = rezIdAl(cikis);
     const girisRid = rezIdAl(giris);
     const bg = hucreBg(renk, true);
     const det = konakDetay(giris, tarih);
     const fiyat = formatHucreFiyat(giris, det.prc);
     const ad = misafirTabloGoster(det.misafir);
+    const cikisAd = (cikis && cikis.misafirAdi) || "—";
+    const girisAd = (giris && giris.misafirAdi) || "—";
 
     const tdG = document.createElement("td");
     tdG.className =
-      "rez-ozet-sayi rez-ozet-io-rozet rez-ozet-turnover-hucre rez-ozet-turnover-bas rez-ozet-io-hucre";
+      "rez-ozet-sayi rez-ozet-turnover-hucre rez-ozet-turnover-bas rez-ozet-io-hucre rez-ozet-tik";
     tdG.style.background = bg;
     if (girisRid) tdG.dataset.rezId = girisRid;
-    tdG.innerHTML =
-      '<div class="rez-ozet-g-yatay rez-ozet-g-turnover">' +
-        ioCiftRozet(cikisRid, girisRid) +
-        '<span class="rez-ozet-g-sayi">1</span>' +
-      "</div>";
+    tdG.title = "Çıkış: " + cikisAd + " → Giriş: " + girisAd;
+    tdG.innerHTML = '<span class="rez-ozet-g-sayi">1</span>';
     tr.appendChild(tdG);
 
     const tdKt = document.createElement("td");
@@ -1420,7 +1407,7 @@
       const det = konakDetay(h.giris, tarih);
       return {
         hucreler: [
-          "i/o · 1",
+          "1",
           det.kategori,
           formatHucreFiyat(h.giris, det.prc),
           excelOdnHucre(h.giris, tarih, det.odenenInfo),
