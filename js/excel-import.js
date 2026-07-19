@@ -128,19 +128,43 @@
     return false;
   }
 
-  function kaynakIdBul(simge) {
+  /* Referans: Booking, Eski müşteri, Kapıdan gelen, Misafir, Albatros (+ kullanıcı kategorileri) */
+  const KATEGORI_TAKMA = {
+    booking: "booking",
+    "eski musteri": "eski-musteri",
+    "kapidan gelen": "kapi",
+    kapi: "kapi",
+    misafir: "misafir",
+    albatros: "albatros"
+  };
+
+  function kaynakIdBul(ham) {
     const db = window.APARTIM.db;
-    const s = hucreMetin(simge);
-    if (!s || s === "—" || s === "-") {
-      const liste = db.musteriKaynaklariListele();
-      return liste[0]?.id || "booking";
-    }
     const liste = db.musteriKaynaklariListele();
-    const birebir = liste.find((k) => k.simge === s);
-    if (birebir) return birebir.id;
-    const ad = liste.find((k) => normAd(k.ad) === normAd(s));
-    if (ad) return ad.id;
-    return liste[0]?.id || "booking";
+    const varsayilan = liste[0]?.id || "booking";
+    const s = hucreMetin(ham);
+    if (!s || s === "—" || s === "-") return varsayilan;
+
+    const n = normAd(s);
+    /* 1) İsim birebir */
+    let k = liste.find((x) => normAd(x.ad) === n);
+    if (k) return k.id;
+    /* 2) id birebir */
+    k = liste.find((x) => normAd(x.id) === n || x.id === s);
+    if (k) return k.id;
+    /* 3) Bilinen takma adlar */
+    const takmaId = KATEGORI_TAKMA[n];
+    if (takmaId && liste.some((x) => x.id === takmaId)) return takmaId;
+    /* 4) Kısmi isim */
+    k = liste.find((x) => {
+      const a = normAd(x.ad);
+      return a.indexOf(n) >= 0 || n.indexOf(a) >= 0;
+    });
+    if (k) return k.id;
+    /* 5) Eski Excel’ler: simge (geriye uyum) */
+    k = liste.find((x) => x.simge === s);
+    if (k) return k.id;
+    return varsayilan;
   }
 
   function daireEsle(ad, daireler) {

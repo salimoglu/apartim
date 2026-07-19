@@ -1946,13 +1946,19 @@
     return '<td' + cs + ' style="' + stil + '">' + esc(metin) + "</td>";
   }
 
+  /** Excel Kt sütunu: kategori adı (simge değil) — import ile aynı referans */
+  function excelKategoriAd(rez) {
+    const ad = kaynakBaslik(rez);
+    return ad || "—";
+  }
+
   function excelDaireHucreleri(h, tarih) {
     if (h.tip === "turnover") {
       const det = konakDetay(h.giris, tarih);
       return {
         hucreler: [
           "1",
-          det.kategori,
+          excelKategoriAd(h.giris),
           formatHucreFiyat(h.giris, det.prc, det.prcPb),
           excelOdnHucre(h.giris, tarih, det.odenenInfo),
           det.misafir || "",
@@ -1977,7 +1983,7 @@
       return {
         hucreler: [
           "1",
-          det.kategori,
+          excelKategoriAd(h.rez),
           formatHucreFiyat(h.rez, det.prc, det.prcPb),
           excelOdnHucre(h.rez, tarih, det.odenenInfo),
           det.misafir || "",
@@ -1990,7 +1996,7 @@
       return {
         hucreler: [
           String(det.g),
-          det.kategori,
+          excelKategoriAd(h.rez),
           formatHucreFiyat(h.rez, det.prc, det.prcPb),
           excelOdnHucre(h.rez, tarih, det.odenenInfo),
           det.misafir || "",
