@@ -3758,26 +3758,100 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 /* Tahsilat yöntem kırılımı kartta gösterilmez (tek satır) */
 .rapor-kart .rapor-tahsilat-liste { display: none; }
-@media (max-width: 900px) {
+
+/* Tablet dar: tek satır kalır, gerekirse hafif kaydır */
+@media (max-width: 1100px) and (min-width: 721px) {
   .rapor-grid {
     gap: 5px;
     overflow-x: auto;
-    grid-template-columns: repeat(7, minmax(108px, 1fr));
+    grid-template-columns: repeat(7, minmax(96px, 1fr));
     -webkit-overflow-scrolling: touch;
     padding-bottom: 2px;
   }
+  .rapor-kart { padding: 7px 8px; }
+  .rapor-kart .label { font-size: 10px; }
+  .rapor-pb,
+  .rapor-gelir-inline.kompakt .rapor-pb { font-size: 11px; }
 }
-@media (max-width: 720px) {
-  .rapor-ust { gap: 4px; }
+
+/* Telefon: kaydırmasız — 2+2 para, altta 3 meta */
+@media (max-width: 720px),
+       (pointer: coarse) and (max-width: 900px) and (orientation: portrait) {
+  #tab-rapor.active {
+    padding: 10px 10px 12px;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .rapor-wrap {
+    max-width: none;
+    width: 100%;
+    gap: 8px;
+    min-width: 0;
+  }
+  .rapor-ust {
+    gap: 4px;
+  }
   .rapor-mod-btn { padding: 5px 8px; font-size: 11px; }
   .rapor-ay-baslik { font-size: 11px; }
   .rapor-export-btn { width: 30px; height: 30px; }
-  .rapor-ay-nav { min-height: 30px; padding: 1px 2px; }
-  .rapor-kart { padding: 6px 8px; min-height: 32px; }
-  .rapor-kart .label { font-size: 10px; }
-  .rapor-kart .val { font-size: 13px; }
+  .rapor-ay-nav {
+    min-height: 30px;
+    padding: 1px 2px;
+    gap: 2px;
+  }
+  .rapor-ay-nav .takvim-ay-btn {
+    width: 28px;
+    height: 28px;
+  }
+  .rapor-grid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+    overflow: visible;
+  }
+  .rapor-kart {
+    grid-column: span 3;
+    padding: 8px 9px;
+    min-height: 34px;
+    gap: 4px 6px;
+  }
+  .rapor-kart-kucuk {
+    grid-column: span 2;
+  }
+  .rapor-kart .label {
+    font-size: 10px;
+  }
+  .rapor-kart .val {
+    font-size: 13px;
+  }
   .rapor-pb,
-  .rapor-gelir-inline.kompakt .rapor-pb { font-size: 11px; }
+  .rapor-gelir-inline.kompakt .rapor-pb {
+    font-size: 11px;
+  }
+  .rapor-gelir-inline {
+    gap: 1px 3px;
+  }
+  .rapor-daire-satir {
+    grid-template-columns: minmax(0, 1.1fr) 44px minmax(0, 1.2fr) 44px;
+    padding: 8px 10px;
+    gap: 6px;
+    font-size: 12px;
+  }
+  .rapor-daire-satir.header { font-size: 10px; }
+  .rapor-daire-satir .gelir-val .rapor-pb,
+  .rapor-daire-satir .gelir-val .rapor-gelir-inline.kompakt .rapor-pb {
+    font-size: 10px;
+  }
+}
+
+/* Çok dar telefon */
+@media (max-width: 380px) {
+  .rapor-kart { padding: 7px 7px; }
+  .rapor-kart .label { font-size: 9px; }
+  .rapor-kart .val { font-size: 12px; }
+  .rapor-pb,
+  .rapor-gelir-inline.kompakt .rapor-pb { font-size: 10px; }
+  .rapor-mod-btn { padding: 4px 6px; font-size: 10px; }
 }
 /* -------------------- Kasa sekmesi -------------------- */
 #tab-kasa.active {
@@ -5100,27 +5174,52 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
   body.mobil-yatay-mod #tab-temizlik .temizlik-oda-kart { padding: 8px; gap: 6px; }
   body.mobil-yatay-mod #tab-temizlik .temizlik-oda-btn { font-size: 10px; padding: 4px 6px; }
 
-  /* Rapor */
+  /* Rapor — yatay telefonda yine tek satır, kompakt */
+  body.mobil-yatay-mod #tab-rapor.active {
+    padding: 6px 8px 8px;
+    overflow: hidden;
+  }
   body.mobil-yatay-mod #tab-rapor .rapor-wrap {
     flex: 1;
     min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     overflow: hidden;
+    max-width: none;
   }
   body.mobil-yatay-mod #tab-rapor .rapor-ust { flex-shrink: 0; }
   body.mobil-yatay-mod #tab-rapor .rapor-grid {
     flex-shrink: 0;
-    gap: 6px;
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 4px;
+    overflow: visible;
   }
-  body.mobil-yatay-mod #tab-rapor .rapor-kart { padding: 8px; }
-  body.mobil-yatay-mod #tab-rapor .rapor-kart .val { font-size: 15px; }
+  body.mobil-yatay-mod #tab-rapor .rapor-kart,
+  body.mobil-yatay-mod #tab-rapor .rapor-kart-kucuk {
+    grid-column: auto;
+    padding: 5px 6px;
+    min-height: 28px;
+    gap: 3px 4px;
+    border-radius: 8px;
+  }
+  body.mobil-yatay-mod #tab-rapor .rapor-kart .label { font-size: 9px; }
+  body.mobil-yatay-mod #tab-rapor .rapor-kart .val { font-size: 12px; }
+  body.mobil-yatay-mod #tab-rapor .rapor-pb,
+  body.mobil-yatay-mod #tab-rapor .rapor-gelir-inline.kompakt .rapor-pb {
+    font-size: 10px;
+  }
   body.mobil-yatay-mod #tab-rapor .rapor-daire-tablo {
     flex: 1;
     min-height: 0;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
+  }
+  body.mobil-yatay-mod #tab-rapor .rapor-daire-satir {
+    padding: 6px 8px;
+    font-size: 11px;
+    grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1.1fr) 40px;
   }
 }
 
