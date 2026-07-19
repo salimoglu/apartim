@@ -114,6 +114,7 @@
         '<span class="kasa-not">Not</span>' +
         '<span class="kasa-miktar">Miktar</span>' +
         '<span class="kasa-aksiyon-slot"></span>' +
+        '<span class="kasa-sil-slot"></span>' +
       "</div>";
     const satirlar = liste.map((h) => {
       hareketMap[h.id] = h;
@@ -124,6 +125,11 @@
       const duzenleBtn =
         '<button type="button" class="kasa-duzenle-btn" data-hid="' +
           esc(h.id) + '" title="Düzenle" aria-label="Düzenle">✎</button>';
+      /* X yalnızca masaüstünde görünür (CSS); telefon/tablette basılı tut */
+      const silBtn = h.harcamaId
+        ? '<button type="button" class="kasa-sil-btn" data-id="' +
+            esc(h.harcamaId) + '" title="Sil" aria-label="Kaydı sil">&#10005;</button>'
+        : '<span class="kasa-sil-slot" aria-hidden="true"></span>';
       return (
         '<div class="kasa-satir ' + (harcamaMi ? "harcama" : "gelir") +
           '" data-hid="' + esc(h.id) + '">' +
@@ -139,6 +145,7 @@
             miktarOn + formatTutar(h.tutar, h.pb) +
           "</span>" +
           duzenleBtn +
+          silBtn +
         "</div>"
       );
     });
@@ -346,8 +353,19 @@
     longPressMoved = false;
   }
 
+  function dokunmatikMu() {
+    return window.matchMedia("(max-width: 1024px)").matches ||
+      window.matchMedia("(pointer: coarse)").matches;
+  }
+
   function listeBagla(listeEl) {
     listeEl.addEventListener("click", (e) => {
+      const sil = e.target.closest?.(".kasa-sil-btn");
+      if (sil) {
+        e.preventDefault();
+        kayitSilIste(sil.dataset.id);
+        return;
+      }
       const duzenle = e.target.closest?.(".kasa-duzenle-btn");
       if (duzenle) {
         e.preventDefault();
@@ -355,8 +373,9 @@
       }
     });
 
-    /* Basılı tut = silme onayı (X yok; masaüstü + telefon) */
+    /* Telefon/tablet: basılı tut = silme onayı (X gizli) */
     listeEl.addEventListener("pointerdown", (e) => {
+      if (!dokunmatikMu()) return;
       if (e.target.closest?.("button")) return;
       const satir = e.target.closest?.(".kasa-satir:not(.kasa-satir-baslik)");
       if (!satir?.dataset.hid) return;
@@ -404,6 +423,7 @@
     });
 
     listeEl.addEventListener("contextmenu", (e) => {
+      if (!dokunmatikMu()) return;
       if (e.target.closest?.(".kasa-satir:not(.kasa-satir-baslik)")) {
         e.preventDefault();
       }

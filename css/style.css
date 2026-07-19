@@ -3980,7 +3980,8 @@ html:not(.theme-light) .rez-kaynak-badge {
   overflow: hidden;
 }
 .kasa-wrap {
-  --kasa-cols: 68px 28px minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(70px, auto) 26px;
+  /* Masaüstü: tarih | oda | müşteri | not | miktar | ✎ | X */
+  --kasa-cols: 68px 28px minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(70px, auto) 26px 28px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -4269,7 +4270,9 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-miktar.arti { color: var(--basari); }
 .kasa-miktar.eksi { color: var(--tehlike); }
 .kasa-duzenle-btn,
-.kasa-aksiyon-slot {
+.kasa-aksiyon-slot,
+.kasa-sil-btn,
+.kasa-sil-slot {
   width: 26px;
   height: 26px;
   justify-self: end;
@@ -4290,6 +4293,24 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-duzenle-btn:hover {
   color: var(--vurgu);
   background: var(--vurgu-soluk);
+}
+.kasa-sil-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--metin-soluk);
+  font-size: 13px;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 6px;
+  line-height: 1;
+  text-align: center;
+}
+.kasa-sil-btn:hover {
+  color: var(--tehlike);
+  background: rgba(231, 76, 60, 0.1);
 }
 .kasa-satir-basili {
   background: var(--vurgu-soluk);
@@ -4332,27 +4353,38 @@ html:not(.theme-light) .rez-kaynak-badge {
   -webkit-appearance: none;
   margin: 0;
 }
-/* Telefon: ✎ görünür; uzun bas = silme onayı; oda dar sütun */
-@media (max-width: 720px) {
+/* Telefon + tablet: X gizli (basılı tut = sil); ✎ + oda dar sütun */
+@media (max-width: 1024px) {
   .kasa-wrap {
-    --kasa-cols: 46px 22px minmax(0, 1fr) minmax(0, 1fr) minmax(0, max-content) 26px;
+    --kasa-cols: 52px 24px minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(0, max-content) 26px;
   }
-  .kasa-ust-satir { gap: 6px; }
-  .kasa-tip-nav { margin-left: 0; }
+  .kasa-sil-btn,
+  .kasa-sil-slot {
+    display: none !important;
+  }
   .kasa-duzenle-btn,
   .kasa-aksiyon-slot {
     width: 28px;
     height: 28px;
     justify-self: center;
   }
+  .kasa-satir {
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: manipulation;
+  }
+}
+@media (max-width: 720px) {
+  .kasa-wrap {
+    --kasa-cols: 46px 22px minmax(0, 1fr) minmax(0, 1fr) minmax(0, max-content) 26px;
+  }
+  .kasa-ust-satir { gap: 6px; }
+  .kasa-tip-nav { margin-left: 0; }
   .kasa-miktar {
     padding-right: 2px;
     max-width: 100%;
   }
   .kasa-satir {
-    -webkit-user-select: none;
-    user-select: none;
-    touch-action: manipulation;
     gap: 4px;
     padding: 7px 6px;
   }
