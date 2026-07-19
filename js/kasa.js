@@ -144,15 +144,37 @@
     ciz();
   }
 
+  function pbNorm(secili) {
+    const p = window.APARTIM.para?.paraBirimiSecimNorm?.(secili) ||
+      (String(secili || "TL").toUpperCase() === "USD" ? "USD" : "TL");
+    return p === "USD" ? "USD" : "TL";
+  }
+
+  function pbToggleAyarla(btn, pb) {
+    if (!btn) return;
+    const sonraki = pbNorm(pb);
+    btn.dataset.pb = sonraki;
+    btn.textContent = window.APARTIM.para?.simge?.(sonraki) || (sonraki === "USD" ? "$" : "₺");
+    btn.setAttribute(
+      "aria-label",
+      "Harcama para birimi: " + sonraki + ". Tıklayınca TL / USD değişir."
+    );
+  }
+
+  function pbToggleDegistir(btn) {
+    if (!btn) return;
+    pbToggleAyarla(btn, pbNorm(btn.dataset.pb) === "USD" ? "TL" : "USD");
+  }
+
   function formSifirla() {
     const tarih = document.getElementById("kasa-harcama-tarih");
     const not = document.getElementById("kasa-harcama-not");
     const tutar = document.getElementById("kasa-harcama-tutar");
-    const pb = document.getElementById("kasa-harcama-pb");
+    const pbBtn = document.getElementById("kasa-harcama-pb");
     if (tarih) tarih.value = bugunISO();
     if (not) not.value = "";
     if (tutar) tutar.value = "";
-    if (pb) pb.value = "TL";
+    pbToggleAyarla(pbBtn, "TL");
   }
 
   async function harcamaKaydet() {
@@ -160,7 +182,7 @@
     const tarih = document.getElementById("kasa-harcama-tarih")?.value || "";
     const not = document.getElementById("kasa-harcama-not")?.value || "";
     const tutar = Number(document.getElementById("kasa-harcama-tutar")?.value);
-    const pb = document.getElementById("kasa-harcama-pb")?.value || "TL";
+    const pb = pbNorm(document.getElementById("kasa-harcama-pb")?.dataset.pb || "TL");
     if (!tarih) {
       window.APARTIM.toast?.("Tarih gerekli", "uyari");
       return;
@@ -195,6 +217,9 @@
       b.addEventListener("click", () => pbSec(b.dataset.pb));
     });
     document.getElementById("kasa-harcama-kaydet")?.addEventListener("click", harcamaKaydet);
+    document.getElementById("kasa-harcama-pb")?.addEventListener("click", (e) => {
+      pbToggleDegistir(e.currentTarget);
+    });
     document.getElementById("kasa-liste")?.addEventListener("click", (e) => {
       const btn = e.target.closest?.(".kasa-sil-btn");
       if (!btn) return;

@@ -3783,9 +3783,12 @@ html:not(.theme-light) .rez-kaynak-badge {
   border-color: var(--vurgu);
   box-shadow: 0 0 0 2px var(--vurgu-soluk);
 }
-.kasa-inp-pb {
-  padding: 5px 4px;
-  text-align: center;
+.kasa-pb-toggle {
+  width: 100%;
+  min-height: 34px;
+  height: 34px;
+  border-radius: 8px;
+  font-size: 15px;
 }
 .kasa-kaydet-btn {
   width: 32px;
@@ -3904,10 +3907,11 @@ html:not(.theme-light) .rez-kaynak-badge {
     --kasa-cols: 70px minmax(72px, 1fr) minmax(64px, 1.2fr) minmax(76px, auto) 22px;
   }
   .kasa-harcama-form {
-    grid-template-columns: 104px minmax(0, 1fr) 72px 42px 30px;
+    grid-template-columns: 104px minmax(0, 1fr) 72px 36px 30px;
     gap: 4px;
   }
   .kasa-inp { min-height: 32px; font-size: 12px; padding: 4px 6px; }
+  .kasa-pb-toggle { min-height: 32px; height: 32px; font-size: 14px; }
   .kasa-kaydet-btn { width: 30px; height: 32px; font-size: 16px; }
   .kasa-liste { overflow-x: auto; }
   .kasa-satir { min-width: 420px; gap: 6px; padding: 7px 8px; }
