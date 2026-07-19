@@ -497,35 +497,29 @@
 
   /* Telefonda "10.000,00₺" (~9px kalın) + hücre padding */
   const FO_MIN_KOMPAKT = 58;
+  const AD_MIN_KOMPAKT = 56; /* Ad eski hali — Fyt/Odn için küçültülmez */
 
-  /** Oda bloğu: G=Kt, Fyt=Odn, Ad en büyük. kompaktta Fyt/Odn ≥ 10.000,00₺ */
+  /** Oda bloğu: G=Kt, Fyt=Odn, Ad en büyük. kompaktta Ad korunur, Fyt/Odn ≥ 10.000,00₺ */
   function odaSutunPaylari(odaBlokPx, kompakt) {
     const blok = Math.max(50, Math.floor(Number(odaBlokPx) || 0));
-    let gk = Math.max(11, Math.floor(blok * 0.11));
-    let fo = Math.max(
-      kompakt ? FO_MIN_KOMPAKT : 16,
-      Math.floor(blok * (kompakt ? 0.22 : 0.17))
-    );
-    let ad = blok - 2 * gk - 2 * fo;
 
     if (kompakt) {
-      /* Önce Fyt/Odn'yi 10.000,00₺ için garanti et; kalanı G/Kt ve Ad paylaşır */
-      fo = Math.max(FO_MIN_KOMPAKT, fo);
-      const minAd = 22;
-      const kalan = blok - 2 * fo;
-      if (kalan < 2 * gk + minAd) {
-        gk = Math.max(10, Math.floor((kalan - minAd) / 2));
-      }
-      ad = blok - 2 * gk - 2 * fo;
-      if (ad < minAd) {
-        const maxFo = Math.floor((blok - 2 * 10 - minAd) / 2);
-        fo = Math.max(FO_MIN_KOMPAKT, Math.min(fo, Math.max(FO_MIN_KOMPAKT, maxFo)));
+      const fo = FO_MIN_KOMPAKT;
+      /* Ad önce — ~%38, FO için kısılmaz */
+      let ad = Math.max(AD_MIN_KOMPAKT, Math.floor(blok * 0.38));
+      let gk = Math.floor((blok - ad - 2 * fo) / 2);
+      if (gk < 10) {
         gk = 10;
-        ad = Math.max(0, blok - 2 * gk - 2 * fo);
+        ad = Math.max(AD_MIN_KOMPAKT, blok - 2 * gk - 2 * fo);
       }
-      return { g: gk, kt: gk, fyt: fo, odn: fo, ad };
+      const sum = 2 * gk + 2 * fo + ad;
+      if (sum < blok) ad += blok - sum;
+      return { g: gk, kt: gk, fyt: fo, odn: fo, ad: Math.max(0, ad) };
     }
 
+    let gk = Math.max(11, Math.floor(blok * 0.11));
+    let fo = Math.max(16, Math.floor(blok * 0.17));
+    let ad = blok - 2 * gk - 2 * fo;
     if (ad <= fo) {
       fo = Math.max(12, Math.floor((blok - 2 * gk) / 3));
       ad = blok - 2 * gk - 2 * fo;
