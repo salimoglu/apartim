@@ -2567,18 +2567,18 @@ html:not(.theme-light) .rez-kaynak-badge {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 6px;
 }
 .rez-tarih-aralik-nav-btn {
   flex-shrink: 0;
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border: 1px solid var(--kenar);
-  border-radius: 8px;
+  border-radius: 6px;
   background: var(--zemin-2);
   color: var(--metin);
-  font-size: 18px;
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
 }
@@ -2589,23 +2589,29 @@ html:not(.theme-light) .rez-kaynak-badge {
 .rez-tarih-aralik-ay {
   flex: 1;
   text-align: center;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--metin);
 }
 .rez-tarih-aralik-takvim .mini-takvim-baslik {
-  font-size: 10px;
-  margin-bottom: 4px;
+  font-size: 8px;
+  margin-bottom: 3px;
 }
 .rez-tarih-aralik-takvim .mini-takvim-grid {
-  gap: 3px;
+  gap: 2px;
 }
 .rez-tarih-aralik-takvim .mini-takvim-hucre {
-  min-height: 34px;
+  min-height: 26px;
   border: 1px solid transparent;
   cursor: pointer;
   position: relative;
   transition: background 0.12s, border-color 0.12s;
+  gap: 0;
+}
+.rez-tarih-aralik-takvim .mini-takvim-gun {
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
 }
 .rez-tarih-aralik-takvim .mini-takvim-hucre:not(.disabled):hover {
   border-color: var(--vurgu);
@@ -2640,10 +2646,10 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .rez-tarih-aralik-etiket {
   position: absolute;
-  bottom: 2px;
+  bottom: 1px;
   left: 0;
   right: 0;
-  font-size: 7px;
+  font-size: 6px;
   font-weight: 800;
   line-height: 1;
   letter-spacing: 0.02em;
@@ -3020,10 +3026,10 @@ html:not(.theme-light) .rez-kaynak-badge {
     padding: 5px 3px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .rez-tarih-aralik-takvim .mini-takvim-hucre {
-    min-height: 26px;
+    min-height: 20px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .rez-tarih-aralik-takvim .mini-takvim-gun {
-    font-size: 10px;
+    font-size: 11px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .modal-footer {
     flex-shrink: 0;
@@ -3997,10 +4003,10 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
     margin-bottom: 6px;
   }
   body.mobil-yatay-mod #modal-rez .rez-tarih-aralik-takvim .mini-takvim-hucre {
-    min-height: 26px;
+    min-height: 20px;
   }
   body.mobil-yatay-mod #modal-rez .rez-tarih-aralik-takvim .mini-takvim-gun {
-    font-size: 10px;
+    font-size: 11px;
   }
   body.mobil-yatay-mod #modal-rez .rez-fiyat-mod-kart {
     min-height: 44px;
