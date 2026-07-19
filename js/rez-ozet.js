@@ -457,9 +457,9 @@
       window.matchMedia("(pointer: coarse)").matches ||
       (navigator.maxTouchPoints || 0) > 1;
 
-    /* Telefon: kısa kenar ≤520 (app.js yatay mod ile aynı) */
+    /* Telefon: kısa kenar ≤520 (app.js yatay mod ile aynı) — dikey 2 / yatay 4 */
     if (kisa <= 520) {
-      return { cihaz: "telefon", kompakt: true, yatay, odaHedef: yatay ? 3 : 1 };
+      return { cihaz: "telefon", kompakt: true, yatay, odaHedef: yatay ? 4 : 2 };
     }
     /* Tablet: dokunmatik ve kısa kenar ≤900 */
     if (dokunmatik && kisa <= 900) {
@@ -467,7 +467,7 @@
     }
     /* Dar pencere (masaüstü daraltılmış) */
     if (w < 720) {
-      return { cihaz: "telefon", kompakt: true, yatay, odaHedef: yatay ? 3 : 1 };
+      return { cihaz: "telefon", kompakt: true, yatay, odaHedef: yatay ? 4 : 2 };
     }
     return { cihaz: "masaustu", kompakt: false, yatay, odaHedef: 5 };
   }
