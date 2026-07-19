@@ -813,11 +813,7 @@
 
   function dairelerSeedEt() {
     let degisti = false;
-    if (durum.daireler["oda-6"]) {
-      delete durum.daireler["oda-6"];
-      degisti = true;
-      if (fbRef) fbRef.child("daireler/oda-6").remove().catch(() => {});
-    }
+    /* Varsayılan 5 odayı yoksa ekle; kullanıcı eklediği odaları silme */
     SABIT_DAIRELER.forEach((tanim) => {
       if (!durum.daireler[tanim.id]) {
         durum.daireler[tanim.id] = {
@@ -1137,15 +1133,63 @@
   }
 
   function dairelerListele() {
-    return SABIT_DAIRELER
-      .map((t) => durum.daireler[t.id])
-      .filter(Boolean)
-      .sort((a, b) => (a.sira || 0) - (b.sira || 0));
+    return Object.values(durum.daireler)
+      .filter((d) => d && d.id)
+      .sort((a, b) =>
+        (a.sira || 0) - (b.sira || 0) ||
+        (a.ad || "").localeCompare(b.ad || "", "tr")
+      );
   }
   function daireGetir(id) { return durum.daireler[id] || null; }
   function daireGuncelle(id, partial) {
     durum.daireler[id] = Object.assign({}, durum.daireler[id] || {}, partial);
     return guncelle("daireler/" + id, partial);
+  }
+  function sonrakiOdaIdVeSira() {
+    let maxN = 0;
+    let maxSira = 0;
+    Object.values(durum.daireler).forEach((d) => {
+      if (!d) return;
+      const m = /^oda-(\d+)$/.exec(String(d.id || ""));
+      if (m) maxN = Math.max(maxN, Number(m[1]));
+      maxSira = Math.max(maxSira, Number(d.sira) || 0);
+    });
+    return { id: "oda-" + (maxN + 1), sira: maxSira + 1 };
+  }
+  function daireEkle(ad) {
+    const metin = String(ad || "").trim();
+    if (!metin) throw new Error("Oda adı boş olamaz.");
+    if (metin.length > 40) throw new Error("Oda adı en fazla 40 karakter olabilir.");
+    const ayni = dairelerListele().find((d) =>
+      (d.ad || "").toLocaleLowerCase("tr") === metin.toLocaleLowerCase("tr")
+    );
+    if (ayni) throw new Error("Bu isimde oda zaten var.");
+    const { id, sira } = sonrakiOdaIdVeSira();
+    const kayit = {
+      id,
+      ad: metin,
+      kat: 0,
+      konum: "tek",
+      sira,
+      gunlukUcret: 1000,
+      temizlik: "temiz",
+      temizlikGuncelleme: Date.now()
+    };
+    durum.daireler[id] = kayit;
+    return kaydet("daireler/" + id, kayit).then(() => kayit);
+  }
+  function daireSil(id) {
+    const d = durum.daireler[id];
+    if (!d) throw new Error("Oda bulunamadı.");
+    if (dairelerListele().length <= 1) {
+      throw new Error("En az bir oda kalmalı.");
+    }
+    const kullanan = Object.values(durum.rezervasyonlar).filter((r) => r && r.daireId === id);
+    if (kullanan.length) {
+      throw new Error("Bu odada " + kullanan.length + " rezervasyon var; silinemez.");
+    }
+    delete durum.daireler[id];
+    return sil("daireler/" + id);
   }
 
   function rezervasyonlarListele(daireId) {
@@ -1372,6 +1416,8 @@
     dairelerListele,
     daireGetir,
     daireGuncelle,
+    daireEkle,
+    daireSil,
     rezervasyonlarListele,
     rezervasyonEkle,
     rezervasyonGuncelle,

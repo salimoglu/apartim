@@ -112,10 +112,16 @@
     }
   }
 
-  // ---- Daire isimleri ----
+  // ---- Odalar (ekle + isim değiştir) ----
   function daireKatEtiket(d) {
     if (d.sira) return "Oda " + d.sira;
     return d.id || "";
+  }
+
+  function daireEkranYenile() {
+    window.APARTIM.bina?.ciz?.();
+    window.APARTIM.rezOzet?.tabloCizPlanla?.();
+    window.APARTIM.temizlik?.ciz?.();
   }
 
   function daireListeRender() {
@@ -128,16 +134,20 @@
       li.className = "daire-ayar-item";
       li.innerHTML =
         '<div class="daire-ayar-meta">' +
-        '<span class="daire-ayar-kat">' + esc(daireKatEtiket(d)) + '</span>' +
-        '</div>' +
+          '<span class="daire-ayar-kat">' + esc(daireKatEtiket(d)) + "</span>" +
+          '<button type="button" class="daire-sil-btn" data-id="' + esc(d.id) + '">Sil</button>' +
+        "</div>" +
         '<input type="text" class="field-input daire-ayar-ad" data-id="' + esc(d.id) + '" ' +
         'value="' + esc(d.ad) + '" maxlength="40" aria-label="' + esc(daireKatEtiket(d)) + ' adı" />';
+      li.querySelector(".daire-sil-btn")?.addEventListener("click", () => daireSil(d.id));
       ul.appendChild(li);
     });
   }
 
   function daireAc() {
     uyari("daire-uyari", "");
+    const inp = document.getElementById("daire-yeni-ad");
+    if (inp) inp.value = "";
     daireListeRender();
     modalDaire()?.classList.remove("hidden");
     modalDaire()?.querySelector(".daire-ayar-ad")?.focus();
@@ -146,26 +156,69 @@
   function daireKapat() {
     modalDaire()?.classList.add("hidden");
     uyari("daire-uyari", "");
+    const inp = document.getElementById("daire-yeni-ad");
+    if (inp) inp.value = "";
+  }
+
+  async function daireEkle() {
+    const inp = document.getElementById("daire-yeni-ad");
+    const ad = inp?.value.trim();
+    if (!ad) {
+      uyari("daire-uyari", "Yeni oda adı yazın.");
+      return;
+    }
+    uyari("daire-uyari", "");
+    try {
+      await window.APARTIM.db.daireEkle(ad);
+      if (inp) inp.value = "";
+      daireListeRender();
+      daireEkranYenile();
+      window.APARTIM.toast("Oda eklendi", "basari");
+      inp?.focus();
+    } catch (err) {
+      uyari("daire-uyari", err.message || "Eklenemedi.");
+    }
+  }
+
+  async function daireSil(id) {
+    if (!confirm("Bu odayı silmek istiyor musunuz?")) return;
+    uyari("daire-uyari", "");
+    try {
+      await window.APARTIM.db.daireSil(id);
+      daireListeRender();
+      daireEkranYenile();
+      window.APARTIM.toast("Oda silindi", "basari");
+    } catch (err) {
+      uyari("daire-uyari", err.message || "Silinemedi.");
+    }
   }
 
   async function daireKaydet() {
     const inputs = modalDaire()?.querySelectorAll(".daire-ayar-ad");
     if (!inputs || !inputs.length) return;
     uyari("daire-uyari", "");
+    const adlar = [];
     try {
       for (const inp of inputs) {
         const id = inp.dataset.id;
         const ad = inp.value.trim();
         if (!ad) {
-          uyari("daire-uyari", "Tüm dairelerin adı dolu olmalı.");
+          uyari("daire-uyari", "Tüm odaların adı dolu olmalı.");
           return;
         }
+        const ayni = adlar.find((x) => x.toLocaleLowerCase("tr") === ad.toLocaleLowerCase("tr"));
+        if (ayni) {
+          uyari("daire-uyari", "Aynı isimde birden fazla oda olamaz.");
+          return;
+        }
+        adlar.push(ad);
         const mevcut = window.APARTIM.db.daireGetir(id);
         if (mevcut && mevcut.ad !== ad) {
           await window.APARTIM.db.daireGuncelle(id, { ad });
         }
       }
-      window.APARTIM.toast("Daire isimleri kaydedildi", "basari");
+      daireEkranYenile();
+      window.APARTIM.toast("Oda isimleri kaydedildi", "basari");
       daireKapat();
     } catch (err) {
       uyari("daire-uyari", err.message || "Kaydedilemedi.");
@@ -269,6 +322,13 @@
     document.getElementById("daireler-close")?.addEventListener("click", daireKapat);
     document.getElementById("daireler-kapat")?.addEventListener("click", daireKapat);
     document.getElementById("daireler-kaydet")?.addEventListener("click", daireKaydet);
+    document.getElementById("daire-ekle-btn")?.addEventListener("click", daireEkle);
+    document.getElementById("daire-yeni-ad")?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        daireEkle();
+      }
+    });
 
     document.getElementById("ayar-doviz")?.addEventListener("click", () => {
       document.getElementById("ayar-menu")?.classList.add("hidden");
