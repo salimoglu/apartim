@@ -3901,13 +3901,16 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 @media (max-width: 640px) {
   .kasa-wrap {
-    --kasa-cols: 72px minmax(70px, 1fr) minmax(60px, 1.1fr) minmax(78px, auto) 22px;
+    --kasa-cols: 70px minmax(72px, 1fr) minmax(64px, 1.2fr) minmax(76px, auto) 22px;
   }
   .kasa-harcama-form {
-    grid-template-columns: 1fr 64px 44px 32px;
+    grid-template-columns: 104px minmax(0, 1fr) 72px 42px 30px;
+    gap: 4px;
   }
-  .kasa-inp-tarih { grid-column: 1 / -1; }
-  .kasa-satir { gap: 6px; padding: 7px 8px; }
+  .kasa-inp { min-height: 32px; font-size: 12px; padding: 4px 6px; }
+  .kasa-kaydet-btn { width: 30px; height: 32px; font-size: 16px; }
+  .kasa-liste { overflow-x: auto; }
+  .kasa-satir { min-width: 420px; gap: 6px; padding: 7px 8px; }
   .kasa-musteri, .kasa-not { font-size: 12px; }
   .kasa-miktar { font-size: 12px; }
 }
