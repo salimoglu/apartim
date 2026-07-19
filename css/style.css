@@ -1251,7 +1251,7 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
 .rez-ozet-toolbar {
   display: flex;
   align-items: center;
-  flex: 1;
+  flex: 0 0 auto;
   min-width: 0;
   gap: 4px;
   line-height: 1;
