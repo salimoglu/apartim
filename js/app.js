@@ -433,31 +433,7 @@
   }
 
   function raporTahsilatOzetHtml(tahsilatYontem) {
-    const db = window.APARTIM.db;
-    const yontemler = db?.ODEME_YONTEMLERI || {
-      kasa: "Kasa", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
-    };
-    const toplam = raporTahsilatToplamPB(tahsilatYontem);
-    const ust = raporPbOzetHtml(toplam, { kompakt: true });
-    const satirlar = [];
-    Object.keys(yontemler).forEach((key) => {
-      const pb = tahsilatYontem[key] || { TL: 0, USD: 0, EUR: 0 };
-      const tlY = (pb.TL || 0) +
-        (window.APARTIM.para && pb.EUR ? window.APARTIM.para.tlKarsiligi(pb.EUR, "EUR") : 0);
-      if (!tlY && !(pb.USD > 0)) return;
-      const alt = [];
-      if (tlY > 0) alt.push(raporPbParcaHtml(tlY, "TL"));
-      if (pb.USD > 0) alt.push(raporPbParcaHtml(pb.USD, "USD"));
-      satirlar.push(
-        '<div class="rapor-tahsilat-yontem">' +
-          '<span class="rapor-tahsilat-etiket">' + yontemler[key] + "</span>" +
-          '<div class="rapor-gelir-inline kompakt">' +
-            alt.join('<span class="rapor-gelir-ayrac">·</span>') +
-          "</div></div>"
-      );
-    });
-    if (!satirlar.length) return ust;
-    return ust + '<div class="rapor-tahsilat-liste">' + satirlar.join("") + "</div>";
+    return raporPbOzetHtml(raporTahsilatToplamPB(tahsilatYontem), { kompakt: true });
   }
 
   /** Dönem içi kasa harcamaları (manuel) */
@@ -494,9 +470,9 @@
     if (netPB.TL) parcalar.push(raporPbParcaHtml(netPB.TL, "TL", netPB.TL < 0));
     if (netPB.USD) parcalar.push(raporPbParcaHtml(netPB.USD, "USD", netPB.USD < 0));
     if (!parcalar.length) {
-      return '<div class="rapor-gelir-inline"><span class="rapor-pb tl">0 ₺</span></div>';
+      return '<div class="rapor-gelir-inline kompakt"><span class="rapor-pb tl">0 ₺</span></div>';
     }
-    return '<div class="rapor-gelir-inline">' +
+    return '<div class="rapor-gelir-inline kompakt">' +
       parcalar.join('<span class="rapor-gelir-ayrac">·</span>') + "</div>";
   }
 
