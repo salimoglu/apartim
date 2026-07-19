@@ -110,18 +110,7 @@
 
   function odenenHucreBaslik(rez, info) {
     if (!info || !info.manuel) return "Tahsilat girmek için tıklayın";
-    const ana = odenenHucreGoster(rez, info);
-    const parcalar = [];
-    if ((info.tutarTl || 0) > 0) parcalar.push(formatTlKisa(info.tutarTl));
-    if ((info.tutarUsd || 0) > 0) {
-      parcalar.push(
-        window.APARTIM.para
-          ? window.APARTIM.para.formatTutarKisa(info.tutarUsd, "USD")
-          : ("$" + fmt(info.tutarUsd))
-      );
-    }
-    const detay = parcalar.length > 1 ? " ← " + parcalar.join(" + ") : "";
-    return odenenYontemAd(info.yontem) + " · " + ana + detay;
+    return odenenYontemAd(info.yontem) + " · " + odenenHucreGoster(rez, info);
   }
 
   function kalanEsik(rez) {
