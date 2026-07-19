@@ -382,9 +382,10 @@
     ) : "";
     return (
       '<div class="takvim-turnover-stack">' +
-        '<span class="takvim-io-cift" title="Aynı gün: çıkış + giriş">' +
-          '<span class="takvim-io-cift-parca out">OUT↓</span>' +
-          '<span class="takvim-io-cift-parca in">IN↑</span>' +
+        '<span class="takvim-io-cift" title="I/O — aynı gün giriş + çıkış">' +
+          '<span class="takvim-io-cift-parca in">I</span>' +
+          '<span class="takvim-io-cift-sep">/</span>' +
+          '<span class="takvim-io-cift-parca out">O</span>' +
         "</span>" +
         satir(bOut) +
         satir(bIn) +
