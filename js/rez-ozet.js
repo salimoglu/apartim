@@ -472,10 +472,8 @@
     const genislik = Math.max(200, scrollGenislik || w);
     const kullanilabilir = Math.max(80, genislik - tarihPx);
 
-    /* G+Kt+2×(10.000,00₺)+Ad("feyzullah kandemir") — oranlar bozulmadan */
-    const minBlok = cihaz === "telefon"
-      ? (yatay ? 250 : 258)
-      : (yatay ? 250 : 258);
+    /* Sabit oda bloğu: G/Kt/Fyt/Odn değişmez; Ad isim kadar (tavanlı) */
+    const minBlok = ODA_BLOK_KOMPAKT;
     const tavan = cihaz === "telefon" ? (yatay ? 3 : 2) : (yatay ? 5 : 3);
 
     let odaHedef = Math.floor(kullanilabilir / minBlok);
@@ -495,22 +493,25 @@
     return '<span class="' + cls + '">' + esc(String(n)) + "</span>";
   }
 
-  /* Telefonda: Fyt/Odn = 10.000,00₺; Ad = "feyzullah kandemir"; G/Kt dar eşit */
-  const FO_MIN_KOMPAKT = 58;
-  const AD_MIN_KOMPAKT = 112;
+  /* Kompakt sütunlar sabit — ekran genişleyince Ad şişmesin */
+  const GK_KOMPAKT = 14;
+  const FO_KOMPAKT = 58;   /* 10.000,00₺ */
+  const AD_KOMPAKT = 112;  /* feyzullah kandemir */
+  const ODA_BLOK_KOMPAKT = 2 * GK_KOMPAKT + 2 * FO_KOMPAKT + AD_KOMPAKT; /* 256 */
 
-  /** Oda bloğu: G=Kt, Fyt=Odn(sabit), Ad kalan (≥ isim). Birini büyütünce diğerini bozma. */
+  /** Oda bloğu: kompaktta G/Kt/Fyt/Odn/Ad sabit px (diğerlerine karışılmaz) */
   function odaSutunPaylari(odaBlokPx, kompakt) {
-    const blok = Math.max(50, Math.floor(Number(odaBlokPx) || 0));
-
     if (kompakt) {
-      const fo = FO_MIN_KOMPAKT;
-      const gk = Math.max(12, Math.min(15, Math.floor(blok * 0.09)));
-      /* G/Kt ve Fyt/Odn sabit; kalanın tamamı Ad (minBlok ≥ isim genişliği) */
-      const ad = Math.max(0, blok - 2 * gk - 2 * fo);
-      return { g: gk, kt: gk, fyt: fo, odn: fo, ad };
+      return {
+        g: GK_KOMPAKT,
+        kt: GK_KOMPAKT,
+        fyt: FO_KOMPAKT,
+        odn: FO_KOMPAKT,
+        ad: AD_KOMPAKT
+      };
     }
 
+    const blok = Math.max(50, Math.floor(Number(odaBlokPx) || 0));
     let gk = Math.max(11, Math.floor(blok * 0.11));
     let fo = Math.max(16, Math.floor(blok * 0.17));
     let ad = blok - 2 * gk - 2 * fo;
@@ -1733,12 +1734,9 @@
     table.dataset.odaHedef = String(gorunum.odaHedef);
 
     if (kompakt) {
-      /* Tavan kadar oda sığdır; daha fazla küçültme. Az odada genişliği doldur (sağ boşluk yok). */
-      const odaHedef = Math.max(1, gorunum.odaHedef);
+      /* Sabit oda genişliği — Ad şişmesin, diğer sütunlar aynı kalsın */
       const tarihPx = gorunum.tarihPx || 32;
-      const gorunen = Math.max(1, Math.min(n, odaHedef));
-      const kullanilabilir = Math.max(1, genislik - tarihPx);
-      const odaBlokPx = kullanilabilir / gorunen;
+      const odaBlokPx = ODA_BLOK_KOMPAKT;
       const pay = odaSutunPaylari(odaBlokPx, true);
       const tabloW = tarihPx + n * odaBlokPx;
 
