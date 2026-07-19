@@ -3686,10 +3686,6 @@ html:not(.theme-light) .rez-kaynak-badge {
   body.rez-form-mobil.rez-form-yatay.rez-form-klavye #modal-rez .rez-fiyat-ozet {
     display: none;
   }
-  body.rez-form-mobil.rez-form-yatay.rez-form-klavye #modal-rez .rez-toplam-bar {
-    padding: 5px 8px;
-    margin-top: 2px;
-  }
 }
 
 /* -------------------- 11b. PWA yükleme banner -------------------- */
