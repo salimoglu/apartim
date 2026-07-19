@@ -3297,7 +3297,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   line-height: 1.3;
 }
 .tahsilat-ozet {
-  --ozet-lbl: 4.4em;
+  --ozet-lbl: 4.2em;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -3313,10 +3313,11 @@ html:not(.theme-light) .rez-kaynak-badge {
 .tahsilat-ozet-satir {
   display: grid;
   grid-template-columns:
-    var(--ozet-lbl) minmax(0, 1fr)
-    var(--ozet-lbl) minmax(0, 1fr)
-    var(--ozet-lbl) minmax(0, 1fr);
-  column-gap: 6px;
+    var(--ozet-lbl) minmax(max-content, 1fr)
+    var(--ozet-lbl) minmax(max-content, 1fr)
+    var(--ozet-lbl) minmax(max-content, 1fr);
+  column-gap: 8px;
+  row-gap: 2px;
   align-items: baseline;
   color: var(--metin);
   line-height: 1.35;
@@ -3333,12 +3334,11 @@ html:not(.theme-light) .rez-kaynak-badge {
   white-space: nowrap;
 }
 .tahsilat-ozet-satir > span {
-  min-width: 0;
   font-weight: 800;
   color: var(--metin);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  font-variant-numeric: tabular-nums;
 }
 .tahsilat-form {
   --tahsilat-lbl: 3.6em;
