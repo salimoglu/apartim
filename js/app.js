@@ -381,7 +381,7 @@
     const donem = raporDonemSinirlari();
     const tumRez = Object.values(db.durum.rezervasyonlar);
     const yontemler = Object.keys(db.ODEME_YONTEMLERI || {
-      elden: 1, havale: 1, booking: 1, diger: 1
+      kasa: 1, pos: 1, booking: 1, havale: 1, diger: 1
     });
     const ozet = {};
     yontemler.forEach((y) => { ozet[y] = { TL: 0, USD: 0, EUR: 0 }; });
@@ -404,7 +404,7 @@
   function raporTahsilatOzetHtml(tahsilatYontem) {
     const db = window.APARTIM.db;
     const yontemler = db?.ODEME_YONTEMLERI || {
-      elden: "Elden", havale: "Hesaba havale", booking: "Booking", diger: "Diğer"
+      kasa: "Kasa", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
     };
     const parcalar = [];
     Object.keys(yontemler).forEach((key) => {
@@ -583,7 +583,7 @@
   function raporExportHtml(r, yillik) {
     const db = window.APARTIM.db;
     const yontemler = db?.ODEME_YONTEMLERI || {
-      elden: "Elden", havale: "Hesaba havale", booking: "Booking", diger: "Diğer"
+      kasa: "Kasa", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
     };
     const modBaslik = yillik ? "Yıllık Rapor" : "Aylık Rapor";
     const td = 'style="border:1px solid #666;padding:6px 8px;"';

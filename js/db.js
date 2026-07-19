@@ -374,15 +374,18 @@
   }
 
   const ODEME_YONTEMLERI = {
-    elden: "Elden",
-    havale: "Hesaba havale",
+    kasa: "Kasa",
+    pos: "Pos",
     booking: "Booking",
+    havale: "Hesaba havale",
     diger: "Diğer"
   };
-  const ODEME_YONTEM_VARSAYILAN = "elden";
+  const ODEME_YONTEM_VARSAYILAN = "kasa";
 
   function odemeYontemNorm(yontem) {
     const y = String(yontem || "").toLowerCase();
+    /* Eski kayıtlar: elden → kasa */
+    if (y === "elden") return "kasa";
     return ODEME_YONTEMLERI[y] ? y : ODEME_YONTEM_VARSAYILAN;
   }
 

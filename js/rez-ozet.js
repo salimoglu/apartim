@@ -82,11 +82,19 @@
     return fmt(miktar) + "₺";
   }
 
-  const ODEME_YONTEM_KISA = { elden: "Elden", havale: "Havale", booking: "Booking", diger: "Diğer" };
+  const ODEME_YONTEM_KISA = {
+    kasa: "Kasa",
+    elden: "Kasa",
+    pos: "Pos",
+    havale: "Havale",
+    booking: "Booking",
+    diger: "Diğer"
+  };
 
   function odenenYontemAd(yontem) {
-    return window.APARTIM.db?.ODEME_YONTEMLERI?.[yontem] ||
-      ODEME_YONTEM_KISA[yontem] || "Elden";
+    const y = String(yontem || "").toLowerCase() === "elden" ? "kasa" : yontem;
+    return window.APARTIM.db?.ODEME_YONTEMLERI?.[y] ||
+      ODEME_YONTEM_KISA[y] || "Kasa";
   }
 
   function odenenHucreGoster(rez, info) {
@@ -995,7 +1003,10 @@
     }
     if (inpTl) inpTl.value = tlVal;
     if (inpUsd) inpUsd.value = usdVal;
-    if (sel) sel.value = info.yontem || "elden";
+    if (sel) {
+      const y = info.yontem === "elden" ? "kasa" : (info.yontem || "kasa");
+      sel.value = y;
+    }
     const notInp = document.getElementById("odeme-not");
     if (notInp) notInp.value = info.not || "";
     tahsilatOzetCiz(rez);
@@ -1014,7 +1025,7 @@
     }
     document.getElementById("odeme-tutar-tl").value = "";
     document.getElementById("odeme-tutar-usd").value = "";
-    document.getElementById("odeme-yontem").value = "elden";
+    document.getElementById("odeme-yontem").value = "kasa";
     const notInp = document.getElementById("odeme-not");
     if (notInp) notInp.value = "";
     tahsilatCeviriciTemizle();
@@ -1194,7 +1205,7 @@
           tutarTl: tlSafe > 0 ? tlSafe : undefined,
           tutarUsd: usdSafe > 0 ? usdSafe : undefined,
           kurUsd: tahsilatKurUsd(),
-          yontem: document.getElementById("odeme-yontem")?.value || "elden"
+          yontem: document.getElementById("odeme-yontem")?.value || "kasa"
         };
         if (not) kayit.not = not;
       }
