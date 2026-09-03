@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* js/version.js → index.html ?v= ve sw.js CACHE/ASSET senkronu */
+/* js/version.js → index.html ?v=, manifest.json ve sw.js CACHE/ASSET senkronu */
 "use strict";
 
 const fs = require("fs");
@@ -28,6 +28,13 @@ let indexHtml = fs.readFileSync(indexPath, "utf8");
 /* Tüm ?v=… sorgularını APP ile senkronla (2.x, 3.x, tarihli 20260812 vb.) */
 indexHtml = indexHtml.replace(/\?v=[^"'&\s#]+/g, "?v=" + APP);
 fs.writeFileSync(indexPath, indexHtml, "utf8");
+
+const manifestPath = path.join(root, "manifest.json");
+if (fs.existsSync(manifestPath)) {
+  let manifest = fs.readFileSync(manifestPath, "utf8");
+  manifest = manifest.replace(/\?v=[^"'&\s#]+/g, "?v=" + APP);
+  fs.writeFileSync(manifestPath, manifest, "utf8");
+}
 
 let sw = fs.readFileSync(swPath, "utf8");
 sw = sw.replace(/const CACHE_VERSION = "[^"]+";/, 'const CACHE_VERSION = "' + CACHE + '";');

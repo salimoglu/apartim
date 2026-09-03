@@ -7,7 +7,6 @@
   "use strict";
 
   const GUN_KISA = ["PAZ", "PZT", "SAL", "ÇAR", "PER", "CUM", "CMT"];
-  const GUN_UZUN = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
   const AY_ADLARI = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
     "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
 
@@ -218,7 +217,7 @@
   function excelOdnHucre(rez, tarih, odenenInfo) {
     /* Son gece her zaman kalan */
     if (rezSonGeceMi(rez, tarih)) {
-      return rezOutKalanMetin(rez) || "";
+      return rezervasyonBakiyeMetin(rez) || "";
     }
     return excelOdemeGoster(rez, odenenInfo);
   }
@@ -371,9 +370,8 @@
     return GUN_KISA[new Date(isoStr + "T12:00:00").getDay()];
   }
 
-  function gunAdi(isoStr, kisa) {
-    const d = new Date(isoStr + "T12:00:00");
-    return (kisa ? GUN_KISA : GUN_UZUN)[d.getDay()];
+  function gunAdi(isoStr) {
+    return GUN_KISA[new Date(isoStr + "T12:00:00").getDay()];
   }
 
   function kaynakSimge(rez) {
@@ -467,10 +465,6 @@
     return { cihaz, kompakt: true, yatay, odaHedef, tarihPx, minBlok };
   }
 
-  function misafirTabloGoster(ad) {
-    return String(ad || "");
-  }
-
   function gSayiHtml(g) {
     const n = Number(g) || 0;
     const cls = "rez-ozet-g-sayi" + (n === 1 ? " rez-ozet-g-ilk" : "");
@@ -548,7 +542,7 @@
     const bg = hucreBg(renk, true);
     const det = konakDetay(giris, tarih);
     const fiyat = formatHucreFiyat(giris, det.prc, det.prcPb);
-    const ad = misafirTabloGoster(det.misafir);
+    const ad = det.misafir || "";
     const cikisAd = (cikis && cikis.misafirAdi) || "—";
     const girisAd = (giris && giris.misafirAdi) || "—";
 
@@ -718,22 +712,12 @@
     const prc = geceKayit.tutar;
     const prcPb = geceKayit.pb || rezPb(rez);
     const odenenInfo = db.rezervasyonOdenenGosterim(rez, tarih);
-    const toplam = db.rezervasyonToplamGosterim
-      ? db.rezervasyonToplamGosterim(rez)
-      : (rez.toplamTutar != null
-        ? rez.toplamTutar
-        : db.rezervasyonTutarHesapla(rez).toplam);
     return {
       g,
-      kategori: kaynakSimge(rez),
       kategoriHtml: kaynakSimgeHtml(rez),
       prc,
       prcPb,
-      odenen: odenenInfo.tutar,
-      odenenManuel: odenenInfo.manuel,
-      odenenYontem: odenenInfo.yontem,
       odenenInfo,
-      toplam,
       misafir: rez.misafirAdi
     };
   }
@@ -782,9 +766,7 @@
     if (rid && tik) td.dataset.rezId = rid;
     if (c.html) td.innerHTML = c.html;
     else {
-      const goster = (c.cls && c.cls.indexOf("rez-ozet-ad") >= 0)
-        ? misafirTabloGoster(c.txt) : c.txt;
-      td.textContent = goster;
+      td.textContent = c.txt;
       if (misafirBaslik) td.title = misafirBaslik;
     }
     return td;
@@ -1146,12 +1128,12 @@
       el.title = tamam ? "Fazla ödeme · tahsilat tamamlandı" : "Fazla ödeme";
     } else if (kalanPb > esik) {
       el.innerHTML =
-        esc(yaz(kalanPb) + (tamam ? " eksik" : "")) +
+        esc(yaz(kalanPb)) +
         tlParantez(kalanPb, kalanTl) +
         (tamam ? ok : "");
       el.className = "tahsilat-kalan" + (tamam ? " tahsilat-kalan-tamam" : "");
       el.title = tamam
-        ? "Eksik kalsa bile tahsilat tamamlandı sayılacak"
+        ? "Kalan tutar · tahsilat tamamlandı"
         : "Kalan";
     } else {
       el.innerHTML = esc(yaz(0)) + tlParantez(0, 0) + (tamam ? ok : "");
@@ -1551,7 +1533,8 @@
 
   function scrollKonumAl() {
     const sc = scrollKapsayici || document.querySelector(".rez-ozet-scroll");
-    return sc ? sc.scrollTop : 0;
+    if (!sc) return { top: 0, left: 0 };
+    return { top: sc.scrollTop || 0, left: sc.scrollLeft || 0 };
   }
 
   function scrollKonumKoru(zorla) {
@@ -1610,8 +1593,9 @@
       }
     }
 
-    if (korunanScroll != null && korunanScroll > 0) {
-      sc.scrollTop = korunanScroll;
+    if (korunanScroll != null && (korunanScroll.top > 0 || korunanScroll.left > 0)) {
+      sc.scrollTop = korunanScroll.top;
+      sc.scrollLeft = korunanScroll.left;
       return;
     }
 
@@ -1857,10 +1841,6 @@
     tabloCiz();
   }
 
-  function rezOutKalanMetin(rez) {
-    return rezervasyonBakiyeMetin(rez);
-  }
-
   function excelOdemeGoster(rez, info) {
     if (!info || !info.manuel) return "—";
     const dolu =
@@ -1979,7 +1959,7 @@
     return gelir + "  —  Sezon toplam ≈ " + fmt(Math.round(tlToplam)) + " ₺";
   }
 
-  function excelRaporHtml(y, daireler, gunler, harita, bugun) {
+  function excelRaporHtml(y, daireler, gunler, harita) {
     const colSpan = 1 + daireler.length * XL_DAIRE_COL;
     const satirlar = [];
 
@@ -2018,7 +1998,7 @@
         oncekiAy = ay;
       }
 
-      let satir = xlHucre(tarihGoster(tarih) + " " + gunAdi(tarih, true), XL.tdTarih(hs));
+      let satir = xlHucre(tarihGoster(tarih) + " " + gunAdi(tarih), XL.tdTarih(hs));
       daireler.forEach((d, di) => {
         const h = gunDurumuHarita(harita, d.id, tarih);
         const renk = daireRenk(d, di);
@@ -2046,10 +2026,9 @@
       const daireler = dairelerOzetSirasi(db);
       const gunler = sezonGunleri(y);
       const { bas, bit } = sezonBasBit(y);
-      const bugun = window.APARTIM.gorunum?.bugunISO?.() || db.bugunISO();
       const harita = gunHaritasiOlustur(db, daireler, bas, bit);
 
-      const tabloGovde = excelRaporHtml(y, daireler, gunler, harita, bugun);
+      const tabloGovde = excelRaporHtml(y, daireler, gunler, harita);
       const html =
         '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
         "<head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>" +
@@ -2288,7 +2267,6 @@
 
   window.APARTIM.rezOzet = {
     tabloCiz, tabloCizPlanla, rezSekmeAc, buguneGit, konumKoru, excelRaporIndir,
-    yatayModGuncelle, tamEkranYatay, tamEkranKapat, tamEkranAcikMi,
-    tamEkranaModallariTasi, modalRezBodyeAl, yonKilidiAc, sutunOlculYenile
+    tamEkranYatay, tamEkranKapat, modalRezBodyeAl, sutunOlculYenile
   };
 })();

@@ -137,6 +137,7 @@
   }
 
   function uygulamaKilitle() {
+    window.APARTIM.db?.oturumuKapat?.();
     oturumBeklemeBitir();
     oturumIsaretle(false);
     authHazirGonderildi = false;

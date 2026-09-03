@@ -13,7 +13,7 @@ html { -webkit-text-size-adjust: 100%; }
   top: 0;
   left: 0;
   right: 0;
-  z-index: 9500;
+  z-index: 250;
   background: #b45309;
   color: #fff7ed;
   text-align: center;
@@ -1668,43 +1668,6 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
 .excel-import-satir.guncelle { color: var(--bilgi, #3b82f6); }
 .excel-import-satir.atla,
 .excel-import-satir.hata { color: var(--tehlike); }
-.rez-ozet-sezon-nav {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  flex: 1 1 auto;
-  min-width: 0;
-  max-width: 220px;
-}
-.rez-ozet-nav-btn {
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--kart-2);
-  border: 1px solid var(--kenar);
-  border-radius: var(--radius-sm);
-  color: var(--metin);
-  font-size: 12px;
-  cursor: pointer;
-  transition: background var(--gecis);
-}
-.rez-ozet-nav-btn:hover { background: var(--zemin); }
-.rez-ozet-ay-baslik {
-  margin: 0;
-  font-family: "Nunito", sans-serif;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  flex: 1;
-  text-align: center;
-  line-height: 1.1;
-  color: var(--metin);
-  white-space: nowrap;
-}
 .rez-ozet-chip {
   display: inline-flex;
   align-items: center;
@@ -1751,45 +1714,6 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   border-color: var(--basari);
   color: #fff;
 }
-.rez-ozet-para-bar {
-  flex: 1;
-  min-width: 0;
-  padding: 0;
-  background: transparent;
-  border: none;
-  overflow: hidden;
-}
-.rez-ozet-para-ic {
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 5px;
-  font-size: 11px;
-  white-space: nowrap;
-  min-width: 0;
-  overflow: hidden;
-  max-width: 100%;
-}
-.rez-ozet-para-item { font-weight: 800; flex-shrink: 0; }
-.rez-ozet-para-item.tl { color: var(--basari); }
-.rez-ozet-para-item.usd { color: var(--bilgi); }
-.rez-ozet-para-item.eur { color: var(--vurgu); }
-.rez-ozet-para-ayrac { color: var(--metin-soluk-2); font-weight: 400; flex-shrink: 0; }
-.rez-ozet-para-toplam {
-  font-weight: 800;
-  color: var(--metin);
-  flex-shrink: 0;
-}
-.rez-ozet-para-kur {
-  font-size: 10px;
-  color: var(--metin-soluk);
-  line-height: 1;
-  flex-shrink: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
 .rez-ozet-scroll {
   flex: 1;
   min-height: 0;
@@ -1811,13 +1735,6 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
   width: auto;
   min-width: 0;
   max-width: none;
-}
-.rez-ozet-yukleniyor {
-  padding: 24px 16px;
-  text-align: center;
-  color: var(--metin-soluk);
-  font-size: 13px;
-  font-weight: 600;
 }
 .rez-ozet-ay-ayrac td {
   position: sticky;
@@ -1888,16 +1805,6 @@ html.theme-light .rez-ozet-ay-ayrac td {
 .rez-ozet-tablo-telefon .rez-ozet-out-kalan-etiket {
   font-size: 7px;
 }
-.rez-ozet-tablo-masaustu td.rez-ozet-io-rozet {
-  overflow: visible;
-  padding-left: 2px !important;
-  padding-right: 2px !important;
-}
-.rez-ozet-tablo-masaustu td.rez-ozet-io-rozet .rez-ozet-io {
-  font-size: 7px;
-  letter-spacing: 0;
-  white-space: nowrap;
-}
 html:not(.theme-light) .rez-ozet-table {
   --rez-cizgi: #9aa3ad;
 }
@@ -1931,9 +1838,7 @@ html.theme-light .rez-ozet-table tr.rez-ozet-ay-ayrac td {
   color: #111827 !important;
 }
 .rez-ozet-table .rez-ozet-ad,
-.rez-ozet-table .rez-ozet-ad-alt,
-.rez-ozet-table .rez-ozet-sayi,
-.rez-ozet-table .rez-ozet-detay span {
+.rez-ozet-table .rez-ozet-sayi {
   color: #111827 !important;
 }
 /* Tarih sütunu — koyu tema */
@@ -2001,12 +1906,24 @@ html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-secili td {
 }
 .rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-tarih {
   box-shadow:
-    inset 5px 0 0 var(--vurgu),
     inset 0 2px 0 var(--vurgu),
     inset 0 -2px 0 var(--vurgu),
     inset 0 0 0 9999px rgba(31, 111, 92, 0.15);
 }
 .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih {
+  box-shadow:
+    inset 0 3px 0 var(--vurgu),
+    inset 0 -3px 0 var(--vurgu),
+    inset 0 0 0 9999px rgba(31, 111, 92, 0.25);
+}
+.rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-tarih-yapiskan {
+  box-shadow:
+    inset 5px 0 0 var(--vurgu),
+    inset 0 2px 0 var(--vurgu),
+    inset 0 -2px 0 var(--vurgu),
+    inset 0 0 0 9999px rgba(31, 111, 92, 0.15);
+}
+.rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih-yapiskan {
   box-shadow:
     inset 6px 0 0 var(--vurgu),
     inset 0 3px 0 var(--vurgu),
@@ -2016,13 +1933,25 @@ html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-secili td {
 html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-tarih {
   background: #2a4055 !important;
   box-shadow:
-    inset 5px 0 0 #2ecc71,
     inset 0 2px 0 #2ecc71,
     inset 0 -2px 0 #2ecc71,
     inset 0 0 0 9999px rgba(255, 255, 255, 0.12);
 }
 html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih {
   background: #335066 !important;
+  box-shadow:
+    inset 0 3px 0 #2ecc71,
+    inset 0 -3px 0 #2ecc71,
+    inset 0 0 0 9999px rgba(255, 255, 255, 0.18);
+}
+html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-hover .rez-ozet-tarih-yapiskan {
+  box-shadow:
+    inset 5px 0 0 #2ecc71,
+    inset 0 2px 0 #2ecc71,
+    inset 0 -2px 0 #2ecc71,
+    inset 0 0 0 9999px rgba(255, 255, 255, 0.12);
+}
+html:not(.theme-light) .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih-yapiskan {
   box-shadow:
     inset 6px 0 0 #2ecc71,
     inset 0 3px 0 #2ecc71,
@@ -2054,7 +1983,7 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
   line-height: 1;
 }
 .rez-ozet-table thead .rez-ozet-tarih-kose {
-  z-index: 7;
+  z-index: 5;
   top: 0;
   background: var(--kart-2) !important;
 }
@@ -2087,6 +2016,9 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 .rez-ozet-table tbody .rez-ozet-tarih.rez-ozet-tarih-yapiskan {
   position: sticky;
   left: 0;
+}
+.rez-ozet-table thead .rez-ozet-tarih-kose.rez-ozet-tarih-yapiskan {
+  z-index: 8;
 }
 .rez-ozet-table tbody .rez-ozet-tarih.rez-ozet-tarih-yapiskan {
   z-index: 2;
@@ -2242,44 +2174,7 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 .rez-ozet-odenen.duzenleniyor:hover {
   outline: 1px solid var(--vurgu);
 }
-.rez-ozet-odenen-edit {
-  display: block;
-  position: absolute;
-  inset: 0;
-  margin: 0;
-  padding: 0;
-}
-.rez-ozet-odenen-input {
-  display: block;
-  width: 100%;
-  height: var(--rez-satir-h, 16px);
-  min-width: 0;
-  max-width: 100%;
-  margin: 0;
-  box-sizing: border-box;
-  font: inherit;
-  font-weight: 700;
-  text-align: center;
-  line-height: var(--rez-satir-h, 16px);
-  padding: 0 1px;
-  border: none;
-  border-radius: 0;
-  background: transparent;
-  color: #111827;
-  outline: none;
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-.rez-ozet-odenen-input::-webkit-outer-spin-button,
-.rez-ozet-odenen-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-.rez-ozet-odenen-input::placeholder {
-  color: var(--metin-soluk-2);
-  opacity: 0.8;
-}
-.rez-ozet-bugun .rez-ozet-tarih {
+.rez-ozet-bugun .rez-ozet-tarih-yapiskan {
   box-shadow: inset 4px 0 0 var(--vurgu);
 }
 html:not(.theme-light) .rez-ozet-bugun .rez-ozet-tarih {
@@ -2321,17 +2216,6 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 .rez-ozet-out-kalan-stack.rez-ozet-out-fazla .rez-ozet-out-kalan-rakam {
   color: #111827 !important;
 }
-.rez-ozet-out-kalan {
-  font-size: 9px;
-  font-weight: 800;
-  color: #111827;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.rez-ozet-out-kalan.rez-ozet-out-fazla {
-  color: #111827;
-  font-weight: 800;
-}
 /* Çakışan gün: yalnızca sarı vurgu; sütun çizgileri korunur */
 .rez-ozet-table td.rez-ozet-turnover-hucre {
   padding: 1px 2px !important;
@@ -2342,36 +2226,9 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   text-align: center !important;
   overflow: hidden !important;
 }
-.rez-ozet-turnover-grup {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
-}
-.rez-ozet-turnover-grup.out-grup {
-  flex: 1 1 0;
-  justify-content: flex-start;
-}
-.rez-ozet-turnover-grup.in-grup {
-  flex: 1 1 0;
-  justify-content: flex-end;
-}
-.rez-ozet-turnover-grup.sag-grup {
-  flex: 0 0 auto;
-  justify-content: flex-end;
-}
 .rez-ozet-out-kalan-hucre {
   font-weight: 800;
   color: #111827;
-}
-.rez-ozet-g-stack {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  vertical-align: middle;
-  flex-wrap: nowrap;
-  max-width: 100%;
 }
 .rez-ozet-g-sayi {
   display: inline-block;
@@ -2386,64 +2243,11 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
 .rez-ozet-g-sayi.rez-ozet-g-ilk {
   font-weight: 900;
 }
-.rez-ozet-g-dikey {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  line-height: 1;
-  vertical-align: middle;
-}
-.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-dikey .rez-ozet-g-sayi {
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-  color: #1a1a1a !important;
-}
-.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-dikey .rez-ozet-g-sayi.rez-ozet-g-ilk {
-  font-weight: 900;
-}
-.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-dikey .rez-ozet-io {
-  font-size: 7px;
-}
 .rez-ozet-table td.rez-ozet-out-gun {
   text-align: center !important;
   vertical-align: middle !important;
   padding: 1px 0 !important;
   line-height: 1;
-}
-.rez-ozet-g-hucre-orta {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  min-height: var(--rez-satir-h, 16px);
-  box-sizing: border-box;
-}
-.rez-ozet-table td.rez-ozet-io-rozet {
-  overflow: visible !important;
-  text-overflow: clip;
-  line-height: 1.1;
-  font-size: inherit;
-  min-width: 44px;
-  padding: 1px 2px !important;
-  text-align: center !important;
-  vertical-align: middle;
-}
-.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-sayi {
-  font-size: 11px;
-  font-weight: 700;
-}
-.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-g-sayi.rez-ozet-g-ilk {
-  font-weight: 900;
-}
-.rez-ozet-table td.rez-ozet-io-rozet .rez-ozet-io {
-  font-size: 8px;
-  flex-shrink: 0;
-}
-.rez-ozet-tablo-telefon td.rez-ozet-io-rozet {
-  min-width: 38px;
 }
 /* Sarı IO hücreleri — çakışan / giriş / çıkış günleri (tarih sütunu hariç) */
 .rez-ozet-table td.rez-ozet-io-hucre {
@@ -3515,7 +3319,7 @@ html:not(.theme-light) .rez-kaynak-badge {
     margin-bottom: 6px;
     scroll-margin-bottom: 8px;
   }
-  body.rez-form-mobil.rez-form-yatay #modal-rez .rez-fiyat-mod-grid {
+  body.rez-form-mobil.rez-form-yatay #modal-rez .rez-fiyat-modlari {
     margin-bottom: 6px;
   }
   body.rez-form-mobil.rez-form-yatay #modal-rez .rez-fiyat-mod-kart {
@@ -4778,18 +4582,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     padding: 4px 6px 8px;
   }
   .rez-ozet-wrap { gap: 0; }
-  .rez-ozet-ay-baslik {
-    font-size: 8px;
-    letter-spacing: 0.1px;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .rez-ozet-nav-btn {
-    width: 24px;
-    height: 24px;
-    font-size: 10px;
-  }
   .rez-ozet-toolbar {
     flex: 0 0 auto;
     gap: 3px;
@@ -4804,11 +4596,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     font-size: 12px;
   }
   .rez-ozet-chip-metin { display: none; }
-  .rez-ozet-para-bar .rez-ozet-para-ic {
-    font-size: 8px;
-    overflow: hidden;
-  }
-  .rez-ozet-toolbar .rez-ozet-para-kur { font-size: 7px; }
   .rapor-daire-satir { grid-template-columns: 1fr 60px 80px; }
   .rapor-daire-satir .gece-val { display: none; }
   .bina-ust-bar {
@@ -4864,12 +4651,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     font-size: 12px;
   }
   .rez-ozet-chip-metin { display: inline; }
-  .rez-ozet-para-bar .rez-ozet-para-ic {
-    font-size: 12px;
-  }
-  .rez-ozet-para-bar .rez-ozet-para-kur {
-    font-size: 10px;
-  }
 }
 
 /* Geniş PC: import/export yazısı — tablette yalnız ikon */
@@ -4906,12 +4687,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
   }
   .rez-ozet-toolbar .rez-ozet-chip-ikon {
     font-size: 13px;
-  }
-  .rez-ozet-para-bar .rez-ozet-para-ic {
-    font-size: 13px;
-  }
-  .rez-ozet-para-bar .rez-ozet-para-kur {
-    font-size: 11px;
   }
   .rez-ozet-table .rez-ozet-daire-baslik {
     font-size: 8px;
@@ -5281,11 +5056,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     padding: 3px 6px;
     gap: 4px;
   }
-  body.mobil-yatay-mod .rez-ozet-ay-baslik { font-size: 9px; }
-  body.mobil-yatay-mod .rez-ozet-nav-btn {
-    width: 22px;
-    height: 22px;
-  }
   body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-wrap {
     flex: 1;
     min-height: 0;
@@ -5481,7 +5251,7 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
   body.mobil-yatay-mod #modal-rez .field-group {
     margin-bottom: 6px;
   }
-  body.mobil-yatay-mod #modal-rez .rez-fiyat-mod-grid {
+  body.mobil-yatay-mod #modal-rez .rez-fiyat-modlari {
     margin-bottom: 6px;
   }
   body.mobil-yatay-mod #modal-rez .rez-tarih-aralik-takvim .mini-takvim-hucre {

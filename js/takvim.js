@@ -155,7 +155,7 @@
     } else if (kalan > esik) {
       durumSatir = '<div class="takvim-detay-satir"><span>' +
         (tamam ? "Durum" : "Kalan") + "</span><strong>" +
-        esc(fmtPb(kalan)) + (tamam ? " eksik" + ok : "") + "</strong></div>";
+        esc(fmtPb(kalan)) + (tamam ? ok : "") + "</strong></div>";
     } else if (tamam || odenen > 0) {
       durumSatir = '<div class="takvim-detay-satir"><span>Durum</span><strong>Tahsilat tamam' +
         ok + "</strong></div>";

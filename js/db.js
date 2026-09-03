@@ -305,13 +305,6 @@
     return rezervasyonGeceKaydi(rez, geceNo).tutar;
   }
 
-  function rezervasyonTarihUcreti(rez, tarihISO) {
-    const geceNo = geceSayisi(rez.giris, tarihISO) + 1;
-    const toplamGece = geceSayisi(rez.giris, rez.cikis);
-    if (geceNo < 1 || geceNo > toplamGece) return Number(rez.gunlukUcret) || 0;
-    return rezervasyonGeceUcreti(rez, geceNo);
-  }
-
   function rezervasyonTutarHesapla(rez) {
     const para = window.APARTIM.para;
     const gece = geceSayisi(rez.giris, rez.cikis);
@@ -599,17 +592,6 @@
     return para.tlDenPb(kalanTl, pb, rezervasyonKurCift(rez));
   }
 
-  function rezervasyonFazlaOdenen(rez) {
-    const k = rezervasyonKalanHesapla(rez);
-    return k < 0 ? -k : 0;
-  }
-
-  function rezervasyonTahsilatTamamMi(rez) {
-    if (!rez) return false;
-    if (rez.tahsilatTamamlandi) return true;
-    return rezervasyonKalanTl(rez) <= 0.009 && rezervasyonOdenenToplamTl(rez) > 0;
-  }
-
   function rezervasyonOdenenGosterim(rez, tarih) {
     const og = rez.odenenGunleri;
     const liste = og && Object.prototype.hasOwnProperty.call(og, tarih)
@@ -867,6 +849,55 @@
   // ---------- Firebase / yerel kaynak ----------
   let kullaniciUid = null;
   let fbRef = null; // ana ref
+  const FB_COCUK_YOLLAR = [
+    "daireler", "rezervasyonlar", "kasa-harcama",
+    "temizlik-kayit", "musteri-kaynaklari", "doviz-kurlari", "profil"
+  ];
+  let fbIdleIds = [];
+  let fbTimeoutIds = [];
+
+  function fbZamanlayiciIptal() {
+    if (typeof cancelIdleCallback === "function") {
+      fbIdleIds.forEach((id) => { try { cancelIdleCallback(id); } catch (e) {} });
+    }
+    fbIdleIds = [];
+    fbTimeoutIds.forEach((id) => clearTimeout(id));
+    fbTimeoutIds = [];
+  }
+
+  function fbGecikmeli(fn, timeoutMs, delayMs) {
+    if (typeof requestIdleCallback === "function") {
+      fbIdleIds.push(requestIdleCallback(fn, { timeout: timeoutMs }));
+    } else {
+      fbTimeoutIds.push(setTimeout(fn, delayMs));
+    }
+  }
+
+  function firebaseDinlemeyiKaldir() {
+    fbZamanlayiciIptal();
+    profilAvatarDinlemeyiKaldir();
+    if (!fbRef) return;
+    FB_COCUK_YOLLAR.forEach((yol) => {
+      try { fbRef.child(yol).off(); } catch (e) {}
+    });
+    try { fbRef.off(); } catch (e) {}
+    fbRef = null;
+  }
+
+  function oturumuKapat() {
+    firebaseDinlemeyiKaldir();
+    kullaniciUid = null;
+    durum.yuklendi = false;
+    fbIlkSenkronBitti = false;
+    fbIlkDaireler = false;
+    fbIlkRez = false;
+    clearTimeout(fbIlkSenkronTimer);
+    durum.daireler = {};
+    durum.rezervasyonlar = {};
+    durum.temizlikKayit = {};
+    durum.musteriKaynaklari = {};
+    durum.kasaHarcama = {};
+  }
   let yerelAktif = !window.APARTIM.firebaseAktif;
   let profilAvatarListener = null;
 
@@ -948,12 +979,8 @@
   }
 
   function kullaniciHazir(kullanici) {
+    firebaseDinlemeyiKaldir();
     kullaniciUid = kullanici.uid;
-    profilAvatarDinlemeyiKaldir();
-    if (fbRef) {
-      try { fbRef.off(); } catch (e) { /* yoksay */ }
-      fbRef = null;
-    }
     fbIlkSenkronBitti = false;
     fbIlkDaireler = false;
     fbIlkRez = false;
@@ -972,11 +999,7 @@
       const profilGuncelle = () => {
         fbRef?.child("profil").update(profilPatch).catch(() => {});
       };
-      if (typeof requestIdleCallback === "function") {
-        requestIdleCallback(profilGuncelle, { timeout: 3000 });
-      } else {
-        setTimeout(profilGuncelle, 300);
-      }
+      fbGecikmeli(profilGuncelle, 3000, 300);
 
       fbRef.child("daireler").on("value", (snap) => {
         durum.daireler = snap.val() || {};
@@ -1018,11 +1041,7 @@
           veriDegistiBildir("doviz-kurlari");
         });
       };
-      if (typeof requestIdleCallback === "function") {
-        requestIdleCallback(ikincilDinleyicileriBagla, { timeout: 2500 });
-      } else {
-        setTimeout(ikincilDinleyicileriBagla, 400);
-      }
+      fbGecikmeli(ikincilDinleyicileriBagla, 2500, 400);
     } else {
       profilAvatarYukle(kullanici);
       const v = window.APARTIM.yerelOku();
@@ -1556,18 +1575,6 @@
     return sil("rezervasyonlar/" + id);
   }
 
-  function temizlikLogEkle(daireId, eskiDurum, yeniDurum) {
-    const id = yeniId();
-    const k = { id, daireId, eskiDurum, yeniDurum, zaman: Date.now() };
-    durum.temizlikKayit[id] = k;
-    return kaydet("temizlik-kayit/" + id, k);
-  }
-  function temizlikLogListele(daireId) {
-    const liste = Object.values(durum.temizlikKayit);
-    const filtreli = daireId ? liste.filter((k) => k.daireId === daireId) : liste;
-    return filtreli.sort((a, b) => (b.zaman || 0) - (a.zaman || 0));
-  }
-
   // ---------- Yardımcı: bugün için durum hesabı ----------
   /** Daire rezervasyonları — sıralamasız (sıcak yollar için) */
   function daireRezleriHam(daireId) {
@@ -1662,7 +1669,6 @@
     geceUcretiBul,
     rezervasyonGeceKaydi,
     rezervasyonGeceUcreti,
-    rezervasyonTarihUcreti,
     rezervasyonTutarHesapla,
     rezervasyonToplamTutar,
     rezervasyonToplamGosterim,
@@ -1673,8 +1679,6 @@
     rezervasyonToplamTl,
     rezervasyonKalanTl,
     rezervasyonKalanHesapla,
-    rezervasyonFazlaOdenen,
-    rezervasyonTahsilatTamamMi,
     rezervasyonOdenenGosterim,
     rezervasyonOdenenListe,
     rezervasyonOdenenKayitGetir,
@@ -1701,8 +1705,7 @@
     daireGunDurumu,
     dairedeCakisanRez,
     daireDurumuBugun,
-    temizlikLogEkle,
-    temizlikLogListele,
+    oturumuKapat,
     kasaHarcamaListele,
     kasaHarcamaEkle,
     kasaHarcamaGuncelle,

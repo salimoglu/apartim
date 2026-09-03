@@ -26,6 +26,12 @@
   }
 
   // ---- Güncelleme kontrol + yenile ----
+  function swSkipWaitingVeYenile(worker) {
+    window.APARTIM_SW_RELOAD = true;
+    try { worker.postMessage({ type: "SKIP_WAITING" }); } catch (e) {}
+    setTimeout(() => location.reload(), 1200);
+  }
+
   async function guncellemeYenile() {
     if (yenilemeBekleniyor) return;
     yenilemeBekleniyor = true;
@@ -41,35 +47,38 @@
         if (reg) {
           await reg.update();
           if (reg.waiting) {
-            window.APARTIM_SW_RELOAD = true;
-            reg.waiting.postMessage({ type: "SKIP_WAITING" });
+            swSkipWaitingVeYenile(reg.waiting);
             return;
           }
           if (reg.installing) {
             const installing = reg.installing;
             await new Promise((resolve) => {
-              installing.addEventListener("statechange", function onState() {
-                if (installing.state === "installed") {
-                  installing.removeEventListener("statechange", onState);
-                  const waiting = reg.waiting || installing;
-                  if (navigator.serviceWorker.controller && waiting) {
-                    window.APARTIM_SW_RELOAD = true;
-                    waiting.postMessage({ type: "SKIP_WAITING" });
-                  }
-                  resolve();
-                } else if (installing.state === "redundant") {
-                  installing.removeEventListener("statechange", onState);
-                  resolve();
+              const bitir = () => {
+                installing.removeEventListener("statechange", onState);
+                resolve();
+              };
+              const timer = setTimeout(bitir, 4000);
+              function onState() {
+                if (installing.state === "installed" || installing.state === "redundant") {
+                  clearTimeout(timer);
+                  bitir();
                 }
-              });
+              }
+              installing.addEventListener("statechange", onState);
             });
-            if (window.APARTIM_SW_RELOAD) return;
+            const waiting = reg.waiting || (installing.state === "installed" ? installing : null);
+            if (navigator.serviceWorker.controller && waiting) {
+              swSkipWaitingVeYenile(waiting);
+              return;
+            }
           }
         }
       }
+      yenilemeBekleniyor = false;
       location.reload();
     } catch (err) {
       console.warn("guncellemeYenile", err);
+      yenilemeBekleniyor = false;
       location.reload();
     }
   }
