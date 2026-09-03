@@ -19,11 +19,16 @@ Apart-otel takip uygulaması. Daireleri bina silüetinden tıklayarak seçin; he
 - Service Worker + Web App Manifest (PWA)
 - GitHub Pages üzerinde yayın
 
-## Canlı yayın (GitHub Pages)
+## Adresler
 
-Site: [salimoglu.github.io/apartim](https://salimoglu.github.io/apartim)
+| | Adres | Dal |
+| --- | --- | --- |
+| **Canlı** | https://salimoglu.github.io/apartim | `main` |
+| **Deneme** | https://salimoglu.github.io/apartim/deneme/ | `preview` |
 
-Deploy, `main` dalına push sonrası **Deploy GitHub Pages** workflow'u ile yapılır.
+Deneme sitesi sarı şerit gösterir; arkadaşınız telefonda bu adresi açıp kendi hesabıyla deneyebilir. Kayıtlar hesaba özeldir (sizin canlı veriniz görünmez). Şifre paylaşmayın.
+
+Deploy, `main` veya `preview` dalına push sonrası **Deploy GitHub Pages** workflow'u ile yapılır. `preview` yalnızca deneme klasörünü günceller; canlı `main`’e basılınca değişir.
 
 **Bir kez yapılması gereken ayar** (iki deploy yarışmasını önler):
 

@@ -50,7 +50,7 @@
   }
 
   function bannerGoster(tip) {
-    if (zatenYuklu() || dismissEdildiMi() || bannerAcik) return;
+    if (window.APARTIM_DENEME || zatenYuklu() || dismissEdildiMi() || bannerAcik) return;
     const el = bar();
     if (!el) return;
 
@@ -124,7 +124,7 @@
     });
     document.getElementById("install-btn")?.addEventListener("click", yukleTikla);
 
-    if ("serviceWorker" in navigator) {
+    if ("serviceWorker" in navigator && !window.APARTIM_DENEME) {
       const swKayit = () => {
         const swV = window.APARTIM_VERSION?.ASSET || Date.now();
         navigator.serviceWorker.register("./sw.js?v=" + swV).catch((err) => {

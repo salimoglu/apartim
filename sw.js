@@ -2,8 +2,8 @@
    JS/CSS: stale-while-revalidate (hızlı yenileme + arka planda güncelleme)
    HTML navigate: network-first (kısa zaman aşımı → cache)
    Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
-const CACHE_VERSION = "apartim-3-31";
-const ASSET_V = "3.31";
+const CACHE_VERSION = "apartim-3-32";
+const ASSET_V = "3.32";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -124,6 +124,8 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+  /* Deneme sitesi ayrı klasörde — canlı SW karışmasın */
+  if (url.pathname.includes("/deneme")) return;
   const path = url.pathname.replace(/\/$/, "");
   const isRoot = path.endsWith("/apartim") || path.endsWith("/apartim/index.html") || path === "" || path.endsWith("/index.html");
   if (isRoot && event.request.mode === "navigate") {

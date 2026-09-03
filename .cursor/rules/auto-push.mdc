@@ -1,20 +1,24 @@
 ---
-description: Deploy sonrası otomatik git push — kullanıcıdan onay bekleme
+description: Deneme (preview) ve canlı (main) yayın — canlı için kullanıcı onayı
 alwaysApply: true
 ---
 
-# Otomatik push
+# Yayın
 
-Kullanıcı apartim projesinde anlamlı değişiklikler tamamlandığında (özellikle sürüm/cache bump ile):
+- **Canlı:** https://salimoglu.github.io/apartim — dal `main`
+- **Deneme:** https://salimoglu.github.io/apartim/deneme/ — dal `preview`
+
+Anlamlı değişiklik bitince:
 
 1. İlgili dosyaları **tek commit**'te topla (`ev.svg`, `para.js` gibi yalnızca satır sonu gürültüsü olan dosyaları hariç tut).
-2. Sürümü artır: `node tools/bump-version.cjs` (minor 0–99; **2.99 → 3.0**). Bu komut `sync-version`’ı da çalıştırır. Elle yazarsan ardından `node tools/sync-version.cjs` şart.
-3. `git push origin main` çalıştır.
-4. Push sonrası `powershell -File tools/wait-deploy.ps1` ile canlı sürümü doğrula (en fazla ~8 dk bekle).
-5. Push/deploy için kullanıcıdan ayrıca onay isteme.
+2. Sürümü artır: `node tools/bump-version.cjs` (minor 0–99; **2.99 → 3.0**). Bu komut `sync-version`’ı da çalıştırır.
+3. Önce **deneme** yayınla: `git push origin preview` (gerekirse `preview`’i bu commit’e al).
+4. `powershell -File tools/wait-deploy.ps1` ile deneme/canlı sürümü doğrula.
+5. **`main`’e basma** — kullanıcı açıkça **“canlıya al”** deyene kadar canlıya alma.
+6. “Canlıya al” deyince `git push origin main` ve yine wait-deploy.
 
 ## Deploy notları
 
 - GitHub Pages **yalnızca Actions** ile deploy edilmeli: repo **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 - "Deploy from a branch" açıksa iki workflow yarışır; deploy 5–10 dk gecikebilir veya iptal olur.
-- Ardışık hızlı push'lardan kaçın — her özellik için **tek commit + tek push**.
+- Ardışık hızlı push'lardan kaçın — her özellik için **tek commit + tek push** (önce preview).

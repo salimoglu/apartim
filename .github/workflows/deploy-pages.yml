@@ -2,10 +2,13 @@ name: Deploy GitHub Pages
 
 # Tek deploy kanalı — repo Settings → Pages → Source: "GitHub Actions" olmalı.
 # "Deploy from branch" açıksa iki workflow yarışır ve deploy gecikir/iptal olur.
+#
+# Canlı:  https://salimoglu.github.io/apartim          ← main
+# Deneme: https://salimoglu.github.io/apartim/deneme/  ← preview
 
 on:
   push:
-    branches: [main]
+    branches: [main, preview]
     paths:
       - "**.html"
       - "css/**"
@@ -35,13 +38,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Site dosyalarini hazirla
         run: |
-          mkdir _site
-          cp -r css icons js _site/
-          cp index.html sw.js manifest.json _site/
-          cp .nojekyll _site/ 2>/dev/null || true
+          set -euo pipefail
+          git fetch origin main:refs/remotes/origin/main
+          git fetch origin preview:refs/remotes/origin/preview || true
+
+          mkdir -p /tmp/live /tmp/deneme-src _site _site/deneme
+          git archive origin/main | tar -x -C /tmp/live
+
+          if git rev-parse --verify origin/preview >/dev/null 2>&1; then
+            git archive origin/preview | tar -x -C /tmp/deneme-src
+            DENEME=/tmp/deneme-src
+          else
+            DENEME=/tmp/live
+          fi
+
+          cp -r /tmp/live/css /tmp/live/icons /tmp/live/js _site/
+          cp /tmp/live/index.html /tmp/live/sw.js /tmp/live/manifest.json _site/
+          cp /tmp/live/.nojekyll _site/ 2>/dev/null || true
+
+          cp -r "$DENEME/css" "$DENEME/icons" "$DENEME/js" _site/deneme/
+          cp "$DENEME/index.html" "$DENEME/sw.js" "$DENEME/manifest.json" _site/deneme/
+          cp "$DENEME/.nojekyll" _site/deneme/ 2>/dev/null || true
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

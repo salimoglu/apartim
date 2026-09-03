@@ -12,7 +12,10 @@
   function versiyonGoster() {
     const el = document.getElementById("app-version");
     const v = window.APARTIM_VERSION;
-    if (el && v) el.textContent = v.LABEL || v.ASSET || "—";
+    if (el && v) {
+      el.textContent = (v.LABEL || v.ASSET || "—") +
+        (window.APARTIM_DENEME ? " · deneme" : "");
+    }
   }
 
   /** Rezervasyonlar sekme ikonu: takvimde bugünün günü */
