@@ -526,13 +526,18 @@
 
     for (let i = 0; i < 4; i++) {
       const td = document.createElement("td");
-      td.className = (i === 3 ? "rez-ozet-ad" : "rez-ozet-sayi") +
-        " rez-ozet-bos rez-ozet-hucre-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
-      if (i === 0) td.classList.add("rez-ozet-kategori");
+      const kategori = i === 0;
+      const ad = i === 3;
+      td.className = (ad ? "rez-ozet-ad" : "rez-ozet-sayi") +
+        (kategori ? " rez-ozet-kategori" : "") +
+        (kategori ? " rez-ozet-bos" : " rez-ozet-bos rez-ozet-hucre-tik") +
+        (ioVurgu ? " rez-ozet-io-hucre" : "");
       td.style.background = bg;
-      td.dataset.daireId = odaId;
-      td.dataset.tarih = tarih;
-      td.title = "Yeni rezervasyon (çıkış günü)";
+      if (!kategori) {
+        td.dataset.daireId = odaId;
+        td.dataset.tarih = tarih;
+        td.title = "Yeni rezervasyon (çıkış günü)";
+      }
       td.textContent = "—";
       tr.appendChild(td);
     }
@@ -625,7 +630,10 @@
       td.style.background = renk;
       if (i === 0) {
         /* G sütunu: tıklayınca rezervasyon açılmaz */
-        td.className = "rez-ozet-bos rez-ozet-bos-gun";
+        td.className = "rez-ozet-bos rez-ozet-bos-gun rez-ozet-g";
+      } else if (i === 1) {
+        /* Kt sütunu: tıklayınca rezervasyon açılmaz */
+        td.className = "rez-ozet-bos rez-ozet-kategori";
       } else {
         td.className = "rez-ozet-bos rez-ozet-hucre-tik";
         td.dataset.daireId = daireId;
@@ -1447,6 +1455,12 @@
     let satirSecDokunmaYapildi = false;
 
     kapsayici.addEventListener("click", (ev) => {
+      if (ev.target.closest("td.rez-ozet-kategori, td.rez-ozet-g, td.rez-ozet-bos-gun")) {
+        ev.stopPropagation();
+      }
+    }, true);
+
+    kapsayici.addEventListener("click", (ev) => {
       const odenen = ev.target.closest(".rez-ozet-odenen");
       if (odenen && !odenen.classList.contains("duzenleniyor")) {
         ev.preventDefault();
@@ -1458,6 +1472,9 @@
 
     kapsayici.addEventListener("click", (ev) => {
       if (ev.target.closest(".rez-ozet-odenen")) return;
+      if (ev.target.closest("td.rez-ozet-kategori, td.rez-ozet-g, td.rez-ozet-bos-gun")) {
+        return;
+      }
       const tik = ev.target.closest("td.rez-ozet-ad.rez-ozet-tik");
       if (tik) {
         ev.stopPropagation();

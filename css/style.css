@@ -2131,6 +2131,7 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   vertical-align: middle;
   padding: 1px 1px !important;
   overflow: hidden;
+  cursor: default;
 }
 .rez-ozet-kategori-simge {
   display: inline-block;
