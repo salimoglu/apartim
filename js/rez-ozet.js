@@ -526,13 +526,18 @@
 
     for (let i = 0; i < 4; i++) {
       const td = document.createElement("td");
-      td.className = (i === 3 ? "rez-ozet-ad" : "rez-ozet-sayi") +
-        " rez-ozet-bos rez-ozet-hucre-tik" + (ioVurgu ? " rez-ozet-io-hucre" : "");
-      if (i === 0) td.classList.add("rez-ozet-kategori");
+      const kategori = i === 0;
+      const ad = i === 3;
+      td.className = (ad ? "rez-ozet-ad" : "rez-ozet-sayi") +
+        (kategori ? " rez-ozet-kategori" : "") +
+        (kategori ? " rez-ozet-bos" : " rez-ozet-bos rez-ozet-hucre-tik") +
+        (ioVurgu ? " rez-ozet-io-hucre" : "");
       td.style.background = bg;
-      td.dataset.daireId = odaId;
-      td.dataset.tarih = tarih;
-      td.title = "Yeni rezervasyon (çıkış günü)";
+      if (!kategori) {
+        td.dataset.daireId = odaId;
+        td.dataset.tarih = tarih;
+        td.title = "Yeni rezervasyon (çıkış günü)";
+      }
       td.textContent = "—";
       tr.appendChild(td);
     }
@@ -550,16 +555,15 @@
 
     const tdG = document.createElement("td");
     tdG.className =
-      "rez-ozet-sayi rez-ozet-turnover-hucre rez-ozet-turnover-bas rez-ozet-io-hucre";
+      "rez-ozet-sayi rez-ozet-g rez-ozet-turnover-hucre rez-ozet-turnover-bas rez-ozet-io-hucre";
     tdG.style.background = bg;
     tdG.title = "Çıkış: " + cikisAd + " → Giriş: " + girisAd;
     tdG.innerHTML = gSayiHtml(1);
     tr.appendChild(tdG);
 
     const tdKt = document.createElement("td");
-    tdKt.className = "rez-ozet-kategori rez-ozet-turnover-hucre rez-ozet-tik rez-ozet-io-hucre";
+    tdKt.className = "rez-ozet-kategori rez-ozet-turnover-hucre rez-ozet-io-hucre";
     tdKt.style.background = bg;
-    if (girisRid) tdKt.dataset.rezId = girisRid;
     tdKt.innerHTML = det.kategoriHtml;
     tr.appendChild(tdKt);
 
@@ -607,7 +611,7 @@
     const det = konakDetay(rez, tarih);
     const rid = rezIdAl(rez);
     [
-      { cls: "rez-ozet-sayi", html: gSayiHtml(det.g) },
+      { cls: "rez-ozet-sayi rez-ozet-g", html: gSayiHtml(det.g) },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc, det.prcPb) },
       { type: "odn" },
@@ -626,7 +630,10 @@
       td.style.background = renk;
       if (i === 0) {
         /* G sütunu: tıklayınca rezervasyon açılmaz */
-        td.className = "rez-ozet-bos rez-ozet-bos-gun";
+        td.className = "rez-ozet-bos rez-ozet-bos-gun rez-ozet-g";
+      } else if (i === 1) {
+        /* Kt sütunu: tıklayınca rezervasyon açılmaz */
+        td.className = "rez-ozet-bos rez-ozet-kategori";
       } else {
         td.className = "rez-ozet-bos rez-ozet-hucre-tik";
         td.dataset.daireId = daireId;
@@ -695,7 +702,7 @@
   function checkinHucreler(rez, tarih) {
     const det = konakDetay(rez, tarih);
     return [
-      { cls: "rez-ozet-sayi", html: gSayiHtml(1) },
+      { cls: "rez-ozet-sayi rez-ozet-g", html: gSayiHtml(1) },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc, det.prcPb) },
       { type: "odn" },
@@ -763,17 +770,17 @@
 
   function hucreTiklenebilirMi(c) {
     if (!c || c.type === "odn") return false;
-    const cls = c.cls || "";
-    return cls.indexOf("rez-ozet-ad") >= 0 || cls.indexOf("rez-ozet-kategori") >= 0;
+    return (c.cls || "").indexOf("rez-ozet-ad") >= 0;
   }
 
   function hucreTdOlustur(c, rez, tarih, renk, rid, misafirBaslik, ioVurgu) {
     if (c.type === "odn") return odnHucreTd(rez, tarih, renk, rid, ioVurgu);
     const td = document.createElement("td");
-    td.className = c.cls + (hucreTiklenebilirMi(c) ? " rez-ozet-tik" : "") +
+    const tik = hucreTiklenebilirMi(c);
+    td.className = c.cls + (tik ? " rez-ozet-tik" : "") +
       (ioVurgu ? " rez-ozet-io-hucre" : "");
     td.style.background = hucreBg(renk, ioVurgu);
-    if (rid) td.dataset.rezId = rid;
+    if (rid && tik) td.dataset.rezId = rid;
     if (c.html) td.innerHTML = c.html;
     else {
       const goster = (c.cls && c.cls.indexOf("rez-ozet-ad") >= 0)
@@ -1448,6 +1455,12 @@
     let satirSecDokunmaYapildi = false;
 
     kapsayici.addEventListener("click", (ev) => {
+      if (ev.target.closest("td.rez-ozet-kategori, td.rez-ozet-g, td.rez-ozet-bos-gun")) {
+        ev.stopPropagation();
+      }
+    }, true);
+
+    kapsayici.addEventListener("click", (ev) => {
       const odenen = ev.target.closest(".rez-ozet-odenen");
       if (odenen && !odenen.classList.contains("duzenleniyor")) {
         ev.preventDefault();
@@ -1459,7 +1472,10 @@
 
     kapsayici.addEventListener("click", (ev) => {
       if (ev.target.closest(".rez-ozet-odenen")) return;
-      const tik = ev.target.closest(".rez-ozet-tik");
+      if (ev.target.closest("td.rez-ozet-kategori, td.rez-ozet-g, td.rez-ozet-bos-gun")) {
+        return;
+      }
+      const tik = ev.target.closest("td.rez-ozet-ad.rez-ozet-tik");
       if (tik) {
         ev.stopPropagation();
         const id = tik.dataset.rezId || tik.getAttribute("data-rez-id");
