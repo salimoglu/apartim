@@ -144,7 +144,7 @@
     if (kalan < -esik) return "Fazla " + formatPbKisa(rez, -kalan) + ok;
     if (kalan > esik) {
       return tamam
-        ? formatPbKisa(rez, kalan) + " eksik ✓"
+        ? formatPbKisa(rez, kalan) + " ✓"
         : "Kalan " + formatPbKisa(rez, kalan);
     }
     return tamam ? "Tamam ✓" : "Kalan " + formatPbKisa(rez, 0);
@@ -165,7 +165,7 @@
     }
     if (kalan > esik) {
       return {
-        etiket: tamam ? "Eksik" : "Kalan",
+        etiket: tamam ? "" : "Kalan",
         tutar: formatPbKisa(rez, kalan),
         fazla: false,
         tamam
@@ -189,7 +189,7 @@
       : "";
     return (
       '<span class="rez-ozet-out-kalan-stack' + cls + '" title="Toplam − tahsilat">' +
-        '<span class="rez-ozet-out-kalan-etiket">' + esc(p.etiket) + "</span>" +
+        (p.etiket ? '<span class="rez-ozet-out-kalan-etiket">' + esc(p.etiket) + "</span>" : "") +
         '<span class="rez-ozet-out-kalan-tutar">' +
           (p.tutar ? '<span class="rez-ozet-out-kalan-rakam">' + esc(p.tutar) + "</span>" : "") +
           ok +
