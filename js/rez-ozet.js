@@ -1285,16 +1285,17 @@
       });
       rezCikisKalanHucreleriYenile(ctx.rezId, guncel);
 
-      /* Kayıt sonrası aynı güne yeni tahsilat için formu temizle */
-      tahsilatFormuTemizleYeni(guncel, tarih);
-      document.getElementById("tahsilat-tamamla").checked = !!guncel.tahsilatTamamlandi;
       if (temizle) {
+        tahsilatFormuTemizleYeni(guncel, tarih);
+        const chk = document.getElementById("tahsilat-tamamla");
+        if (chk) chk.checked = !!guncel.tahsilatTamamlandi;
         window.APARTIM.toast?.("Tahsilat silindi", "basari");
       } else {
         window.APARTIM.toast?.(
           tamamla ? "Tahsilat tamamlandı" : "Tahsilat kaydedildi",
           "basari"
         );
+        odemeModalKapat();
       }
     } catch (err) {
       window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
