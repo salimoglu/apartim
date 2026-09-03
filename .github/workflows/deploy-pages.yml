@@ -6,7 +6,7 @@ name: Deploy GitHub Pages
 # Canlı:  https://salimoglu.github.io/apartim          ← main
 # Deneme: https://salimoglu.github.io/apartim/deneme/  ← preview (main deploy sırasında paketlenir)
 # GitHub Pages ortamı yalnızca main dalından deploy'a izin verir; preview push'u yayınlamaz.
-# Deneme içeriği origin/preview (v3.35) — bu yorum yalnızca Pages tetikler, canlı app aynı kalır.
+# Deneme içeriği origin/preview (v3.36) — bu yorum yalnızca Pages tetikler, canlı app aynı kalır.
 
 on:
   push:
