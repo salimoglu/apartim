@@ -1221,15 +1221,6 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
   white-space: nowrap;
   max-width: 42px;
 }
-.takvim-io {
-  font-weight: 800;
-  font-size: 6px;
-  padding: 0 2px;
-  border-radius: 2px;
-  background: #ffeb3b;
-  color: #1a1a1a;
-  flex-shrink: 0;
-}
 html:not(.theme-light) .takvim-rez-ad,
 html:not(.theme-light) .takvim-rez-ucret,
 html:not(.theme-light) .takvim-turnover-ad {
@@ -1535,13 +1526,6 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
 .rez-ozet-toolbar .rez-ozet-chip-ikon {
   font-size: 11px;
 }
-.rez-ozet-toolbar .rez-ozet-para-ic {
-  font-size: 9px;
-  line-height: 1;
-}
-.rez-ozet-toolbar .rez-ozet-para-kur {
-  font-size: 8px;
-}
 .rez-ozet-indir-btn {
   flex-shrink: 0;
   width: 28px;
@@ -1707,11 +1691,6 @@ html.theme-light .mini-takvim-hucre.mini-takvim-dolu:hover {
 }
 .rez-ozet-tam-btn:hover {
   background: var(--vurgu);
-  color: #fff;
-}
-.rez-ozet-rapor-btn:hover {
-  background: var(--basari);
-  border-color: var(--basari);
   color: #fff;
 }
 .rez-ozet-scroll {
@@ -3622,8 +3601,6 @@ html:not(.theme-light) .rez-kaynak-badge {
   font-size: 11px;
   user-select: none;
 }
-/* Tahsilat yöntem kırılımı kartta gösterilmez (tek satır) */
-.rapor-kart .rapor-tahsilat-liste { display: none; }
 
 /* Tablet dar: tek satır kalır, gerekirse hafif kaydır */
 @media (max-width: 1100px) and (min-width: 721px) {
@@ -4456,7 +4433,6 @@ html:not(.theme-light) .rez-kaynak-badge {
   color: var(--metin-soluk);
   font-weight: 600;
 }
-.tahsilat-gecmis-yontem { color: var(--metin-soluk); font-weight: 600; }
 .tahsilat-gecmis-not {
   color: var(--metin);
   font-weight: 500;
@@ -4573,11 +4549,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     gap: 3px;
     padding: 0;
   }
-  .rez-ozet-sezon-nav {
-    max-width: none;
-    flex: 1 1 auto;
-    gap: 2px;
-  }
   #tab-rezervasyonlar.active {
     padding: 4px 6px 8px;
   }
@@ -4626,14 +4597,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     gap: 8px;
     padding: 0;
   }
-  .rez-ozet-sezon-nav {
-    flex: 1 1 auto;
-    max-width: 280px;
-  }
-  .rez-ozet-ay-baslik {
-    font-size: 11px;
-    letter-spacing: 0.3px;
-  }
   .rez-ozet-toolbar {
     flex: 0 0 auto;
     min-width: 0;
@@ -4677,10 +4640,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
 }
 
 @media (min-width: 960px) {
-  .rez-ozet-ay-baslik {
-    font-size: 12px;
-    letter-spacing: 0.4px;
-  }
   .rez-ozet-toolbar .rez-ozet-chip {
     padding: 6px 12px;
     font-size: 12px;
@@ -5134,9 +5093,6 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
   }
 }
 
-body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-ay-baslik {
-  font-size: 10px;
-}
 body.mobil-yatay-mod #tab-rezervasyonlar .rez-ozet-table {
   font-size: 9px;
 }

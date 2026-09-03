@@ -366,10 +366,6 @@
     return p[2].padStart(2, "0") + "." + p[1].padStart(2, "0");
   }
 
-  function gunAdiTablo(isoStr) {
-    return GUN_KISA[new Date(isoStr + "T12:00:00").getDay()];
-  }
-
   function gunAdi(isoStr) {
     return GUN_KISA[new Date(isoStr + "T12:00:00").getDay()];
   }
@@ -647,7 +643,7 @@
     tdTarih.dataset.tarih = tarih;
     tdTarih.innerHTML =
       '<span class="rez-ozet-tarih-gun">' + tarihGosterKisa(tarih) + "</span>" +
-      '<span class="rez-ozet-gun-ad">' + gunAdiTablo(tarih) + "</span>";
+      '<span class="rez-ozet-gun-ad">' + gunAdi(tarih) + "</span>";
     return tdTarih;
   }
 
@@ -2266,7 +2262,7 @@
   document.addEventListener("apartim:gun-degisti", tabloCizPlanla);
 
   window.APARTIM.rezOzet = {
-    tabloCiz, tabloCizPlanla, rezSekmeAc, buguneGit, konumKoru, excelRaporIndir,
-    tamEkranYatay, tamEkranKapat, modalRezBodyeAl, sutunOlculYenile
+    tabloCiz, tabloCizPlanla, rezSekmeAc, buguneGit, konumKoru,
+    tamEkranKapat, modalRezBodyeAl, sutunOlculYenile
   };
 })();

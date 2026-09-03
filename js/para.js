@@ -279,7 +279,6 @@
     formatKurTarihi,
     rezParaBirimi,
     aralikToplamlari,
-    VARSAYILAN,
-    YENILEME_MS
+    VARSAYILAN
   };
 })();
