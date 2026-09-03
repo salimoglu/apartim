@@ -4,11 +4,12 @@ name: Deploy GitHub Pages
 # "Deploy from branch" açıksa iki workflow yarışır ve deploy gecikir/iptal olur.
 #
 # Canlı:  https://salimoglu.github.io/apartim          ← main
-# Deneme: https://salimoglu.github.io/apartim/deneme/  ← preview
+# Deneme: https://salimoglu.github.io/apartim/deneme/  ← preview (main deploy sırasında paketlenir)
+# GitHub Pages ortamı yalnızca main dalından deploy'a izin verir; preview push'u yayınlamaz.
 
 on:
   push:
-    branches: [main, preview]
+    branches: [main]
     paths:
       - "**.html"
       - "css/**"

@@ -6,19 +6,19 @@ alwaysApply: true
 # Yayın
 
 - **Canlı:** https://salimoglu.github.io/apartim — dal `main`
-- **Deneme:** https://salimoglu.github.io/apartim/deneme/ — dal `preview`
+- **Deneme:** https://salimoglu.github.io/apartim/deneme/ — içerik `preview` dalından, yayın **main deploy** ile (GitHub Pages yalnızca `main`’e izin verir)
 
 Anlamlı değişiklik bitince:
 
-1. İlgili dosyaları **tek commit**'te topla (`ev.svg`, `para.js` gibi yalnızca satır sonu gürültüsü olan dosyaları hariç tut).
-2. Sürümü artır: `node tools/bump-version.cjs` (minor 0–99; **2.99 → 3.0**). Bu komut `sync-version`’ı da çalıştırır.
-3. Önce **deneme** yayınla: `git push origin preview` (gerekirse `preview`’i bu commit’e al).
-4. `powershell -File tools/wait-deploy.ps1` ile deneme/canlı sürümü doğrula.
-5. **`main`’e basma** — kullanıcı açıkça **“canlıya al”** deyene kadar canlıya alma.
-6. “Canlıya al” deyince `git push origin main` ve yine wait-deploy.
+1. İlgili dosyaları **tek commit**'te topla (`ev.svg`, `para.js` gibi satır sonu gürültüsünü hariç tut).
+2. Sürümü artır: `node tools/bump-version.cjs` (minor 0–99; **2.99 → 3.0**).
+3. `git push origin preview` (deneme içeriğini güncelle).
+4. Kullanıcı açıkça **“canlıya al”** veya canlıdaki bir özelliği **geri al** deyince `git push origin main` (canlı + deneme birlikte yayınlanır).
+5. `powershell -File tools/wait-deploy.ps1` ile sürümü doğrula.
+6. “Canlıya al / geri al” yoksa `main`’e basma.
 
 ## Deploy notları
 
-- GitHub Pages **yalnızca Actions** ile deploy edilmeli: repo **Settings → Pages → Build and deployment → Source: GitHub Actions**.
-- "Deploy from a branch" açıksa iki workflow yarışır; deploy 5–10 dk gecikebilir veya iptal olur.
-- Ardışık hızlı push'lardan kaçın — her özellik için **tek commit + tek push** (önce preview).
+- GitHub Pages **yalnızca Actions** ile: **Settings → Pages → Source: GitHub Actions**.
+- "Deploy from a branch" kapalı olmalı.
+- `preview` dalına push tek başına yayınlamaz; ortam koruması yüzünden deploy yalnızca `main`’den gider.
