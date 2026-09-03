@@ -2055,7 +2055,6 @@ html.theme-light .rez-ozet-table tbody tr.rez-ozet-satir-secili .rez-ozet-tarih 
 }
 .rez-ozet-table thead .rez-ozet-tarih-kose {
   z-index: 7;
-  left: 0;
   top: 0;
   background: var(--kart-2) !important;
 }
@@ -2068,8 +2067,6 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   color: var(--metin) !important;
 }
 .rez-ozet-tarih-kose {
-  position: sticky;
-  left: 0;
   z-index: 3;
   width: var(--rez-col-tarih);
   max-width: var(--rez-col-tarih);
@@ -2077,9 +2074,6 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   padding: 1px 2px !important;
 }
 .rez-ozet-tarih {
-  position: sticky;
-  left: 0;
-  z-index: 2;
   width: var(--rez-col-tarih);
   max-width: var(--rez-col-tarih);
   min-width: var(--rez-col-tarih);
@@ -2087,6 +2081,15 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   text-align: center;
   vertical-align: middle;
   line-height: 1.05;
+}
+/* Yalnızca ilk oda tarihi yatay kaydırmada sabit kalır; diğerleri aynı görünür */
+.rez-ozet-table thead .rez-ozet-tarih-kose.rez-ozet-tarih-yapiskan,
+.rez-ozet-table tbody .rez-ozet-tarih.rez-ozet-tarih-yapiskan {
+  position: sticky;
+  left: 0;
+}
+.rez-ozet-table tbody .rez-ozet-tarih.rez-ozet-tarih-yapiskan {
+  z-index: 2;
 }
 .rez-ozet-tarih-gun {
   display: block;

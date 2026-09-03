@@ -455,10 +455,9 @@
 
     const tarihPx = cihaz === "tablet" ? 36 : 32;
     const genislik = Math.max(200, scrollGenislik || w);
-    const kullanilabilir = Math.max(80, genislik - tarihPx);
-
-    /* Sabit oda bloğu: G/Kt/Fyt/Odn değişmez; Ad isim kadar (tavanlı) */
-    const minBlok = ODA_BLOK_KOMPAKT;
+    /* Her oda bloğu kendi tarih sütunuyla başlar */
+    const minBlok = tarihPx + ODA_BLOK_KOMPAKT;
+    const kullanilabilir = Math.max(80, genislik);
     const tavan = cihaz === "telefon" ? (yatay ? 3 : 2) : (yatay ? 5 : 3);
 
     let odaHedef = Math.floor(kullanilabilir / minBlok);
@@ -648,9 +647,9 @@
     return ioVurgu ? IO_HUCRE_RENK : renk;
   }
 
-  function tarihTdOlustur(tarih) {
+  function tarihTdOlustur(tarih, yapiskan) {
     const tdTarih = document.createElement("td");
-    tdTarih.className = "rez-ozet-tarih";
+    tdTarih.className = "rez-ozet-tarih" + (yapiskan ? " rez-ozet-tarih-yapiskan" : "");
     tdTarih.dataset.tarih = tarih;
     tdTarih.innerHTML =
       '<span class="rez-ozet-tarih-gun">' + tarihGosterKisa(tarih) + "</span>" +
@@ -691,8 +690,8 @@
     tr.className = sinif;
     tr.dataset.tarih = tarih;
     if (secili) tr.classList.add("rez-ozet-satir-secili");
-    tr.appendChild(tarihTdOlustur(tarih));
     daireler.forEach((d, di) => {
+      tr.appendChild(tarihTdOlustur(tarih, di === 0));
       const h = gunDurumuHarita(harita, d.id, tarih);
       daireHucreleriTekSatir(tr, d, h, tarih, daireRenk(d, di));
     });
@@ -1369,10 +1368,10 @@
 
   function colgroupOlustur(daireler) {
     const cg = document.createElement("colgroup");
-    const tarihCol = document.createElement("col");
-    tarihCol.className = "rez-ozet-col-tarih";
-    cg.appendChild(tarihCol);
     daireler.forEach(() => {
+      const tarihCol = document.createElement("col");
+      tarihCol.className = "rez-ozet-col-tarih";
+      cg.appendChild(tarihCol);
       ["g", "kt", "fyt", "odn", "ad"].forEach((tip) => {
         const col = document.createElement("col");
         col.className = "rez-ozet-col-" + tip;
@@ -1389,13 +1388,13 @@
     const thead = document.createElement("thead");
     const tr1 = document.createElement("tr");
     tr1.className = "rez-ozet-tr-daire";
-    const kose = document.createElement("th");
-    kose.className = "rez-ozet-tarih-kose";
-    kose.rowSpan = 2;
-    kose.textContent = "G";
-    kose.title = "Tarih";
-    tr1.appendChild(kose);
     daireler.forEach((d, i) => {
+      const kose = document.createElement("th");
+      kose.className = "rez-ozet-tarih-kose" + (i === 0 ? " rez-ozet-tarih-yapiskan" : "");
+      kose.rowSpan = 2;
+      kose.textContent = "G";
+      kose.title = "Tarih";
+      tr1.appendChild(kose);
       const th = document.createElement("th");
       th.className = "rez-ozet-daire-baslik";
       th.colSpan = 5;
@@ -1705,7 +1704,7 @@
       const tarihPx = gorunum.tarihPx || 32;
       const odaBlokPx = ODA_BLOK_KOMPAKT;
       const pay = odaSutunPaylari(odaBlokPx, true);
-      const tabloW = tarihPx + n * odaBlokPx;
+      const tabloW = n * (tarihPx + odaBlokPx);
 
       applyColGenislik(table, {
         birim: "px",
@@ -1731,9 +1730,9 @@
     const MASAUSTU_ODA_HEDEF = gorunum.odaHedef;
     const tarihPx = gorunum.tarihPx || (genislik >= 1200 ? 42 : 38);
     const masaGorunen = Math.max(1, Math.min(n, MASAUSTU_ODA_HEDEF));
-    const odaBlokPx = Math.max(76, (genislik - tarihPx) / masaGorunen);
+    const odaBlokPx = Math.max(76, (genislik - masaGorunen * tarihPx) / masaGorunen);
     const pay = odaSutunPaylari(odaBlokPx, false);
-    const tabloW = tarihPx + n * odaBlokPx;
+    const tabloW = n * (tarihPx + odaBlokPx);
 
     applyColGenislik(table, {
       birim: "px",
@@ -1804,7 +1803,7 @@
 
     const { bas, bit } = sezonBasBit(y);
     const bugun = window.APARTIM.gorunum?.bugunISO?.() || db.bugunISO();
-    const colSpan = 1 + daireler.length * 5;
+    const colSpan = daireler.length * 6;
 
     const harita = gunHaritasiOlustur(db, daireler, bas, bit);
     if (myToken !== renderToken) return;
