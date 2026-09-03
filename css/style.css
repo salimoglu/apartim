@@ -2185,6 +2185,9 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 .rez-ozet-tik:hover {
   filter: brightness(0.95);
 }
+.rez-ozet-g {
+  cursor: default;
+}
 .rez-ozet-odenen {
   cursor: pointer;
   position: relative;

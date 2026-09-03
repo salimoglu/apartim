@@ -550,16 +550,15 @@
 
     const tdG = document.createElement("td");
     tdG.className =
-      "rez-ozet-sayi rez-ozet-turnover-hucre rez-ozet-turnover-bas rez-ozet-io-hucre";
+      "rez-ozet-sayi rez-ozet-g rez-ozet-turnover-hucre rez-ozet-turnover-bas rez-ozet-io-hucre";
     tdG.style.background = bg;
     tdG.title = "Çıkış: " + cikisAd + " → Giriş: " + girisAd;
     tdG.innerHTML = gSayiHtml(1);
     tr.appendChild(tdG);
 
     const tdKt = document.createElement("td");
-    tdKt.className = "rez-ozet-kategori rez-ozet-turnover-hucre rez-ozet-tik rez-ozet-io-hucre";
+    tdKt.className = "rez-ozet-kategori rez-ozet-turnover-hucre rez-ozet-io-hucre";
     tdKt.style.background = bg;
-    if (girisRid) tdKt.dataset.rezId = girisRid;
     tdKt.innerHTML = det.kategoriHtml;
     tr.appendChild(tdKt);
 
@@ -607,7 +606,7 @@
     const det = konakDetay(rez, tarih);
     const rid = rezIdAl(rez);
     [
-      { cls: "rez-ozet-sayi", html: gSayiHtml(det.g) },
+      { cls: "rez-ozet-sayi rez-ozet-g", html: gSayiHtml(det.g) },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc, det.prcPb) },
       { type: "odn" },
@@ -695,7 +694,7 @@
   function checkinHucreler(rez, tarih) {
     const det = konakDetay(rez, tarih);
     return [
-      { cls: "rez-ozet-sayi", html: gSayiHtml(1) },
+      { cls: "rez-ozet-sayi rez-ozet-g", html: gSayiHtml(1) },
       { cls: "rez-ozet-kategori", html: det.kategoriHtml },
       { cls: "rez-ozet-sayi", txt: formatHucreFiyat(rez, det.prc, det.prcPb) },
       { type: "odn" },
@@ -763,17 +762,17 @@
 
   function hucreTiklenebilirMi(c) {
     if (!c || c.type === "odn") return false;
-    const cls = c.cls || "";
-    return cls.indexOf("rez-ozet-ad") >= 0 || cls.indexOf("rez-ozet-kategori") >= 0;
+    return (c.cls || "").indexOf("rez-ozet-ad") >= 0;
   }
 
   function hucreTdOlustur(c, rez, tarih, renk, rid, misafirBaslik, ioVurgu) {
     if (c.type === "odn") return odnHucreTd(rez, tarih, renk, rid, ioVurgu);
     const td = document.createElement("td");
-    td.className = c.cls + (hucreTiklenebilirMi(c) ? " rez-ozet-tik" : "") +
+    const tik = hucreTiklenebilirMi(c);
+    td.className = c.cls + (tik ? " rez-ozet-tik" : "") +
       (ioVurgu ? " rez-ozet-io-hucre" : "");
     td.style.background = hucreBg(renk, ioVurgu);
-    if (rid) td.dataset.rezId = rid;
+    if (rid && tik) td.dataset.rezId = rid;
     if (c.html) td.innerHTML = c.html;
     else {
       const goster = (c.cls && c.cls.indexOf("rez-ozet-ad") >= 0)
@@ -1459,7 +1458,7 @@
 
     kapsayici.addEventListener("click", (ev) => {
       if (ev.target.closest(".rez-ozet-odenen")) return;
-      const tik = ev.target.closest(".rez-ozet-tik");
+      const tik = ev.target.closest("td.rez-ozet-ad.rez-ozet-tik");
       if (tik) {
         ev.stopPropagation();
         const id = tik.dataset.rezId || tik.getAttribute("data-rez-id");
