@@ -2013,11 +2013,12 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
 /* Diğer oda tarih sütunları: yalnızca gün/ay, gün adı yok */
 .rez-ozet-tarih-kisa {
   padding: 0 1px !important;
+  vertical-align: middle;
 }
 .rez-ozet-tarih-kisa .rez-ozet-tarih-gun {
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  line-height: var(--rez-satir-h, 16px);
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+  line-height: 1.15;
   white-space: nowrap;
 }
 .rez-ozet-gun-ad {
@@ -4665,8 +4666,8 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     font-size: 10px;
   }
   .rez-ozet-table .rez-ozet-tarih-kisa .rez-ozet-tarih-gun {
-    font-size: 11.5px;
-    letter-spacing: 0.08em;
+    font-size: 12px;
+    letter-spacing: 0.05em;
   }
   .rez-ozet-table .rez-ozet-gun-ad {
     font-size: 8px;
