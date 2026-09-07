@@ -639,11 +639,15 @@
 
   function tarihTdOlustur(tarih, yapiskan) {
     const tdTarih = document.createElement("td");
-    tdTarih.className = "rez-ozet-tarih" + (yapiskan ? " rez-ozet-tarih-yapiskan" : "");
+    const kisa = tarihGosterKisa(tarih);
+    const ad = gunAdi(tarih);
+    tdTarih.className = "rez-ozet-tarih" + (yapiskan ? " rez-ozet-tarih-yapiskan" : " rez-ozet-tarih-kisa");
     tdTarih.dataset.tarih = tarih;
-    tdTarih.innerHTML =
-      '<span class="rez-ozet-tarih-gun">' + tarihGosterKisa(tarih) + "</span>" +
-      '<span class="rez-ozet-gun-ad">' + gunAdi(tarih) + "</span>";
+    tdTarih.title = kisa + " " + ad;
+    tdTarih.innerHTML = yapiskan
+      ? '<span class="rez-ozet-tarih-gun">' + kisa + "</span>" +
+        '<span class="rez-ozet-gun-ad">' + ad + "</span>"
+      : '<span class="rez-ozet-tarih-gun">' + kisa + "</span>";
     return tdTarih;
   }
 
