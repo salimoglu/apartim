@@ -2202,6 +2202,27 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   overflow: hidden;
   white-space: nowrap;
 }
+.rez-ozet-tahsilat-tamam-satir {
+  display: inline-flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  line-height: 1;
+  font-size: 9px;
+  font-weight: 800;
+}
+.rez-ozet-tahsilat-tamam-satir .rez-ozet-out-kalan-etiket,
+.rez-ozet-tahsilat-tamam-satir .rez-ozet-out-kalan-rakam {
+  font-size: 9px;
+  letter-spacing: 0;
+  line-height: 1;
+  opacity: 1;
+}
 .rez-ozet-out-kalan-stack.rez-ozet-tahsilat-tamam .rez-ozet-out-kalan-etiket,
 .rez-ozet-out-kalan-stack.rez-ozet-tahsilat-tamam .rez-ozet-out-kalan-tutar {
   font-size: 9px;
@@ -4488,7 +4509,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   background: none !important;
   box-shadow: none !important;
   color: #22c55e !important;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
   line-height: 1;
   letter-spacing: -0.03em;
@@ -4514,7 +4535,7 @@ html:not(.theme-light) .rez-kaynak-badge {
   color: #111827 !important;
 }
 .rez-ozet-tablo-telefon .rez-ozet-tahsilat-ok {
-  font-size: 11px;
+  font-size: 10px;
 }
 html:not(.theme-light) .tahsilat-kalan-tamam {
   color: #4ade80;

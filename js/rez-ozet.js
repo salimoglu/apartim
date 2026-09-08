@@ -186,6 +186,22 @@
     const ok = p.tamam
       ? '<span class="rez-ozet-tahsilat-ok" aria-hidden="true">✓</span>'
       : "";
+    /* Tamam + ✓ tek satır — alt alta binmesin, satır yüksekliğini şişirmesin */
+    if (p.tamam && !p.fazla) {
+      const parcalar = [];
+      if (p.etiket) {
+        parcalar.push('<span class="rez-ozet-out-kalan-etiket">' + esc(p.etiket) + "</span>");
+      }
+      if (p.tutar) {
+        parcalar.push('<span class="rez-ozet-out-kalan-rakam">' + esc(p.tutar) + "</span>");
+      }
+      parcalar.push(ok);
+      return (
+        '<span class="rez-ozet-out-kalan-stack' + cls + '" title="Toplam − tahsilat">' +
+          '<span class="rez-ozet-tahsilat-tamam-satir">' + parcalar.join("") + "</span>" +
+        "</span>"
+      );
+    }
     return (
       '<span class="rez-ozet-out-kalan-stack' + cls + '" title="Toplam − tahsilat">' +
         (p.etiket ? '<span class="rez-ozet-out-kalan-etiket">' + esc(p.etiket) + "</span>" : "") +
