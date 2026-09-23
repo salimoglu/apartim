@@ -9,14 +9,6 @@
   "use strict";
 
   const GUN_KISA = ["PAZ", "PZT", "SAL", "ÇAR", "PER", "CUM", "CMT"];
-  const DAIRE_RENK = {
-    "ust": "#ffcdd2",
-    "orta-sol": "#c8e6c9",
-    "orta-sag": "#bbdefb",
-    "alt-sol": "#fff9c4",
-    "alt-sag": "#e1bee7"
-  };
-  const DAIRE_RENK_YEDEK = ["#ffcdd2", "#c8e6c9", "#bbdefb", "#fff9c4", "#e1bee7", "#ffe0b2", "#b2dfdb"];
 
   const durum = {
     buguneKaydir: false
@@ -44,10 +36,6 @@
       bit: y + "-09-30",
       bitHaric: y + "-10-01"
     };
-  }
-
-  function daireRenk(d, i) {
-    return DAIRE_RENK[d.id] || DAIRE_RENK_YEDEK[i % DAIRE_RENK_YEDEK.length];
   }
 
   /** Rezervasyon tablosuyla aynı oda sırası: alt kattan üste */
@@ -162,7 +150,6 @@
     const tr2 = document.createElement("tr");
     tr2.className = "tahsilat-tr-alt";
     daireler.forEach((d, i) => {
-      const renk = daireRenk(d, i);
       const kose = document.createElement("th");
       kose.className = "tahsilat-tarih-bas" + (i === 0 ? " tahsilat-yapiskan" : "");
       kose.rowSpan = 2;
@@ -172,14 +159,12 @@
       const oda = document.createElement("th");
       oda.className = "tahsilat-oda-bas";
       oda.colSpan = 2;
-      oda.style.background = renk;
       oda.textContent = d.ad || d.id;
       tr1.appendChild(oda);
 
       [["Kategori", "tahsilat-kt-bas"], ["Ad", "tahsilat-ad-bas"]].forEach(([lbl, cls]) => {
         const th = document.createElement("th");
         th.className = cls;
-        th.style.background = renk;
         th.textContent = lbl;
         tr2.appendChild(th);
       });
@@ -215,8 +200,7 @@
           (tamam ? " · tahsilat tamam" : " · tahsilat açık");
 
         const tdT = document.createElement("td");
-        tdT.className = "tahsilat-hucre tahsilat-tarih " + renkCls + yapiskan;
-        tdT.dataset.rezId = rez.id || "";
+        tdT.className = "tahsilat-tarih " + renkCls + yapiskan;
         tdT.title = baslik;
         tdT.innerHTML =
           '<span class="tahsilat-tarih-gun">' + esc(giris) + "</span>" +
@@ -224,15 +208,15 @@
         tr.appendChild(tdT);
 
         const tdK = document.createElement("td");
-        tdK.className = "tahsilat-hucre tahsilat-kt " + renkCls;
+        tdK.className = "tahsilat-tik tahsilat-kt " + renkCls;
         tdK.dataset.rezId = rez.id || "";
-        hucreDoldur(tdK, tdK.className, kat, baslik);
+        hucreDoldur(tdK, tdK.className, kat, "Tahsilat ekranını aç · " + baslik);
         tr.appendChild(tdK);
 
         const tdA = document.createElement("td");
-        tdA.className = "tahsilat-hucre tahsilat-ad " + renkCls;
+        tdA.className = "tahsilat-tik tahsilat-ad " + renkCls;
         tdA.dataset.rezId = rez.id || "";
-        hucreDoldur(tdA, tdA.className, ad, baslik);
+        hucreDoldur(tdA, tdA.className, ad, "Tahsilat ekranını aç · " + baslik);
         tr.appendChild(tdA);
       });
       tbody.appendChild(tr);
@@ -331,9 +315,24 @@
     ciz();
   }
 
-  function rezAc(id) {
-    if (!id || !window.APARTIM.rezervasyon?.duzenle) return;
-    window.APARTIM.rezervasyon.duzenle(id);
+  function tahsilatTarihi(rez) {
+    const db = window.APARTIM.db;
+    const bugun = window.APARTIM.gorunum?.bugunISO?.() || db?.bugunISO?.() || "";
+    if (bugun && rez.giris && rez.cikis && bugun >= rez.giris && bugun < rez.cikis) return bugun;
+    if (db?.gunEkleISO && rez.cikis) {
+      const son = db.gunEkleISO(rez.cikis, -1);
+      if (son && (!rez.giris || son >= rez.giris)) return son;
+    }
+    return rez.giris || bugun;
+  }
+
+  function tahsilatEkraniAc(rez) {
+    if (!rez?.id) return;
+    if (!window.APARTIM.rezOzet?.tahsilatAc) {
+      window.APARTIM.toast?.("Tahsilat ekranı yüklenemedi", "hata");
+      return;
+    }
+    window.APARTIM.rezOzet.tahsilatAc(rez.id, tahsilatTarihi(rez));
   }
 
   function bagla() {
@@ -341,12 +340,13 @@
     if (!sc || sc.dataset.tahsilatBagli) return;
     sc.dataset.tahsilatBagli = "1";
     sc.addEventListener("click", (ev) => {
-      const hucre = ev.target.closest("td.tahsilat-hucre");
+      const hucre = ev.target.closest("td.tahsilat-tik");
       if (!hucre) return;
       const id = hucre.dataset.rezId;
-      if (!id) return;
+      const rez = id && window.APARTIM.db?.durum?.rezervasyonlar?.[id];
+      if (!rez) return;
       ev.preventDefault();
-      rezAc(id);
+      tahsilatEkraniAc(rez);
     });
   }
 

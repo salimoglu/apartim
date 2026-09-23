@@ -1309,7 +1309,7 @@
         await db.rezervasyonGuncelle(ctx.rezId, { tahsilatTamamlandi: tamamla });
       }
       const guncel = db.durum.rezervasyonlar[ctx.rezId] || rez;
-      if (ctx.hucre) odenenHucreyiYenile(ctx.hucre, guncel);
+      if (ctx.hucre?.isConnected) odenenHucreyiYenile(ctx.hucre, guncel);
       document.querySelectorAll('.rez-ozet-odenen[data-rez-id="' + ctx.rezId + '"]').forEach((td) => {
         odenenHucreyiYenile(td, guncel);
       });
@@ -1326,6 +1326,9 @@
           tamamla ? "Tahsilat tamamlandı" : "Tahsilat kaydedildi",
           "basari"
         );
+      }
+      if (document.getElementById("tab-tahsilat")?.classList.contains("active")) {
+        window.APARTIM.tahsilat?.ciz?.();
       }
     } catch (err) {
       window.APARTIM.toast(err.message || "Kaydedilemedi", "hata");
@@ -2307,8 +2310,16 @@
 
   document.addEventListener("apartim:gun-degisti", tabloCizPlanla);
 
+  /** Tahsilat listesinden ödeme ekranını açar. */
+  function tahsilatAc(rezId, tarih) {
+    const hucre = document.createElement("td");
+    hucre.dataset.rezId = rezId || "";
+    hucre.dataset.tarih = tarih || "";
+    odenenHucreDuzenle(hucre);
+  }
+
   window.APARTIM.rezOzet = {
     tabloCiz, tabloCizPlanla, rezSekmeAc, buguneGit, konumKoru,
-    tamEkranKapat, modalRezBodyeAl, sutunOlculYenile
+    tamEkranKapat, modalRezBodyeAl, sutunOlculYenile, tahsilatAc
   };
 })();
