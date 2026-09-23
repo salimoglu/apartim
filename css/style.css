@@ -3760,8 +3760,8 @@ html:not(.theme-light) .rez-kaynak-badge {
   overflow: hidden;
 }
 .kasa-wrap {
-  /* Masaüstü: tarih | oda | müşteri | not | miktar | ✎ | X */
-  --kasa-cols: 68px 28px minmax(0, 1.15fr) minmax(0, 1.35fr) minmax(70px, auto) 26px 28px;
+  /* Masaüstü: tarih | oda | müşteri | kalem | not | miktar | ✎ | X */
+  --kasa-cols: 68px 28px minmax(0, 1.05fr) 76px minmax(0, 1.15fr) minmax(70px, auto) 26px 28px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -3808,6 +3808,34 @@ html:not(.theme-light) .rez-kaynak-badge {
   color: #fff;
 }
 .kasa-pb-btn:hover:not(.active) { color: var(--metin); }
+.kasa-kalem-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  background: var(--zemin-2);
+  border: 1px solid var(--kenar);
+  border-radius: 999px;
+  padding: 3px;
+  width: fit-content;
+  max-width: 100%;
+  flex-shrink: 0;
+}
+.kasa-kalem-btn {
+  background: transparent;
+  border: none;
+  color: var(--metin-soluk);
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.kasa-kalem-btn.active {
+  background: var(--vurgu);
+  color: #fff;
+}
+.kasa-kalem-btn:hover:not(.active) { color: var(--metin); }
 .kasa-ozet {
   display: flex;
   flex-wrap: wrap;
@@ -4027,6 +4055,27 @@ html:not(.theme-light) .rez-kaynak-badge {
   text-overflow: ellipsis;
   min-width: 0;
 }
+.kasa-kalem {
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  letter-spacing: 0.01em;
+}
+.kasa-satir-baslik .kasa-kalem {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--metin-soluk);
+  letter-spacing: 0.02em;
+}
+.kasa-kalem-kasa { color: var(--basari); }
+.kasa-kalem-pos { color: var(--bilgi); }
+.kasa-kalem-booking { color: #b4a6ff; }
+.kasa-kalem-havale { color: var(--uyari); }
+.kasa-kalem-diger { color: var(--metin-soluk); }
+html.theme-light .kasa-kalem-booking { color: #5b46c9; }
 .kasa-not {
   font-size: 11px;
   color: var(--metin);
@@ -4136,7 +4185,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 /* Telefon + tablet: X gizli (basılı tut = sil); ✎ + oda dar sütun */
 @media (max-width: 1024px) {
   .kasa-wrap {
-    --kasa-cols: 52px 24px minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(0, max-content) 26px;
+    --kasa-cols: 52px 24px minmax(0, 1fr) 68px minmax(0, 1fr) minmax(0, max-content) 26px;
   }
   .kasa-sil-btn,
   .kasa-sil-slot {
@@ -4156,7 +4205,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 @media (max-width: 720px) {
   .kasa-wrap {
-    --kasa-cols: 46px 22px minmax(0, 1fr) minmax(0, 1fr) minmax(0, max-content) 26px;
+    --kasa-cols: 46px 22px minmax(0, 0.95fr) 62px minmax(0, 0.9fr) minmax(0, max-content) 26px;
   }
   .kasa-ust-satir { gap: 6px; }
   .kasa-tip-nav { margin-left: 0; }
@@ -4173,7 +4222,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 @media (max-width: 640px) {
   #tab-kasa.active { padding: 8px; }
   .kasa-wrap {
-    --kasa-cols: 44px 20px minmax(0, 0.95fr) minmax(0, 1fr) minmax(0, max-content) 26px;
+    --kasa-cols: 44px 20px minmax(0, 0.85fr) 58px minmax(0, 0.8fr) minmax(0, max-content) 26px;
     gap: 6px;
   }
   .kasa-tip-btn { padding: 4px 10px; font-size: 11px; }
@@ -4185,7 +4234,8 @@ html:not(.theme-light) .rez-kaynak-badge {
   .kasa-inp { min-height: 32px; font-size: 12px; padding: 4px 5px; }
   .kasa-pb-toggle { min-height: 32px; height: 32px; font-size: 13px; }
   .kasa-kaydet-btn { width: 28px; height: 32px; font-size: 16px; }
-  .kasa-musteri, .kasa-not, .kasa-miktar { font-size: 11px; }
+  .kasa-musteri, .kasa-not, .kasa-miktar, .kasa-kalem { font-size: 11px; }
+  .kasa-kalem-btn { padding: 4px 8px; font-size: 11px; }
   .kasa-tarih, .kasa-oda { font-size: 10px; }
 }
 

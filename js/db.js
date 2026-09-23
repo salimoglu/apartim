@@ -1247,7 +1247,11 @@
       else usd = tutar;
     }
 
-    const deger = { yontem: "kasa", not, id: odemeId };
+    /* Kasa ekranından düzenlenen tahsilat kendi kalemini korur (Booking, Pos, Havale…). */
+    const yontem = form.yontem
+      ? odemeYontemNorm(form.yontem)
+      : odemeYontemNorm(mevcut.yontem);
+    const deger = { yontem, not, id: odemeId };
     if (tl > 0) deger.tutarTl = tl;
     if (usd > 0) deger.tutarUsd = usd;
     if (Number(mevcut.kurUsd) > 0) deger.kurUsd = Number(mevcut.kurUsd);
@@ -1257,8 +1261,10 @@
   }
 
   /**
-   * Tahsilattan kasa yöntemiyle girilen ödemeler + manuel harcamalar.
+   * Tüm tahsilat kalemleri (Kasa, Pos, Booking, Havale, Diğer) + manuel gelir/gider.
    * pbFiltre: null/"tumu" | "TL" | "USD"
+   * Her satırda yontem: kasa | pos | booking | havale | diger
+   * Manuel kayıtlar kasa kalemindedir.
    */
   function kasaHareketListele(pbFiltre) {
     const para = window.APARTIM.para;
@@ -1279,10 +1285,11 @@
       else if (odaHam.length > 8) oda = odaHam.slice(0, 8);
       const rezPb = para?.rezParaBirimi?.(rez) || "TL";
       rezervasyonOdenenListe(rez).forEach((kayit) => {
-        if (odemeYontemNorm(kayit.yontem) !== "kasa") return;
+        const yontem = odemeYontemNorm(kayit.yontem);
         const not = String(kayit.not || "").trim();
         const ortak = {
           tip: "gelir",
+          yontem,
           tarih: kayit.tarih,
           oda,
           musteri: misafir,
@@ -1325,6 +1332,7 @@
       const gelirMi = h.tip === "gelir";
       hareketler.push({
         tip: gelirMi ? "gelir" : "gider",
+        yontem: "kasa",
         id: "h-" + h.id,
         harcamaId: h.id,
         manuel: true,

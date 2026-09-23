@@ -1,12 +1,23 @@
 /* =========================================================
    APARTIM — Kasa modülü
-   Tahsilatta "Kasa" ödemeleri + manuel gelir/gider
+   Tüm tahsilat kalemleri + manuel gelir/gider.
+   Kalem filtresi: Tümü, Kasa, Pos, Booking, Havale, Diğer.
    ========================================================= */
 
 (function () {
   "use strict";
 
+  const KALEM_AD = {
+    kasa: "Kasa",
+    pos: "Pos",
+    booking: "Booking",
+    havale: "Havale",
+    diger: "Diğer"
+  };
+  const KALEM_SIRA = ["tumu", "kasa", "pos", "booking", "havale", "diger"];
+
   let aktifPb = "tumu";
+  let aktifKalem = "tumu";
   let aktifTip = "gider";
   let hareketMap = {};
   let duzenlenen = null;
@@ -97,9 +108,28 @@
     return ozet;
   }
 
+  function kalemAd(yontem) {
+    const y = String(yontem || "kasa").toLowerCase() === "elden" ? "kasa" : String(yontem || "kasa");
+    if (KALEM_AD[y]) return KALEM_AD[y];
+    return window.APARTIM.db?.ODEME_YONTEMLERI?.[y] || "Kasa";
+  }
+
+  function kalemTamAd(yontem) {
+    const y = String(yontem || "kasa").toLowerCase() === "elden" ? "kasa" : String(yontem || "kasa");
+    return window.APARTIM.db?.ODEME_YONTEMLERI?.[y] || kalemAd(y);
+  }
+
   function pbNavGuncelle() {
     document.querySelectorAll(".kasa-pb-btn").forEach((b) => {
       b.classList.toggle("active", b.dataset.pb === aktifPb);
+    });
+  }
+
+  function kalemNavGuncelle() {
+    document.querySelectorAll(".kasa-kalem-btn").forEach((b) => {
+      const secili = b.dataset.kalem === aktifKalem;
+      b.classList.toggle("active", secili);
+      b.setAttribute("aria-selected", secili ? "true" : "false");
     });
   }
 
@@ -137,7 +167,10 @@
     if (!el) return;
     hareketMap = {};
     if (!liste.length) {
-      el.innerHTML = '<div class="kasa-bos">' + esc(seciliYil()) + " sezonunda kasa kaydı yok.</div>";
+      const bos = aktifKalem === "tumu"
+        ? seciliYil() + " sezonunda kasa kaydı yok."
+        : seciliYil() + " sezonunda " + kalemAd(aktifKalem) + " kaydı yok.";
+      el.innerHTML = '<div class="kasa-bos">' + esc(bos) + "</div>";
       return;
     }
     const baslik =
@@ -145,6 +178,7 @@
         '<span class="kasa-tarih">Tarih</span>' +
         '<span class="kasa-oda">Oda</span>' +
         '<span class="kasa-musteri">Müşteri</span>' +
+        '<span class="kasa-kalem">Kalem</span>' +
         '<span class="kasa-not">Not</span>' +
         '<span class="kasa-miktar">Miktar</span>' +
         '<span class="kasa-aksiyon-slot"></span>' +
@@ -156,6 +190,8 @@
       const miktarSinif = giderMi ? "eksi" : "arti";
       const miktarOn = giderMi ? "−" : "+";
       const oda = String(h.oda || "").trim();
+      const yontem = h.yontem || "kasa";
+      const kalem = kalemAd(yontem);
       const duzenleBtn =
         '<button type="button" class="kasa-duzenle-btn" data-hid="' +
           esc(h.id) + '" title="Düzenle" aria-label="Düzenle">✎</button>';
@@ -171,6 +207,8 @@
             esc(oda || "—") +
           "</span>" +
           '<span class="kasa-musteri">' + esc(h.musteri || "—") + "</span>" +
+          '<span class="kasa-kalem kasa-kalem-' + esc(yontem) + '" title="' +
+            esc(kalemTamAd(yontem)) + '">' + esc(kalem) + "</span>" +
           '<span class="kasa-not' + (h.not ? "" : " soluk") + '">' +
             esc(h.not || "—") +
           "</span>" +
@@ -189,16 +227,24 @@
     const db = window.APARTIM.db;
     if (!db) return;
     pbNavGuncelle();
+    kalemNavGuncelle();
     tarihSinirla();
     const yil = String(seciliYil());
     const liste = (db.kasaHareketListele(aktifPb) || [])
-      .filter((h) => String(h.tarih || "").slice(0, 4) === yil);
+      .filter((h) => String(h.tarih || "").slice(0, 4) === yil)
+      .filter((h) => aktifKalem === "tumu" || (h.yontem || "kasa") === aktifKalem);
     ozetCiz(ozetHesapla(liste));
     listeCiz(liste);
   }
 
   function pbSec(pb) {
     aktifPb = pb === "TL" || pb === "USD" ? pb : "tumu";
+    ciz();
+  }
+
+  function kalemSec(kalem) {
+    const k = String(kalem || "tumu").toLowerCase();
+    aktifKalem = KALEM_SIRA.includes(k) ? k : "tumu";
     ciz();
   }
 
@@ -332,7 +378,7 @@
     }
     if (musteriEl) {
       if (h.tip === "gelir") {
-        musteriEl.textContent = h.musteri || "—";
+        musteriEl.textContent = (h.musteri || "—") + " · " + kalemAd(h.yontem || "kasa");
         musteriEl.classList.remove("hidden");
       } else {
         musteriEl.textContent = "";
@@ -478,6 +524,9 @@
     document.querySelectorAll(".kasa-pb-btn").forEach((b) => {
       b.addEventListener("click", () => pbSec(b.dataset.pb));
     });
+    document.querySelectorAll(".kasa-kalem-btn").forEach((b) => {
+      b.addEventListener("click", () => kalemSec(b.dataset.kalem));
+    });
     document.querySelectorAll(".kasa-tip-btn").forEach((b) => {
       b.addEventListener("click", () => tipSec(b.dataset.tip));
     });
@@ -511,5 +560,5 @@
   document.addEventListener("DOMContentLoaded", bagla);
 
   window.APARTIM = window.APARTIM || {};
-  window.APARTIM.kasa = { ciz, pbSec };
+  window.APARTIM.kasa = { ciz, pbSec, kalemSec };
 })();
