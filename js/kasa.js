@@ -30,9 +30,43 @@
     return d + "." + m + "." + String(y).slice(-2);
   }
 
+  function seciliYil() {
+    const y = window.APARTIM.gorunum?.seciliYil?.();
+    return Number.isFinite(y) ? y : new Date().getFullYear();
+  }
+
+  /** Seçili sezon yılında “bugün”: aynı ay ve gün, yıl seçiciden. */
   function bugunISO() {
-    return window.APARTIM.db?.tarihNormal?.(new Date()) ||
-      new Date().toISOString().slice(0, 10);
+    const db = window.APARTIM.db;
+    const gercek = db?.bugunISO?.() || db?.tarihNormal?.(new Date()) || "";
+    const y = seciliYil();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(gercek) && Number(gercek.slice(0, 4)) === y) {
+      return gercek;
+    }
+    const kaynak = /^\d{4}-\d{2}-\d{2}$/.test(gercek) ? gercek : "";
+    const simdi = new Date();
+    const m = kaynak ? Number(kaynak.slice(5, 7)) : simdi.getMonth() + 1;
+    let d = kaynak ? Number(kaynak.slice(8, 10)) : simdi.getDate();
+    const maxD = new Date(y, m, 0).getDate();
+    if (d > maxD) d = maxD;
+    const pad = (n) => String(n).padStart(2, "0");
+    return y + "-" + pad(m) + "-" + pad(d);
+  }
+
+  function tarihSeciliYilda(iso) {
+    return String(iso || "").slice(0, 4) === String(seciliYil());
+  }
+
+  function tarihSinirla() {
+    const y = seciliYil();
+    const min = y + "-01-01";
+    const max = y + "-12-31";
+    ["kasa-harcama-tarih", "kasa-duzenle-tarih"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.min = min;
+      el.max = max;
+    });
   }
 
   function formatTutar(tutar, pb) {
@@ -103,7 +137,7 @@
     if (!el) return;
     hareketMap = {};
     if (!liste.length) {
-      el.innerHTML = '<div class="kasa-bos">Bu görünümde kasa kaydı yok.</div>';
+      el.innerHTML = '<div class="kasa-bos">' + esc(seciliYil()) + " sezonunda kasa kaydı yok.</div>";
       return;
     }
     const baslik =
@@ -155,7 +189,10 @@
     const db = window.APARTIM.db;
     if (!db) return;
     pbNavGuncelle();
-    const liste = db.kasaHareketListele(aktifPb) || [];
+    tarihSinirla();
+    const yil = String(seciliYil());
+    const liste = (db.kasaHareketListele(aktifPb) || [])
+      .filter((h) => String(h.tarih || "").slice(0, 4) === yil);
     ozetCiz(ozetHesapla(liste));
     listeCiz(liste);
   }
@@ -227,6 +264,10 @@
     const tip = aktifTip === "gelir" ? "gelir" : "gider";
     if (!tarih) {
       window.APARTIM.toast?.("Tarih gerekli", "uyari");
+      return;
+    }
+    if (!tarihSeciliYilda(tarih)) {
+      window.APARTIM.toast?.("Kayıt " + seciliYil() + " sezonuna ait olmalı", "uyari");
       return;
     }
     if (!Number.isFinite(tutar) || tutar <= 0) {
@@ -317,6 +358,10 @@
     const pb = pbNorm(document.getElementById("kasa-duzenle-pb")?.dataset.pb || "TL");
     if (!tarih) {
       window.APARTIM.toast?.("Tarih gerekli", "uyari");
+      return;
+    }
+    if (!tarihSeciliYilda(tarih)) {
+      window.APARTIM.toast?.("Kayıt " + seciliYil() + " sezonuna ait olmalı", "uyari");
       return;
     }
     if (!Number.isFinite(tutar) || tutar <= 0) {
@@ -453,6 +498,14 @@
     const listeEl = document.getElementById("kasa-liste");
     if (listeEl) listeBagla(listeEl);
     formSifirla();
+    tarihSinirla();
+
+    document.addEventListener("apartim:gorunum-degisti", () => {
+      const tarih = document.getElementById("kasa-harcama-tarih");
+      if (tarih && !tarihSeciliYilda(tarih.value)) tarih.value = bugunISO();
+      tarihSinirla();
+      ciz();
+    });
   }
 
   document.addEventListener("DOMContentLoaded", bagla);

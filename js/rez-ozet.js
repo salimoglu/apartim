@@ -273,8 +273,14 @@
     return SEZON_BAS_AY;
   }
 
-  function buguneOrtalaAyarla() {
-    window.APARTIM.gorunum?.yilSec?.(varsayilanSezonYil());
+  /**
+   * Seçili sezonda bugüne (sezon dışındaysa o aya) kaydır.
+   * buYilaDon yalnızca Bugün düğmesi içindir; sekme gezintisi yılı değiştirmez.
+   */
+  function buguneOrtalaAyarla(buYilaDon) {
+    if (buYilaDon) {
+      window.APARTIM.gorunum?.yilSec?.(varsayilanSezonYil());
+    }
     const y = sezonYil();
     const { bas, bit } = sezonBasBit(y);
     const bugun = window.APARTIM.gorunum?.bugunISO?.() ||
@@ -292,7 +298,7 @@
   }
 
   function rezSekmeAc() {
-    buguneOrtalaAyarla();
+    buguneOrtalaAyarla(false);
     const ciz = () => tabloCiz();
     if (typeof requestIdleCallback === "function") {
       requestIdleCallback(ciz, { timeout: 600 });
@@ -1810,7 +1816,7 @@
 
     if (sayfaIlkOrtala && tabloSekmesiAcikMi()) {
       sayfaIlkOrtala = false;
-      if (!durum.buguneKaydir) buguneOrtalaAyarla();
+      if (!durum.buguneKaydir) buguneOrtalaAyarla(false);
     }
 
     const table = theadOlustur(daireler);
@@ -1850,7 +1856,7 @@
   }
 
   function buguneGit() {
-    const ortalandi = buguneOrtalaAyarla();
+    const ortalandi = buguneOrtalaAyarla(true);
     if (!ortalandi) {
       window.APARTIM.toast?.("Bugün sezon dışında (Haziran–Eylül)", "bilgi");
     }
