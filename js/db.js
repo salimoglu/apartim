@@ -1152,6 +1152,7 @@
     const not = String(deger.not || "").trim().slice(0, 200);
     const tipHam = String(deger.tip || deger.yon || "gider").toLowerCase();
     const tip = tipHam === "gelir" ? "gelir" : "gider";
+    const yontem = odemeYontemNorm(deger.yontem);
     const id = deger.id != null && String(deger.id).trim()
       ? String(deger.id).trim()
       : yeniId();
@@ -1162,6 +1163,7 @@
       tutar,
       pb,
       tip,
+      yontem,
       olusturulma: Number(deger.olusturulma) || Date.now()
     };
   }
@@ -1264,7 +1266,7 @@
    * Tüm tahsilat kalemleri (Kasa, Pos, Booking, Havale, Diğer) + manuel gelir/gider.
    * pbFiltre: null/"tumu" | "TL" | "USD"
    * Her satırda yontem: kasa | pos | booking | havale | diger
-   * Manuel kayıtlar kasa kalemindedir.
+   * Manuel kayıtlar seçilen kalemdedir (varsayılan kasa).
    */
   function kasaHareketListele(pbFiltre) {
     const para = window.APARTIM.para;
@@ -1332,7 +1334,7 @@
       const gelirMi = h.tip === "gelir";
       hareketler.push({
         tip: gelirMi ? "gelir" : "gider",
-        yontem: "kasa",
+        yontem: h.yontem || "kasa",
         id: "h-" + h.id,
         harcamaId: h.id,
         manuel: true,

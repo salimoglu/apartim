@@ -3949,8 +3949,8 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-tip-btn:hover:not(.active) { color: var(--metin); }
 .kasa-harcama-form {
   display: grid;
-  grid-template-columns: auto 122px minmax(0, 1fr) minmax(64px, 120px) 34px 34px;
-  grid-template-areas: "tip tarih not tutar pb kaydet";
+  grid-template-columns: auto 122px minmax(72px, 1fr) 112px minmax(64px, 110px) 34px 34px;
+  grid-template-areas: "tip tarih not kalem tutar pb kaydet";
   gap: 5px;
   align-items: center;
   flex-shrink: 0;
@@ -3960,6 +3960,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-harcama-form > .kasa-tip-nav { grid-area: tip; }
 .kasa-harcama-form > .kasa-inp-tarih { grid-area: tarih; }
 .kasa-harcama-form > .kasa-inp-not { grid-area: not; }
+.kasa-harcama-form > .kasa-inp-yontem { grid-area: kalem; }
 .kasa-harcama-form > .kasa-inp-tutar { grid-area: tutar; }
 .kasa-harcama-form > .kasa-pb-toggle { grid-area: pb; }
 .kasa-harcama-form > .kasa-kaydet-btn { grid-area: kaydet; }
@@ -4004,6 +4005,11 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-inp-tarih::-webkit-calendar-picker-indicator {
   margin: 0;
   padding: 0 0 0 2px;
+}
+.kasa-inp-yontem {
+  font-weight: 700;
+  cursor: pointer;
+  padding-right: 2px;
 }
 .kasa-pb-toggle {
   width: 100%;
@@ -4317,20 +4323,30 @@ html.theme-light .kasa-kalem-booking { color: #5b46c9; }
     text-align: center;
   }
   .kasa-harcama-form {
-    grid-template-columns: 112px minmax(0, 1fr) minmax(48px, 0.7fr) 32px 32px;
+    grid-template-columns: 104px minmax(84px, 100px) minmax(0, 1fr) minmax(44px, 64px) 32px 32px;
     grid-template-areas:
-      "tip tip tip tip tip"
-      "tarih not tutar pb kaydet";
+      "tip tip tip tip tip tip"
+      "tarih kalem not tutar pb kaydet";
     gap: 4px;
   }
   .kasa-harcama-form > .kasa-tip-nav { width: 100%; }
   .kasa-harcama-form > .kasa-tip-nav .kasa-tip-btn { flex: 1; }
   .kasa-inp-tarih { width: 100%; max-width: none; }
+  .kasa-inp-yontem { font-size: 11px; padding-left: 4px; }
   .kasa-inp { min-height: 32px; font-size: 12px; padding: 4px 5px; }
   .kasa-pb-toggle { min-height: 32px; height: 32px; font-size: 13px; }
   .kasa-kaydet-btn { width: 32px; height: 32px; font-size: 16px; }
   .kasa-musteri, .kasa-not, .kasa-miktar, .kasa-kalem { font-size: 11px; }
   .kasa-tarih, .kasa-oda { font-size: 10px; }
+}
+@media (max-width: 420px) {
+  .kasa-harcama-form {
+    grid-template-columns: minmax(0, 1.1fr) minmax(88px, 104px) minmax(52px, 0.8fr) 32px 32px;
+    grid-template-areas:
+      "tip tip tip tip tip"
+      "tarih kalem tutar pb kaydet"
+      "not not not not not";
+  }
 }
 
 .modal-box-kucuk {
