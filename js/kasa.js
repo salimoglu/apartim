@@ -18,6 +18,7 @@
 
   let aktifPb = "tumu";
   let aktifKalem = "tumu";
+  let aktifYon = "tumu";
   let aktifTip = "gider";
   let hareketMap = {};
   let duzenlenen = null;
@@ -133,6 +134,18 @@
     });
   }
 
+  function yonNavGuncelle() {
+    document.querySelectorAll(".kasa-yon-btn").forEach((b) => {
+      const secili = b.dataset.yon === aktifYon;
+      b.classList.toggle("active", secili);
+      b.setAttribute("aria-selected", secili ? "true" : "false");
+    });
+  }
+
+  function giderMi(h) {
+    return h.tip === "gider" || h.tip === "harcama";
+  }
+
   function ozetCiz(ozet) {
     const el = document.getElementById("kasa-ozet");
     if (!el) return;
@@ -167,9 +180,13 @@
     if (!el) return;
     hareketMap = {};
     if (!liste.length) {
-      const bos = aktifKalem === "tumu"
-        ? seciliYil() + " sezonunda kasa kaydı yok."
-        : seciliYil() + " sezonunda " + kalemAd(aktifKalem) + " kaydı yok.";
+      const parca = [];
+      if (aktifKalem !== "tumu") parca.push(kalemAd(aktifKalem));
+      if (aktifYon === "gelir") parca.push("gelir");
+      else if (aktifYon === "gider") parca.push("gider");
+      const bos = parca.length
+        ? seciliYil() + " sezonunda " + parca.join(" ") + " kaydı yok."
+        : seciliYil() + " sezonunda kasa kaydı yok.";
       el.innerHTML = '<div class="kasa-bos">' + esc(bos) + "</div>";
       return;
     }
@@ -186,9 +203,9 @@
       "</div>";
     const satirlar = liste.map((h) => {
       hareketMap[h.id] = h;
-      const giderMi = h.tip === "gider" || h.tip === "harcama";
-      const miktarSinif = giderMi ? "eksi" : "arti";
-      const miktarOn = giderMi ? "−" : "+";
+      const giderSatir = giderMi(h);
+      const miktarSinif = giderSatir ? "eksi" : "arti";
+      const miktarOn = giderSatir ? "−" : "+";
       const oda = String(h.oda || "").trim();
       const yontem = h.yontem || "kasa";
       const kalem = kalemAd(yontem);
@@ -228,11 +245,17 @@
     if (!db) return;
     pbNavGuncelle();
     kalemNavGuncelle();
+    yonNavGuncelle();
     tarihSinirla();
     const yil = String(seciliYil());
     const liste = (db.kasaHareketListele(aktifPb) || [])
       .filter((h) => String(h.tarih || "").slice(0, 4) === yil)
-      .filter((h) => aktifKalem === "tumu" || (h.yontem || "kasa") === aktifKalem);
+      .filter((h) => aktifKalem === "tumu" || (h.yontem || "kasa") === aktifKalem)
+      .filter((h) => {
+        if (aktifYon === "gider") return giderMi(h);
+        if (aktifYon === "gelir") return !giderMi(h);
+        return true;
+      });
     ozetCiz(ozetHesapla(liste));
     listeCiz(liste);
   }
@@ -245,6 +268,12 @@
   function kalemSec(kalem) {
     const k = String(kalem || "tumu").toLowerCase();
     aktifKalem = KALEM_SIRA.includes(k) ? k : "tumu";
+    ciz();
+  }
+
+  function yonSec(yon) {
+    const y = String(yon || "tumu").toLowerCase();
+    aktifYon = y === "gelir" || y === "gider" ? y : "tumu";
     ciz();
   }
 
@@ -533,6 +562,9 @@
     document.querySelectorAll(".kasa-kalem-btn").forEach((b) => {
       b.addEventListener("click", () => kalemSec(b.dataset.kalem));
     });
+    document.querySelectorAll(".kasa-yon-btn").forEach((b) => {
+      b.addEventListener("click", () => yonSec(b.dataset.yon));
+    });
     document.querySelectorAll(".kasa-tip-btn").forEach((b) => {
       b.addEventListener("click", () => tipSec(b.dataset.tip));
     });
@@ -566,5 +598,5 @@
   document.addEventListener("DOMContentLoaded", bagla);
 
   window.APARTIM = window.APARTIM || {};
-  window.APARTIM.kasa = { ciz, pbSec, kalemSec };
+  window.APARTIM.kasa = { ciz, pbSec, kalemSec, yonSec };
 })();

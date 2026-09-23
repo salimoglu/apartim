@@ -3774,12 +3774,14 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .kasa-ust-satir {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
   min-width: 0;
   width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 .kasa-pb-nav {
   display: flex;
@@ -3808,18 +3810,43 @@ html:not(.theme-light) .rez-kaynak-badge {
   color: #fff;
 }
 .kasa-pb-btn:hover:not(.active) { color: var(--metin); }
-.kasa-kalem-nav {
+.kasa-kalem-nav,
+.kasa-yon-nav {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 4px;
   background: var(--zemin-2);
   border: 1px solid var(--kenar);
   border-radius: 999px;
   padding: 3px;
   width: fit-content;
-  max-width: 100%;
+  max-width: none;
   flex-shrink: 0;
 }
+.kasa-yon-btn {
+  background: transparent;
+  border: none;
+  color: var(--metin-soluk);
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.kasa-yon-btn.active[data-yon="tumu"] {
+  background: var(--vurgu);
+  color: #fff;
+}
+.kasa-yon-btn.active[data-yon="gelir"] {
+  background: var(--basari);
+  color: #0c1620;
+}
+.kasa-yon-btn.active[data-yon="gider"] {
+  background: var(--tehlike);
+  color: #fff;
+}
+.kasa-yon-btn:hover:not(.active) { color: var(--metin); }
 .kasa-kalem-btn {
   background: transparent;
   border: none;
