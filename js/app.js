@@ -196,6 +196,7 @@
       window.APARTIM.rezOzet?.tamEkranKapat?.();
     }
     document.querySelector(".content")?.classList.toggle("content-rez-genis", ad === "rezervasyonlar");
+    document.querySelector(".content")?.classList.toggle("content-tahsilat-genis", ad === "tahsilat");
     document.querySelector(".content")?.classList.toggle("content-bina-genis", ad === "bina");
     document.body.classList.toggle("sekme-rezervasyonlar", ad === "rezervasyonlar");
     document.documentElement.classList.toggle("sekme-rezervasyonlar", ad === "rezervasyonlar");
@@ -213,6 +214,7 @@
         window.APARTIM.rezOzet?.tabloCiz();
       }
     }
+    if (ad === "tahsilat") window.APARTIM.tahsilat?.sekmeAc?.();
     yatayModGuncelle();
   }
 
