@@ -275,12 +275,18 @@
       b.classList.toggle("active", b.dataset.tip === aktifTip);
     });
     const kaydet = document.getElementById("kasa-harcama-kaydet");
+    const form = document.getElementById("kasa-kayit-form");
+    const gelirMi = aktifTip === "gelir";
+    if (form) {
+      form.classList.toggle("gelir", gelirMi);
+      form.classList.toggle("gider", !gelirMi);
+    }
     if (kaydet) {
-      const etiket = aktifTip === "gelir" ? "Gelir ekle" : "Gider ekle";
+      const etiket = gelirMi ? "Gelir ekle" : "Gider ekle";
       kaydet.title = etiket;
       kaydet.setAttribute("aria-label", etiket);
-      kaydet.classList.toggle("gelir", aktifTip === "gelir");
-      kaydet.classList.toggle("gider", aktifTip === "gider");
+      kaydet.classList.toggle("gelir", gelirMi);
+      kaydet.classList.toggle("gider", !gelirMi);
     }
   }
 
