@@ -1116,12 +1116,22 @@
     if (!db || !rez) return;
 
     const para = window.APARTIM.para;
-    const kur = tahsilatKurUsd();
+    const kurCanli = tahsilatKurUsd();
+    /* Konaklama tutarı rezervasyonun kayıtlı kurundadır. Günün kuru yalnız çeviricide. */
+    const kurCift = db.rezervasyonKurCift
+      ? db.rezervasyonKurCift(rez)
+      : { USD: kurCanli };
+    const kurBill = Number(kurCift.USD) > 0 ? Number(kurCift.USD) : kurCanli;
     const tarih = tahsilatSeciliTarih() || ctx.tarih;
     const { tl, usd } = tahsilatGirisOku();
     const tlSafe = Number.isFinite(tl) && tl > 0 ? tl : 0;
     const usdSafe = Number.isFinite(usd) && usd > 0 ? usd : 0;
-    const buGunTl = para ? para.tahsilatTlToplam(tlSafe, usdSafe, kur) : tlSafe;
+    let kurGiris = kurBill;
+    if (ctx.odemeId && db.rezervasyonOdenenKayitGetir) {
+      const eskiKur = Number(db.rezervasyonOdenenKayitGetir(rez, ctx.odemeId)?.kurUsd);
+      if (eskiKur > 0) kurGiris = eskiKur;
+    }
+    const buGunTl = para ? para.tahsilatTlToplam(tlSafe, usdSafe, kurGiris) : tlSafe;
 
     /* Düzenlenen kayıt varsa onu çıkar; yeni kayıtta mevcutlara ekle */
     let mevcutKayitTl = 0;
@@ -1144,8 +1154,6 @@
       pb = uniq.includes("USD") ? "USD" : (uniq.find((p) => p !== "TL") || "TL");
     }
 
-    const kurCift = db.rezervasyonKurCift ? db.rezervasyonKurCift(rez) : { USD: kur };
-    kurCift.USD = kur;
     const kalanPb = para && pb !== "TL" ? para.tlDenPb(kalanTl, pb, kurCift) : kalanTl;
     const esik = pb === "USD" ? 0.01 : 0.5;
     const tamam = !!document.getElementById("tahsilat-tamamla")?.checked;
