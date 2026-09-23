@@ -1034,6 +1034,16 @@
     }).join("");
   }
 
+  /** Yeni tahsilatta kalem: Booking kategorisi Booking, diğerleri Kasa. */
+  function tahsilatVarsayilanYontem(rez) {
+    const id = String(rez?.kaynakId || "").toLowerCase();
+    if (id === "booking") return "booking";
+    const ad = String(
+      rez?.kaynakAd || window.APARTIM.db?.musteriKaynagiAd?.(rez?.kaynakId) || ""
+    ).trim().toLocaleLowerCase("tr-TR");
+    return ad === "booking" ? "booking" : "kasa";
+  }
+
   function tahsilatFormaYukle(rez, tarih, odemeId) {
     const db = window.APARTIM.db;
     if (!db || !rez || !tarih) return;
@@ -1065,7 +1075,9 @@
     if (inpTl) inpTl.value = tlVal;
     if (inpUsd) inpUsd.value = usdVal;
     if (sel) {
-      const y = info.yontem === "elden" ? "kasa" : (info.yontem || "kasa");
+      const y = info.yontem === "elden"
+        ? "kasa"
+        : (info.yontem || tahsilatVarsayilanYontem(rez));
       sel.value = y;
     }
     const notInp = document.getElementById("odeme-not");
@@ -1086,7 +1098,7 @@
     }
     document.getElementById("odeme-tutar-tl").value = "";
     document.getElementById("odeme-tutar-usd").value = "";
-    document.getElementById("odeme-yontem").value = "kasa";
+    document.getElementById("odeme-yontem").value = tahsilatVarsayilanYontem(rez);
     const notInp = document.getElementById("odeme-not");
     if (notInp) notInp.value = "";
     tahsilatCeviriciTemizle();
