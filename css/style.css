@@ -4286,7 +4286,36 @@ html.theme-light .kasa-kalem-booking { color: #5b46c9; }
     gap: 6px;
   }
   .kasa-tip-btn { padding: 4px 10px; font-size: 11px; }
-  .kasa-pb-btn { padding: 5px 10px; font-size: 11px; }
+  .kasa-ust-satir {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 6px;
+    scrollbar-width: none;
+  }
+  .kasa-pb-nav,
+  .kasa-yon-nav {
+    order: 1;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+  }
+  .kasa-yon-nav { order: 2; }
+  .kasa-kalem-nav {
+    order: 3;
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: 100%;
+  }
+  .kasa-pb-btn,
+  .kasa-yon-btn,
+  .kasa-kalem-btn {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 5px 2px;
+    font-size: 11px;
+    text-align: center;
+  }
   .kasa-harcama-form {
     grid-template-columns: 112px minmax(0, 1fr) minmax(48px, 0.7fr) 32px 32px;
     grid-template-areas:
@@ -4301,7 +4330,6 @@ html.theme-light .kasa-kalem-booking { color: #5b46c9; }
   .kasa-pb-toggle { min-height: 32px; height: 32px; font-size: 13px; }
   .kasa-kaydet-btn { width: 32px; height: 32px; font-size: 16px; }
   .kasa-musteri, .kasa-not, .kasa-miktar, .kasa-kalem { font-size: 11px; }
-  .kasa-kalem-btn { padding: 4px 8px; font-size: 11px; }
   .kasa-tarih, .kasa-oda { font-size: 10px; }
 }
 
