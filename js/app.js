@@ -370,18 +370,28 @@
 
   function ayinGunSayisi(y, m) { return new Date(y, m + 1, 0).getDate(); }
 
-  function yilinGunSayisi(y) {
-    return Math.round((Date.UTC(y + 1, 0, 1) - Date.UTC(y, 0, 1)) / 86400000);
+  /** İki ISO tarih arası gün: bit hariç. */
+  function gunSayisiAralik(bas, bitHaric) {
+    const a = new Date(bas + "T00:00:00");
+    const b = new Date(bitHaric + "T00:00:00");
+    return Math.max(0, Math.round((b - a) / 86400000));
   }
 
   function raporDonemSinirlari() {
     const y = raporDurum.yil;
     if (raporDurum.mod === "yil") {
+      /* Sezon: 1 Haziran – 30 Eylül. Yıllık doluluk ve diğer toplamlar bu aralıktadır. */
+      const sezon = window.APARTIM.gorunum?.sezonBasBit?.(y) || {
+        bas: iso(y, 5, 1),
+        bitHaric: iso(y, 9, 1)
+      };
+      const bas = sezon.bas || iso(y, 5, 1);
+      const bit = sezon.bitHaric || iso(y, 9, 1);
       return {
-        bas: iso(y, 0, 1),
-        bit: iso(y + 1, 0, 1),
-        gunSayisi: yilinGunSayisi(y),
-        baslik: String(y)
+        bas,
+        bit,
+        gunSayisi: gunSayisiAralik(bas, bit),
+        baslik: "Haziran–Eylül " + y
       };
     }
     const m = raporDurum.ay;

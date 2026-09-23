@@ -2,8 +2,8 @@
    JS/CSS: stale-while-revalidate (hızlı yenileme + arka planda güncelleme)
    HTML navigate: network-first (kısa zaman aşımı → cache)
    Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
-const CACHE_VERSION = "apartim-3-52";
-const ASSET_V = "3.52";
+const CACHE_VERSION = "apartim-3-53";
+const ASSET_V = "3.53";
 const CORE_ASSETS = [
   "./",
   "./index.html",
