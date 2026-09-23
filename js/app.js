@@ -508,7 +508,7 @@
     const gelirPB = { TL: 0, USD: 0, EUR: 0 };
     const daireOzet = {};
     daireler.forEach((d) => {
-      daireOzet[d.id] = { gece: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
+      daireOzet[d.id] = { gece: 0, rez: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
     });
 
     tumRez.forEach((r) => {
@@ -520,6 +520,7 @@
       rezSayisi++;
       if (daireOzet[r.daireId]) {
         daireOzet[r.daireId].gece += gece;
+        daireOzet[r.daireId].rez += 1;
         daireOzet[r.daireId].gelirPB[pb] += gelir;
       }
     });
@@ -579,12 +580,13 @@
     const tbl = document.getElementById("rapor-daire-tablo");
     tbl.querySelectorAll(".rapor-daire-satir:not(.header)").forEach((x) => x.remove());
     r.daireler.forEach((d) => {
-      const o = r.daireOzet[d.id] || { gece: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
+      const o = r.daireOzet[d.id] || { gece: 0, rez: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
       const doluluk = r.gunSayisi > 0 ? Math.round(o.gece * 100 / r.gunSayisi) : 0;
       const sat = document.createElement("div");
       sat.className = "rapor-daire-satir";
       sat.innerHTML =
         "<span>" + d.ad + "</span>" +
+        '<span class="rez-val">' + (o.rez || 0) + "</span>" +
         '<span class="gece-val">' + o.gece + "</span>" +
         '<span class="gelir-val">' + raporGelirOzetHtml(o.gelirPB, true) + "</span>" +
         '<span class="doluluk-val">%' + doluluk + "</span>";
@@ -730,12 +732,12 @@
     });
     satirlar.push("<tr><td colspan=\"7\" " + bas + ">Daire özeti</td></tr>");
     satirlar.push(
-      "<tr><th " + th + ">Daire</th><th " + th + ">Gece</th><th " + th + ">Gelir TL</th><th " +
-      th + ">Gelir USD</th><th " + th + ">Toplam ≈ TL</th><th colspan=\"2\" " +
+      "<tr><th " + th + ">Daire</th><th " + th + ">Rez</th><th " + th + ">Gece</th><th " + th + ">Gelir TL</th><th " +
+      th + ">Gelir USD</th><th " + th + ">Toplam ≈ TL</th><th " +
       th + ">Doluluk</th></tr>"
     );
     r.daireler.forEach((d) => {
-      const o = r.daireOzet[d.id] || { gece: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
+      const o = r.daireOzet[d.id] || { gece: 0, rez: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
       const doluluk = r.gunSayisi > 0 ? Math.round(o.gece * 100 / r.gunSayisi) : 0;
       const tlD = (o.gelirPB.TL || 0) +
         (window.APARTIM.para && o.gelirPB.EUR
@@ -743,11 +745,12 @@
           : 0);
       satirlar.push(
         "<tr><td " + td + ">" + escHtml(d.ad) + "</td>" +
+        "<td " + td + ">" + (o.rez || 0) + "</td>" +
         "<td " + td + ">" + o.gece + "</td>" +
         "<td " + td + ">" + escHtml(raporPbMetin(tlD, "TL")) + "</td>" +
         "<td " + td + ">" + escHtml(raporPbMetin(o.gelirPB.USD, "USD")) + "</td>" +
         "<td " + td + ">" + fmt(Math.round(gelirPbToplamTL(o.gelirPB))) + " ₺</td>" +
-        "<td colspan=\"2\" " + td + ">%" + doluluk + "</td></tr>"
+        "<td " + td + ">%" + doluluk + "</td></tr>"
       );
     });
 

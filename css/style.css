@@ -3730,7 +3730,7 @@ html:not(.theme-light) .rez-kaynak-badge {
     gap: 1px 3px;
   }
   .rapor-daire-satir {
-    grid-template-columns: minmax(0, 1.1fr) 44px minmax(0, 1.2fr) 44px;
+    grid-template-columns: minmax(0, 1.1fr) 32px 40px minmax(0, 1.2fr) 40px;
     padding: 8px 10px;
     gap: 6px;
     font-size: 12px;
@@ -4722,7 +4722,7 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
 }
 .rapor-daire-satir {
   display: grid;
-  grid-template-columns: 1fr 56px 1fr 72px;
+  grid-template-columns: 1fr 48px 56px 1fr 72px;
   padding: 10px 12px;
   border-bottom: 1px solid var(--kenar);
   align-items: center;
@@ -4738,6 +4738,8 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
 .rapor-daire-satir .gelir-val { color: var(--basari); font-weight: 800; text-align: right; }
 .rapor-daire-satir .doluluk-val { color: var(--vurgu); font-weight: 800; text-align: right; }
 .rapor-daire-satir .gece-val { text-align: right; color: var(--metin-soluk); }
+.rapor-daire-satir .rez-val { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+.rapor-daire-satir.header .rez-val { font-weight: 700; }
 
 /* Tablet (+ telefon): sekme yazıları gizli, yalnız simge */
 @media (max-width: 1100px) {
@@ -4782,7 +4784,7 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
     font-size: 12px;
   }
   .rez-ozet-chip-metin { display: none; }
-  .rapor-daire-satir { grid-template-columns: 1fr 60px 80px; }
+  .rapor-daire-satir { grid-template-columns: minmax(0, 1fr) 32px minmax(0, 1.1fr) 44px; }
   .rapor-daire-satir .gece-val { display: none; }
   .bina-ust-bar {
     gap: 8px;
@@ -5308,7 +5310,10 @@ html:not(.theme-light) .rez-ozet-tahsilat-ok {
   body.mobil-yatay-mod #tab-rapor .rapor-daire-satir {
     padding: 6px 8px;
     font-size: 11px;
-    grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1.1fr) 40px;
+    grid-template-columns: minmax(0, 1fr) 28px 32px minmax(0, 1.1fr) 36px;
+  }
+  body.mobil-yatay-mod #tab-rapor .rapor-daire-satir .gece-val {
+    display: block;
   }
 }
 
