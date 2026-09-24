@@ -5,7 +5,7 @@
 
 /* -------------------- 1. Temel reset -------------------- */
 *, *::before, *::after { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; overscroll-behavior-y: none; }
 html { -webkit-text-size-adjust: 100%; }
 .deneme-banner {
   display: none;
@@ -108,6 +108,7 @@ html.theme-light {
   display: flex; align-items: center; justify-content: center;
   padding: 24px;
   overflow-y: auto;
+  overscroll-behavior-y: none;
 }
 html.apartim-deneme .lock-screen {
   inset: var(--deneme-banner-h) 0 0 0;
@@ -224,6 +225,7 @@ html.auth-oturum-bekleniyor .lock-bekle { display: block; }
   flex-direction: column;
   background: var(--zemin);
   overflow: hidden;
+  overscroll-behavior-y: none;
 }
 html.apartim-deneme .app {
   padding-top: var(--deneme-banner-h);
@@ -282,8 +284,6 @@ html.apartim-deneme .app {
   transition: opacity 0.2s ease;
 }
 .ptr-gosterge.hidden { opacity: 0; visibility: hidden; }
-.ptr-gosterge.ptr-hazir { color: var(--basari); border-color: var(--basari); }
-body.ptr-cekiliyor { overscroll-behavior-y: contain; }
 .topbar-right {
   display: flex; align-items: center; gap: 8px;
 }
@@ -663,6 +663,7 @@ body.sekme-rezervasyonlar .rez-ozet-tab-araclar {
   flex: 1;
   min-height: 0;
   overflow: auto;
+  overscroll-behavior-y: none;
 }
 #tab-rezervasyonlar.active {
   display: flex;

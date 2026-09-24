@@ -25,111 +25,73 @@
     gunEl.textContent = String(new Date().getDate());
   }
 
-  // ---- Güncelleme kontrol + yenile ----
-  function swSkipWaitingVeYenile(worker) {
-    window.APARTIM_SW_RELOAD = true;
-    try { worker.postMessage({ type: "SKIP_WAITING" }); } catch (e) {}
-    setTimeout(() => location.reload(), 1200);
+  // ---- Ayarlar menüsünden güncelleme (aşağı çekerek yenileme yok) ----
+  function guncellemeGosterge(metin) {
+    const el = document.getElementById("ptr-gosterge");
+    if (!el) return;
+    el.textContent = metin;
+    el.classList.remove("hidden");
+  }
+
+  function workerHazirOl(worker, ms) {
+    if (!worker) return Promise.resolve(null);
+    if (worker.state === "installed" || worker.state === "activated") {
+      return Promise.resolve(worker);
+    }
+    return new Promise((resolve) => {
+      const timer = setTimeout(() => resolve(worker), ms);
+      function onState() {
+        if (worker.state === "installed" || worker.state === "activated" || worker.state === "redundant") {
+          clearTimeout(timer);
+          worker.removeEventListener("statechange", onState);
+          resolve(worker.state === "redundant" ? null : worker);
+        }
+      }
+      worker.addEventListener("statechange", onState);
+    });
+  }
+
+  async function onbellekleriTemizle() {
+    if (!("caches" in window)) return;
+    const keys = await caches.keys();
+    await Promise.all(keys.map((k) => caches.delete(k)));
   }
 
   async function guncellemeYenile() {
     if (yenilemeBekleniyor) return;
     yenilemeBekleniyor = true;
-    const ptr = document.getElementById("ptr-gosterge");
-    if (ptr) {
-      ptr.textContent = "Güncelleme kontrol ediliyor…";
-      ptr.classList.remove("hidden", "ptr-hazir");
-    }
+    guncellemeGosterge("Güncelleme kontrol ediliyor…");
 
     try {
       if ("serviceWorker" in navigator) {
         const reg = await navigator.serviceWorker.getRegistration();
         if (reg) {
-          await reg.update();
-          if (reg.waiting) {
-            swSkipWaitingVeYenile(reg.waiting);
-            return;
-          }
-          if (reg.installing) {
-            const installing = reg.installing;
+          try {
+            await Promise.race([
+              reg.update(),
+              new Promise((resolve) => setTimeout(resolve, 4000))
+            ]);
+          } catch (e) { /* çevrimdışıysa önbellek temizliği yeter */ }
+          const kurulan = reg.installing ? await workerHazirOl(reg.installing, 4000) : null;
+          const worker = reg.waiting || (kurulan && kurulan.state === "installed" ? kurulan : null);
+          if (worker && navigator.serviceWorker.controller) {
+            try { worker.postMessage({ type: "SKIP_WAITING" }); } catch (e) {}
             await new Promise((resolve) => {
-              const bitir = () => {
-                installing.removeEventListener("statechange", onState);
+              const timer = setTimeout(resolve, 1200);
+              navigator.serviceWorker.addEventListener("controllerchange", () => {
+                clearTimeout(timer);
                 resolve();
-              };
-              const timer = setTimeout(bitir, 4000);
-              function onState() {
-                if (installing.state === "installed" || installing.state === "redundant") {
-                  clearTimeout(timer);
-                  bitir();
-                }
-              }
-              installing.addEventListener("statechange", onState);
+              }, { once: true });
             });
-            const waiting = reg.waiting || (installing.state === "installed" ? installing : null);
-            if (navigator.serviceWorker.controller && waiting) {
-              swSkipWaitingVeYenile(waiting);
-              return;
-            }
           }
         }
       }
-      yenilemeBekleniyor = false;
-      location.reload();
+      await onbellekleriTemizle();
     } catch (err) {
       console.warn("guncellemeYenile", err);
-      yenilemeBekleniyor = false;
-      location.reload();
     }
-  }
-
-  // ---- Aşağı çekerek yenile (pull-to-refresh) ----
-  const PTR_ESIK = 72;
-  let ptrBasY = 0;
-  let ptrMesafe = 0;
-  let ptrAktif = false;
-  let ptrScrollEl = null;
-
-  function aktifScrollElemani() {
-    const panel = document.querySelector(".tab-panel.active");
-    if (!panel) return document.documentElement;
-    const adaylar = [
-      panel.querySelector(".rez-ozet-scroll"),
-      panel.querySelector(".bina-wrap"),
-      panel.querySelector(".rapor-wrap"),
-      panel.querySelector(".daire-wrap"),
-      panel
-    ];
-    for (let i = 0; i < adaylar.length; i++) {
-      const el = adaylar[i];
-      if (el && el.scrollHeight > el.clientHeight + 2) return el;
-    }
-    return document.documentElement;
-  }
-
-  function scrollUstteMi(el) {
-    if (!el || el === document.documentElement) {
-      return (window.scrollY || document.documentElement.scrollTop || 0) <= 2;
-    }
-    return (el.scrollTop || 0) <= 2;
-  }
-
-  function ptrGostergeGuncelle(mesafe, hazir) {
-    const ptr = document.getElementById("ptr-gosterge");
-    if (!ptr) return;
-    ptr.classList.remove("hidden");
-    ptr.classList.toggle("ptr-hazir", !!hazir);
-    ptr.textContent = hazir ? "Bırakın, yenilenecek" : "Güncellemek için çekin";
-  }
-
-  function ptrSifirla() {
-    ptrAktif = false;
-    ptrScrollEl = null;
-    ptrMesafe = 0;
-    document.body.classList.remove("ptr-cekiliyor");
-    const ptr = document.getElementById("ptr-gosterge");
-    ptr?.classList.add("hidden");
-    ptr?.classList.remove("ptr-hazir");
+    window.APARTIM_SW_RELOAD = true;
+    location.reload();
   }
 
   function modalAcikMi() {
@@ -140,54 +102,6 @@
 
   function modalAcikGuncelle() {
     document.body.classList.toggle("modal-acik", modalAcikMi());
-  }
-
-  function ptrDokunmaIptal(ev) {
-    if (modalAcikMi()) return true;
-    const hedef = ev.target;
-    if (hedef?.closest?.(
-      ".modal-overlay, .modal-box, .lock-screen, .lock-auth-panel, .ayar-menu:not(.hidden)"
-    )) return true;
-    return false;
-  }
-
-  function cekerekYenileBagla() {
-    document.addEventListener("touchstart", (e) => {
-      if (e.touches.length !== 1 || yenilemeBekleniyor) return;
-      if (ptrDokunmaIptal(e)) return;
-      ptrScrollEl = aktifScrollElemani();
-      if (!scrollUstteMi(ptrScrollEl)) return;
-      ptrBasY = e.touches[0].clientY;
-      ptrMesafe = 0;
-      ptrAktif = true;
-    }, { passive: true });
-
-    document.addEventListener("touchmove", (e) => {
-      if (!ptrAktif || e.touches.length !== 1) return;
-      if (ptrDokunmaIptal(e) || modalAcikMi()) {
-        ptrSifirla();
-        return;
-      }
-      if (!scrollUstteMi(ptrScrollEl)) {
-        ptrSifirla();
-        return;
-      }
-      ptrMesafe = e.touches[0].clientY - ptrBasY;
-      if (ptrMesafe > 8) {
-        document.body.classList.add("ptr-cekiliyor");
-        ptrGostergeGuncelle(ptrMesafe, ptrMesafe >= PTR_ESIK);
-        if (ptrMesafe > 12) e.preventDefault();
-      }
-    }, { passive: false });
-
-    document.addEventListener("touchend", () => {
-      if (!ptrAktif) return;
-      const tetik = ptrMesafe >= PTR_ESIK;
-      ptrSifirla();
-      if (tetik) guncellemeYenile();
-    }, { passive: true });
-
-    document.addEventListener("touchcancel", ptrSifirla, { passive: true });
   }
 
   // ---- Sekme yönetimi ----
@@ -279,7 +193,6 @@
     });
 
     yatayModBagla();
-    cekerekYenileBagla();
     versiyonGoster();
     rezTakvimIkonGuncelle();
     raporGorunumdenSenkron();
