@@ -299,25 +299,16 @@
 
   function ozetYaz(tamam, acik, kirinti) {
     const el = document.getElementById("tahsilat-ozet");
-    const kirintiEl = document.getElementById("tahsilat-kirinti-ozet");
+    const kirintiBtn = document.getElementById("tahsilat-filtre-kirinti");
     if (!el) return;
     if (!tamam && !acik) {
       el.textContent = "Bu sezonda rezervasyon yok";
-      if (kirintiEl) kirintiEl.hidden = true;
+      if (kirintiBtn) kirintiBtn.textContent = "Kırıntı";
       return;
     }
     el.textContent = tamam + " tamam · " + acik + " açık";
-    if (!kirintiEl) return;
-    if (!kirinti || !kirinti.adet) {
-      kirintiEl.hidden = true;
-      kirintiEl.textContent = "";
-      kirintiEl.classList.remove("aktif");
-      return;
-    }
-    kirintiEl.hidden = false;
-    kirintiEl.textContent = kirintiMetin(kirinti);
-    kirintiEl.classList.toggle("aktif", durum.filtre === "kirinti");
-    kirintiEl.setAttribute("aria-pressed", durum.filtre === "kirinti" ? "true" : "false");
+    if (!kirintiBtn) return;
+    kirintiBtn.textContent = kirinti && kirinti.adet ? kirintiMetin(kirinti) : "Kırıntı";
   }
 
   function baslikYukseklik(table) {
@@ -455,11 +446,6 @@
         if (!btn) return;
         filtreSec(btn.dataset.filtre);
       });
-    }
-    const kirintiBtn = document.getElementById("tahsilat-kirinti-ozet");
-    if (kirintiBtn && !kirintiBtn.dataset.tahsilatBagli) {
-      kirintiBtn.dataset.tahsilatBagli = "1";
-      kirintiBtn.addEventListener("click", () => filtreSec("kirinti"));
     }
   }
 
