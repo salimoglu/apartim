@@ -968,6 +968,56 @@
     return 0;
   }
 
+  /** Tutarı yazma alanının beklediği biçimde (virgül, 2 basamak). */
+  function tahsilatGirisMetni(n) {
+    const y = Math.round(Math.abs(Number(n) || 0) * 100) / 100;
+    return y.toFixed(2).replace(".", ",");
+  }
+
+  const tahsilatAktarZaman = {};
+
+  function tahsilatAktarBayrakTemizle() {
+    ["odeme-tutar-tl", "odeme-tutar-usd"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      delete el.dataset.aktarildi;
+      el.classList.remove("tahsilat-aktarildi");
+      clearTimeout(tahsilatAktarZaman[id]);
+    });
+  }
+
+  function tahsilatAlanVurgula(el) {
+    if (!el?.id) return;
+    el.classList.add("tahsilat-aktarildi");
+    clearTimeout(tahsilatAktarZaman[el.id]);
+    tahsilatAktarZaman[el.id] = setTimeout(() => {
+      el.classList.remove("tahsilat-aktarildi");
+    }, 900);
+  }
+
+  /**
+   * Özet tutarını ilgili yazma alanına koyar.
+   * Az önce dokunarak doldurulmuş diğer para birimini siler; elle yazılanı bırakır.
+   */
+  function tahsilatTutariAlanaYaz(pb, tutarHam) {
+    const tutar = Number(tutarHam);
+    if (!Number.isFinite(tutar) || tutar <= 0) return;
+    const tlEl = document.getElementById("odeme-tutar-tl");
+    const usdEl = document.getElementById("odeme-tutar-usd");
+    const hedef = pb === "USD" ? usdEl : tlEl;
+    const diger = pb === "USD" ? tlEl : usdEl;
+    if (!hedef) return;
+    hedef.value = tahsilatGirisMetni(tutar);
+    hedef.dataset.aktarildi = "1";
+    if (diger?.dataset.aktarildi === "1") {
+      diger.value = "";
+      delete diger.dataset.aktarildi;
+      diger.classList.remove("tahsilat-aktarildi");
+    }
+    tahsilatAlanVurgula(hedef);
+    tahsilatKalanOnizle();
+  }
+
   function tahsilatOzetCiz(rez) {
     const db = window.APARTIM.db;
     const para = window.APARTIM.para;
@@ -985,23 +1035,41 @@
       para ? para.tlDenPb(tl, "USD", kur) : tl;
     const yazUsd = (m) => para ? para.formatTutar(m, "USD") : (fmt(m) + " $");
     const yazTl = (m) => para ? para.formatTutar(m, "TL") : (fmt(m) + " ₺");
-    /* Tek grid: Toplam/Ödenen/Kalan|Fazla etiketleri USD–TL satırlarında aynı kolonda alt alta */
-    const hucre = (etiket, tutar, tlMi, ekstraCls) => {
+    /* Toplam ve Kalan tutarları düğme: dokununca aynı para biriminin alanına yazılır */
+    const hucre = (etiket, tutar, tlMi, ekstraCls, aktarTutar) => {
       const cls = [tlMi ? "tl" : "", ekstraCls || ""].filter(Boolean).join(" ");
       const attr = cls ? ' class="' + cls + '"' : "";
-      return "<b" + attr + ">" + esc(etiket) + "</b>" +
-        "<span" + attr + ">" + esc(tutar) + "</span>";
+      const pb = tlMi ? "TL" : "USD";
+      const aktar = Math.round((Number(aktarTutar) || 0) * 100) / 100;
+      let deger;
+      if (aktar > 0.009) {
+        const btnCls = ["tahsilat-ozet-aktar", tlMi ? "tl" : ""].filter(Boolean).join(" ");
+        deger =
+          '<button type="button" class="' + btnCls + '"' +
+          ' data-aktar-pb="' + pb + '"' +
+          ' data-aktar-tutar="' + String(aktar) + '"' +
+          ' title="' + pb + ' alanına yaz"' +
+          ' aria-label="' + esc(etiket + " " + tutar + " — " + pb + " alanına yaz") + '">' +
+          esc(tutar) + "</button>";
+      } else {
+        deger = "<span" + attr + ">" + esc(tutar) + "</span>";
+      }
+      return "<b" + attr + ">" + esc(etiket) + "</b>" + deger;
     };
     const bakiyeCls = fazlaMi ? "tahsilat-ozet-fazla" : "";
+    const usdToplam = tlDenUsd(toplamTl);
+    const usdOdenen = tlDenUsd(odenenTl);
+    const usdBakiye = tlDenUsd(bakiyeAbsTl);
     ozet.innerHTML =
       '<div class="tahsilat-ozet-grid">' +
-        hucre("Toplam", yazUsd(tlDenUsd(toplamTl)), false) +
-        hucre("Ödenen", yazUsd(tlDenUsd(odenenTl)), false) +
-        hucre(bakiyeEtiket, yazUsd(tlDenUsd(bakiyeAbsTl)), false, bakiyeCls) +
-        hucre("Toplam", yazTl(toplamTl), true) +
+        hucre("Toplam", yazUsd(usdToplam), false, "", usdToplam) +
+        hucre("Ödenen", yazUsd(usdOdenen), false) +
+        hucre(bakiyeEtiket, yazUsd(usdBakiye), false, bakiyeCls, fazlaMi ? 0 : usdBakiye) +
+        hucre("Toplam", yazTl(toplamTl), true, "", toplamTl) +
         hucre("Ödenen", yazTl(odenenTl), true) +
-        hucre(bakiyeEtiket, yazTl(bakiyeAbsTl), true, bakiyeCls) +
-      "</div>";
+        hucre(bakiyeEtiket, yazTl(bakiyeAbsTl), true, bakiyeCls, fazlaMi ? 0 : bakiyeAbsTl) +
+      "</div>" +
+      '<p class="tahsilat-ozet-ipucu">Toplam ya da kalana dokunun, alana yazılsın</p>';
   }
 
   function tahsilatGecmisCiz(rez) {
@@ -1074,6 +1142,7 @@
     }
     if (inpTl) inpTl.value = tlVal;
     if (inpUsd) inpUsd.value = usdVal;
+    tahsilatAktarBayrakTemizle();
     if (sel) {
       const y = info.yontem === "elden"
         ? "kasa"
@@ -1098,6 +1167,7 @@
     }
     document.getElementById("odeme-tutar-tl").value = "";
     document.getElementById("odeme-tutar-usd").value = "";
+    tahsilatAktarBayrakTemizle();
     document.getElementById("odeme-yontem").value = tahsilatVarsayilanYontem(rez);
     const notInp = document.getElementById("odeme-not");
     if (notInp) notInp.value = "";
@@ -1350,9 +1420,18 @@
       const m = odemeModal();
       if (m && !m.classList.contains("hidden")) odemeModalKapat();
     });
+    document.getElementById("odeme-modal-ozet")?.addEventListener("click", (e) => {
+      const btn = e.target.closest?.("[data-aktar-pb]");
+      if (!btn) return;
+      e.preventDefault();
+      tahsilatTutariAlanaYaz(btn.dataset.aktarPb, btn.dataset.aktarTutar);
+    });
     ["odeme-tutar-tl", "odeme-tutar-usd"].forEach((id) => {
       const el = document.getElementById(id);
-      el?.addEventListener("input", tahsilatKalanOnizle);
+      el?.addEventListener("input", () => {
+        delete el.dataset.aktarildi;
+        tahsilatKalanOnizle();
+      });
       el?.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
           e.preventDefault();
