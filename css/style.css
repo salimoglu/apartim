@@ -1992,7 +1992,8 @@ html.theme-light .rez-ozet-table thead .rez-ozet-tarih-kose {
   vertical-align: middle;
   line-height: 1.05;
 }
-/* Yalnızca ilk oda tarihi yatay kaydırmada sabit kalır; diğerleri aynı görünür */
+/* Masaüstü/tablette ilk oda tarihi yatay kaydırmada sabit kalır.
+   Telefonda her odanın kendi tarih sütunu var; sola kaydırınca tarih de kayar. */
 .rez-ozet-table thead .rez-ozet-tarih-kose.rez-ozet-tarih-yapiskan,
 .rez-ozet-table tbody .rez-ozet-tarih.rez-ozet-tarih-yapiskan {
   position: sticky;
@@ -5708,6 +5709,19 @@ html:not(.theme-light) .tahsilat-table {
   position: sticky;
   left: 0;
   z-index: 2;
+}
+/* Telefon: her odanın tarihi kendi sütunuyla kayar (dikey başlık yapışkan kalır).
+   Uygulama telefonu w < 720 veya kısa kenar ≤ 520 sayar. */
+@media (max-width: 719px), (max-height: 520px) {
+  .rez-ozet-table thead .rez-ozet-tarih-kose.rez-ozet-tarih-yapiskan,
+  .tahsilat-table thead .tahsilat-yapiskan {
+    left: auto;
+  }
+  .rez-ozet-table tbody .rez-ozet-tarih.rez-ozet-tarih-yapiskan,
+  .tahsilat-table tbody .tahsilat-yapiskan {
+    position: static;
+    left: auto;
+  }
 }
 .tahsilat-tarih {
   width: 52px;
