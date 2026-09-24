@@ -2,6 +2,7 @@
    APARTIM — Kasa modülü
    Tüm tahsilat kalemleri + manuel gelir/gider.
    Kalem filtresi: Tümü, Kasa, Pos, Booking, Havale, Diğer.
+   Oda filtresi: birden fazla oda aynı anda seçilebilir.
    ========================================================= */
 
 (function () {
@@ -20,6 +21,8 @@
   let aktifPb = "tumu";
   let aktifKalem = "tumu";
   let aktifYon = "tumu";
+  /** Seçili oda id'leri. Boş küme = tüm odalar. */
+  const aktifOdalar = new Set();
   let aktifTip = "gider";
   let hareketMap = {};
   let duzenlenen = null;
@@ -143,6 +146,53 @@
     });
   }
 
+  function odalarListe() {
+    return window.APARTIM.db?.dairelerListele?.() || [];
+  }
+
+  function odaFiltreOzeti() {
+    const adlar = odalarListe()
+      .filter((d) => aktifOdalar.has(d.id))
+      .map((d) => String(d.ad || "").trim())
+      .filter(Boolean);
+    if (adlar.length <= 1) return adlar[0] || "";
+    if (adlar.length === 2) return adlar[0] + " ve " + adlar[1];
+    return adlar.slice(0, -1).join(", ") + " ve " + adlar[adlar.length - 1];
+  }
+
+  function odaNavCiz() {
+    const nav = document.getElementById("kasa-oda-nav");
+    if (!nav) return;
+    const odalar = odalarListe();
+    const gecerli = new Set(odalar.map((d) => d.id));
+    aktifOdalar.forEach((id) => {
+      if (!gecerli.has(id)) aktifOdalar.delete(id);
+    });
+    const tumuSecili = aktifOdalar.size === 0;
+    const butonlar = [
+      '<button type="button" class="kasa-oda-btn' + (tumuSecili ? " active" : "") +
+        '" data-oda="tumu" aria-pressed="' + (tumuSecili ? "true" : "false") +
+        '" aria-label="Tüm odalar">Tümü</button>'
+    ];
+    odalar.forEach((d) => {
+      const secili = aktifOdalar.has(d.id);
+      const ad = String(d.ad || "").trim() || "Oda";
+      butonlar.push(
+        '<button type="button" class="kasa-oda-btn' + (secili ? " active" : "") +
+          '" data-oda="' + esc(d.id) + '" title="' + esc(ad) +
+          '" aria-pressed="' + (secili ? "true" : "false") + '">' +
+          esc(ad) +
+        "</button>"
+      );
+    });
+    nav.innerHTML = butonlar.join("");
+  }
+
+  function odaSeciliMi(h) {
+    if (!aktifOdalar.size) return true;
+    return aktifOdalar.has(h.daireId);
+  }
+
   function giderMi(h) {
     return h.tip === "gider" || h.tip === "harcama";
   }
@@ -182,6 +232,8 @@
     hareketMap = {};
     if (!liste.length) {
       const parca = [];
+      const odaOzet = odaFiltreOzeti();
+      if (odaOzet) parca.push(odaOzet);
       if (aktifKalem !== "tumu") parca.push(kalemAd(aktifKalem));
       if (aktifYon === "gelir") parca.push("gelir");
       else if (aktifYon === "gider") parca.push("gider");
@@ -247,6 +299,7 @@
     pbNavGuncelle();
     kalemNavGuncelle();
     yonNavGuncelle();
+    odaNavCiz();
     tarihSinirla();
     const yil = String(seciliYil());
     const liste = (db.kasaHareketListele(aktifPb) || [])
@@ -256,7 +309,8 @@
         if (aktifYon === "gider") return giderMi(h);
         if (aktifYon === "gelir") return !giderMi(h);
         return true;
-      });
+      })
+      .filter(odaSeciliMi);
     ozetCiz(ozetHesapla(liste));
     listeCiz(liste);
   }
@@ -275,6 +329,18 @@
   function yonSec(yon) {
     const y = String(yon || "tumu").toLowerCase();
     aktifYon = y === "gelir" || y === "gider" ? y : "tumu";
+    ciz();
+  }
+
+  function odaToggle(id) {
+    const odaId = String(id || "");
+    if (!odaId || odaId === "tumu") {
+      aktifOdalar.clear();
+    } else if (aktifOdalar.has(odaId)) {
+      aktifOdalar.delete(odaId);
+    } else if (odalarListe().some((d) => d.id === odaId)) {
+      aktifOdalar.add(odaId);
+    }
     ciz();
   }
 
@@ -590,6 +656,11 @@
     document.querySelectorAll(".kasa-yon-btn").forEach((b) => {
       b.addEventListener("click", () => yonSec(b.dataset.yon));
     });
+    document.getElementById("kasa-oda-nav")?.addEventListener("click", (e) => {
+      const btn = e.target.closest?.(".kasa-oda-btn");
+      if (!btn) return;
+      odaToggle(btn.dataset.oda);
+    });
     document.querySelectorAll(".kasa-tip-btn").forEach((b) => {
       b.addEventListener("click", () => tipSec(b.dataset.tip));
     });
@@ -629,5 +700,5 @@
   document.addEventListener("DOMContentLoaded", bagla);
 
   window.APARTIM = window.APARTIM || {};
-  window.APARTIM.kasa = { ciz, pbSec, kalemSec, yonSec };
+  window.APARTIM.kasa = { ciz, pbSec, kalemSec, yonSec, odaToggle };
 })();

@@ -3812,7 +3812,8 @@ html:not(.theme-light) .rez-kaynak-badge {
 }
 .kasa-pb-btn:hover:not(.active) { color: var(--metin); }
 .kasa-kalem-nav,
-.kasa-yon-nav {
+.kasa-yon-nav,
+.kasa-oda-nav {
   display: flex;
   flex-wrap: nowrap;
   gap: 4px;
@@ -3823,6 +3824,13 @@ html:not(.theme-light) .rez-kaynak-badge {
   width: fit-content;
   max-width: none;
   flex-shrink: 0;
+}
+.kasa-oda-satir {
+  flex-shrink: 0;
+  min-width: 0;
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 .kasa-yon-btn {
   background: transparent;
@@ -3848,7 +3856,8 @@ html:not(.theme-light) .rez-kaynak-badge {
   color: #fff;
 }
 .kasa-yon-btn:hover:not(.active) { color: var(--metin); }
-.kasa-kalem-btn {
+.kasa-kalem-btn,
+.kasa-oda-btn {
   background: transparent;
   border: none;
   color: var(--metin-soluk);
@@ -3859,11 +3868,13 @@ html:not(.theme-light) .rez-kaynak-badge {
   white-space: nowrap;
   cursor: pointer;
 }
-.kasa-kalem-btn.active {
+.kasa-kalem-btn.active,
+.kasa-oda-btn.active {
   background: var(--vurgu);
   color: #fff;
 }
-.kasa-kalem-btn:hover:not(.active) { color: var(--metin); }
+.kasa-kalem-btn:hover:not(.active),
+.kasa-oda-btn:hover:not(.active) { color: var(--metin); }
 .kasa-ozet {
   display: flex;
   flex-wrap: wrap;
@@ -4314,14 +4325,26 @@ html.theme-light .kasa-kalem-booking { color: #5b46c9; }
     width: 100%;
     max-width: 100%;
   }
+  .kasa-oda-satir {
+    overflow-x: visible;
+  }
+  .kasa-oda-nav {
+    width: 100%;
+    max-width: 100%;
+  }
   .kasa-pb-btn,
   .kasa-yon-btn,
-  .kasa-kalem-btn {
+  .kasa-kalem-btn,
+  .kasa-oda-btn {
     flex: 1 1 auto;
     min-width: 0;
     padding: 5px 2px;
     font-size: 11px;
     text-align: center;
+  }
+  .kasa-oda-btn {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .kasa-harcama-form {
     grid-template-columns: 104px minmax(84px, 100px) minmax(0, 1fr) minmax(44px, 64px) 32px 32px;
