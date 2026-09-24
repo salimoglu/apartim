@@ -5616,7 +5616,33 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
   background: var(--tahsilat-yesil, #d8f3df);
   color: var(--tahsilat-yesil-yazi, #245c3a);
 }
+.tahsilat-filtre-btn.active[data-filtre="kirinti"] {
+  background: #fff1cc;
+  color: #8a4b08;
+}
 .tahsilat-filtre-btn:hover:not(.active) { color: var(--metin); }
+.tahsilat-kirinti-ozet {
+  border: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: #8a4b08;
+  background: #fff1cc;
+  border-radius: 999px;
+  padding: 4px 10px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.tahsilat-kirinti-ozet:hover,
+.tahsilat-kirinti-ozet.aktif {
+  background: #f6dd9a;
+}
+.tahsilat-kirinti-ozet.aktif {
+  box-shadow: inset 0 0 0 1px #c48a2a;
+}
 .tahsilat-legend-ornek {
   display: inline-flex;
   align-items: center;
@@ -5745,6 +5771,24 @@ html:not(.theme-light) .tahsilat-table {
   max-width: 180px;
 }
 .tahsilat-ad { font-weight: 800; }
+.tahsilat-ad-kirinti {
+  white-space: normal;
+  line-height: 1.15;
+}
+.tahsilat-ad-metin,
+.tahsilat-kirinti-tutar {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tahsilat-kirinti-tutar {
+  margin-top: 1px;
+  font-size: 10px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #8a4b08;
+}
 .tahsilat-kt { font-weight: 700; }
 .tahsilat-tik { cursor: pointer; }
 .tahsilat-table td.tahsilat-tamam {

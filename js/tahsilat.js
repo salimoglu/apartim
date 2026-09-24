@@ -3,6 +3,8 @@
    Rezervasyon özeti gibi: solda tarih, üstte odalar.
    Her odanın altında kişiler giriş tarihine göre sıralanır.
    Tahsilatı tamamlanan satır yeşil, açık olan kırmızı.
+   Eksik kalsa da tamamlananlar "Eksikle tamam" filtresinde;
+   bu kırıntıların toplamı üst barda.
    ========================================================= */
 
 (function () {
@@ -79,10 +81,62 @@
     return !!(rez && rez.giris && rez.cikis && rez.giris < bitHaric && rez.cikis > bas);
   }
 
+  /** Konaklama para biriminde gerçek kalan. Kur farkı borç sayılmaz. */
+  function kirintiBilgi(rez) {
+    if (!rez || !rez.tahsilatTamamlandi) return null;
+    const db = window.APARTIM.db;
+    if (!db) return null;
+    const bakiye = db.rezervasyonBakiye?.(rez);
+    const pb = bakiye?.fiyatPb || db.rezervasyonGosterimPb?.(rez) || "TL";
+    const kalan = bakiye ? Number(bakiye.kalan) || 0 : Number(db.rezervasyonKalanHesapla?.(rez)) || 0;
+    const toplam = bakiye ? Number(bakiye.toplam) || 0 : Number(db.rezervasyonToplamTl?.(rez)) || 0;
+    if (!(toplam > 0)) return null;
+    const esik = pb === "USD" ? 0.01 : 0.5;
+    if (!(kalan > esik)) return null;
+    return { kalan, pb };
+  }
+
+  function tutarYaz(miktar, pb) {
+    const para = window.APARTIM.para;
+    if (para?.formatTutar) return para.formatTutar(miktar, pb);
+    const n = Math.round((Number(miktar) || 0) * 100) / 100;
+    return n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + (pb || "TL");
+  }
+
+  function kurusTopla(a, b) {
+    return Math.round(((Number(a) || 0) + (Number(b) || 0)) * 100) / 100;
+  }
+
+  function kirintiTopla(map) {
+    const parca = Object.create(null);
+    let adet = 0;
+    Object.keys(map || {}).forEach((id) => {
+      (map[id] || []).forEach((rez) => {
+        const k = kirintiBilgi(rez);
+        if (!k) return;
+        adet += 1;
+        parca[k.pb] = kurusTopla(parca[k.pb], k.kalan);
+      });
+    });
+    return { adet, parca };
+  }
+
+  function kirintiMetin(ozet) {
+    const sira = { TL: 0, USD: 1, EUR: 2 };
+    const pbs = Object.keys(ozet.parca || {}).sort((a, b) => {
+      const ia = sira[a] == null ? 9 : sira[a];
+      const ib = sira[b] == null ? 9 : sira[b];
+      return ia - ib || a.localeCompare(b);
+    });
+    const tutarlar = pbs.map((pb) => tutarYaz(ozet.parca[pb], pb));
+    return "Kırıntı " + ozet.adet + " · " + tutarlar.join(" + ");
+  }
+
   function filtreUygun(rez, filtre) {
     const f = filtre || durum.filtre;
     if (f === "kalan") return !rez.tahsilatTamamlandi;
     if (f === "gerceklesen") return !!rez.tahsilatTamamlandi;
+    if (f === "kirinti") return !!kirintiBilgi(rez);
     return true;
   }
 
@@ -199,14 +253,16 @@
           return;
         }
         const tamam = !!rez.tahsilatTamamlandi;
+        const kirinti = kirintiBilgi(rez);
         const renkCls = tamam ? "tahsilat-tamam" : "tahsilat-acik";
         const ad = rez.misafirAdi || "—";
         const kat = kategoriAd(rez);
         const giris = tarihKisa(rez.giris);
         const cikis = tarihKisa(rez.cikis);
+        const kirintiYazi = kirinti ? tutarYaz(kirinti.kalan, kirinti.pb) : "";
         const baslik = tarihUzun(rez.giris) + " → " + tarihUzun(rez.cikis) +
           " · " + kat + " · " + ad +
-          (tamam ? " · tahsilat tamam" : " · tahsilat açık");
+          (kirinti ? " · kırıntı " + kirintiYazi : (tamam ? " · tahsilat tamam" : " · tahsilat açık"));
 
         const tdT = document.createElement("td");
         tdT.className = "tahsilat-tarih " + renkCls + yapiskan;
@@ -223,9 +279,16 @@
         tr.appendChild(tdK);
 
         const tdA = document.createElement("td");
-        tdA.className = "tahsilat-tik tahsilat-ad " + renkCls;
+        tdA.className = "tahsilat-tik tahsilat-ad " + renkCls + (kirinti ? " tahsilat-ad-kirinti" : "");
         tdA.dataset.rezId = rez.id || "";
-        hucreDoldur(tdA, tdA.className, ad, "Tahsilat ekranını aç · " + baslik);
+        tdA.title = "Tahsilat ekranını aç · " + baslik;
+        if (kirinti) {
+          tdA.innerHTML =
+            '<span class="tahsilat-ad-metin">' + esc(ad) + "</span>" +
+            '<span class="tahsilat-kirinti-tutar">' + esc(kirintiYazi) + "</span>";
+        } else {
+          hucreDoldur(tdA, tdA.className, ad, tdA.title);
+        }
         tr.appendChild(tdA);
       });
       tbody.appendChild(tr);
@@ -234,14 +297,27 @@
     return table;
   }
 
-  function ozetYaz(tamam, acik) {
+  function ozetYaz(tamam, acik, kirinti) {
     const el = document.getElementById("tahsilat-ozet");
+    const kirintiEl = document.getElementById("tahsilat-kirinti-ozet");
     if (!el) return;
     if (!tamam && !acik) {
       el.textContent = "Bu sezonda rezervasyon yok";
+      if (kirintiEl) kirintiEl.hidden = true;
       return;
     }
     el.textContent = tamam + " tamam · " + acik + " açık";
+    if (!kirintiEl) return;
+    if (!kirinti || !kirinti.adet) {
+      kirintiEl.hidden = true;
+      kirintiEl.textContent = "";
+      kirintiEl.classList.remove("aktif");
+      return;
+    }
+    kirintiEl.hidden = false;
+    kirintiEl.textContent = kirintiMetin(kirinti);
+    kirintiEl.classList.toggle("aktif", durum.filtre === "kirinti");
+    kirintiEl.setAttribute("aria-pressed", durum.filtre === "kirinti" ? "true" : "false");
   }
 
   function baslikYukseklik(table) {
@@ -279,7 +355,7 @@
     const liste = durum.filtre === "tumu"
       ? tumu
       : odaListeleri(daireler, rezervasyonlar, bas, bitHaric, durum.filtre);
-    ozetYaz(tumu.tamam, tumu.acik);
+    ozetYaz(tumu.tamam, tumu.acik, kirintiTopla(tumu.map));
 
     if (!daireler.length) {
       wrap.innerHTML = '<div class="tahsilat-bos-mesaj">Oda yok</div>';
@@ -352,7 +428,7 @@
   }
 
   function filtreSec(ad) {
-    const sonraki = ad === "kalan" || ad === "gerceklesen" ? ad : "tumu";
+    const sonraki = ad === "kalan" || ad === "gerceklesen" || ad === "kirinti" ? ad : "tumu";
     if (durum.filtre === sonraki) return;
     durum.filtre = sonraki;
     document.querySelectorAll(".tahsilat-filtre-btn").forEach((b) => {
@@ -379,6 +455,11 @@
         if (!btn) return;
         filtreSec(btn.dataset.filtre);
       });
+    }
+    const kirintiBtn = document.getElementById("tahsilat-kirinti-ozet");
+    if (kirintiBtn && !kirintiBtn.dataset.tahsilatBagli) {
+      kirintiBtn.dataset.tahsilatBagli = "1";
+      kirintiBtn.addEventListener("click", () => filtreSec("kirinti"));
     }
   }
 
@@ -414,6 +495,8 @@
     ciz,
     sekmeAc,
     odaListeleri,
-    sezonIcinde
+    sezonIcinde,
+    kirintiBilgi,
+    kirintiTopla
   };
 })();
