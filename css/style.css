@@ -5578,6 +5578,13 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
   gap: 6px;
   flex-shrink: 0;
 }
+.tahsilat-filtre-satir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
 .tahsilat-filtre {
   display: flex;
   gap: 2px;
@@ -5829,8 +5836,10 @@ html:not(.theme-light) .tahsilat-table td.tahsilat-bos {
 @media (max-width: 720px) {
   #tab-tahsilat.active { padding: 6px; }
   .tahsilat-ust { flex-wrap: wrap; gap: 6px; }
-  .tahsilat-filtre { flex: 1 1 100%; }
+  .tahsilat-filtre-satir { flex: 1 1 100%; }
+  .tahsilat-kirinti-ozet { margin-left: auto; }
   .tahsilat-filtre-btn { padding: 4px 8px; font-size: 11px; }
+  .tahsilat-ozet { margin-left: 0; }
   .tahsilat-col-kt { width: 108px; }
   .tahsilat-col-ad { width: 128px; }
   .tahsilat-table { font-size: 11px; }
