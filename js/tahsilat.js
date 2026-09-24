@@ -3,7 +3,7 @@
    Rezervasyon özeti gibi: solda tarih, üstte odalar.
    Her odanın altında kişiler giriş tarihine göre sıralanır.
    Tahsilatı tamamlanan satır yeşil, açık olan kırmızı.
-   Eksik kalsa da tamamlananlar "Eksikle tamam" filtresinde;
+   Eksik kalsa da tamamlananlar "Kırıntı" filtresinde;
    bu kırıntıların toplamı üst barda.
    ========================================================= */
 

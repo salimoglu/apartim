@@ -5572,12 +5572,6 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
   flex-shrink: 0;
   min-width: 0;
 }
-.tahsilat-legend {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-}
 .tahsilat-filtre-satir {
   display: flex;
   align-items: center;
@@ -5649,15 +5643,6 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
 }
 .tahsilat-kirinti-ozet.aktif {
   box-shadow: inset 0 0 0 1px #c48a2a;
-}
-.tahsilat-legend-ornek {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 8px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.3;
 }
 .tahsilat-ozet {
   margin: 0 0 0 auto;
@@ -5815,14 +5800,6 @@ html:not(.theme-light) .tahsilat-table {
 .tahsilat-table td.tahsilat-acik .tahsilat-gun-ad {
   color: var(--tahsilat-gul-yazi);
   opacity: 0.8;
-}
-.tahsilat-legend-ornek.tahsilat-tamam {
-  background: var(--tahsilat-yesil);
-  color: var(--tahsilat-yesil-yazi);
-}
-.tahsilat-legend-ornek.tahsilat-acik {
-  background: var(--tahsilat-gul);
-  color: var(--tahsilat-gul-yazi);
 }
 td.tahsilat-tik.tahsilat-tamam:hover { background: #c9ebd4; }
 td.tahsilat-tik.tahsilat-acik:hover { background: #f8d7dc; }
