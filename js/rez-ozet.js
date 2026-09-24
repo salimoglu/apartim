@@ -954,20 +954,6 @@
     return { tlHam, usdHam, tl, usd };
   }
 
-  function tahsilatKayitTl(kayit, rez) {
-    const para = window.APARTIM.para;
-    if (!kayit) return 0;
-    if ((kayit.tutarTl || 0) > 0 || (kayit.tutarUsd || 0) > 0) {
-      return para
-        ? para.tahsilatTlToplam(kayit.tutarTl, kayit.tutarUsd, kayit.kurUsd)
-        : (kayit.tutarTl || 0);
-    }
-    if ((kayit.tutar || 0) > 0) {
-      return para ? para.tlKarsiligi(kayit.tutar, rezPb(rez)) : kayit.tutar;
-    }
-    return 0;
-  }
-
   /** Tutarı yazma alanının beklediği biçimde (virgül, 2 basamak). */
   function tahsilatGirisMetni(n) {
     const y = Math.round(Math.abs(Number(n) || 0) * 100) / 100;
@@ -1023,16 +1009,22 @@
     const para = window.APARTIM.para;
     const ozet = document.getElementById("odeme-modal-ozet");
     if (!db || !rez || !ozet) return;
-    const toplamTl = db.rezervasyonToplamTl(rez);
-    const odenenTl = db.rezervasyonOdenenToplamTl(rez);
+    /* Borç konaklama para biriminde. Dolar tahsilatı dolarla kapanır;
+       lira satırı aynı bakiyenin tek kurdaki karşılığıdır. */
+    const bakiye = db.rezervasyonBakiye
+      ? db.rezervasyonBakiye(rez)
+      : null;
+    const toplamTl = bakiye ? bakiye.toplamTl : db.rezervasyonToplamTl(rez);
+    const odenenTl = bakiye ? bakiye.odenenTl : db.rezervasyonOdenenToplamTl(rez);
+    const bakiyeTl = bakiye ? bakiye.kalanTl : db.rezervasyonKalanTl(rez);
+    const usdToplam = bakiye ? bakiye.toplamUsd : toplamTl;
+    const usdOdenen = bakiye ? bakiye.odenenUsd : odenenTl;
+    const usdBakiyeHam = bakiye ? bakiye.kalanUsd : bakiyeTl;
     /* Tamamlandı olsa bile gerçek kalan/fazla göster (0'a zorlama) */
-    const bakiyeTl = db.rezervasyonKalanTl(rez);
-    const fazlaMi = bakiyeTl < -0.009;
+    const fazlaMi = (bakiye ? bakiye.kalan : bakiyeTl) < -0.009;
     const bakiyeEtiket = fazlaMi ? "Fazla" : "Kalan";
     const bakiyeAbsTl = Math.abs(bakiyeTl);
-    const kur = db.rezervasyonKurCift ? db.rezervasyonKurCift(rez) : null;
-    const tlDenUsd = (tl) =>
-      para ? para.tlDenPb(tl, "USD", kur) : tl;
+    const usdBakiye = Math.abs(usdBakiyeHam);
     const yazUsd = (m) => para ? para.formatTutar(m, "USD") : (fmt(m) + " $");
     const yazTl = (m) => para ? para.formatTutar(m, "TL") : (fmt(m) + " ₺");
     /* Toplam ve Kalan tutarları düğme: dokununca aynı para biriminin alanına yazılır */
@@ -1057,9 +1049,6 @@
       return "<b" + attr + ">" + esc(etiket) + "</b>" + deger;
     };
     const bakiyeCls = fazlaMi ? "tahsilat-ozet-fazla" : "";
-    const usdToplam = tlDenUsd(toplamTl);
-    const usdOdenen = tlDenUsd(odenenTl);
-    const usdBakiye = tlDenUsd(bakiyeAbsTl);
     ozet.innerHTML =
       '<div class="tahsilat-ozet-grid">' +
         hucre("Toplam", yazUsd(usdToplam), false, "", usdToplam) +
@@ -1186,45 +1175,29 @@
     if (!db || !rez) return;
 
     const para = window.APARTIM.para;
-    const kurCanli = tahsilatKurUsd();
-    /* Konaklama tutarı rezervasyonun kayıtlı kurundadır. Günün kuru yalnız çeviricide. */
-    const kurCift = db.rezervasyonKurCift
-      ? db.rezervasyonKurCift(rez)
-      : { USD: kurCanli };
-    const kurBill = Number(kurCift.USD) > 0 ? Number(kurCift.USD) : kurCanli;
-    const tarih = tahsilatSeciliTarih() || ctx.tarih;
     const { tl, usd } = tahsilatGirisOku();
     const tlSafe = Number.isFinite(tl) && tl > 0 ? tl : 0;
     const usdSafe = Number.isFinite(usd) && usd > 0 ? usd : 0;
-    let kurGiris = kurBill;
+    /* Yeni satır günün kuruyla; düzenlenen satır kendi kayıtlı kuruyla. */
+    let kurGiris = tahsilatKurUsd();
     if (ctx.odemeId && db.rezervasyonOdenenKayitGetir) {
       const eskiKur = Number(db.rezervasyonOdenenKayitGetir(rez, ctx.odemeId)?.kurUsd);
       if (eskiKur > 0) kurGiris = eskiKur;
     }
-    const buGunTl = para ? para.tahsilatTlToplam(tlSafe, usdSafe, kurGiris) : tlSafe;
 
-    /* Düzenlenen kayıt varsa onu çıkar; yeni kayıtta mevcutlara ekle */
-    let mevcutKayitTl = 0;
-    if (ctx.odemeId && db.rezervasyonOdenenKayitGetir) {
-      const eski = db.rezervasyonOdenenKayitGetir(rez, ctx.odemeId);
-      if (eski) mevcutKayitTl = tahsilatKayitTl(eski, rez);
-    }
-
-    const toplamTl = db.rezervasyonToplamTl(rez);
-    const odenenTl = db.rezervasyonOdenenToplamTl(rez) - mevcutKayitTl + buGunTl;
-    const kalanTl = toplamTl - odenenTl;
-
-    /* Canlı giriş de gösterim PB'sine dahil (TL+USD → USD) */
-    const pbAdaylari = [rezPb(rez)];
-    if (tlSafe > 0) pbAdaylari.push("TL");
-    if (usdSafe > 0) pbAdaylari.push("USD");
-    const uniq = [...new Set(pbAdaylari)];
-    let pb = uniq[0] || "TL";
-    if (uniq.length > 1) {
-      pb = uniq.includes("USD") ? "USD" : (uniq.find((p) => p !== "TL") || "TL");
-    }
-
-    const kalanPb = para && pb !== "TL" ? para.tlDenPb(kalanTl, pb, kurCift) : kalanTl;
+    const bakiye = db.rezervasyonBakiye
+      ? db.rezervasyonBakiye(rez, {
+          haricId: ctx.odemeId || "",
+          tutarTl: tlSafe,
+          tutarUsd: usdSafe,
+          kurUsd: kurGiris
+        })
+      : null;
+    const pb = bakiye?.fiyatPb === "USD" ? "USD" : "TL";
+    const kalanPb = bakiye
+      ? (pb === "USD" ? bakiye.kalanUsd : bakiye.kalanTl)
+      : 0;
+    const kalanTl = bakiye ? bakiye.kalanTl : 0;
     const esik = pb === "USD" ? 0.01 : 0.5;
     const tamam = !!document.getElementById("tahsilat-tamamla")?.checked;
     const ok = ' <span class="rez-ozet-tahsilat-ok" aria-hidden="true">✓</span>';

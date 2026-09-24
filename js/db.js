@@ -495,12 +495,63 @@
     return para.tlKarsiligi(tutar, pb, kur);
   }
 
+  function kurus(n) {
+    return Math.round((Number(n) || 0) * 100) / 100;
+  }
+
+  function odemeKurUsd(kayit, rez) {
+    if (Number(kayit?.kurUsd) > 0) return Number(kayit.kurUsd);
+    return rezervasyonKurCift(rez).USD;
+  }
+
+  /**
+   * Konaklamanın borç para birimi: gece fiyatları.
+   * Tahsilatın para birimi borcu değiştirmez.
+   */
+  function rezervasyonFiyatPb(rez) {
+    const para = window.APARTIM.para;
+    const defPb = para?.rezParaBirimi(rez) || "TL";
+    const pbs = [];
+    const gece = geceSayisi(rez?.giris, rez?.cikis);
+    for (let i = 1; i <= gece; i++) pbs.push(rezervasyonGeceKaydi(rez, i).pb);
+    if (!pbs.length) pbs.push(defPb);
+    return fiyatPbListesindenGosterim(pbs);
+  }
+
+  /**
+   * Tahsilatı konaklama para biriminde say.
+   * Dolar borcunda dolar yüz değeri; lira kısmı o tahsilatın kendi kurundan.
+   * Lira borcunda tahsilat, kayıt gününün kuruyla liraya çevrilir.
+   */
+  function odenenKayitFiyatPb(kayit, rez, fiyatPb) {
+    const para = window.APARTIM.para;
+    const pb = fiyatPb || rezervasyonFiyatPb(rez);
+    const tutarTl = Number(kayit?.tutarTl) || 0;
+    const tutarUsd = Number(kayit?.tutarUsd) || 0;
+    if (tutarTl > 0 || tutarUsd > 0) {
+      if (pb === "USD") {
+        const kur = odemeKurUsd(kayit, rez);
+        const tlUsd = tutarTl > 0 && kur > 0 ? tutarTl / kur : 0;
+        return tutarUsd + tlUsd;
+      }
+      return odenenKayitTl(kayit, rez);
+    }
+    const tutar = Number(kayit?.tutar) || 0;
+    if (pb === "TL" || kayit?.tutarBirim === "TL") return odenenKayitTl(kayit, rez);
+    const defPb = para?.rezParaBirimi(rez) || "TL";
+    if (defPb === pb) return tutar;
+    const kur = odemeKurUsd(kayit, rez);
+    if (!para) return tutar;
+    return para.tlDenPb(para.tlKarsiligi(tutar, defPb, { USD: kur }), pb, { USD: kur });
+  }
+
   /** Tahsilatın gösterim para birimindeki karşılığı */
   function odenenKayitPb(kayit, rez) {
     const para = window.APARTIM.para;
     const pb = rezervasyonGosterimPb(rez);
+    if (!para || pb === "TL") return odenenKayitTl(kayit, rez);
+    if (pb === "USD") return odenenKayitFiyatPb(kayit, rez, "USD");
     const tl = odenenKayitTl(kayit, rez);
-    if (!para || pb === "TL") return tl;
     const kur = rezervasyonKurCift(rez);
     if (Number(kayit?.kurUsd) > 0) kur.USD = Number(kayit.kurUsd);
     return para.tlDenPb(tl, pb, kur);
@@ -558,38 +609,118 @@
     }, 0);
   }
 
-  /** Gösterim PB'sinde ödenen toplam (kayıt günü kuru) */
-  function rezervasyonOdenenToplam(rez) {
+  /** Konaklama para biriminde toplam (dolar geceler yüz değeriyle toplanır) */
+  function rezervasyonToplamFiyatPb(rez) {
     const para = window.APARTIM.para;
-    const pb = rezervasyonGosterimPb(rez);
-    const tl = rezervasyonOdenenToplamTl(rez);
-    if (!para || pb === "TL") return tl;
-    return para.tlDenPb(tl, pb, rezervasyonKurCift(rez));
+    const pb = rezervasyonFiyatPb(rez);
+    if (!para || pb === "TL") return rezervasyonToplamTl(rez);
+    const kur = rezervasyonKurCift(rez);
+    const hesap = rezervasyonTutarHesapla(rez);
+    let toplam = 0;
+    let n = 0;
+    (hesap.gecelik || []).forEach((g) => {
+      n++;
+      const gecePb = para.paraBirimiNorm(g.pb);
+      if (gecePb === pb) toplam += Number(g.ucret) || 0;
+      else toplam += para.tlDenPb(para.tlKarsiligi(g.ucret, g.pb, kur), pb, kur);
+    });
+    if (!n) return para.tlDenPb(rezervasyonToplamTl(rez), pb, kur);
+    return kurus(toplam);
+  }
+
+  /** Konaklama para biriminde tahsilat. haricId düzenlenen kaydı dışarıda bırakır. */
+  function rezervasyonOdenenFiyatPb(rez, haricId) {
+    const pb = rezervasyonFiyatPb(rez);
+    const og = odenenGunleriTemizle(rez) || rez?.odenenGunleri;
+    if (!og) return 0;
+    const toplam = Object.keys(og).reduce((s, t) => {
+      return s + odenenGunDegerListe(og[t], t).reduce((s2, kayit) => {
+        if (haricId && kayit.id === haricId) return s2;
+        if (pb === "TL") return s2 + odenenKayitTl(kayit, rez);
+        return s2 + odenenKayitFiyatPb(kayit, rez, pb);
+      }, 0);
+    }, 0);
+    return kurus(toplam);
+  }
+
+  function tutariGosterimeCevir(miktar, kaynakPb, hedefPb, rez) {
+    const para = window.APARTIM.para;
+    if (!para || kaynakPb === hedefPb) return miktar;
+    const kur = rezervasyonKurCift(rez);
+    if (kaynakPb === "TL") return para.tlDenPb(miktar, hedefPb, kur);
+    if (hedefPb === "TL") return para.tlKarsiligi(miktar, kaynakPb, kur);
+    return para.tlDenPb(para.tlKarsiligi(miktar, kaynakPb, kur), hedefPb, kur);
+  }
+
+  /** Gösterim PB'sinde ödenen toplam. Dolar borcu dolar yüz değeriyle kapanır. */
+  function rezervasyonOdenenToplam(rez) {
+    const fiyatPb = rezervasyonFiyatPb(rez);
+    const gosterim = rezervasyonGosterimPb(rez);
+    return tutariGosterimeCevir(rezervasyonOdenenFiyatPb(rez), fiyatPb, gosterim, rez);
   }
 
   function rezervasyonKalanTl(rez) {
     return rezervasyonToplamTl(rez) - rezervasyonOdenenToplamTl(rez);
   }
 
-  /** Gösterim PB'sinde toplam tutar (kayıt günü kuru) */
+  /** Gösterim PB'sinde toplam tutar */
   function rezervasyonToplamGosterim(rez) {
-    const para = window.APARTIM.para;
-    const pb = rezervasyonGosterimPb(rez);
-    const tl = rezervasyonToplamTl(rez);
-    if (!para || pb === "TL") return tl;
-    return para.tlDenPb(tl, pb, rezervasyonKurCift(rez));
+    const fiyatPb = rezervasyonFiyatPb(rez);
+    const gosterim = rezervasyonGosterimPb(rez);
+    return tutariGosterimeCevir(rezervasyonToplamFiyatPb(rez), fiyatPb, gosterim, rez);
   }
 
   /**
-   * Toplam − ödemeler (gösterim PB'sinde).
-   * Yalnızca TL → TL; TL + döviz → döviz (kayıt günü kuru).
+   * Toplam − ödemeler.
+   * Borç, konaklama para birimindedir: dolar fiyat dolar tahsilatla kapanır.
+   * Kur farkı yeniden borç yazılmaz.
    */
   function rezervasyonKalanHesapla(rez) {
+    const fiyatPb = rezervasyonFiyatPb(rez);
+    const gosterim = rezervasyonGosterimPb(rez);
+    const kalan = kurus(rezervasyonToplamFiyatPb(rez) - rezervasyonOdenenFiyatPb(rez));
+    return tutariGosterimeCevir(kalan, fiyatPb, gosterim, rez);
+  }
+
+  /**
+   * Tahsilat özeti. taslak, formda yazılıp henüz kaydedilmemiş tutarı ekler.
+   * Dolar ve lira satırları aynı bakiyenin tek kurdaki karşılığıdır.
+   */
+  function rezervasyonBakiye(rez, taslak) {
     const para = window.APARTIM.para;
-    const pb = rezervasyonGosterimPb(rez);
-    const kalanTl = rezervasyonKalanTl(rez);
-    if (!para || pb === "TL") return kalanTl;
-    return para.tlDenPb(kalanTl, pb, rezervasyonKurCift(rez));
+    const fiyatPb = rezervasyonFiyatPb(rez);
+    const kur = rezervasyonKurCift(rez);
+    const toplam = rezervasyonToplamFiyatPb(rez);
+    let odenen = rezervasyonOdenenFiyatPb(rez, taslak?.haricId);
+    const taslakTl = Number(taslak?.tutarTl) || 0;
+    const taslakUsd = Number(taslak?.tutarUsd) || 0;
+    if (taslakTl > 0 || taslakUsd > 0) {
+      odenen = kurus(odenen + odenenKayitFiyatPb({
+        tutarTl: taslakTl,
+        tutarUsd: taslakUsd,
+        kurUsd: taslak?.kurUsd
+      }, rez, fiyatPb));
+    }
+    const kalan = kurus(toplam - odenen);
+    const usd = (m) => fiyatPb === "USD" || !para
+      ? m
+      : para.tlDenPb(m, "USD", kur);
+    const tl = (m) => fiyatPb === "TL" || !para
+      ? m
+      : para.tlKarsiligi(m, fiyatPb, kur);
+    return {
+      fiyatPb,
+      kur,
+      toplam,
+      odenen,
+      kalan,
+      toplamUsd: usd(toplam),
+      odenenUsd: usd(odenen),
+      kalanUsd: usd(kalan),
+      toplamTl: tl(toplam),
+      odenenTl: tl(odenen),
+      kalanTl: tl(kalan)
+    };
   }
 
   function rezervasyonOdenenGosterim(rez, tarih) {
@@ -1691,6 +1822,7 @@
     rezervasyonToplamTl,
     rezervasyonKalanTl,
     rezervasyonKalanHesapla,
+    rezervasyonBakiye,
     rezervasyonOdenenGosterim,
     rezervasyonOdenenListe,
     rezervasyonOdenenKayitGetir,
