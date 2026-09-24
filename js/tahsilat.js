@@ -11,7 +11,8 @@
   const GUN_KISA = ["PAZ", "PZT", "SAL", "ÇAR", "PER", "CUM", "CMT"];
 
   const durum = {
-    buguneKaydir: false
+    buguneKaydir: false,
+    filtre: "tumu"
   };
 
   function pad(n) { return String(n).padStart(2, "0"); }
@@ -78,6 +79,13 @@
     return !!(rez && rez.giris && rez.cikis && rez.giris < bitHaric && rez.cikis > bas);
   }
 
+  function filtreUygun(rez, filtre) {
+    const f = filtre || durum.filtre;
+    if (f === "kalan") return !rez.tahsilatTamamlandi;
+    if (f === "gerceklesen") return !!rez.tahsilatTamamlandi;
+    return true;
+  }
+
   function rezSirala(a, b) {
     const g = String(a.giris || "").localeCompare(String(b.giris || ""));
     if (g) return g;
@@ -90,12 +98,13 @@
    * Her oda için sezondaki rezervasyonlar, giriş tarihine göre.
    * Satır sayısı en dolu odanın kişi sayısıdır; odalar kendi listesini alta dizer.
    */
-  function odaListeleri(daireler, rezervasyonlar, bas, bitHaric) {
+  function odaListeleri(daireler, rezervasyonlar, bas, bitHaric, filtre) {
     const map = Object.create(null);
     daireler.forEach((d) => { map[d.id] = []; });
     (rezervasyonlar || []).forEach((rez) => {
       if (!rez || !map[rez.daireId]) return;
       if (!sezonIcinde(rez, bas, bitHaric)) return;
+      if (!filtreUygun(rez, filtre)) return;
       map[rez.daireId].push(rez);
     });
     let max = 0;
@@ -266,15 +275,22 @@
     const { bas, bitHaric } = sezonAralik(y);
     const daireler = daireSirasi(db);
     const rezervasyonlar = db.rezervasyonlarListele ? db.rezervasyonlarListele() : [];
-    const liste = odaListeleri(daireler, rezervasyonlar, bas, bitHaric);
-    ozetYaz(liste.tamam, liste.acik);
+    const tumu = odaListeleri(daireler, rezervasyonlar, bas, bitHaric, "tumu");
+    const liste = durum.filtre === "tumu"
+      ? tumu
+      : odaListeleri(daireler, rezervasyonlar, bas, bitHaric, durum.filtre);
+    ozetYaz(tumu.tamam, tumu.acik);
 
     if (!daireler.length) {
       wrap.innerHTML = '<div class="tahsilat-bos-mesaj">Oda yok</div>';
       return;
     }
-    if (!liste.max) {
+    if (!tumu.max) {
       wrap.innerHTML = '<div class="tahsilat-bos-mesaj">Bu sezonda rezervasyon yok</div>';
+      return;
+    }
+    if (!liste.max) {
+      wrap.innerHTML = '<div class="tahsilat-bos-mesaj">Bu filtrede rezervasyon yok</div>';
       return;
     }
 
@@ -335,19 +351,45 @@
     window.APARTIM.rezOzet.tahsilatAc(rez.id, tahsilatTarihi(rez));
   }
 
+  function filtreSec(ad) {
+    const sonraki = ad === "kalan" || ad === "gerceklesen" ? ad : "tumu";
+    if (durum.filtre === sonraki) return;
+    durum.filtre = sonraki;
+    document.querySelectorAll(".tahsilat-filtre-btn").forEach((b) => {
+      const aktif = b.dataset.filtre === sonraki;
+      b.classList.toggle("active", aktif);
+      b.setAttribute("aria-selected", aktif ? "true" : "false");
+    });
+    ciz();
+    const sc = document.getElementById("tahsilat-scroll");
+    if (sc) sc.scrollTop = 0;
+  }
+
   function bagla() {
     const sc = document.getElementById("tahsilat-scroll");
-    if (!sc || sc.dataset.tahsilatBagli) return;
-    sc.dataset.tahsilatBagli = "1";
-    sc.addEventListener("click", (ev) => {
-      const hucre = ev.target.closest("td.tahsilat-tik");
-      if (!hucre) return;
-      const id = hucre.dataset.rezId;
-      const rez = id && window.APARTIM.db?.durum?.rezervasyonlar?.[id];
-      if (!rez) return;
-      ev.preventDefault();
-      tahsilatEkraniAc(rez);
-    });
+    if (sc && !sc.dataset.tahsilatBagli) {
+      sc.dataset.tahsilatBagli = "1";
+      sc.addEventListener("click", hucreTik);
+    }
+    const filtre = document.querySelector(".tahsilat-filtre");
+    if (filtre && !filtre.dataset.tahsilatBagli) {
+      filtre.dataset.tahsilatBagli = "1";
+      filtre.addEventListener("click", (ev) => {
+        const btn = ev.target.closest(".tahsilat-filtre-btn");
+        if (!btn) return;
+        filtreSec(btn.dataset.filtre);
+      });
+    }
+  }
+
+  function hucreTik(ev) {
+    const hucre = ev.target.closest("td.tahsilat-tik");
+    if (!hucre) return;
+    const id = hucre.dataset.rezId;
+    const rez = id && window.APARTIM.db?.durum?.rezervasyonlar?.[id];
+    if (!rez) return;
+    ev.preventDefault();
+    tahsilatEkraniAc(rez);
   }
 
   function baslat() {

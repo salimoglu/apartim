@@ -5489,8 +5489,8 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
 .tahsilat-ust {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 10px;
   flex-shrink: 0;
   min-width: 0;
 }
@@ -5498,8 +5498,47 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
   display: flex;
   align-items: center;
   gap: 6px;
-  min-width: 0;
+  flex-shrink: 0;
 }
+.tahsilat-filtre {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  background: var(--zemin-2);
+  border: 1px solid var(--kenar);
+  border-radius: 999px;
+  padding: 3px;
+  width: fit-content;
+}
+.tahsilat-filtre-btn {
+  background: transparent;
+  border: none;
+  color: var(--metin-soluk);
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tahsilat-filtre-btn.active[data-filtre="tumu"] {
+  background: var(--vurgu);
+  color: #fff;
+}
+.tahsilat-filtre-btn.active[data-filtre="kalan"] {
+  background: var(--tahsilat-gul, #fde8ea);
+  color: var(--tahsilat-gul-yazi, #7a4450);
+}
+.tahsilat-filtre-btn.active[data-filtre="gerceklesen"] {
+  background: var(--tahsilat-yesil, #d8f3df);
+  color: var(--tahsilat-yesil-yazi, #245c3a);
+}
+.tahsilat-filtre-btn:hover:not(.active) { color: var(--metin); }
 .tahsilat-legend-ornek {
   display: inline-flex;
   align-items: center;
@@ -5510,7 +5549,7 @@ body.mobil-yatay-mod .rez-ozet-tam-btn {
   line-height: 1.3;
 }
 .tahsilat-ozet {
-  margin: 0;
+  margin: 0 0 0 auto;
   font-size: 12px;
   font-weight: 700;
   color: var(--metin-soluk);
@@ -5667,6 +5706,9 @@ html:not(.theme-light) .tahsilat-table td.tahsilat-bos {
 }
 @media (max-width: 720px) {
   #tab-tahsilat.active { padding: 6px; }
+  .tahsilat-ust { flex-wrap: wrap; gap: 6px; }
+  .tahsilat-filtre { flex: 1 1 100%; }
+  .tahsilat-filtre-btn { padding: 4px 8px; font-size: 11px; }
   .tahsilat-col-kt { width: 108px; }
   .tahsilat-col-ad { width: 128px; }
   .tahsilat-table { font-size: 11px; }
