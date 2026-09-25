@@ -540,6 +540,22 @@ html.apartim-deneme .app {
 .ayar-item-ikon { width: 22px; display: inline-flex; align-items: center; justify-content: center; }
 .ayar-item-ikon svg { width: 20px; height: 20px; }
 .ayar-cikis { color: var(--tehlike); }
+.ayar-formasyon-baslik {
+  padding: 2px 10px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--metin-soluk);
+}
+.ayar-formasyon-btn {
+  font-size: 13px;
+  white-space: normal;
+}
+.ayar-formasyon-btn.active,
+#ayar-formasyon-sabitle.active {
+  background: var(--vurgu-soluk);
+  color: var(--vurgu);
+}
 
 /* -------------------- 5. Sekmeler -------------------- */
 .tab-nav {
@@ -5798,6 +5814,144 @@ td.tahsilat-tik.tahsilat-acik:hover { background: #f8d7dc; }
 html:not(.theme-light) .tahsilat-table td.tahsilat-bos {
   background: #15202b;
 }
+/* Takvim üstte: tek takvim başlığı, odalar solda — tarih her odada tekrarlanmaz */
+.rez-ozet-form-takvim-ust {
+  --rez-oda-w: 96px;
+  --rez-gun-w: 72px;
+}
+.rez-ozet-form-takvim-ust .rez-ozet-oda-kose,
+.rez-ozet-form-takvim-ust .rez-ozet-oda-yapiskan {
+  width: var(--rez-oda-w);
+  min-width: var(--rez-oda-w);
+  max-width: var(--rez-oda-w);
+  text-align: center;
+  font-weight: 800;
+  font-size: 11px;
+  line-height: 1.15;
+  white-space: normal;
+  padding: 4px !important;
+  box-sizing: border-box;
+}
+.rez-ozet-form-takvim-ust thead .rez-ozet-oda-kose {
+  position: sticky;
+  left: 0;
+  top: 0;
+  z-index: 8;
+}
+.rez-ozet-form-takvim-ust tbody .rez-ozet-oda-yapiskan {
+  position: sticky;
+  left: 0;
+  z-index: 3;
+}
+.rez-ozet-form-takvim-ust thead tr.rez-ozet-tr-gun th {
+  top: var(--rez-ozet-head1-h);
+  z-index: 6;
+}
+.rez-ozet-form-takvim-ust thead th.rez-ozet-ay-baslik {
+  background: #1a2633 !important;
+  color: #ffffff !important;
+  font-weight: 300 !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 10px !important;
+  text-align: center;
+  padding: 2px 6px !important;
+}
+html.theme-light .rez-ozet-form-takvim-ust thead th.rez-ozet-ay-baslik {
+  background: #374151 !important;
+  color: #ffffff !important;
+}
+html:not(.theme-light) .rez-ozet-form-takvim-ust .rez-ozet-oda-kose,
+html:not(.theme-light) .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik {
+  background: #1e2d3d !important;
+  color: #ffffff !important;
+}
+html:not(.theme-light) .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik .rez-ozet-tarih-gun,
+html:not(.theme-light) .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik .rez-ozet-gun-ad {
+  color: #ffffff !important;
+}
+html:not(.theme-light) .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik.rez-ozet-haftasonu-sutun {
+  background: #243446 !important;
+}
+html:not(.theme-light) .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik.rez-ozet-bugun-sutun {
+  background: #1a3344 !important;
+  box-shadow: inset 0 -3px 0 var(--vurgu);
+}
+html.theme-light .rez-ozet-form-takvim-ust .rez-ozet-oda-kose,
+html.theme-light .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik {
+  background: var(--kart-2) !important;
+  color: var(--metin) !important;
+}
+html.theme-light .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik.rez-ozet-haftasonu-sutun {
+  background: #efe6d0 !important;
+}
+html.theme-light .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik.rez-ozet-bugun-sutun {
+  background: #dce8f5 !important;
+  box-shadow: inset 0 -3px 0 var(--vurgu);
+}
+.rez-ozet-form-takvim-ust .rez-ozet-gun-baslik {
+  width: var(--rez-gun-w);
+  min-width: var(--rez-gun-w);
+  max-width: var(--rez-gun-w);
+  text-align: center;
+  padding: 1px 0 !important;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.rez-ozet-form-takvim-ust td.rez-ozet-gun-kutu {
+  width: var(--rez-gun-w);
+  min-width: var(--rez-gun-w);
+  max-width: var(--rez-gun-w);
+  padding: 0 !important;
+  vertical-align: top;
+  box-sizing: border-box;
+}
+.rez-ozet-form-takvim-ust td.rez-ozet-bugun-sutun {
+  box-shadow: inset 3px 0 0 var(--vurgu);
+}
+.rez-ozet-form-takvim-ust .rez-ozet-sutun-hover {
+  outline: 1px solid var(--vurgu);
+  outline-offset: -1px;
+}
+.rez-ozet-form-takvim-ust .rez-ozet-sutun-secili {
+  outline: 2px solid var(--vurgu);
+  outline-offset: -2px;
+}
+.rez-ozet-gun-ic {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+.rez-ozet-gun-ic td {
+  border-left: none !important;
+  border-right: none !important;
+  height: 14px;
+  max-width: var(--rez-gun-w);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  font-size: 8px;
+  line-height: 1.15;
+  padding: 0 1px !important;
+}
+/* Oda satırı %25 yüksek: 5×14px → 87.5px. Fazlalık her günün ad satırında; ad iki satıra iner. */
+.rez-ozet-gun-ic tr:nth-child(5) td {
+  height: 31.5px;
+  min-height: 31.5px;
+  max-height: 31.5px;
+}
+.rez-ozet-gun-ic .rez-ozet-ad {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.15;
+  vertical-align: middle;
+}
+.rez-ozet-gun-ic td:first-child { border-top: none !important; }
+.rez-ozet-gun-ic td:last-child { border-bottom: none !important; }
+
 @media (max-width: 720px) {
   #tab-tahsilat.active { padding: 6px; }
   .tahsilat-ust { flex-wrap: wrap; gap: 6px; }
