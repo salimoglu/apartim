@@ -5934,12 +5934,20 @@ html.theme-light .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik.rez-ozet-bugun-s
   line-height: 1.15;
   padding: 0 1px !important;
 }
+/* Oda satırı %25 yüksek: 5×14px → 87.5px. Fazlalık her günün ad satırında; ad iki satıra iner. */
+.rez-ozet-gun-ic tr:nth-child(5) td {
+  height: 31.5px;
+  min-height: 31.5px;
+  max-height: 31.5px;
+}
 .rez-ozet-gun-ic .rez-ozet-ad {
-  white-space: nowrap;
-  word-break: normal;
-  overflow-wrap: normal;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.15;
+  vertical-align: middle;
 }
 .rez-ozet-gun-ic td:first-child { border-top: none !important; }
 .rez-ozet-gun-ic td:last-child { border-bottom: none !important; }
