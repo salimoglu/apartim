@@ -373,7 +373,7 @@
   }
 
   const ODEME_YONTEMLERI = {
-    kasa: "Kasa",
+    kasa: "Nakit",
     pos: "Pos",
     booking: "Booking",
     havale: "Hesaba havale",
@@ -383,8 +383,8 @@
 
   function odemeYontemNorm(yontem) {
     const y = String(yontem || "").toLowerCase();
-    /* Eski kayıtlar: elden → kasa */
-    if (y === "elden") return "kasa";
+    /* Eski kayıtlar: elden / görünen ad nakit → kasa */
+    if (y === "elden" || y === "nakit") return "kasa";
     return ODEME_YONTEMLERI[y] ? y : ODEME_YONTEM_VARSAYILAN;
   }
 
@@ -1394,7 +1394,7 @@
   }
 
   /**
-   * Tüm tahsilat kalemleri (Kasa, Pos, Booking, Havale, Diğer) + manuel gelir/gider.
+   * Tüm tahsilat kalemleri (Nakit, Pos, Booking, Havale, Diğer) + manuel gelir/gider.
    * pbFiltre: null/"tumu" | "TL" | "USD"
    * Her satırda yontem: kasa | pos | booking | havale | diger
    * Manuel kayıtlar seçilen kalemdedir (varsayılan kasa).

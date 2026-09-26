@@ -1,7 +1,7 @@
 /* =========================================================
    APARTIM — Kasa modülü
    Tüm tahsilat kalemleri + manuel gelir/gider.
-   Kalem filtresi: Tümü, Kasa, Pos, Booking, Havale, Diğer.
+   Kalem filtresi: Tümü, Nakit, Pos, Booking, Havale, Diğer.
    Oda filtresi: birden fazla oda aynı anda seçilebilir.
    ========================================================= */
 
@@ -9,7 +9,7 @@
   "use strict";
 
   const KALEM_AD = {
-    kasa: "Kasa",
+    kasa: "Nakit",
     pos: "Pos",
     booking: "Booking",
     havale: "Havale",
@@ -113,14 +113,20 @@
     return ozet;
   }
 
+  function kalemAnahtar(yontem) {
+    const ham = String(yontem || "kasa").toLowerCase();
+    if (ham === "elden" || ham === "nakit") return "kasa";
+    return ham;
+  }
+
   function kalemAd(yontem) {
-    const y = String(yontem || "kasa").toLowerCase() === "elden" ? "kasa" : String(yontem || "kasa");
+    const y = kalemAnahtar(yontem);
     if (KALEM_AD[y]) return KALEM_AD[y];
-    return window.APARTIM.db?.ODEME_YONTEMLERI?.[y] || "Kasa";
+    return window.APARTIM.db?.ODEME_YONTEMLERI?.[y] || "Nakit";
   }
 
   function kalemTamAd(yontem) {
-    const y = String(yontem || "kasa").toLowerCase() === "elden" ? "kasa" : String(yontem || "kasa");
+    const y = kalemAnahtar(yontem);
     return window.APARTIM.db?.ODEME_YONTEMLERI?.[y] || kalemAd(y);
   }
 
@@ -393,7 +399,7 @@
 
   function yontemNorm(yontem) {
     const y = String(yontem || "kasa").toLowerCase();
-    if (y === "elden") return "kasa";
+    if (y === "elden" || y === "nakit") return "kasa";
     return YONTEM_SIRA.includes(y) ? y : "kasa";
   }
 

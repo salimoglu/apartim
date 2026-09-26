@@ -141,8 +141,9 @@
   }
 
   const ODEME_YONTEM_KISA = {
-    kasa: "Kasa",
-    elden: "Kasa",
+    kasa: "Nakit",
+    elden: "Nakit",
+    nakit: "Nakit",
     pos: "Pos",
     havale: "Havale",
     booking: "Booking",
@@ -150,9 +151,10 @@
   };
 
   function odenenYontemAd(yontem) {
-    const y = String(yontem || "").toLowerCase() === "elden" ? "kasa" : yontem;
+    const ham = String(yontem || "").toLowerCase();
+    const y = ham === "elden" || ham === "nakit" ? "kasa" : yontem;
     return window.APARTIM.db?.ODEME_YONTEMLERI?.[y] ||
-      ODEME_YONTEM_KISA[y] || "Kasa";
+      ODEME_YONTEM_KISA[y] || "Nakit";
   }
 
   function odenenHucreGoster(rez, info) {
@@ -1152,7 +1154,7 @@
     }).join("");
   }
 
-  /** Yeni tahsilatta kalem: Booking kategorisi Booking, diğerleri Kasa. */
+  /** Yeni tahsilatta kalem: Booking kategorisi Booking, diğerleri Nakit. */
   function tahsilatVarsayilanYontem(rez) {
     const id = String(rez?.kaynakId || "").toLowerCase();
     if (id === "booking") return "booking";

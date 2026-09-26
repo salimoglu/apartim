@@ -116,7 +116,7 @@
       if (!s || odemeBakiyeMi(s)) return null;
 
       const yontemler = window.APARTIM.db?.ODEME_YONTEMLERI || {
-        kasa: "Kasa", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
+        kasa: "Nakit", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
       };
       let yontem = "kasa";
       const ym = s.match(/\(([^)]+)\)\s*$/);

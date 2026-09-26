@@ -601,7 +601,7 @@
   function raporExportHtml(r, yillik) {
     const db = window.APARTIM.db;
     const yontemler = db?.ODEME_YONTEMLERI || {
-      kasa: "Kasa", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
+      kasa: "Nakit", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
     };
     const modBaslik = yillik ? "Yıllık Rapor" : "Aylık Rapor";
     const td = 'style="border:1px solid #666;padding:6px 8px;"';
