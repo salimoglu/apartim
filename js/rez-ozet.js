@@ -1696,11 +1696,39 @@
     return null;
   }
 
+  function tekerlekPiksel(e, eksen, kapsayici) {
+    let d = eksen === "x" ? e.deltaX : e.deltaY;
+    if (e.deltaMode === 1) d *= 32;
+    else if (e.deltaMode === 2) {
+      d *= eksen === "x" ? kapsayici.clientWidth : kapsayici.clientHeight;
+    }
+    return d;
+  }
+
+  /** Oda solda, takvim üstte: fare tekerleği yukarı-aşağı iken takvim sola-sağa kayar. */
+  function takvimUstTekerlek(e) {
+    const kapsayici = e.currentTarget;
+    if (!kapsayici?.querySelector(".rez-ozet-form-takvim-ust")) return;
+    if (e.ctrlKey || e.metaKey) return;
+    if (e.target?.closest?.("input, textarea, select, [contenteditable='true']")) return;
+    const dy = tekerlekPiksel(e, "y", kapsayici);
+    const dx = tekerlekPiksel(e, "x", kapsayici);
+    if (!dy || Math.abs(dy) <= Math.abs(dx)) return;
+    const max = kapsayici.scrollWidth - kapsayici.clientWidth;
+    if (max <= 1) return;
+    const hedef = Math.max(0, Math.min(max, kapsayici.scrollLeft + dy));
+    if (hedef === kapsayici.scrollLeft) return;
+    e.preventDefault();
+    kapsayici.scrollLeft = hedef;
+  }
+
   function etkilesimBagla(kapsayici) {
     if (!kapsayici || kapsayici.dataset.rezOzetBagli) return;
     kapsayici.dataset.rezOzetBagli = "1";
     scrollKapsayici = kapsayici;
     let satirSecDokunmaYapildi = false;
+
+    kapsayici.addEventListener("wheel", takvimUstTekerlek, { passive: false });
 
     kapsayici.addEventListener("click", (ev) => {
       if (ev.target.closest("td.rez-ozet-kategori, td.rez-ozet-g, td.rez-ozet-bos-gun")) {
