@@ -1378,14 +1378,13 @@
       const eskiSnap = await db.ref("apartim/kullanicilar/" + uid).once("value");
       eski = eskiSnap.val() || {};
     }
-    const otelSnap = await db.ref(otelKok).once("value");
-    const otel = otelSnap.val() || {};
     const guncelleme = {};
-    OTEL_VERI_YOLLARI.forEach((yol) => {
-      if (eski && eski[yol] != null && otel[yol] == null) {
-        guncelleme[otelKok + "/" + yol] = eski[yol];
-      }
-    });
+    for (let i = 0; i < OTEL_VERI_YOLLARI.length; i++) {
+      const yol = OTEL_VERI_YOLLARI[i];
+      if (!eski || eski[yol] == null) continue;
+      const parca = await db.ref(otelKok + "/" + yol).once("value");
+      if (parca.val() == null) guncelleme[otelKok + "/" + yol] = eski[yol];
+    }
     if (Object.keys(guncelleme).length) await db.ref().update(guncelleme);
     await db.ref("apartim/uyelik/" + uid).set(uid);
     return uid;
