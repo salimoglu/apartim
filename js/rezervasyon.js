@@ -1074,7 +1074,7 @@
     const gelecek = rez.giris > bg;
 
     const durumEt = aktif ? "Aktif" : (gelecek ? "Yaklaşan" : "Tamamlandı");
-    const kaynakAd = rez.kaynakAd || window.APARTIM.db.musteriKaynagiAd(rez.kaynakId) || "—";
+    const kaynakAd = window.APARTIM.db.musteriKaynagiGorunenAd(rez) || "—";
     const kaynakSimge = window.APARTIM.db.musteriKaynagiSimge(rez.kaynakId);
     const db = window.APARTIM.db;
     const rezPb0 = window.APARTIM.para?.rezParaBirimi(rez) || "TL";

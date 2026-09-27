@@ -18,7 +18,11 @@
 
   const KATEGORI_SIMGELER = [
     "🌐", "⭐", "🚪", "👋", "🦅", "📞", "✈️", "🏠", "💼", "❤️",
-    "📱", "🧳", "🏖️", "🎯", "💰", "🔵", "🟢", "🟡", "🏷️", "👤"
+    "📱", "🧳", "🏖️", "🎯", "💰", "🔵", "🟢", "🟡", "🏷️", "👤",
+    "🏨", "🛏️", "🔑", "🛎️", "🗺️", "🚗", "🚌", "🚢", "🏝️", "🌅",
+    "👥", "💬", "📧", "🤝", "📸", "🔗", "📍", "📌", "🏢", "💻",
+    "💳", "💵", "🎁", "🎉", "🏆", "🔁", "🌸", "🌴", "☀️", "🔥",
+    "🐦", "🐟", "🐚", "🟣", "🟠", "🔴", "⚪", "⚫", "🔍", "✉️"
   ];
 
   const SABIT_DAIRELER = [
@@ -1683,10 +1687,22 @@
     const k = musteriKaynagiGetir(id);
     return k?.simge || "🏷️";
   }
+  /** Katalogdaki güncel ad; kaynak silinmişse rezervasyondaki eski ada düşer. */
+  function musteriKaynagiGorunenAd(rez) {
+    if (!rez) return "";
+    const canli = rez.kaynakId ? musteriKaynagiAd(rez.kaynakId) : "";
+    return canli || rez.kaynakAd || "";
+  }
+  function musteriKaynagiSimgeNorm(simge) {
+    const metin = String(simge || "").trim();
+    if (!metin) return "🏷️";
+    if (Array.from(metin).length > 4) throw new Error("Geçersiz simge.");
+    return metin;
+  }
   function musteriKaynagiEkle(ad, simge) {
     const metin = String(ad || "").trim();
     if (!metin) throw new Error("Kategori adı boş olamaz.");
-    const simgeMetin = String(simge || "🏷️").trim() || "🏷️";
+    const simgeMetin = musteriKaynagiSimgeNorm(simge);
     const mevcut = musteriKaynaklariListele().find((k) =>
       (k.ad || "").toLocaleLowerCase("tr") === metin.toLocaleLowerCase("tr")
     );
@@ -1701,6 +1717,28 @@
     const kayit = { id, ad: metin, simge: simgeMetin, sira, sistem: false };
     durum.musteriKaynaklari[id] = kayit;
     return kaydet("musteri-kaynaklari/" + id, kayit).then(() => kayit);
+  }
+  function musteriKaynagiGuncelle(id, partial) {
+    const k = durum.musteriKaynaklari[id];
+    if (!k) throw new Error("Kategori bulunamadı.");
+    const ad = partial && partial.ad != null ? String(partial.ad).trim() : String(k.ad || "").trim();
+    const simge = partial && partial.simge != null ? musteriKaynagiSimgeNorm(partial.simge) : (k.simge || "🏷️");
+    if (!ad) throw new Error("Kategori adı boş olamaz.");
+    if (ad.length > 40) throw new Error("Kategori adı en fazla 40 karakter olabilir.");
+    const cakisan = musteriKaynaklariListele().find((x) =>
+      x.id !== id && (x.ad || "").toLocaleLowerCase("tr") === ad.toLocaleLowerCase("tr")
+    );
+    if (cakisan) throw new Error("Bu isimde kategori zaten var.");
+    if (ad === k.ad && simge === (k.simge || "🏷️")) return Promise.resolve(k);
+    const oncekiAd = k.ad;
+    const oncekiSimge = k.simge;
+    k.ad = ad;
+    k.simge = simge;
+    return kaydet("musteri-kaynaklari/" + id, k).then(() => k).catch((err) => {
+      k.ad = oncekiAd;
+      k.simge = oncekiSimge;
+      throw err;
+    });
   }
   function musteriKaynagiSil(id) {
     const k = durum.musteriKaynaklari[id];
@@ -2165,7 +2203,9 @@
     musteriKaynagiGetir,
     musteriKaynagiAd,
     musteriKaynagiSimge,
+    musteriKaynagiGorunenAd,
     musteriKaynagiEkle,
+    musteriKaynagiGuncelle,
     musteriKaynagiSil,
     profilAvatarKaydet,
     anlikVeriAl,

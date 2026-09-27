@@ -29,23 +29,52 @@
   // ---- Müşteri kaynakları ----
   let seciliKaynakSimge = "🏷️";
 
-  function simgePaletiRender() {
-    const wrap = document.getElementById("kaynak-simge-sec");
+  function paletSimgeleri(ek) {
+    const liste = (window.APARTIM.db.KATEGORI_SIMGELER || ["🏷️"]).slice();
+    if (ek && liste.indexOf(ek) < 0) liste.unshift(ek);
+    return liste;
+  }
+
+  function simgePaletiDoldur(wrap, secili, onSec) {
     if (!wrap) return;
-    const simgeler = window.APARTIM.db.KATEGORI_SIMGELER || ["🏷️"];
     wrap.innerHTML = "";
-    simgeler.forEach((s) => {
+    paletSimgeleri(secili).forEach((s) => {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "kaynak-simge-btn" + (s === seciliKaynakSimge ? " active" : "");
+      btn.className = "kaynak-simge-btn" + (s === secili ? " active" : "");
       btn.textContent = s;
       btn.title = "Simge seç";
-      btn.addEventListener("click", () => {
-        seciliKaynakSimge = s;
-        simgePaletiRender();
-      });
+      btn.addEventListener("click", () => onSec(s, btn));
       wrap.appendChild(btn);
     });
+  }
+
+  function simgePaletiRender() {
+    const wrap = document.getElementById("kaynak-simge-sec");
+    simgePaletiDoldur(wrap, seciliKaynakSimge, (s) => {
+      seciliKaynakSimge = s;
+      simgePaletiRender();
+    });
+  }
+
+  function kaynakSatirPaletKapat() {
+    document.querySelectorAll("#kaynak-liste .kaynak-satir-palet").forEach((p) => {
+      p.classList.add("hidden");
+      p.innerHTML = "";
+    });
+    document.querySelectorAll("#kaynak-liste .kaynak-simge-satir").forEach((b) => {
+      b.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function kaynakSatirKirliMi(simgeBtn, input) {
+    const simge = simgeBtn?.dataset.simge || "🏷️";
+    const ad = String(input?.value || "").trim();
+    return simge !== (simgeBtn?.dataset.orijinal || "🏷️") || ad !== (input?.dataset.orijinal || "");
+  }
+
+  function kaynakSatirKirliIsaretle(simgeBtn, input, kaydetBtn) {
+    kaydetBtn?.classList.toggle("dirty", kaynakSatirKirliMi(simgeBtn, input));
   }
 
   function kaynakListeRender() {
@@ -56,14 +85,80 @@
     liste.forEach((k) => {
       const li = document.createElement("li");
       li.className = "kaynak-item" + (k.sistem ? " kaynak-item-sistem" : "");
-      li.innerHTML =
-        '<span class="kaynak-simge">' + esc(k.simge || "🏷️") + '</span>' +
-        '<span class="kaynak-ad">' + esc(k.ad) + '</span>' +
-        (k.sistem ? '<span class="kaynak-etiket">Varsayılan</span>' : "") +
-        (k.sistem ? "" : '<button type="button" class="kaynak-sil-btn" data-id="' + esc(k.id) + '">Sil</button>');
-      if (!k.sistem) {
-        li.querySelector(".kaynak-sil-btn").addEventListener("click", () => kaynakSil(k.id));
+      const simge = k.simge || "🏷️";
+      const ad = k.ad || "";
+
+      const simgeBtn = document.createElement("button");
+      simgeBtn.type = "button";
+      simgeBtn.className = "kaynak-simge kaynak-simge-satir";
+      simgeBtn.textContent = simge;
+      simgeBtn.title = "Simgeyi değiştir";
+      simgeBtn.setAttribute("aria-label", ad + " simgesi");
+      simgeBtn.setAttribute("aria-expanded", "false");
+      simgeBtn.dataset.simge = simge;
+      simgeBtn.dataset.orijinal = simge;
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "field-input kaynak-ad-input";
+      input.value = ad;
+      input.maxLength = 40;
+      input.setAttribute("aria-label", ad + " adı");
+      input.dataset.orijinal = ad;
+
+      const eylem = document.createElement("div");
+      eylem.className = "kaynak-eylem";
+      if (k.sistem) {
+        const et = document.createElement("span");
+        et.className = "kaynak-etiket";
+        et.textContent = "Varsayılan";
+        eylem.appendChild(et);
       }
+      const kaydetBtn = document.createElement("button");
+      kaydetBtn.type = "button";
+      kaydetBtn.className = "kaynak-kaydet-btn";
+      kaydetBtn.textContent = "Kaydet";
+      kaydetBtn.addEventListener("click", () => kaynakGuncelle(k.id, input, simgeBtn));
+      eylem.appendChild(kaydetBtn);
+      if (!k.sistem) {
+        const sil = document.createElement("button");
+        sil.type = "button";
+        sil.className = "kaynak-sil-btn";
+        sil.textContent = "Sil";
+        sil.addEventListener("click", () => kaynakSil(k.id));
+        eylem.appendChild(sil);
+      }
+
+      const palet = document.createElement("div");
+      palet.className = "kaynak-satir-palet hidden";
+
+      simgeBtn.addEventListener("click", () => {
+        const acik = simgeBtn.getAttribute("aria-expanded") === "true";
+        kaynakSatirPaletKapat();
+        if (acik) return;
+        simgeBtn.setAttribute("aria-expanded", "true");
+        palet.classList.remove("hidden");
+        simgePaletiDoldur(palet, simgeBtn.dataset.simge || "🏷️", (s) => {
+          simgeBtn.dataset.simge = s;
+          simgeBtn.textContent = s;
+          palet.querySelectorAll(".kaynak-simge-btn").forEach((b) => {
+            b.classList.toggle("active", b.textContent === s);
+          });
+          kaynakSatirKirliIsaretle(simgeBtn, input, kaydetBtn);
+        });
+      });
+      input.addEventListener("input", () => kaynakSatirKirliIsaretle(simgeBtn, input, kaydetBtn));
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          kaynakGuncelle(k.id, input, simgeBtn);
+        }
+      });
+
+      li.appendChild(simgeBtn);
+      li.appendChild(input);
+      li.appendChild(eylem);
+      li.appendChild(palet);
       ul.appendChild(li);
     });
   }
@@ -99,6 +194,29 @@
       window.APARTIM.toast("Kategori eklendi", "basari");
     } catch (err) {
       uyari("kaynak-uyari", err.message || "Eklenemedi.");
+    }
+  }
+
+  async function kaynakGuncelle(id, input, simgeBtn) {
+    const ad = input?.value.trim();
+    const simge = simgeBtn?.dataset.simge || "🏷️";
+    if (!ad) {
+      uyari("kaynak-uyari", "Kategori adı boş olamaz.");
+      input?.focus();
+      return;
+    }
+    if (!kaynakSatirKirliMi(simgeBtn, input)) {
+      kaynakSatirPaletKapat();
+      uyari("kaynak-uyari", "");
+      return;
+    }
+    try {
+      await window.APARTIM.db.musteriKaynagiGuncelle(id, { ad, simge });
+      uyari("kaynak-uyari", "");
+      kaynakListeRender();
+      window.APARTIM.toast("Kategori güncellendi", "basari");
+    } catch (err) {
+      uyari("kaynak-uyari", err.message || "Kaydedilemedi.");
     }
   }
 
@@ -487,7 +605,10 @@
 
   document.addEventListener("apartim:veri-degisti", (e) => {
     if (e.detail?.sebep === "musteri-kaynaklari" && modalKaynak() && !modalKaynak().classList.contains("hidden")) {
-      kaynakListeRender();
+      const aktif = document.activeElement;
+      const adYaziliyor = aktif && modalKaynak().contains(aktif) && aktif.classList.contains("kaynak-ad-input");
+      const paletAcik = modalKaynak().querySelector(".kaynak-satir-palet:not(.hidden)");
+      if (!adYaziliyor && !paletAcik) kaynakListeRender();
     }
     if (e.detail?.sebep === "daireler" && modalDaire() && !modalDaire().classList.contains("hidden")) {
       daireListeRender();

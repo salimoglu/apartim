@@ -463,7 +463,7 @@
 
   function kaynakBaslik(rez) {
     if (!rez) return "";
-    return rez.kaynakAd || window.APARTIM.db.musteriKaynagiAd(rez.kaynakId) || "";
+    return window.APARTIM.db.musteriKaynagiGorunenAd(rez);
   }
 
   function kaynakSimgeHtml(rez) {
@@ -1160,7 +1160,7 @@
     const id = String(rez?.kaynakId || "").toLowerCase();
     if (id === "booking") return "booking";
     const ad = String(
-      rez?.kaynakAd || window.APARTIM.db?.musteriKaynagiAd?.(rez?.kaynakId) || ""
+      window.APARTIM.db?.musteriKaynagiGorunenAd?.(rez) || ""
     ).trim().toLocaleLowerCase("tr-TR");
     return ad === "booking" ? "booking" : "kasa";
   }

@@ -74,7 +74,7 @@
 
   function kategoriAd(rez) {
     if (!rez) return "";
-    return rez.kaynakAd || window.APARTIM.db?.musteriKaynagiAd?.(rez.kaynakId) || "—";
+    return window.APARTIM.db?.musteriKaynagiGorunenAd?.(rez) || "—";
   }
 
   function sezonIcinde(rez, bas, bitHaric) {
