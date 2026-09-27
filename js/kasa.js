@@ -3,6 +3,7 @@
    Tüm tahsilat kalemleri + manuel gelir/gider.
    Kalem filtresi: Tümü, Nakit, Pos, Booking, Havale, Diğer.
    Oda filtresi: birden fazla oda aynı anda seçilebilir.
+   Harici: oda dışında eklenen gelir ve giderler.
    ========================================================= */
 
 (function () {
@@ -21,8 +22,10 @@
   let aktifPb = "tumu";
   let aktifKalem = "tumu";
   let aktifYon = "tumu";
-  /** Seçili oda id'leri. Boş küme = tüm odalar. */
+  /** Seçili oda id'leri. Boş küme ve Harici kapalı = tüm kayıtlar. */
   const aktifOdalar = new Set();
+  /** Oda dışında (oda seçilmeden) eklenen gelir ve giderler. */
+  let aktifHarici = false;
   let aktifTip = "gider";
   let hareketMap = {};
   let duzenlenen = null;
@@ -161,9 +164,15 @@
       .filter((d) => aktifOdalar.has(d.id))
       .map((d) => String(d.ad || "").trim())
       .filter(Boolean);
+    if (aktifHarici) adlar.push("Harici");
     if (adlar.length <= 1) return adlar[0] || "";
     if (adlar.length === 2) return adlar[0] + " ve " + adlar[1];
     return adlar.slice(0, -1).join(", ") + " ve " + adlar[adlar.length - 1];
+  }
+
+  /** Kasa formundan, odaya bağlı olmadan eklenen kayıt. */
+  function hariciKayitMi(h) {
+    return !String(h?.daireId || "").trim();
   }
 
   function odaNavCiz() {
@@ -174,7 +183,7 @@
     aktifOdalar.forEach((id) => {
       if (!gecerli.has(id)) aktifOdalar.delete(id);
     });
-    const tumuSecili = aktifOdalar.size === 0;
+    const tumuSecili = aktifOdalar.size === 0 && !aktifHarici;
     const butonlar = [
       '<button type="button" class="kasa-oda-btn' + (tumuSecili ? " active" : "") +
         '" data-oda="tumu" aria-pressed="' + (tumuSecili ? "true" : "false") +
@@ -191,11 +200,17 @@
         "</button>"
       );
     });
+    butonlar.push(
+      '<button type="button" class="kasa-oda-btn' + (aktifHarici ? " active" : "") +
+        '" data-oda="harici" aria-pressed="' + (aktifHarici ? "true" : "false") +
+        '" aria-label="Oda dışında eklenen gelir ve giderler">Harici</button>'
+    );
     nav.innerHTML = butonlar.join("");
   }
 
   function odaSeciliMi(h) {
-    if (!aktifOdalar.size) return true;
+    if (!aktifOdalar.size && !aktifHarici) return true;
+    if (hariciKayitMi(h)) return aktifHarici;
     return aktifOdalar.has(h.daireId);
   }
 
@@ -342,6 +357,9 @@
     const odaId = String(id || "");
     if (!odaId || odaId === "tumu") {
       aktifOdalar.clear();
+      aktifHarici = false;
+    } else if (odaId === "harici") {
+      aktifHarici = !aktifHarici;
     } else if (aktifOdalar.has(odaId)) {
       aktifOdalar.delete(odaId);
     } else if (odalarListe().some((d) => d.id === odaId)) {
