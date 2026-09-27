@@ -9,13 +9,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="msapplication-TileColor" content="#15202b" />
-  <meta name="msapplication-TileImage" content="icons/icon-192.png?v=3.82" />
+  <meta name="msapplication-TileImage" content="icons/icon-192.png?v=3.83" />
   <title>Apartım — Apart-otel takip</title>
-  <link rel="icon" href="icons/favicon.ico?v=3.82" sizes="48x48" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=3.82" />
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=3.82" />
-  <link rel="manifest" href="manifest.json?v=3.82" />
-  <link rel="stylesheet" href="css/style.css?v=3.82" />
+  <link rel="icon" href="icons/favicon.ico?v=3.83" sizes="48x48" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png?v=3.83" />
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180.png?v=3.83" />
+  <link rel="manifest" href="manifest.json?v=3.83" />
+  <link rel="stylesheet" href="css/style.css?v=3.83" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
@@ -53,14 +53,20 @@
   <div id="lock-screen" class="lock-screen">
     <div class="lock-inner">
       <div class="lock-logo">
-        <img class="lock-app-icon" src="icons/icon-256.png?v=3.82" alt="Apartım" width="96" height="96" decoding="async" />
+        <img class="lock-app-icon" src="icons/icon-256.png?v=3.83" alt="Apartım" width="96" height="96" decoding="async" />
         <h1 class="lock-title">APARTIM</h1>
         <p class="lock-sub" id="lock-sub">Apart-otel takip uygulaması</p>
         <p class="lock-bekle" id="lock-bekle" aria-live="polite">Hazırlanıyor…</p>
       </div>
-      <div class="lock-auth-panel" id="lock-auth-panel">
-        <p class="lock-auth-baslik" id="lock-auth-baslik">Giriş</p>
-        <p class="lock-auth-aciklama" id="lock-auth-aciklama">Google ile tek tık veya kullanıcı adı ile giriş yapın. Verileriniz yalnızca size aittir.</p>
+      <div class="lock-kapi-secim" id="lock-kapi-secim">
+        <p class="lock-auth-baslik">Nasıl giriyorsunuz?</p>
+        <p class="lock-auth-aciklama">Otel sahibi ve personel ayrı kapılardan girer. Personel, sahibin verdiği kullanıcı adı ve şifreyi kullanır.</p>
+        <button type="button" class="lock-auth-btn primary" id="lock-kapi-sahip">Otel sahibi</button>
+        <button type="button" class="lock-auth-btn secondary" id="lock-kapi-personel">Personel</button>
+      </div>
+      <div class="lock-auth-panel hidden" id="lock-auth-panel">
+        <p class="lock-auth-baslik" id="lock-auth-baslik">Otel sahibi girişi</p>
+        <p class="lock-auth-aciklama" id="lock-auth-aciklama">Google ile veya kullanıcı adı ve şifre ile girin. İlk girişte oteliniz açılır.</p>
         <button type="button" class="lock-auth-btn google" id="lock-btn-google" aria-label="Google ile giriş">
           <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
           Google ile devam et
@@ -69,15 +75,15 @@
         <div class="lock-auth-fields">
           <input type="text" id="lock-kullanici-adi" class="lock-input" placeholder="Kullanıcı adı (ğ, ü, ş, ı, ö, ç)" autocomplete="username" autocapitalize="off" spellcheck="false" />
           <input type="password" id="lock-sifre" class="lock-input" placeholder="Şifre (en az 6 karakter)" autocomplete="current-password" />
-          <div id="lock-davet-wrap">
-            <input type="text" id="lock-davet" class="lock-input" placeholder="Davet kodu (personel iseniz)" autocomplete="off" autocapitalize="off" spellcheck="false" />
-          </div>
         </div>
         <button type="button" class="lock-auth-btn primary" id="lock-btn-giris">Giriş yap</button>
         <button type="button" class="lock-auth-btn secondary hidden" id="lock-btn-kayit">Hesap oluştur</button>
         <p class="lock-auth-toggle">
           <button type="button" class="lock-auth-link" id="lock-toggle-kayit">Hesabım yok, kayıt ol</button>
           <button type="button" class="lock-auth-link hidden" id="lock-toggle-giris">Zaten hesabım var</button>
+        </p>
+        <p class="lock-auth-toggle">
+          <button type="button" class="lock-auth-link" id="lock-kapi-geri">Giriş türünü değiştir</button>
         </p>
         <p class="lock-fb-error" id="fb-auth-error"></p>
       </div>
@@ -86,16 +92,9 @@
 
   <div id="otel-kapisi" class="otel-kapisi hidden" role="dialog" aria-modal="true" aria-labelledby="otel-kapisi-baslik">
     <div class="otel-kapisi-kutu">
-      <h2 id="otel-kapisi-baslik">Otele bağlan</h2>
+      <h2 id="otel-kapisi-baslik">Erişim yok</h2>
       <p id="otel-kapisi-metin" class="modal-aciklama"></p>
-      <div id="otel-kapisi-secim">
-        <label class="field-label" for="otel-kapisi-kod">Davet kodu</label>
-        <input type="text" id="otel-kapisi-kod" class="field-input" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Sahibin verdiği kod" />
-        <button type="button" class="btn-primary otel-kapisi-btn" id="otel-kapisi-katil">Otele katıl</button>
-        <button type="button" class="btn-secondary otel-kapisi-btn" id="otel-kapisi-ac">Kendi otelimi aç</button>
-      </div>
       <button type="button" class="btn-secondary otel-kapisi-btn" id="otel-kapisi-cikis">Çıkış yap</button>
-      <p class="modal-uyari" id="otel-kapisi-hata"></p>
     </div>
   </div>
 
@@ -103,7 +102,7 @@
   <div id="app" class="app hidden">
     <header class="topbar">
       <div class="topbar-left" id="topbar-home" title="Rezervasyonlar">
-        <span><img class="app-logo-img" src="icons/icon-256.png?v=3.82" alt="" width="36" height="36" decoding="async" /></span>
+        <span><img class="app-logo-img" src="icons/icon-256.png?v=3.83" alt="" width="36" height="36" decoding="async" /></span>
         <div class="topbar-brand">
           <span class="app-name">APARTIM</span>
           <span class="app-version" id="app-version">—</span>
@@ -125,7 +124,7 @@
         <button class="icon-btn hidden" id="install-btn" title="Uygulamayı yükle">&#11015;</button>
         <div class="ayar-wrap" id="ayar-wrap">
           <button type="button" class="ayar-trigger" id="ayar-trigger" aria-label="Ayarlar" aria-haspopup="true" title="Ayarlar">
-            <img class="ayar-avatar" id="ayar-avatar" src="icons/icon-256.png?v=3.82" alt="" width="32" height="32" decoding="async" referrerpolicy="no-referrer" />
+            <img class="ayar-avatar" id="ayar-avatar" src="icons/icon-256.png?v=3.83" alt="" width="32" height="32" decoding="async" referrerpolicy="no-referrer" />
           </button>
           <div class="ayar-menu hidden" id="ayar-menu" role="menu">
             <div class="ayar-user">
@@ -173,7 +172,7 @@
             </button>
             <button type="button" class="ayar-item hidden" id="ayar-personel" role="menuitem">
               <span class="ayar-item-ikon" aria-hidden="true">&#128101;</span>
-              Personel
+              Personeller
             </button>
             <div class="ayar-divider"></div>
             <div class="ayar-formasyon" id="ayar-formasyon" role="group" aria-label="Takvim düzeni">
@@ -204,6 +203,7 @@
         </div>
       </div>
     </header>
+    <div id="yetki-eski-uyari" class="yetki-eski-uyari hidden" role="status">Personel ayrımı sunucuda henüz açık değil. Otel sahibi ve personel şimdilik aynı veriyi görür.</div>
     <div id="ptr-gosterge" class="ptr-gosterge hidden" aria-hidden="true">Güncelleme kontrol ediliyor…</div>
     <div id="gorunum-banner" class="gorunum-banner hidden" role="status"></div>
 
@@ -855,7 +855,7 @@
   <!-- PWA YÜKLEME BANNER -->
   <div id="pwa-install-bar" class="pwa-install-bar hidden" role="dialog" aria-label="Uygulamayı yükle">
     <div class="pwa-install-inner">
-      <img class="pwa-install-ikon" src="icons/icon-192.png?v=3.82" alt="" width="44" height="44" decoding="async" />
+      <img class="pwa-install-ikon" src="icons/icon-192.png?v=3.83" alt="" width="44" height="44" decoding="async" />
       <div class="pwa-install-metin">
         <strong class="pwa-install-baslik">Apartım'ı telefona yükle</strong>
         <span class="pwa-install-aciklama" id="pwa-install-aciklama">Ana ekrana ekleyin, çevrimdışı da çalışır</span>
@@ -979,7 +979,7 @@
   <div id="modal-personel" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="personel-title">
     <div class="modal-box modal-box-personel">
       <div class="modal-header">
-        <h2 class="modal-title" id="personel-title">Personel</h2>
+        <h2 class="modal-title" id="personel-title">Personeller</h2>
         <button type="button" class="modal-close" id="personel-close">&#10005;</button>
       </div>
       <div class="modal-body" id="personel-govde"></div>
@@ -989,30 +989,30 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="js/version.js?v=3.82"></script>
-  <script src="js/firebase.js?v=3.82"></script>
-  <script src="js/pwa-install.js?v=3.82"></script>
-  <script src="js/avatar.js?v=3.82"></script>
-  <script src="js/auth.js?v=3.82"></script>
-  <script src="js/kimlik.js?v=3.82"></script>
-  <script src="js/yetki.js?v=3.82"></script>
-  <script src="js/db.js?v=3.82"></script>
-  <script src="js/robust.js?v=3.82"></script>
-  <script src="js/gorunum.js?v=3.82"></script>
-  <script src="js/para.js?v=3.82"></script>
-  <script src="js/bina.js?v=3.82"></script>
-  <script src="js/takvim.js?v=3.82"></script>
-  <script src="js/rez-ozet.js?v=3.82"></script>
-  <script src="js/excel-import.js?v=3.82"></script>
-  <script src="js/sezon-temizle.js?v=3.82"></script>
-  <script src="js/rezervasyon.js?v=3.82"></script>
-  <script src="js/tahsilat.js?v=3.82"></script>
-  <script src="js/rez-form-mobil.js?v=3.82"></script>
-  <script src="js/daire.js?v=3.82"></script>
-  <script src="js/tema.js?v=3.82"></script>
-  <script src="js/ayarlar.js?v=3.82"></script>
-  <script src="js/kasa.js?v=3.82"></script>
-  <script src="js/personel.js?v=3.82"></script>
-  <script src="js/app.js?v=3.82"></script>
+  <script src="js/version.js?v=3.83"></script>
+  <script src="js/firebase.js?v=3.83"></script>
+  <script src="js/pwa-install.js?v=3.83"></script>
+  <script src="js/avatar.js?v=3.83"></script>
+  <script src="js/auth.js?v=3.83"></script>
+  <script src="js/kimlik.js?v=3.83"></script>
+  <script src="js/yetki.js?v=3.83"></script>
+  <script src="js/db.js?v=3.83"></script>
+  <script src="js/robust.js?v=3.83"></script>
+  <script src="js/gorunum.js?v=3.83"></script>
+  <script src="js/para.js?v=3.83"></script>
+  <script src="js/bina.js?v=3.83"></script>
+  <script src="js/takvim.js?v=3.83"></script>
+  <script src="js/rez-ozet.js?v=3.83"></script>
+  <script src="js/excel-import.js?v=3.83"></script>
+  <script src="js/sezon-temizle.js?v=3.83"></script>
+  <script src="js/rezervasyon.js?v=3.83"></script>
+  <script src="js/tahsilat.js?v=3.83"></script>
+  <script src="js/rez-form-mobil.js?v=3.83"></script>
+  <script src="js/daire.js?v=3.83"></script>
+  <script src="js/tema.js?v=3.83"></script>
+  <script src="js/ayarlar.js?v=3.83"></script>
+  <script src="js/kasa.js?v=3.83"></script>
+  <script src="js/personel.js?v=3.83"></script>
+  <script src="js/app.js?v=3.83"></script>
 </body>
 </html>

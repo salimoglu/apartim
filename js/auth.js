@@ -24,6 +24,7 @@
   const aciklama = document.getElementById("lock-auth-aciklama");
 
   let mod = "giris"; // "giris" | "kayit"
+  let kapi = ""; // "sahip" | "personel"
   let lockAcik = true;
   let authIlkCozum = false;
   let authHazirGonderildi = false;
@@ -92,18 +93,52 @@
     };
   }
 
+  function kapiKaydet(deger) {
+    kapi = deger === "personel" ? "personel" : "sahip";
+    try { sessionStorage.setItem("apartim-giris-kapi", kapi); } catch (e) { /* yoksay */ }
+  }
+
+  function kapiTemizle() {
+    kapi = "";
+    try { sessionStorage.removeItem("apartim-giris-kapi"); } catch (e) { /* yoksay */ }
+  }
+
+  function sahipParcalariGoster(goster) {
+    document.getElementById("lock-btn-google")?.classList.toggle("hidden", !goster);
+    document.querySelector(".lock-auth-veya")?.classList.toggle("hidden", !goster);
+    document.querySelector(".lock-auth-toggle")?.classList.toggle("hidden", !goster);
+  }
+
+  function kapiSecimGoster() {
+    mod = "giris";
+    document.getElementById("lock-kapi-secim")?.classList.remove("hidden");
+    document.getElementById("lock-auth-panel")?.classList.add("hidden");
+    hataGoster("");
+  }
+
   function modGuncelle() {
+    const personel = kapi === "personel";
+    sahipParcalariGoster(!personel);
+    if (personel) {
+      baslik.textContent = "Personel girişi";
+      aciklama.textContent = "Otel sahibinin verdiği kullanıcı adı ve şifre ile girin.";
+      btnGiris.classList.remove("hidden");
+      btnKayit.classList.add("hidden");
+      inpSifre.autocomplete = "current-password";
+      hataGoster("");
+      return;
+    }
     if (mod === "kayit") {
       baslik.textContent = "Kayıt ol";
-      aciklama.textContent = "Kullanıcı adı ve şifre ile hesap oluşturun. Verileriniz buluta güvenli şekilde kaydedilir.";
+      aciklama.textContent = "Kullanıcı adı ve şifre ile otel sahibi hesabı oluşturun. İlk girişte oteliniz açılır.";
       btnGiris.classList.add("hidden");
       btnKayit.classList.remove("hidden");
       toggleKayit.classList.add("hidden");
       toggleGiris.classList.remove("hidden");
       inpSifre.autocomplete = "new-password";
     } else {
-      baslik.textContent = "Giriş";
-      aciklama.textContent = "Google ile tek tık veya kullanıcı adı ile giriş yapın. Verileriniz yalnızca size aittir.";
+      baslik.textContent = "Otel sahibi girişi";
+      aciklama.textContent = "Google ile veya kullanıcı adı ve şifre ile girin. İlk girişte oteliniz açılır.";
       btnGiris.classList.remove("hidden");
       btnKayit.classList.add("hidden");
       toggleKayit.classList.remove("hidden");
@@ -111,6 +146,15 @@
       inpSifre.autocomplete = "current-password";
     }
     hataGoster("");
+  }
+
+  function kapiFormGoster(deger) {
+    kapiKaydet(deger);
+    if (deger === "personel") mod = "giris";
+    document.getElementById("lock-kapi-secim")?.classList.add("hidden");
+    document.getElementById("lock-auth-panel")?.classList.remove("hidden");
+    modGuncelle();
+    inpKullaniciAdi?.focus();
   }
 
   toggleKayit?.addEventListener("click", () => { mod = "kayit"; modGuncelle(); });
@@ -144,6 +188,7 @@
     lockAcik = true;
     lockScreen.classList.remove("hidden");
     app.classList.add("hidden");
+    if (window.APARTIM.firebaseAktif) kapiSecimGoster();
   }
 
   function firebaseHataMetni(err) {
@@ -159,14 +204,6 @@
       "auth/network-request-failed": "İnternet bağlantınızı kontrol edin."
     };
     return map[c] || (err && err.message) || "Bir hata oluştu.";
-  }
-
-  function davetKodunuSakla() {
-    const kod = String(document.getElementById("lock-davet")?.value || "").trim().toLowerCase();
-    try {
-      if (kod) sessionStorage.setItem("apartim-davet", kod);
-      else sessionStorage.removeItem("apartim-davet");
-    } catch (e) { /* yoksay */ }
   }
 
   function kullaniciAdiDogrula(ham) {
@@ -216,9 +253,17 @@
       }
     }, 3000);
 
+    document.getElementById("lock-kapi-sahip")?.addEventListener("click", () => kapiFormGoster("sahip"));
+    document.getElementById("lock-kapi-personel")?.addEventListener("click", () => kapiFormGoster("personel"));
+    document.getElementById("lock-kapi-geri")?.addEventListener("click", () => {
+      kapiTemizle();
+      mod = "giris";
+      kapiSecimGoster();
+    });
+
     btnGiris.addEventListener("click", async () => {
       hataGoster("");
-      davetKodunuSakla();
+      kapiKaydet(kapi || "sahip");
       const ad = kullaniciAdiDogrula(inpKullaniciAdi.value);
       const s = inpSifre.value;
       if (!ad.ok) { hataGoster(ad.mesaj); return; }
@@ -230,7 +275,7 @@
 
     btnKayit.addEventListener("click", async () => {
       hataGoster("");
-      davetKodunuSakla();
+      kapiKaydet("sahip");
       const ad = kullaniciAdiDogrula(inpKullaniciAdi.value);
       const s = inpSifre.value;
       if (!ad.ok) { hataGoster(ad.mesaj); return; }
@@ -244,7 +289,7 @@
 
     btnGoogle.addEventListener("click", async () => {
       hataGoster("");
-      davetKodunuSakla();
+      kapiKaydet("sahip");
       try {
         await auth.signInWithPopup(provider);
       } catch (err) {
@@ -267,6 +312,7 @@
 
     window.APARTIM.cikis = async function () {
       oturumIsaretle(false);
+      kapiTemizle();
       try { await auth.signOut(); }
       catch (e) { console.warn("signOut hatası:", e); }
     };
@@ -282,7 +328,9 @@
     toggleGiris.classList.add("hidden");
     inpKullaniciAdi?.classList.add("hidden");
     inpSifre.classList.add("hidden");
-    document.getElementById("lock-davet-wrap")?.classList.add("hidden");
+    document.getElementById("lock-kapi-secim")?.classList.add("hidden");
+    document.getElementById("lock-auth-panel")?.classList.remove("hidden");
+    document.getElementById("lock-kapi-geri")?.closest(".lock-auth-toggle")?.classList.add("hidden");
     document.querySelector(".lock-auth-veya")?.classList.add("hidden");
 
     let yerelOturumVar = false;
@@ -311,6 +359,15 @@
 
     btnGoogle.addEventListener("click", yerelBaslat);
 
-    window.APARTIM.cikis = function () { uygulamaKilitle(); };
+    window.APARTIM.cikis = function () {
+      kapiTemizle();
+      uygulamaKilitle();
+    };
   }
+
+  window.APARTIM.kullaniciAdi = {
+    dogrula: kullaniciAdiDogrula,
+    email: kullaniciAdiToEmail,
+    hata: firebaseHataMetni
+  };
 })();

@@ -1076,7 +1076,6 @@
   let profilDinlenen = null;
   let uyeRef = null;
   let otelIdAktif = null;
-  let otelKurulum = null;
   let hazirNesil = 0;
   const OTEL_VERI_YOLLARI = [
     "daireler", "rezervasyonlar", "kasa-harcama", "temizlik-kayit",
@@ -1138,7 +1137,6 @@
   function oturumuKapat() {
     hazirNesil += 1;
     firebaseDinlemeyiKaldir();
-    otelKurulum = null;
     kullaniciUid = null;
     durum.yuklendi = false;
     fbIlkSenkronBitti = false;
@@ -1339,44 +1337,9 @@
     fbGecikmeli(ikincilDinleyicileriBagla, 2500, 400);
   }
 
-  function davetKoduOku() {
-    try { return String(sessionStorage.getItem("apartim-davet") || "").trim().toLowerCase(); }
+  function girisKapi() {
+    try { return String(sessionStorage.getItem("apartim-giris-kapi") || ""); }
     catch (e) { return ""; }
-  }
-
-  function davetKoduSil() {
-    try { sessionStorage.removeItem("apartim-davet"); } catch (e) {}
-  }
-
-  function otelVerisiVar(eski) {
-    if (!eski || typeof eski !== "object") return false;
-    return OTEL_VERI_YOLLARI.some((yol) => eski[yol] != null);
-  }
-
-  function uyeAdi(kullanici, yedek) {
-    return String((kullanici && (kullanici.ad || kullanici.kullaniciAdi)) || yedek || "Personel").trim().slice(0, 80) || "Personel";
-  }
-
-  async function davetleKatilUygula(uid, kullanici, kodHam) {
-    const kod = String(kodHam || "").trim().toLowerCase();
-    if (!/^[a-z0-9]{8,12}$/.test(kod)) throw new Error("Davet kodu geçersiz.");
-    const snap = await window.APARTIM.fbDb.ref("apartim/davetler/" + kod).once("value");
-    const davet = snap.val();
-    if (!davet || typeof davet.otelId !== "string" || !davet.otelId) {
-      throw new Error("Davet kodu geçersiz.");
-    }
-    const bayrak = window.APARTIM.yetki.bayrakKopya(davet);
-    const kayit = {
-      rol: "personel",
-      ad: uyeAdi(kullanici, "Personel"),
-      davetKod: kod,
-      gorebilir: bayrak.gorebilir,
-      yapabilir: bayrak.yapabilir
-    };
-    await window.APARTIM.fbDb.ref("apartim/oteller/" + davet.otelId + "/uyeler/" + uid).set(kayit);
-    await window.APARTIM.fbDb.ref("apartim/uyelik/" + uid).set(davet.otelId);
-    davetKoduSil();
-    return davet.otelId;
   }
 
   async function otelOlusturVeyaTasi(uid, kullanici, eskiHazir) {
@@ -1401,7 +1364,6 @@
     });
     if (Object.keys(guncelleme).length) await db.ref().update(guncelleme);
     await db.ref("apartim/uyelik/" + uid).set(uid);
-    davetKoduSil();
     return uid;
   }
 
@@ -1437,10 +1399,8 @@
     if (!uye || (uye.rol !== "sahip" && uye.rol !== "personel")) {
       window.APARTIM.yetki?.uygula?.(null, "otel");
       window.APARTIM.yetki?.kapiGoster?.("red", "Bu otele erişiminiz kaldırılmış.");
-      otelKurulum = null;
       return;
     }
-    otelKurulum = null;
     otelIdAktif = otelId;
     window.APARTIM.yetki?.kapiGoster?.("gizli");
     window.APARTIM.yetki?.uygula?.(uye, "otel");
@@ -1478,8 +1438,16 @@
       throw err;
     }
     let otelId = typeof uyelikSnap.val() === "string" ? uyelikSnap.val() : "";
-    if (otelId) davetKoduSil();
     if (!otelId) {
+      if (girisKapi() === "personel") {
+        if (nesil !== hazirNesil) return;
+        window.APARTIM.yetki?.uygula?.(null, "otel");
+        window.APARTIM.yetki?.kapiGoster?.(
+          "red",
+          "Bu kullanıcı adı bir personele ait değil. Otel sahibinin Personeller ekranından verdiği kullanıcı adı ve şifre ile Personel kapısından girin."
+        );
+        return;
+      }
       let eski = null;
       try {
         const eskiSnap = await db.ref("apartim/kullanicilar/" + uid).once("value");
@@ -1487,57 +1455,16 @@
       } catch (err) {
         if (!izinReddi(err)) throw err;
       }
-      const veriVar = otelVerisiVar(eski);
-      const kod = davetKoduOku();
-      if (kod) {
-        try {
-          otelId = await davetleKatilUygula(uid, kullanici, kod);
-        } catch (err) {
-          davetKoduSil();
-          if (veriVar) {
-            otelId = await otelOlusturVeyaTasi(uid, kullanici, eski);
-            window.APARTIM.toast?.("Davet kodu geçersiz, mevcut otel açıldı", "uyari");
-          } else {
-            otelKurulum = { uid, kullanici, eski };
-            if (nesil !== hazirNesil) return;
-            window.APARTIM.yetki?.kapiGoster?.("secim", err.message || "Davet kodu geçersiz.");
-            return;
-          }
-        }
-      } else if (veriVar) {
-        otelId = await otelOlusturVeyaTasi(uid, kullanici, eski);
-      } else {
-        if (nesil !== hazirNesil) return;
-        otelKurulum = { uid, kullanici, eski };
-        window.APARTIM.yetki?.kapiGoster?.("secim", "");
-        return;
-      }
+      otelId = await otelOlusturVeyaTasi(uid, kullanici, eski);
     }
     if (nesil !== hazirNesil) return;
     await otelAc(kullanici, otelId, nesil);
-  }
-
-  async function otelKendinAc() {
-    if (!otelKurulum) throw new Error("Oturum hazır değil.");
-    const nesil = hazirNesil;
-    const kur = otelKurulum;
-    const otelId = await otelOlusturVeyaTasi(kur.uid, kur.kullanici, kur.eski);
-    await otelAc(kur.kullanici, otelId, nesil);
-  }
-
-  async function otelDavetle(kod) {
-    if (!otelKurulum) throw new Error("Oturum hazır değil.");
-    const nesil = hazirNesil;
-    const kur = otelKurulum;
-    const otelId = await davetleKatilUygula(kur.uid, kur.kullanici, kod);
-    await otelAc(kur.kullanici, otelId, nesil);
   }
 
   function kullaniciHazir(kullanici) {
     const nesil = ++hazirNesil;
     firebaseDinlemeyiKaldir();
     kullaniciUid = kullanici.uid;
-    otelKurulum = null;
     fbIlkSenkronBitti = false;
     fbIlkDaireler = false;
     fbIlkRez = false;
@@ -1550,6 +1477,10 @@
         console.warn("otelHazirla", err);
         if (nesil !== hazirNesil) return;
         if (!fbRef) pencereEskiKullanici(kullanici);
+        if (izinReddi(err)) {
+          window.APARTIM.toast?.("Personel ayrımı sunucuda henüz açık değil.", "uyari");
+          return;
+        }
         window.APARTIM.toast?.("Otel verisi açılamadı", "hata");
       });
     } else {
@@ -2578,8 +2509,6 @@
     dairedeCakisanRez,
     daireDurumuBugun,
     oturumuKapat,
-    otelKendinAc,
-    otelDavetle,
     otelIdGetir: () => otelIdAktif,
     kasaHarcamaListele,
     kasaHarcamaEkle,

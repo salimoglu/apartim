@@ -85,6 +85,26 @@
     return { gorebilir, yapabilir };
   }
 
+  /** Görme, o modülü kullanmayı da açar. Kaynak, tahsilat kalemi ve döviz yalnızca sahiptedir. */
+  function modullerdenYap(secim) {
+    const gorebilir = {};
+    GOREBILIR.forEach((t) => {
+      gorebilir[t.id] = !!(secim && secim[t.id]);
+    });
+    return {
+      gorebilir,
+      yapabilir: {
+        rezervasyonYaz: !!gorebilir.rezervasyonlar,
+        tahsilatYaz: !!gorebilir.tahsilat,
+        odaDuzenle: !!gorebilir.odalar,
+        kasaYaz: !!gorebilir.kasa,
+        kaynaklar: false,
+        odemeKalemleri: false,
+        doviz: false
+      }
+    };
+  }
+
   function sahipKaydi(kullanici) {
     const dolu = { gorebilir: {}, yapabilir: {} };
     GOREBILIR.forEach((t) => { dolu.gorebilir[t.id] = true; });
@@ -170,6 +190,7 @@
     });
     const ucret = document.getElementById("daire-ucret-inp");
     if (ucret) ucret.disabled = !yazabilir("odaDuzenle");
+    document.getElementById("yetki-eski-uyari")?.classList.toggle("hidden", model !== "eski");
     document.dispatchEvent(new CustomEvent("apartim:yetki-degisti"));
   }
 
@@ -215,64 +236,19 @@
   function kapiGoster(mod, mesaj) {
     const kapi = document.getElementById("otel-kapisi");
     if (!kapi) return;
-    const secim = document.getElementById("otel-kapisi-secim");
-    const baslik = document.getElementById("otel-kapisi-baslik");
     const metin = document.getElementById("otel-kapisi-metin");
-    const hata = document.getElementById("otel-kapisi-hata");
     if (mod === "gizli") {
       kapi.classList.add("hidden");
-      if (hata) hata.textContent = "";
+      if (metin) metin.textContent = "";
       return;
     }
     kapi.classList.remove("hidden");
-    if (hata) hata.textContent = "";
-    if (mod === "red") {
-      if (secim) secim.classList.add("hidden");
-      if (baslik) baslik.textContent = "Erişim yok";
-      if (metin) metin.textContent = mesaj || "Bu otele erişiminiz kaldırılmış.";
-      return;
-    }
-    if (secim) secim.classList.remove("hidden");
-    if (baslik) baslik.textContent = "Otele bağlan";
-    if (metin) {
-      metin.textContent = "Personelseniz davet kodunu girin. Otel sahibiyseniz kendi otelinizi açın.";
-    }
-    if (hata && mesaj) hata.textContent = mesaj;
+    if (metin) metin.textContent = mesaj || "Bu otele erişiminiz kaldırılmış.";
   }
 
   function kapiBagla() {
     document.getElementById("otel-kapisi-cikis")?.addEventListener("click", () => {
       window.APARTIM.cikis?.();
-    });
-    document.getElementById("otel-kapisi-ac")?.addEventListener("click", async () => {
-      const hata = document.getElementById("otel-kapisi-hata");
-      const btn = document.getElementById("otel-kapisi-ac");
-      if (btn) btn.disabled = true;
-      if (hata) hata.textContent = "";
-      try {
-        await window.APARTIM.db?.otelKendinAc?.();
-      } catch (err) {
-        if (hata) hata.textContent = err.message || "Otel açılamadı.";
-      } finally {
-        if (btn) btn.disabled = false;
-      }
-    });
-    document.getElementById("otel-kapisi-katil")?.addEventListener("click", async () => {
-      const hata = document.getElementById("otel-kapisi-hata");
-      const btn = document.getElementById("otel-kapisi-katil");
-      const kod = document.getElementById("otel-kapisi-kod")?.value || "";
-      if (btn) btn.disabled = true;
-      if (hata) hata.textContent = "";
-      try {
-        await window.APARTIM.db?.otelDavetle?.(kod);
-      } catch (err) {
-        if (hata) hata.textContent = err.message || "Otele katılınamadı.";
-      } finally {
-        if (btn) btn.disabled = false;
-      }
-    });
-    document.getElementById("otel-kapisi-kod")?.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") document.getElementById("otel-kapisi-katil")?.click();
     });
   }
 
@@ -288,6 +264,7 @@
     YAPABILIR,
     KALIPLAR,
     bayrakKopya,
+    modullerdenYap,
     sahipKaydi,
     sahipMi,
     gorebilir,

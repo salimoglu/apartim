@@ -144,9 +144,20 @@ html.apartim-deneme .lock-screen {
   letter-spacing: 0.02em;
 }
 /* Önceki oturum var: giriş formu gizle, splash bekle */
-html.auth-oturum-bekleniyor .lock-auth-panel { display: none !important; }
+html.auth-oturum-bekleniyor .lock-auth-panel,
+html.auth-oturum-bekleniyor .lock-kapi-secim { display: none !important; }
 html.auth-oturum-bekleniyor .lock-sub { display: none; }
 html.auth-oturum-bekleniyor .lock-bekle { display: block; }
+.lock-kapi-secim {
+  background: var(--kart);
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--golge);
+}
 .lock-auth-panel {
   background: var(--kart);
   border: 1px solid var(--kenar);
@@ -6186,11 +6197,16 @@ html.yetki-otel:not(.yetki-yaz-kasaYaz) #kasa-kayit-form {
 }
 .otel-kapisi-kutu h2 { margin: 0; font-size: 18px; }
 .otel-kapisi-btn { width: 100%; }
-#otel-kapisi-secim {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.yetki-eski-uyari {
+  background: #7a4e00;
+  color: #fff;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 12px;
+  line-height: 1.4;
 }
+.yetki-eski-uyari.hidden { display: none; }
 .modal-box-personel { max-width: 520px; }
 .yetki-grup-baslik {
   margin: 14px 0 4px;
@@ -6206,7 +6222,9 @@ html.yetki-otel:not(.yetki-yaz-kasaYaz) #kasa-kayit-form {
   padding: 5px 0;
   font-size: 14px;
 }
-.personel-blok { margin-top: 8px; }
+.personel-blok { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.personel-blok .field-input { width: 100%; }
+.personel-moduller { display: flex; flex-direction: column; }
 .personel-eylem, .personel-kod-satir {
   display: flex;
   flex-wrap: wrap;
