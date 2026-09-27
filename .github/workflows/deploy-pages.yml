@@ -6,7 +6,7 @@ name: Deploy GitHub Pages
 # Canlı:  https://salimoglu.github.io/apartim          ← main
 # Deneme: https://salimoglu.github.io/apartim/deneme/  ← preview (main deploy sırasında paketlenir)
 # GitHub Pages ortamı yalnızca main dalından deploy'a izin verir; preview push'u yayınlamaz.
-# Canlı v3.81. Deneme yayın tetik: otel yetkisi (preview v3.82).
+# Canlı v3.81. Deneme yayın tetik: personel kapısı (preview v3.83).
 
 on:
   push:
@@ -78,3 +78,21 @@ jobs:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
+
+  kurallar:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Firebase veritabani kurallarini yayinla
+        run: |
+          set -euo pipefail
+          git fetch origin preview
+          git show origin/preview:database.rules.json > database.rules.json
+          npx --yes firebase-tools@latest deploy --only database --non-interactive
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
