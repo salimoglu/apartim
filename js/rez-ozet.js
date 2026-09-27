@@ -182,13 +182,6 @@
     return "—";
   }
 
-  function odenenHucreBaslik(rez, info) {
-    if (!info || !info.manuel) return "Tahsilat girmek için tıklayın";
-    const adet = Number(info.adet) || 1;
-    const bas = adet > 1 ? (adet + " tahsilat") : odenenYontemAd(info.yontem);
-    return bas + " · " + odenenHucreGoster(rez, info);
-  }
-
   function kalanEsik(rez) {
     return rezPb(rez) === "USD" ? 0.01 : 0.5;
   }
@@ -808,31 +801,32 @@
     };
   }
 
+  /** Ara geceler: günlük tahsilat tutarı görünmez, eksik hücredeki gibi tire. */
+  function odnAraGeceYaz(td) {
+    td.textContent = "—";
+    td.title = "Tahsilat girmek için tıklayın";
+    delete td.dataset.yontem;
+  }
+
   function odnHucreTd(rez, tarih, renk, rid, ioVurgu) {
     const db = window.APARTIM.db;
     const info = db.rezervasyonOdenenGosterim(rez, tarih);
     const sonGece = rezSonGeceMi(rez, tarih);
     const td = document.createElement("td");
-    td.className = "rez-ozet-sayi rez-ozet-odenen" +
-      (sonGece || !info.manuel ? " bos" : " manuel") +
+    td.className = "rez-ozet-sayi rez-ozet-odenen bos" +
       (sonGece ? " rez-ozet-out-kalan-hucre" : "") +
       (ioVurgu ? " rez-ozet-io-hucre" : "");
     td.style.background = hucreBg(renk, ioVurgu);
     if (rid) td.dataset.rezId = rid;
     td.dataset.tarih = tarih;
-    /* Son gece: her zaman kalan (o güne tahsilat yazılsa bile) */
+    /* Son gece: Kalan veya Tamam. Ara gecelerde tutar yazılmaz. */
     if (sonGece) {
       td.innerHTML = rezOutKalanHucreIcerik(rez);
       td.title = "Toplam − tahsilat · Tahsilat girmek için tıklayın";
       if (rez.tahsilatTamamlandi) td.classList.add("rez-ozet-tahsilat-tamam-hucre");
       if (info.manuel) td.dataset.yontem = info.yontem;
-    } else if (info.manuel) {
-      td.dataset.yontem = info.yontem;
-      td.textContent = odenenHucreGoster(rez, info);
-      td.title = odenenHucreBaslik(rez, info);
     } else {
-      td.textContent = "—";
-      td.title = "Tahsilat girmek için tıklayın";
+      odnAraGeceYaz(td);
     }
     return td;
   }
@@ -914,8 +908,8 @@
     if (!db || !tarih) return;
     const info = db.rezervasyonOdenenGosterim(rez, tarih);
     const sonGece = rezSonGeceMi(rez, tarih);
-    hucre.classList.toggle("manuel", !!(info.manuel && !sonGece));
-    hucre.classList.toggle("bos", !info.manuel || sonGece);
+    hucre.classList.remove("manuel");
+    hucre.classList.add("bos");
     hucre.classList.toggle("rez-ozet-out-kalan-hucre", sonGece);
     hucre.classList.toggle("rez-ozet-tahsilat-tamam-hucre", !!(rez.tahsilatTamamlandi && sonGece));
     if (sonGece) {
@@ -923,14 +917,8 @@
       hucre.title = "Toplam − tahsilat · Tahsilat girmek için tıklayın";
       if (info.manuel) hucre.dataset.yontem = info.yontem;
       else delete hucre.dataset.yontem;
-    } else if (info.manuel) {
-      hucre.textContent = odenenHucreGoster(rez, info);
-      hucre.title = odenenHucreBaslik(rez, info);
-      hucre.dataset.yontem = info.yontem;
     } else {
-      hucre.textContent = "—";
-      hucre.title = "Tahsilat girmek için tıklayın";
-      delete hucre.dataset.yontem;
+      odnAraGeceYaz(hucre);
     }
   }
 
