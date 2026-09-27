@@ -1,18 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Kaplumbaa">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Kaplumbaga">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#e9fbe8"/>
-      <stop offset="100%" stop-color="#95d5a2"/>
+      <stop offset="0%" stop-color="#e7f8e4"/>
+      <stop offset="100%" stop-color="#8dce96"/>
     </linearGradient>
   </defs>
   <rect width="128" height="128" fill="url(#bg)"/>
-  <ellipse cx="64" cy="78" rx="36" ry="28" fill="#6a994e"/>
-  <ellipse cx="64" cy="76" rx="24" ry="18" fill="#a7c957"/>
-  <path d="M64 60 V94 M46 76 H82 M52 66 L76 88 M76 66 L52 88" stroke="#386641" stroke-width="2.4" stroke-linecap="round"/>
-  <circle cx="64" cy="46" r="16" fill="#90be6d"/>
-  <circle cx="58" cy="44" r="2.4" fill="#1b3a2f"/>
-  <circle cx="70" cy="44" r="2.4" fill="#1b3a2f"/>
-  <path d="M58 50 Q64 55 70 50" fill="none" stroke="#1b3a2f" stroke-width="2" stroke-linecap="round"/>
-  <ellipse cx="30" cy="86" rx="8" ry="5" fill="#90be6d"/>
-  <ellipse cx="98" cy="86" rx="8" ry="5" fill="#90be6d"/>
+  <ellipse cx="28" cy="78" rx="10" ry="7" fill="#7dba6a"/>
+  <ellipse cx="100" cy="78" rx="10" ry="7" fill="#7dba6a"/>
+  <ellipse cx="46" cy="104" rx="10" ry="7" fill="#7dba6a"/>
+  <ellipse cx="82" cy="104" rx="10" ry="7" fill="#7dba6a"/>
+  <ellipse cx="64" cy="78" rx="34" ry="26" fill="#3d7a45"/>
+  <ellipse cx="64" cy="76" rx="26" ry="19" fill="#6fbf73"/>
+  <ellipse cx="64" cy="74" rx="14" ry="10" fill="#c5e6a2"/>
+  <circle cx="64" cy="40" r="16" fill="#8ed07a"/>
+  <circle cx="58" cy="38" r="2.8" fill="#1d3b24"/>
+  <circle cx="70" cy="38" r="2.8" fill="#1d3b24"/>
+  <circle cx="59" cy="37" r="1" fill="#fff"/>
+  <circle cx="71" cy="37" r="1" fill="#fff"/>
+  <path d="M58 44 Q64 49 70 44" fill="none" stroke="#1d3b24" stroke-width="2.2" stroke-linecap="round"/>
+  <ellipse cx="52" cy="44" rx="4" ry="2.2" fill="#ffb3c6" opacity=".7"/>
+  <ellipse cx="76" cy="44" rx="4" ry="2.2" fill="#ffb3c6" opacity=".7"/>
 </svg>

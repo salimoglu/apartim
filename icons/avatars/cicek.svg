@@ -1,22 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Çiçek">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Cicek">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#f3ffe8"/>
+      <stop offset="0%" stop-color="#f4ffe9"/>
       <stop offset="100%" stop-color="#b7e4c7"/>
     </linearGradient>
   </defs>
   <rect width="128" height="128" fill="url(#bg)"/>
-  <circle cx="64" cy="40" r="16" fill="#ff8fab"/>
-  <circle cx="90" cy="56" r="16" fill="#ff8fab"/>
-  <circle cx="80" cy="86" r="16" fill="#ff8fab"/>
-  <circle cx="48" cy="86" r="16" fill="#ff8fab"/>
-  <circle cx="38" cy="56" r="16" fill="#ff8fab"/>
-  <circle cx="64" cy="64" r="22" fill="#ffe08a"/>
-  <ellipse cx="54" cy="66" rx="7" ry="5" fill="#ffb3c6" opacity=".7"/>
-  <ellipse cx="74" cy="66" rx="7" ry="5" fill="#ffb3c6" opacity=".7"/>
-  <circle cx="58" cy="60" r="3.2" fill="#5c3a32"/>
-  <circle cx="70" cy="60" r="3.2" fill="#5c3a32"/>
-  <circle cx="59.2" cy="58.8" r="1.2" fill="#fff"/>
-  <circle cx="71.2" cy="58.8" r="1.2" fill="#fff"/>
-  <path d="M58 70 Q64 76 70 70" fill="none" stroke="#c47b4a" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="64" cy="36" r="14" fill="#ff8fab"/>
+  <circle cx="90" cy="54" r="14" fill="#ff7aa2"/>
+  <circle cx="80" cy="84" r="14" fill="#ff8fab"/>
+  <circle cx="48" cy="84" r="14" fill="#ff7aa2"/>
+  <circle cx="38" cy="54" r="14" fill="#ff8fab"/>
+  <circle cx="64" cy="62" r="22" fill="#ffe08a"/>
+  <ellipse cx="52" cy="64" rx="6" ry="4" fill="#ffb3c6" opacity=".85"/>
+  <ellipse cx="76" cy="64" rx="6" ry="4" fill="#ffb3c6" opacity=".85"/>
+  <circle cx="56" cy="58" r="3.2" fill="#5c3a32"/>
+  <circle cx="72" cy="58" r="3.2" fill="#5c3a32"/>
+  <circle cx="57.2" cy="56.8" r="1.2" fill="#fff"/>
+  <circle cx="73.2" cy="56.8" r="1.2" fill="#fff"/>
+  <path d="M56 68 Q64 76 72 68" fill="none" stroke="#c47b4a" stroke-width="2.8" stroke-linecap="round"/>
 </svg>
