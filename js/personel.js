@@ -233,7 +233,7 @@
     const ad = uye.ad || uye.kullaniciAdi || "Personel";
     kutu.appendChild(el("div", "yetki-grup-baslik", ad));
     if (uye.kullaniciAdi) {
-      kutu.appendChild(el("p", "modal-aciklama", "Kullanıcı adı: " + uye.kullaniciAdi + ". Şifre buradan değiştirilmez."));
+      kutu.appendChild(el("p", "modal-aciklama", "Kullanıcı adı: " + uye.kullaniciAdi + ". Şifresini kendi ayarlarından değiştirir."));
     }
     kutu.appendChild(el("p", "modal-aciklama", "Görebileceği modüller"));
     modulKutulari(kutu, uye.gorebilir);

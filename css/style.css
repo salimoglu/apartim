@@ -6244,4 +6244,6 @@ html.yetki-otel:not(.yetki-yaz-kasaYaz) #kasa-kayit-form {
   font-size: 12px;
   color: var(--metin-soluk);
 }
+.hesap-form { display: flex; flex-direction: column; gap: 8px; }
+.hesap-form .field-input { width: 100%; }
 #personel-kalip { width: 100%; margin: 6px 0; }
