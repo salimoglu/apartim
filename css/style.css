@@ -6138,3 +6138,92 @@ html.theme-light .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik.rez-ozet-bugun-s
   .tahsilat-col-ad { width: 128px; }
   .tahsilat-table { font-size: 11px; }
 }
+
+/* Yetki: personel göremeyeceği sekmeler ve yazma düğmeleri */
+html.yetki-bekleniyor .tab-nav,
+html.yetki-bekleniyor .content {
+  visibility: hidden;
+}
+html.yetki-otel:not(.yetki-sahip) #rez-ozet-excel-import,
+html.yetki-otel:not(.yetki-sahip) #rez-ozet-sezon-temizle,
+html.yetki-otel:not(.yetki-sahip) #ayar-robust {
+  display: none !important;
+}
+html.yetki-otel:not(.yetki-yaz-rezervasyonYaz) #rez-yeni-btn,
+html.yetki-otel:not(.yetki-yaz-rezervasyonYaz) #rez-modal-kaydet,
+html.yetki-otel:not(.yetki-yaz-rezervasyonYaz) #rez-modal-sil {
+  display: none !important;
+}
+html.yetki-otel:not(.yetki-odeme-yaz) #odeme-modal-kaydet {
+  display: none !important;
+}
+html.yetki-otel:not(.yetki-yaz-kasaYaz) #kasa-kayit-form {
+  display: none !important;
+}
+
+.otel-kapisi {
+  position: fixed;
+  inset: 0;
+  z-index: 8500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.55);
+}
+.otel-kapisi.hidden { display: none; }
+.otel-kapisi-kutu {
+  width: 100%;
+  max-width: 380px;
+  background: var(--kart);
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--golge);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.otel-kapisi-kutu h2 { margin: 0; font-size: 18px; }
+.otel-kapisi-btn { width: 100%; }
+#otel-kapisi-secim {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.modal-box-personel { max-width: 520px; }
+.yetki-grup-baslik {
+  margin: 14px 0 4px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--metin-soluk);
+}
+.yetki-satir {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 14px;
+}
+.personel-blok { margin-top: 8px; }
+.personel-eylem, .personel-kod-satir {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 10px;
+}
+.personel-uye-secili { background: var(--vurgu-soluk); }
+.personel-kod-metin {
+  display: flex;
+  flex-direction: column;
+  min-width: 120px;
+  font-family: ui-monospace, monospace;
+}
+.personel-kod-etiket {
+  font-family: "Nunito", sans-serif;
+  font-size: 12px;
+  color: var(--metin-soluk);
+}
+#personel-kalip { width: 100%; margin: 6px 0; }

@@ -161,6 +161,14 @@
     return map[c] || (err && err.message) || "Bir hata oluştu.";
   }
 
+  function davetKodunuSakla() {
+    const kod = String(document.getElementById("lock-davet")?.value || "").trim().toLowerCase();
+    try {
+      if (kod) sessionStorage.setItem("apartim-davet", kod);
+      else sessionStorage.removeItem("apartim-davet");
+    } catch (e) { /* yoksay */ }
+  }
+
   function kullaniciAdiDogrula(ham) {
     const gorunen = String(ham || "").trim();
     const anahtar = kullaniciAdiAnahtar(gorunen);
@@ -210,6 +218,7 @@
 
     btnGiris.addEventListener("click", async () => {
       hataGoster("");
+      davetKodunuSakla();
       const ad = kullaniciAdiDogrula(inpKullaniciAdi.value);
       const s = inpSifre.value;
       if (!ad.ok) { hataGoster(ad.mesaj); return; }
@@ -221,6 +230,7 @@
 
     btnKayit.addEventListener("click", async () => {
       hataGoster("");
+      davetKodunuSakla();
       const ad = kullaniciAdiDogrula(inpKullaniciAdi.value);
       const s = inpSifre.value;
       if (!ad.ok) { hataGoster(ad.mesaj); return; }
@@ -234,6 +244,7 @@
 
     btnGoogle.addEventListener("click", async () => {
       hataGoster("");
+      davetKodunuSakla();
       try {
         await auth.signInWithPopup(provider);
       } catch (err) {
@@ -271,6 +282,7 @@
     toggleGiris.classList.add("hidden");
     inpKullaniciAdi?.classList.add("hidden");
     inpSifre.classList.add("hidden");
+    document.getElementById("lock-davet-wrap")?.classList.add("hidden");
     document.querySelector(".lock-auth-veya")?.classList.add("hidden");
 
     let yerelOturumVar = false;

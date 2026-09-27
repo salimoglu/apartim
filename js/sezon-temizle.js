@@ -213,6 +213,11 @@
   }
 
   async function temizleUygula() {
+    if (window.APARTIM.yetki && !window.APARTIM.yetki.sahipMi()) {
+      modalKapat();
+      toast("Sezon temizleme yalnızca otel sahibine açıktır", "hata");
+      return;
+    }
     adimGoster("islem");
     const db = window.APARTIM.db;
     if (!window.APARTIM.robust?.hemen) {

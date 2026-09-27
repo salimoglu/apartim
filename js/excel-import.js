@@ -532,6 +532,10 @@
   }
 
   async function planUygula(plan) {
+    if (window.APARTIM.yetki && !window.APARTIM.yetki.sahipMi()) {
+      window.APARTIM.toast?.("Excel ile toplu giriş yalnızca otel sahibine açıktır", "hata");
+      return;
+    }
     const db = window.APARTIM.db;
     let ok = 0;
     let hata = 0;
