@@ -998,11 +998,38 @@
     }
   }
 
+  function daireAlanTamamla(d, tanim) {
+    const patch = {};
+    if (!d.id) patch.id = tanim.id;
+    if (d.kat == null) patch.kat = tanim.kat;
+    if (d.konum == null) patch.konum = tanim.konum;
+    if (d.sira == null) patch.sira = tanim.sira;
+    if (d.gunlukUcret == null) patch.gunlukUcret = tanim.gunlukUcret;
+    if (d.temizlik == null) patch.temizlik = "temiz";
+    if (!Object.keys(patch).length) return false;
+    Object.assign(d, patch);
+    guncelle("daireler/" + d.id, patch);
+    return true;
+  }
+
+  let daireSeedKilit = false;
+
   function dairelerSeedEt() {
-    let degisti = false;
-    /* Varsayılan 5 odayı yoksa ekle; kullanıcı eklediği odaları silme */
-    SABIT_DAIRELER.forEach((tanim) => {
-      if (!durum.daireler[tanim.id]) {
+    if (daireSeedKilit) return;
+    daireSeedKilit = true;
+    try {
+      dairelerSeedUygula();
+    } finally {
+      daireSeedKilit = false;
+    }
+  }
+
+  function dairelerSeedUygula() {
+    const mevcut = Object.values(durum.daireler).filter((d) => d && d.id);
+    /* İlk kurulum: hiç oda yoksa varsayılan beşi ekle.
+       Sonraki açılışlarda silinen oda-1…oda-5 geri yazılmaz. */
+    if (!mevcut.length) {
+      SABIT_DAIRELER.forEach((tanim) => {
         durum.daireler[tanim.id] = {
           id: tanim.id,
           ad: tanim.ad,
@@ -1013,20 +1040,29 @@
           temizlik: "temiz",
           temizlikGuncelleme: Date.now()
         };
-        degisti = true;
-      } else {
-        // eksik alanları tamamla
-        const d = durum.daireler[tanim.id];
-        if (d.kat == null) { d.kat = tanim.kat; degisti = true; }
-        if (d.konum == null) { d.konum = tanim.konum; degisti = true; }
-        if (d.sira == null) { d.sira = tanim.sira; degisti = true; }
-        if (d.gunlukUcret == null) { d.gunlukUcret = tanim.gunlukUcret; degisti = true; }
-        if (d.temizlik == null) { d.temizlik = "temiz"; degisti = true; }
-      }
-    });
-    if (degisti) {
-      Object.values(durum.daireler).forEach((d) => kaydet("daireler/" + d.id, d));
+      });
+      Object.values(durum.daireler).forEach((d) => {
+        if (d && d.id) kaydet("daireler/" + d.id, d);
+      });
+      return;
     }
+
+    SABIT_DAIRELER.forEach((tanim) => {
+      const d = durum.daireler[tanim.id];
+      if (!d) return;
+      daireAlanTamamla(d, tanim);
+    });
+    daireSiralariniDuzelt();
+  }
+
+  /** Aynı veya boş sıra numarası tablo sırasını bozar; görünen sırayı 1..n yap. */
+  function daireSiralariniDuzelt() {
+    dairelerListele().forEach((d, i) => {
+      const sira = i + 1;
+      if (Number(d.sira) === sira) return;
+      d.sira = sira;
+      guncelle("daireler/" + d.id, { sira });
+    });
   }
 
   // ---------- Firebase / yerel kaynak ----------
@@ -1185,6 +1221,7 @@
       fbGecikmeli(profilGuncelle, 3000, 300);
 
       fbRef.child("daireler").on("value", (snap) => {
+        if (daireSeedKilit) return;
         durum.daireler = snap.val() || {};
         dairelerSeedEt();
         fbIlkDaireler = true;
@@ -1621,13 +1658,21 @@
   function sonrakiOdaIdVeSira() {
     let maxN = 0;
     let maxSira = 0;
+    let adet = 0;
     Object.values(durum.daireler).forEach((d) => {
-      if (!d) return;
-      const m = /^oda-(\d+)$/.exec(String(d.id || ""));
+      if (!d || !d.id) return;
+      adet += 1;
+      const m = /^oda-(\d+)$/.exec(String(d.id));
       if (m) maxN = Math.max(maxN, Number(m[1]));
       maxSira = Math.max(maxSira, Number(d.sira) || 0);
     });
-    return { id: "oda-" + (maxN + 1), sira: maxSira + 1 };
+    let n = maxN + 1;
+    let id = "oda-" + n;
+    while (durum.daireler[id]) {
+      n += 1;
+      id = "oda-" + n;
+    }
+    return { id, sira: Math.max(maxSira, adet) + 1 };
   }
   function daireEkle(ad) {
     const metin = String(ad || "").trim();
@@ -1649,6 +1694,7 @@
       temizlikGuncelleme: Date.now()
     };
     durum.daireler[id] = kayit;
+    daireSiralariniDuzelt();
     return kaydet("daireler/" + id, kayit).then(() => kayit);
   }
   function daireSil(id) {
@@ -1662,6 +1708,7 @@
       throw new Error("Bu odada " + kullanan.length + " rezervasyon var; silinemez.");
     }
     delete durum.daireler[id];
+    daireSiralariniDuzelt();
     return sil("daireler/" + id);
   }
 

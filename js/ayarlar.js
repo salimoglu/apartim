@@ -232,11 +232,6 @@
   }
 
   // ---- Odalar (ekle + isim değiştir) ----
-  function daireKatEtiket(d) {
-    if (d.sira) return String(d.sira);
-    return "·";
-  }
-
   function daireEkranYenile() {
     window.APARTIM.bina?.ciz?.();
     window.APARTIM.rezOzet?.tabloCizPlanla?.();
@@ -250,7 +245,7 @@
     liste.forEach((d, i) => {
       const li = document.createElement("li");
       li.className = "daire-ayar-item";
-      const no = daireKatEtiket(d) || String(i + 1);
+      const no = String(i + 1);
       const aria = "Oda " + no;
       li.innerHTML =
         '<span class="daire-ayar-kat" title="' + esc(aria) + '">' + esc(no) + "</span>" +
@@ -611,7 +606,10 @@
       if (!adYaziliyor && !paletAcik) kaynakListeRender();
     }
     if (e.detail?.sebep === "daireler" && modalDaire() && !modalDaire().classList.contains("hidden")) {
-      daireListeRender();
+      const aktif = document.activeElement;
+      const adYaziliyor = aktif && modalDaire().contains(aktif) &&
+        aktif.classList.contains("daire-ayar-ad");
+      if (!adYaziliyor) daireListeRender();
     }
     if (e.detail?.sebep === "odeme-yontemleri" && modalOdemeYontem() && !modalOdemeYontem().classList.contains("hidden")) {
       odemeYontemListeRender();
