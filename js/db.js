@@ -1246,6 +1246,30 @@
     return kod === "PERMISSION_DENIED" || /PERMISSION_DENIED|permission_denied/i.test(mesaj);
   }
 
+  async function jetonBekle() {
+    const user = window.APARTIM.fbAuth && window.APARTIM.fbAuth.currentUser;
+    if (!user || typeof user.getIdToken !== "function") return;
+    try { await user.getIdToken(); } catch (e) {}
+  }
+
+  function bekle(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function uyelikOku(db, uid) {
+    const yol = db.ref("apartim/uyelik/" + uid);
+    await jetonBekle();
+    try {
+      return await yol.once("value");
+    } catch (err) {
+      if (!izinReddi(err)) throw err;
+      try { db.goOffline(); db.goOnline(); } catch (e) {}
+      await bekle(500);
+      await jetonBekle();
+      return await yol.once("value");
+    }
+  }
+
   function dinleyiciHata(err) {
     if (izinReddi(err)) return;
     window.APARTIM.syncDurum("hata");
@@ -1429,7 +1453,7 @@
     const db = window.APARTIM.fbDb;
     let uyelikSnap;
     try {
-      uyelikSnap = await db.ref("apartim/uyelik/" + uid).once("value");
+      uyelikSnap = await uyelikOku(db, uid);
     } catch (err) {
       if (izinReddi(err)) {
         if (nesil === hazirNesil) pencereEskiKullanici(kullanici);
