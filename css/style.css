@@ -2303,7 +2303,7 @@ html.theme-light .rez-ozet-bugun .rez-ozet-tarih-gun {
   padding: 1px 0 !important;
   line-height: 1;
 }
-/* Sarı IO hücreleri — çakışan / giriş / çıkış günleri (tarih sütunu hariç) */
+/* Sarı IO hücreleri — giriş ve aynı gün giriş+çıkış (tarih sütunu ve yalnız çıkış hariç) */
 .rez-ozet-table td.rez-ozet-io-hucre {
   color: #1a1a1a !important;
 }

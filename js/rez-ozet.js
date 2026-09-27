@@ -747,7 +747,7 @@
       return;
     }
     if (h.tip === "checkout") {
-      checkoutHucreleriEkle(tr, h.rez, tarih, renk, true, d.id);
+      checkoutHucreleriEkle(tr, h.rez, tarih, renk, false, d.id);
       return;
     }
     if (h.tip === "konak") {
@@ -761,7 +761,7 @@
     const haftaSonu = new Date(y, m, g).getDay();
     const ioGun = daireler.some((d) => {
       const tip = gunDurumuHarita(harita, d.id, tarih).tip;
-      return tip === "checkout" || tip === "checkin" || tip === "turnover";
+      return tip === "checkin" || tip === "turnover";
     });
     const sinif = satirSiniflari(tarih, bugun, haftaSonu, ioGun);
     const secili = durum.seciliTarih === tarih;
