@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Flamingo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe8f2"/>
+      <stop offset="100%" stop-color="#ffb3d1"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <path d="M70 96 Q40 88 36 64 Q34 46 52 44" fill="none" stroke="#ff7aa2" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="58" cy="40" r="18" fill="#ff8fab"/>
+  <path d="M70 42 L92 38 L72 50 Z" fill="#f4a261"/>
+  <circle cx="52" cy="36" r="3" fill="#5c2433"/>
+  <circle cx="53" cy="35" r="1" fill="#fff"/>
+  <ellipse cx="48" cy="42" rx="4" ry="2.4" fill="#ffd0dc" opacity=".8"/>
+  <path d="M48 108 Q58 98 64 108" fill="none" stroke="#f4a261" stroke-width="3" stroke-linecap="round"/>
+</svg>

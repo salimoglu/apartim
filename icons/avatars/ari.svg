@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Ar1">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff8d8"/>
+      <stop offset="100%" stop-color="#ffe08a"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <ellipse cx="40" cy="62" rx="16" ry="10" fill="#fff" opacity=".9" transform="rotate(-20 40 62)"/>
+  <ellipse cx="88" cy="62" rx="16" ry="10" fill="#fff" opacity=".9" transform="rotate(20 88 62)"/>
+  <ellipse cx="64" cy="74" rx="26" ry="30" fill="#ffd166"/>
+  <path d="M40 70 H88" stroke="#3d2b29" stroke-width="6"/>
+  <path d="M42 84 H86" stroke="#3d2b29" stroke-width="6"/>
+  <circle cx="64" cy="46" r="16" fill="#ffd166"/>
+  <circle cx="58" cy="44" r="2.6" fill="#3d2b29"/>
+  <circle cx="70" cy="44" r="2.6" fill="#3d2b29"/>
+  <path d="M58 50 Q64 56 70 50" fill="none" stroke="#3d2b29" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M54 32 Q50 20 58 28" fill="none" stroke="#3d2b29" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M74 32 Q78 20 70 28" fill="none" stroke="#3d2b29" stroke-width="2.4" stroke-linecap="round"/>
+  <ellipse cx="48" cy="50" rx="5" ry="3" fill="#ffb3c6" opacity=".7"/>
+  <ellipse cx="80" cy="50" rx="5" ry="3" fill="#ffb3c6" opacity=".7"/>
+</svg>

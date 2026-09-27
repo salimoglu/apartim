@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Çilek">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff0f3"/>
+      <stop offset="100%" stop-color="#ffb3c1"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <path d="M64 28 L78 46 L70 44 L86 58 L64 50 L42 58 L58 44 L50 46 Z" fill="#40916c"/>
+  <path d="M40 62 Q40 108 64 112 Q88 108 88 62 Q76 52 64 54 Q52 52 40 62 Z" fill="#e63946"/>
+  <circle cx="52" cy="74" r="2.4" fill="#fff" opacity=".85"/>
+  <circle cx="66" cy="80" r="2.4" fill="#fff" opacity=".85"/>
+  <circle cx="76" cy="70" r="2.2" fill="#fff" opacity=".85"/>
+  <circle cx="56" cy="90" r="2.2" fill="#fff" opacity=".85"/>
+  <circle cx="72" cy="94" r="2.2" fill="#fff" opacity=".85"/>
+  <circle cx="56" cy="70" r="2.6" fill="#5c1020"/>
+  <circle cx="74" cy="70" r="2.6" fill="#5c1020"/>
+  <path d="M56 80 Q64 86 72 80" fill="none" stroke="#5c1020" stroke-width="2.2" stroke-linecap="round"/>
+</svg>

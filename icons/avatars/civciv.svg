@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Civciv">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff8d6"/>
+      <stop offset="100%" stop-color="#ffe08a"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <ellipse cx="40" cy="86" rx="14" ry="10" fill="#ffd166" transform="rotate(-24 40 86)"/>
+  <ellipse cx="88" cy="86" rx="14" ry="10" fill="#ffd166" transform="rotate(24 88 86)"/>
+  <circle cx="64" cy="72" r="34" fill="#ffd93d"/>
+  <ellipse cx="46" cy="78" rx="7" ry="4" fill="#ffb3c6" opacity=".65"/>
+  <ellipse cx="82" cy="78" rx="7" ry="4" fill="#ffb3c6" opacity=".65"/>
+  <circle cx="52" cy="66" r="5" fill="#3d2b29"/>
+  <circle cx="76" cy="66" r="5" fill="#3d2b29"/>
+  <circle cx="53.6" cy="64.4" r="1.8" fill="#fff"/>
+  <circle cx="77.6" cy="64.4" r="1.8" fill="#fff"/>
+  <path d="M58 78 L70 78 L64 88 Z" fill="#f77f00"/>
+  <path d="M46 36 Q52 22 58 34" fill="none" stroke="#f4a261" stroke-width="4" stroke-linecap="round"/>
+</svg>

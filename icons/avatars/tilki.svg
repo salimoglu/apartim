@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Tilki">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe8d2"/>
+      <stop offset="100%" stop-color="#f0b27a"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <path d="M30 70 L18 24 L54 48 Z" fill="#e76f3c"/>
+  <path d="M98 70 L110 24 L74 48 Z" fill="#e76f3c"/>
+  <path d="M34 64 L26 36 L48 50 Z" fill="#ffd0b0"/>
+  <path d="M94 64 L102 36 L80 50 Z" fill="#ffd0b0"/>
+  <circle cx="64" cy="78" r="34" fill="#f4845f"/>
+  <ellipse cx="64" cy="90" rx="16" ry="12" fill="#fff6ee"/>
+  <ellipse cx="50" cy="72" rx="6" ry="7" fill="#3d2b29"/>
+  <ellipse cx="78" cy="72" rx="6" ry="7" fill="#3d2b29"/>
+  <circle cx="52" cy="70" r="2" fill="#fff"/>
+  <circle cx="80" cy="70" r="2" fill="#fff"/>
+  <ellipse cx="64" cy="84" rx="4" ry="3" fill="#3d2b29"/>
+  <path d="M58 92 Q64 98 70 92" fill="none" stroke="#c45c3e" stroke-width="2.6" stroke-linecap="round"/>
+  <ellipse cx="44" cy="84" rx="7" ry="4" fill="#ffb3c6" opacity=".55"/>
+  <ellipse cx="84" cy="84" rx="7" ry="4" fill="#ffb3c6" opacity=".55"/>
+</svg>

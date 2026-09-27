@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Dondurma">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff4fb"/>
+      <stop offset="100%" stop-color="#f8c4e0"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <path d="M48 70 L64 112 L80 70 Z" fill="#f4c27a"/>
+  <path d="M52 78 L64 104 L60 78 M68 78 L64 104 L76 86" fill="none" stroke="#e0a85c" stroke-width="2"/>
+  <circle cx="52" cy="58" r="18" fill="#ff8fab"/>
+  <circle cx="76" cy="58" r="18" fill="#ffd6e7"/>
+  <circle cx="64" cy="46" r="18" fill="#fff"/>
+  <circle cx="58" cy="44" r="2.4" fill="#5c3a32"/>
+  <circle cx="70" cy="44" r="2.4" fill="#5c3a32"/>
+  <path d="M58 50 Q64 56 70 50" fill="none" stroke="#c45c78" stroke-width="2.2" stroke-linecap="round"/>
+  <ellipse cx="52" cy="48" rx="4" ry="2.4" fill="#ffb3c6" opacity=".8"/>
+  <ellipse cx="76" cy="48" rx="4" ry="2.4" fill="#ffb3c6" opacity=".8"/>
+</svg>

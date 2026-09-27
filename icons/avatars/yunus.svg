@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Yunus">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#dff6ff"/>
+      <stop offset="100%" stop-color="#5eb7e0"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <path d="M24 78 Q40 40 78 48 Q104 54 108 72 Q90 66 78 74 Q96 86 86 100 Q70 84 58 86 Q40 90 24 78 Z" fill="#4cc9f0"/>
+  <path d="M40 70 Q58 58 76 66 Q60 70 46 78 Z" fill="#e8f8ff"/>
+  <circle cx="86" cy="58" r="3.2" fill="#143044"/>
+  <circle cx="87.2" cy="57" r="1.1" fill="#fff"/>
+  <path d="M92 64 Q100 68 96 74" fill="none" stroke="#143044" stroke-width="2.4" stroke-linecap="round"/>
+  <ellipse cx="78" cy="66" rx="4" ry="2.4" fill="#ffb3c6" opacity=".6"/>
+</svg>

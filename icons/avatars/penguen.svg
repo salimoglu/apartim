@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Penguen">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e7f6ff"/>
+      <stop offset="100%" stop-color="#8ecae6"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <ellipse cx="64" cy="74" rx="34" ry="38" fill="#2b2d42"/>
+  <ellipse cx="64" cy="82" rx="20" ry="24" fill="#fff"/>
+  <ellipse cx="30" cy="78" rx="10" ry="16" fill="#2b2d42" transform="rotate(-20 30 78)"/>
+  <ellipse cx="98" cy="78" rx="10" ry="16" fill="#2b2d42" transform="rotate(20 98 78)"/>
+  <circle cx="52" cy="62" r="5" fill="#2b2d42"/>
+  <circle cx="76" cy="62" r="5" fill="#2b2d42"/>
+  <circle cx="53.4" cy="60.6" r="1.8" fill="#fff"/>
+  <circle cx="77.4" cy="60.6" r="1.8" fill="#fff"/>
+  <path d="M58 74 L64 80 L70 74 Z" fill="#f4a261"/>
+  <ellipse cx="44" cy="70" rx="6" ry="3.5" fill="#ffb3c6" opacity=".65"/>
+  <ellipse cx="84" cy="70" rx="6" ry="3.5" fill="#ffb3c6" opacity=".65"/>
+</svg>

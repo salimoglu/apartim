@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Güne_">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff6d0"/>
+      <stop offset="100%" stop-color="#ffd166"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <g stroke="#f4a261" stroke-width="6" stroke-linecap="round">
+    <path d="M64 16 V30 M64 98 V112 M16 64 H30 M98 64 H112"/>
+    <path d="M30 30 L40 40 M88 88 L98 98 M98 30 L88 40 M40 88 L30 98"/>
+  </g>
+  <circle cx="64" cy="64" r="28" fill="#ffd93d"/>
+  <circle cx="54" cy="60" r="3.2" fill="#c47b2b"/>
+  <circle cx="74" cy="60" r="3.2" fill="#c47b2b"/>
+  <path d="M52 72 Q64 82 76 72" fill="none" stroke="#c47b2b" stroke-width="3" stroke-linecap="round"/>
+  <ellipse cx="46" cy="66" rx="5" ry="3" fill="#ffb3c6" opacity=".75"/>
+  <ellipse cx="82" cy="66" rx="5" ry="3" fill="#ffb3c6" opacity=".75"/>
+</svg>

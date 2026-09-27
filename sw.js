@@ -2,8 +2,8 @@
    JS/CSS: stale-while-revalidate (hızlı yenileme + arka planda güncelleme)
    HTML navigate: network-first (kısa zaman aşımı → cache)
    Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
-const CACHE_VERSION = "apartim-3-75";
-const ASSET_V = "3.75";
+const CACHE_VERSION = "apartim-3-76";
+const ASSET_V = "3.76";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -36,24 +36,46 @@ const CORE_ASSETS = [
   "./icons/icon-192.png",
   "./icons/icon-256.png",
   "./icons/icon-512.png",
-  "./icons/avatars/ev.svg?v=" + ASSET_V,
-  "./icons/avatars/apart.svg?v=" + ASSET_V,
-  "./icons/avatars/kamp.svg?v=" + ASSET_V,
-  "./icons/avatars/doga.svg?v=" + ASSET_V,
-  "./icons/avatars/deniz.svg?v=" + ASSET_V,
-  "./icons/avatars/dag.svg?v=" + ASSET_V,
-  "./icons/avatars/gece.svg?v=" + ASSET_V,
-  "./icons/avatars/orman.svg?v=" + ASSET_V,
   "./icons/avatars/kedi.svg?v=" + ASSET_V,
   "./icons/avatars/kopek.svg?v=" + ASSET_V,
   "./icons/avatars/tavsan.svg?v=" + ASSET_V,
   "./icons/avatars/ayi.svg?v=" + ASSET_V,
+  "./icons/avatars/panda.svg?v=" + ASSET_V,
+  "./icons/avatars/tilki.svg?v=" + ASSET_V,
+  "./icons/avatars/penguen.svg?v=" + ASSET_V,
+  "./icons/avatars/koala.svg?v=" + ASSET_V,
+  "./icons/avatars/kirpi.svg?v=" + ASSET_V,
+  "./icons/avatars/baykus.svg?v=" + ASSET_V,
   "./icons/avatars/kus.svg?v=" + ASSET_V,
+  "./icons/avatars/civciv.svg?v=" + ASSET_V,
+  "./icons/avatars/flamingo.svg?v=" + ASSET_V,
+  "./icons/avatars/marti.svg?v=" + ASSET_V,
+  "./icons/avatars/kelebek.svg?v=" + ASSET_V,
+  "./icons/avatars/ari.svg?v=" + ASSET_V,
+  "./icons/avatars/yunus.svg?v=" + ASSET_V,
+  "./icons/avatars/kaplumbaga.svg?v=" + ASSET_V,
   "./icons/avatars/cicek.svg?v=" + ASSET_V,
+  "./icons/avatars/papatya.svg?v=" + ASSET_V,
   "./icons/avatars/lale.svg?v=" + ASSET_V,
+  "./icons/avatars/gul.svg?v=" + ASSET_V,
+  "./icons/avatars/cilek.svg?v=" + ASSET_V,
   "./icons/avatars/kalp.svg?v=" + ASSET_V,
   "./icons/avatars/yildiz.svg?v=" + ASSET_V,
-  "./icons/avatars/kahve.svg?v=" + ASSET_V
+  "./icons/avatars/gunes.svg?v=" + ASSET_V,
+  "./icons/avatars/bulut.svg?v=" + ASSET_V,
+  "./icons/avatars/kahve.svg?v=" + ASSET_V,
+  "./icons/avatars/dondurma.svg?v=" + ASSET_V,
+  "./icons/avatars/pasta.svg?v=" + ASSET_V,
+  "./icons/avatars/kurabiye.svg?v=" + ASSET_V,
+  "./icons/avatars/balon.svg?v=" + ASSET_V,
+  "./icons/avatars/ev.svg?v=" + ASSET_V,
+  "./icons/avatars/apart.svg?v=" + ASSET_V,
+  "./icons/avatars/deniz.svg?v=" + ASSET_V,
+  "./icons/avatars/doga.svg?v=" + ASSET_V,
+  "./icons/avatars/dag.svg?v=" + ASSET_V,
+  "./icons/avatars/orman.svg?v=" + ASSET_V,
+  "./icons/avatars/kamp.svg?v=" + ASSET_V,
+  "./icons/avatars/gece.svg?v=" + ASSET_V
 ];
 
 const NAV_TIMEOUT_MS = 2500;

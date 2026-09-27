@@ -454,17 +454,18 @@ html.apartim-deneme .app {
   object-fit: cover;
   box-shadow: 0 0 0 2px var(--kenar);
 }
+.modal-box-avatar { max-width: 520px; }
 .avatar-secim-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
 }
 .avatar-secim-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 10px 6px 12px;
+  padding: 8px 4px 8px;
   border: 2px solid var(--kenar);
   border-radius: var(--radius);
   background: var(--kart-2);
@@ -480,8 +481,8 @@ html.apartim-deneme .app {
   box-shadow: 0 0 0 3px var(--vurgu-soluk);
 }
 .avatar-secim-btn img {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   object-fit: cover;
   box-shadow: var(--golge-sm);
@@ -498,12 +499,12 @@ html.apartim-deneme .app {
 }
 @media (max-width: 480px) {
   .avatar-secim-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
   }
   .avatar-secim-btn img {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
   }
 }
 .ayar-menu {

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Balon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#e7f4ff"/>
+      <stop offset="100%" stop-color="#b9d7f5"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <ellipse cx="64" cy="54" rx="30" ry="34" fill="#ff6b8a"/>
+  <ellipse cx="52" cy="42" rx="8" ry="12" fill="#fff" opacity=".35"/>
+  <path d="M58 86 L64 94 L70 86 Z" fill="#e85d75"/>
+  <path d="M64 94 Q70 104 60 112" fill="none" stroke="#6b4c9a" stroke-width="2.4" stroke-linecap="round"/>
+  <circle cx="54" cy="52" r="3" fill="#5c2433"/>
+  <circle cx="72" cy="52" r="3" fill="#5c2433"/>
+  <circle cx="55.2" cy="50.8" r="1.1" fill="#fff"/>
+  <circle cx="73.2" cy="50.8" r="1.1" fill="#fff"/>
+  <path d="M54 62 Q64 70 74 62" fill="none" stroke="#5c2433" stroke-width="2.4" stroke-linecap="round"/>
+  <ellipse cx="46" cy="58" rx="5" ry="3" fill="#ffd0dc" opacity=".7"/>
+  <ellipse cx="82" cy="58" rx="5" ry="3" fill="#ffd0dc" opacity=".7"/>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Bayku_">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#efe6ff"/>
+      <stop offset="100%" stop-color="#cbb6e8"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <path d="M40 48 L28 24 L52 40 Z" fill="#8d6e63"/>
+  <path d="M88 48 L100 24 L76 40 Z" fill="#8d6e63"/>
+  <ellipse cx="64" cy="76" rx="36" ry="34" fill="#a47551"/>
+  <ellipse cx="64" cy="86" rx="16" ry="14" fill="#f3e5d0"/>
+  <circle cx="48" cy="68" r="14" fill="#fff8ee"/>
+  <circle cx="80" cy="68" r="14" fill="#fff8ee"/>
+  <circle cx="48" cy="68" r="7" fill="#3d2b29"/>
+  <circle cx="80" cy="68" r="7" fill="#3d2b29"/>
+  <circle cx="50" cy="66" r="2.4" fill="#fff"/>
+  <circle cx="82" cy="66" r="2.4" fill="#fff"/>
+  <path d="M60 84 L64 90 L68 84 Z" fill="#e07a5f"/>
+</svg>
