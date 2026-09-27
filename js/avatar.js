@@ -5,12 +5,22 @@
 (function () {
   "use strict";
 
-  const V = "1.2";
+  const V = (window.APARTIM_VERSION && window.APARTIM_VERSION.ASSET) || "3.75";
   const VARSAYILAN = "ev";
 
   const AVATARLAR = [
-    { id: "ev", etiket: "Apart ev", src: "icons/avatars/ev.svg" },
-    { id: "apart", etiket: "Apart otel", src: "icons/avatars/apart.svg" },
+    { id: "kedi", etiket: "Kedi", src: "icons/avatars/kedi.svg" },
+    { id: "kopek", etiket: "Köpek", src: "icons/avatars/kopek.svg" },
+    { id: "tavsan", etiket: "Tavşan", src: "icons/avatars/tavsan.svg" },
+    { id: "ayi", etiket: "Ayı", src: "icons/avatars/ayi.svg" },
+    { id: "kus", etiket: "Kuş", src: "icons/avatars/kus.svg" },
+    { id: "cicek", etiket: "Çiçek", src: "icons/avatars/cicek.svg" },
+    { id: "lale", etiket: "Lale", src: "icons/avatars/lale.svg" },
+    { id: "kalp", etiket: "Kalp", src: "icons/avatars/kalp.svg" },
+    { id: "yildiz", etiket: "Yıldız", src: "icons/avatars/yildiz.svg" },
+    { id: "kahve", etiket: "Kahve", src: "icons/avatars/kahve.svg" },
+    { id: "ev", etiket: "Ev", src: "icons/avatars/ev.svg" },
+    { id: "apart", etiket: "Apart", src: "icons/avatars/apart.svg" },
     { id: "deniz", etiket: "Deniz", src: "icons/avatars/deniz.svg" },
     { id: "doga", etiket: "Doğa", src: "icons/avatars/doga.svg" },
     { id: "dag", etiket: "Dağ", src: "icons/avatars/dag.svg" },

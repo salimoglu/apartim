@@ -1,25 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Doğa">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Doğa">
   <defs>
-    <linearGradient id="doga-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#a8e6cf"/>
-      <stop offset="100%" stop-color="#56ab91"/>
-    </linearGradient>
-    <linearGradient id="doga-hill" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#7bc96f"/>
-      <stop offset="100%" stop-color="#3d8b37"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f2ffe6"/>
+      <stop offset="100%" stop-color="#9ad67a"/>
     </linearGradient>
   </defs>
-  <rect width="256" height="256" rx="56" fill="url(#doga-sky)"/>
-  <circle cx="188" cy="68" r="24" fill="#fff3b0"/>
-  <circle cx="188" cy="68" r="18" fill="#ffd93d"/>
-  <path d="M0 170 Q64 130 128 150 T256 140 V256 H0Z" fill="url(#doga-hill)"/>
-  <path d="M0 190 Q80 160 160 180 T256 170 V256 H0Z" fill="#2d6a4f" opacity=".45"/>
-  <rect x="116" y="118" width="14" height="52" rx="7" fill="#8d5524"/>
-  <circle cx="123" cy="98" r="34" fill="#40916c"/>
-  <circle cx="103" cy="108" r="24" fill="#52b788"/>
-  <circle cx="143" cy="108" r="24" fill="#52b788"/>
-  <circle cx="123" cy="88" r="20" fill="#74c69d"/>
-  <circle cx="48" cy="156" r="6" fill="#ffe066"/>
-  <circle cx="68" cy="168" r="5" fill="#ff6b6b"/>
-  <circle cx="196" cy="162" r="6" fill="#ffe066"/>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <ellipse cx="64" cy="108" rx="28" ry="8" fill="#74c69d"/>
+  <rect x="60" y="58" width="8" height="48" rx="4" fill="#74a348"/>
+  <ellipse cx="46" cy="62" rx="20" ry="14" fill="#70c45a" transform="rotate(-28 46 62)"/>
+  <ellipse cx="82" cy="62" rx="20" ry="14" fill="#52b788" transform="rotate(28 82 62)"/>
+  <circle cx="64" cy="48" r="20" fill="#b7e87a"/>
+  <circle cx="56" cy="46" r="2.8" fill="#3d5a28"/>
+  <circle cx="72" cy="46" r="2.8" fill="#3d5a28"/>
+  <path d="M56 54 Q64 60 72 54" fill="none" stroke="#3d5a28" stroke-width="2.4" stroke-linecap="round"/>
+  <ellipse cx="50" cy="50" rx="4" ry="2.4" fill="#ffb3c6" opacity=".7"/>
+  <ellipse cx="78" cy="50" rx="4" ry="2.4" fill="#ffb3c6" opacity=".7"/>
 </svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Lale">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff0f4"/>
+      <stop offset="100%" stop-color="#ffc2d1"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <path d="M64 70 Q40 96 28 108 Q52 100 64 78 Z" fill="#74c69d"/>
+  <path d="M64 70 Q88 96 100 108 Q76 100 64 78 Z" fill="#52b788"/>
+  <rect x="60" y="68" width="8" height="40" rx="4" fill="#40916c"/>
+  <ellipse cx="46" cy="52" rx="16" ry="24" fill="#e85d75"/>
+  <ellipse cx="82" cy="52" rx="16" ry="24" fill="#e85d75"/>
+  <ellipse cx="64" cy="46" rx="16" ry="26" fill="#ff6b8a"/>
+  <ellipse cx="56" cy="48" rx="6" ry="4" fill="#ffd0dc" opacity=".8"/>
+  <ellipse cx="74" cy="48" rx="6" ry="4" fill="#ffd0dc" opacity=".8"/>
+  <circle cx="58" cy="44" r="2.8" fill="#5c2433"/>
+  <circle cx="72" cy="44" r="2.8" fill="#5c2433"/>
+  <path d="M58 52 Q64 58 70 52" fill="none" stroke="#9b3048" stroke-width="2.4" stroke-linecap="round"/>
+</svg>

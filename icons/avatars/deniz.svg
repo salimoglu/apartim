@@ -1,27 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Deniz">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Deniz">
   <defs>
-    <linearGradient id="deniz-sky" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#56ccf2"/>
-      <stop offset="100%" stop-color="#2f80ed"/>
-    </linearGradient>
-    <linearGradient id="deniz-sea" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#1abc9c"/>
-      <stop offset="100%" stop-color="#148f77"/>
-    </linearGradient>
-    <linearGradient id="deniz-sand" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#ffe8b8"/>
-      <stop offset="100%" stop-color="#f4c978"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c9f3ff"/>
+      <stop offset="55%" stop-color="#5ec8e5"/>
+      <stop offset="100%" stop-color="#1a9aaa"/>
     </linearGradient>
   </defs>
-  <rect width="256" height="256" rx="56" fill="url(#deniz-sky)"/>
-  <circle cx="188" cy="72" r="26" fill="#fff4c2"/>
-  <circle cx="188" cy="72" r="20" fill="#ffd93d"/>
-  <path d="M0 156 Q32 142 64 156 T128 156 T192 156 T256 156 V256 H0Z" fill="url(#deniz-sea)"/>
-  <path d="M0 172 Q40 158 80 172 T160 172 T256 172 V256 H0Z" fill="#117a65" opacity=".45"/>
-  <path d="M0 188 Q48 174 96 188 T192 188 T256 188 V256 H0Z" fill="#fff" opacity=".12"/>
-  <path d="M0 148 Q64 132 128 148 T256 148 V168 H0Z" fill="url(#deniz-sand)"/>
-  <path d="M148 108 L196 188 H100Z" fill="#e74c3c"/>
-  <path d="M148 108 L196 188 H100Z" fill="#c0392b" opacity=".25"/>
-  <rect x="144" y="108" width="6" height="80" fill="#ecf0f1"/>
-  <ellipse cx="148" cy="188" rx="28" ry="6" fill="#000" opacity=".12"/>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <circle cx="78" cy="48" r="26" fill="#ffe08a"/>
+  <circle cx="70" cy="46" r="3.2" fill="#c47b2b"/>
+  <circle cx="86" cy="46" r="3.2" fill="#c47b2b"/>
+  <path d="M70 56 Q78 64 86 56" fill="none" stroke="#c47b2b" stroke-width="2.8" stroke-linecap="round"/>
+  <ellipse cx="66" cy="52" rx="5" ry="3" fill="#ffb3c6" opacity=".7"/>
+  <ellipse cx="90" cy="52" rx="5" ry="3" fill="#ffb3c6" opacity=".7"/>
+  <path d="M0 86 Q22 74 40 86 T80 86 T128 78 V128 H0 Z" fill="#1a9aaa"/>
+  <path d="M0 98 Q28 88 52 98 T104 96 T128 100 V128 H0 Z" fill="#147a88"/>
+  <path d="M0 108 Q32 100 64 110 T128 104 V128 H0 Z" fill="#fff" opacity=".18"/>
 </svg>

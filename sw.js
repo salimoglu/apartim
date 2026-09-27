@@ -2,8 +2,8 @@
    JS/CSS: stale-while-revalidate (hızlı yenileme + arka planda güncelleme)
    HTML navigate: network-first (kısa zaman aşımı → cache)
    Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
-const CACHE_VERSION = "apartim-3-74";
-const ASSET_V = "3.74";
+const CACHE_VERSION = "apartim-3-75";
+const ASSET_V = "3.75";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -43,7 +43,17 @@ const CORE_ASSETS = [
   "./icons/avatars/deniz.svg?v=" + ASSET_V,
   "./icons/avatars/dag.svg?v=" + ASSET_V,
   "./icons/avatars/gece.svg?v=" + ASSET_V,
-  "./icons/avatars/orman.svg?v=" + ASSET_V
+  "./icons/avatars/orman.svg?v=" + ASSET_V,
+  "./icons/avatars/kedi.svg?v=" + ASSET_V,
+  "./icons/avatars/kopek.svg?v=" + ASSET_V,
+  "./icons/avatars/tavsan.svg?v=" + ASSET_V,
+  "./icons/avatars/ayi.svg?v=" + ASSET_V,
+  "./icons/avatars/kus.svg?v=" + ASSET_V,
+  "./icons/avatars/cicek.svg?v=" + ASSET_V,
+  "./icons/avatars/lale.svg?v=" + ASSET_V,
+  "./icons/avatars/kalp.svg?v=" + ASSET_V,
+  "./icons/avatars/yildiz.svg?v=" + ASSET_V,
+  "./icons/avatars/kahve.svg?v=" + ASSET_V
 ];
 
 const NAV_TIMEOUT_MS = 2500;

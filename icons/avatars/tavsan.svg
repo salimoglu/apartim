@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Tav_an">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe8f3"/>
+      <stop offset="100%" stop-color="#ffb3d0"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <ellipse cx="46" cy="42" rx="12" ry="26" fill="#fff"/>
+  <ellipse cx="82" cy="42" rx="12" ry="26" fill="#fff"/>
+  <ellipse cx="46" cy="44" rx="6" ry="16" fill="#ffb3c7"/>
+  <ellipse cx="82" cy="44" rx="6" ry="16" fill="#ffb3c7"/>
+  <circle cx="64" cy="80" r="34" fill="#fff"/>
+  <ellipse cx="44" cy="86" rx="8" ry="5" fill="#ff9eb5" opacity=".7"/>
+  <ellipse cx="84" cy="86" rx="8" ry="5" fill="#ff9eb5" opacity=".7"/>
+  <ellipse cx="52" cy="76" rx="6" ry="7.5" fill="#4a372f"/>
+  <ellipse cx="76" cy="76" rx="6" ry="7.5" fill="#4a372f"/>
+  <circle cx="54" cy="73.5" r="2.2" fill="#fff"/>
+  <circle cx="78" cy="73.5" r="2.2" fill="#fff"/>
+  <ellipse cx="64" cy="88" rx="4" ry="3" fill="#ff8fab"/>
+  <path d="M58 92 Q64 98 70 92" fill="none" stroke="#c45c78" stroke-width="3" stroke-linecap="round"/>
+</svg>
