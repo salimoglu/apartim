@@ -5952,6 +5952,99 @@ html.theme-light .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik.rez-ozet-bugun-s
 .rez-ozet-gun-ic td:first-child { border-top: none !important; }
 .rez-ozet-gun-ic td:last-child { border-bottom: none !important; }
 
+/* -------------------- Robust yedek -------------------- */
+#modal-kimlik-dogrula { z-index: 1200; }
+.modal-box-robust { max-width: 520px; }
+.robust-durum {
+  font-size: 13px;
+  color: var(--metin-soluk);
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+.robust-eylemler {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.robust-eylemler .btn-primary,
+.robust-eylemler .btn-secondary {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+.robust-dosya-etiket {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  margin: 0;
+}
+.robust-liste-baslik {
+  margin: 14px 0 0;
+  font-size: 13px;
+  font-weight: 800;
+}
+.robust-liste {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.robust-oge {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--kenar);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+}
+.robust-oge-metin { min-width: 0; }
+.robust-oge-baslik {
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.robust-rozet {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  background: var(--vurgu-soluk);
+  color: var(--vurgu);
+  border-radius: 999px;
+  padding: 2px 6px;
+}
+.robust-rozet.supheli {
+  background: transparent;
+  color: var(--tehlike);
+  border: 1px solid var(--tehlike);
+}
+.robust-ozet,
+.robust-kaynak {
+  font-size: 12px;
+  color: var(--metin-soluk);
+}
+.robust-geri-btn {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+.robust-bos {
+  font-size: 13px;
+  color: var(--metin-soluk);
+  margin: 0;
+}
+.robust-mesgul .robust-eylemler button,
+.robust-mesgul .robust-eylemler label,
+.robust-mesgul .robust-geri-btn {
+  pointer-events: none;
+  opacity: 0.55;
+}
+
 @media (max-width: 720px) {
   #tab-tahsilat.active { padding: 6px; }
   .tahsilat-ust { flex-wrap: wrap; gap: 6px; }

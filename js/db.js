@@ -1795,6 +1795,87 @@
     kullaniciHazir(window.APARTIM.kullanici);
   }
 
+  function anlikVeriAl() {
+    return {
+      daireler: nesneTemizle(durum.daireler) || {},
+      rezervasyonlar: nesneTemizle(durum.rezervasyonlar) || {},
+      temizlikKayit: nesneTemizle(durum.temizlikKayit) || {},
+      musteriKaynaklari: nesneTemizle(durum.musteriKaynaklari) || {},
+      kasaHarcama: nesneTemizle(durum.kasaHarcama) || {},
+      dovizKurlari: nesneTemizle(durum.dovizKurlari) || {}
+    };
+  }
+
+  function koleksiyonBos(obj) {
+    return !obj || typeof obj !== "object" || Array.isArray(obj) || !Object.keys(obj).length;
+  }
+
+  /** Tüm kullanıcı verisini yedeğin içeriğiyle değiştirir. Firebase update atomiktir. */
+  function anlikVeriUygula(veri) {
+    if (!veri || typeof veri !== "object") {
+      return Promise.reject(new Error("Yedek verisi boş."));
+    }
+    const paket = {
+      daireler: nesneTemizle(veri.daireler) || {},
+      rezervasyonlar: rezervasyonlariNormalize(veri.rezervasyonlar || {}),
+      temizlikKayit: nesneTemizle(veri.temizlikKayit) || {},
+      musteriKaynaklari: nesneTemizle(veri.musteriKaynaklari) || {},
+      kasaHarcama: nesneTemizle(veri.kasaHarcama) || {},
+      dovizKurlari: dovizKurlariNorm(veri.dovizKurlari || {})
+    };
+    if (window.APARTIM.firebaseAktif) {
+      if (!fbRef) {
+        return Promise.reject(new Error("Bulut bağlantısı henüz hazır değil."));
+      }
+      const guncelleme = {
+        daireler: koleksiyonBos(paket.daireler) ? null : paket.daireler,
+        rezervasyonlar: koleksiyonBos(paket.rezervasyonlar) ? null : paket.rezervasyonlar,
+        "temizlik-kayit": koleksiyonBos(paket.temizlikKayit) ? null : paket.temizlikKayit,
+        "musteri-kaynaklari": koleksiyonBos(paket.musteriKaynaklari) ? null : paket.musteriKaynaklari,
+        "kasa-harcama": koleksiyonBos(paket.kasaHarcama) ? null : paket.kasaHarcama,
+        "doviz-kurlari": nesneTemizle(paket.dovizKurlari)
+      };
+      return fbRef.update(guncelleme).catch((err) => {
+        console.warn("Robust geri yükleme hatası:", err);
+        window.APARTIM.toast?.("Geri yükleme sunucuya yazılamadı", "hata");
+        throw err;
+      });
+    }
+    durum.daireler = paket.daireler;
+    durum.rezervasyonlar = paket.rezervasyonlar;
+    durum.temizlikKayit = paket.temizlikKayit;
+    durum.musteriKaynaklari = paket.musteriKaynaklari;
+    durum.kasaHarcama = paket.kasaHarcama;
+    durum.dovizKurlari = paket.dovizKurlari;
+    musteriKaynaklariSeedEt();
+    dairelerSeedEt();
+    dovizKurlariSenkron();
+    yereliKaydet();
+    bildir("veri-degisti", { sebep: "robust-geri-yukle" });
+    return Promise.resolve();
+  }
+
+  function robustBulutHazir() {
+    return !!(window.APARTIM.firebaseAktif && fbRef);
+  }
+
+  function robustBulutOku() {
+    if (!robustBulutHazir()) return Promise.resolve(null);
+    return fbRef.child("robust").once("value").then((s) => s.val() || null).catch((err) => {
+      console.warn("Robust bulut okuma:", err);
+      return null;
+    });
+  }
+
+  function robustBulutYaz(yol, deger) {
+    if (!robustBulutHazir()) return Promise.resolve(false);
+    const temiz = deger == null ? null : nesneTemizle(deger);
+    return fbRef.child("robust").child(yol).set(temiz).then(() => true).catch((err) => {
+      console.warn("Robust bulut yazma:", yol, err);
+      return false;
+    });
+  }
+
   // ---------- Public API ----------
   window.APARTIM.db = {
     durum,
@@ -1864,6 +1945,11 @@
     musteriKaynagiEkle,
     musteriKaynagiSil,
     profilAvatarKaydet,
+    anlikVeriAl,
+    anlikVeriUygula,
+    robustBulutHazir,
+    robustBulutOku,
+    robustBulutYaz,
     VARSAYILAN_MUSTERI_KAYNAKLARI,
     KATEGORI_SIMGELER,
     SABIT_DAIRELER

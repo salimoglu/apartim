@@ -189,7 +189,7 @@
     } else {
       const ok = await kimlik.iste({
         baslik: "Odayı sil",
-        aciklama: "\"" + ad + "\" odasını silmek için hesabınızı doğrulayın. Bu işlem geri alınamaz.",
+        aciklama: "\"" + ad + "\" odasını silmek için hesabınızı doğrulayın. Silmeden önce Robust yedeği alınır.",
         onayMetin: "Odayı sil",
         tehlike: true,
         yerelAnahtar: "SIL"
@@ -197,6 +197,12 @@
       if (!ok) return;
     }
     try {
+      if (!window.APARTIM.robust?.hemen) {
+        uyari("daire-uyari", "Robust yedek hazır değil. Silme iptal edildi.");
+        return;
+      }
+      const yedek = await window.APARTIM.robust.hemen("oda-sil");
+      if (!yedek?.yerel) throw new Error("Robust yedek alınamadı. Silme iptal edildi.");
       await window.APARTIM.db.daireSil(id);
       daireListeRender();
       daireEkranYenile();

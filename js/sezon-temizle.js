@@ -196,7 +196,7 @@
     if (metin) {
       metin.textContent =
         y + " sezonundaki " + adet +
-        " rezervasyon kalıcı olarak silinecek. Bu işlem geri alınamaz.";
+        " rezervasyon silinecek. Silmeden önce Robust yedeği alınır; yedek alınamazsa silme yapılmaz.";
     }
     const yaz = () => {
       if (sayacEl) sayacEl.textContent = String(sayacKalan);
@@ -215,6 +215,19 @@
   async function temizleUygula() {
     adimGoster("islem");
     const db = window.APARTIM.db;
+    if (!window.APARTIM.robust?.hemen) {
+      modalKapat();
+      toast("Robust yedek hazır değil, silme iptal", "hata");
+      return;
+    }
+    try {
+      const yedek = await window.APARTIM.robust.hemen("sezon-temizle");
+      if (!yedek?.yerel) throw new Error("Yedek kaydedilemedi.");
+    } catch (e) {
+      modalKapat();
+      toast(e.message || "Yedek alınamadı, silme iptal", "hata");
+      return;
+    }
     const y = yil();
     const liste = sezonRezervasyonlari(y);
     let ok = 0;

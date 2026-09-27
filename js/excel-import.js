@@ -681,6 +681,11 @@
     const btn = document.getElementById("excel-import-kaydet");
     if (btn) btn.disabled = true;
     try {
+      if (!window.APARTIM.robust?.hemen) {
+        throw new Error("Robust yedek hazır değil. Aktarım iptal edildi.");
+      }
+      const yedek = await window.APARTIM.robust.hemen("excel-aktar");
+      if (!yedek?.yerel) throw new Error("Robust yedek alınamadı. Aktarım iptal edildi.");
       const sonuc = await planUygula(onizleme);
       if (sonuc.hata) {
         toast(sonuc.ok + " kayıt OK, " + sonuc.hata + " hata", "uyari");
