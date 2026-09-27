@@ -9,6 +9,15 @@
   const VARSAYILAN = "ev";
 
   const AVATARLAR = [
+    { id: "uzungol", etiket: "Uzungöl", src: "icons/avatars/uzungol.svg" },
+    { id: "cami", etiket: "Cami", src: "icons/avatars/cami.svg" },
+    { id: "yayla", etiket: "Yayla", src: "icons/avatars/yayla.svg" },
+    { id: "iskele", etiket: "İskele", src: "icons/avatars/iskele.svg" },
+    { id: "otel", etiket: "Apart otel", src: "icons/avatars/otel.svg" },
+    { id: "bungalov", etiket: "Bungalov", src: "icons/avatars/bungalov.svg" },
+    { id: "balkon", etiket: "Balkon", src: "icons/avatars/balkon.svg" },
+    { id: "anahtar", etiket: "Anahtar", src: "icons/avatars/anahtar.svg" },
+    { id: "zil", etiket: "Zil", src: "icons/avatars/zil.svg" },
     { id: "kedi", etiket: "Kedi", src: "icons/avatars/kedi.svg" },
     { id: "kopek", etiket: "Köpek", src: "icons/avatars/kopek.svg" },
     { id: "tavsan", etiket: "Tavşan", src: "icons/avatars/tavsan.svg" },

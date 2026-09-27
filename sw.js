@@ -2,8 +2,8 @@
    JS/CSS: stale-while-revalidate (hızlı yenileme + arka planda güncelleme)
    HTML navigate: network-first (kısa zaman aşımı → cache)
    Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
-const CACHE_VERSION = "apartim-3-77";
-const ASSET_V = "3.77";
+const CACHE_VERSION = "apartim-3-78";
+const ASSET_V = "3.78";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -36,6 +36,15 @@ const CORE_ASSETS = [
   "./icons/icon-192.png",
   "./icons/icon-256.png",
   "./icons/icon-512.png",
+  "./icons/avatars/uzungol.svg?v=" + ASSET_V,
+  "./icons/avatars/cami.svg?v=" + ASSET_V,
+  "./icons/avatars/yayla.svg?v=" + ASSET_V,
+  "./icons/avatars/iskele.svg?v=" + ASSET_V,
+  "./icons/avatars/otel.svg?v=" + ASSET_V,
+  "./icons/avatars/bungalov.svg?v=" + ASSET_V,
+  "./icons/avatars/balkon.svg?v=" + ASSET_V,
+  "./icons/avatars/anahtar.svg?v=" + ASSET_V,
+  "./icons/avatars/zil.svg?v=" + ASSET_V,
   "./icons/avatars/kedi.svg?v=" + ASSET_V,
   "./icons/avatars/kopek.svg?v=" + ASSET_V,
   "./icons/avatars/tavsan.svg?v=" + ASSET_V,

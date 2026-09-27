@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Balkon">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9ad7f8"/>
+      <stop offset="55%" stop-color="#d8f3ff"/>
+      <stop offset="100%" stop-color="#7ddecb"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#sky)"/>
+  <path d="M0 78 L26 58 L46 74 L70 52 L96 70 L128 56 V90 H0 Z" fill="#1f7a48"/>
+  <rect x="18" y="28" width="92" height="78" rx="6" fill="#f4e7d4"/>
+  <rect x="34" y="36" width="60" height="36" rx="4" fill="#8fd4ef"/>
+  <path d="M64 36 V72" stroke="#f4e7d4" stroke-width="4"/>
+  <path d="M34 54 H94" stroke="#f4e7d4" stroke-width="4"/>
+  <rect x="14" y="78" width="100" height="10" rx="2" fill="#c4843c"/>
+  <path d="M22 78 V66 M38 78 V66 M54 78 V66 M70 78 V66 M86 78 V66 M102 78 V66" stroke="#5c3317" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M16 66 H110" stroke="#5c3317" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="28" cy="64" r="7" fill="#e85d4c"/>
+  <circle cx="40" cy="58" r="6" fill="#f28482"/>
+  <circle cx="52" cy="64" r="7" fill="#d94b3a"/>
+  <circle cx="66" cy="58" r="6" fill="#f28482"/>
+  <circle cx="78" cy="64" r="7" fill="#e85d4c"/>
+  <circle cx="90" cy="58" r="6" fill="#f28482"/>
+  <circle cx="100" cy="64" r="6" fill="#d94b3a"/>
+  <circle cx="34" cy="66" r="4" fill="#2f9e5a"/>
+  <circle cx="60" cy="66" r="4" fill="#2f9e5a"/>
+  <circle cx="84" cy="66" r="4" fill="#2f9e5a"/>
+</svg>

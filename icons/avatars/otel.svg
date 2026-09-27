@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Apart otel">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c5e4ff"/>
+      <stop offset="100%" stop-color="#e7f6ee"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#sky)"/>
+  <path d="M-6 108 L36 78 L70 104 L132 72 V132 H-6 Z" fill="#1f7a48"/>
+  <ellipse cx="64" cy="118" rx="58" ry="16" fill="#2f9e5a"/>
+  <path d="M26 64 L64 30 L102 64 Z" fill="#5c3317"/>
+  <rect x="34" y="60" width="60" height="52" fill="#c4843c"/>
+  <rect x="34" y="60" width="60" height="8" fill="#e2b072"/>
+  <rect x="34" y="76" width="60" height="8" fill="#e2b072"/>
+  <rect x="34" y="92" width="60" height="8" fill="#e2b072"/>
+  <rect x="30" y="70" width="68" height="5" rx="1" fill="#6b4423"/>
+  <rect x="30" y="86" width="68" height="5" rx="1" fill="#6b4423"/>
+  <path d="M36 70 V60 M50 70 V60 M64 70 V60 M78 70 V60 M92 70 V60" stroke="#f7f1e6" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M34 60 H94" stroke="#f7f1e6" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M36 86 V76 M50 86 V76 M64 86 V76 M78 86 V76 M92 86 V76" stroke="#f7f1e6" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M34 76 H94" stroke="#f7f1e6" stroke-width="2.6" stroke-linecap="round"/>
+  <rect x="42" y="62" width="10" height="8" rx="1" fill="#ffe08a"/>
+  <rect x="76" y="62" width="10" height="8" rx="1" fill="#ffe08a"/>
+  <rect x="42" y="78" width="10" height="8" rx="1" fill="#ffe08a"/>
+  <rect x="76" y="78" width="10" height="8" rx="1" fill="#ffe08a"/>
+  <rect x="56" y="96" width="16" height="16" rx="2" fill="#3dbe8b"/>
+  <circle cx="24" cy="108" r="8" fill="#146c43"/>
+  <circle cx="104" cy="106" r="9" fill="#146c43"/>
+</svg>

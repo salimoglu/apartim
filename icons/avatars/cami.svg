@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Cami">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8ecff2"/>
+      <stop offset="100%" stop-color="#e7f6ff"/>
+    </linearGradient>
+    <linearGradient id="lake" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#8ff3e4"/>
+      <stop offset="100%" stop-color="#0e756c"/>
+    </linearGradient>
+    <mask id="ay">
+      <circle cx="86" cy="24" r="9" fill="white"/>
+      <circle cx="90.6" cy="21.8" r="7.1" fill="black"/>
+    </mask>
+  </defs>
+  <rect width="128" height="128" fill="url(#sky)"/>
+  <path d="M-6 92 L26 60 L48 78 L132 52 V132 H-6 Z" fill="#145233"/>
+  <path d="M-6 108 L34 82 L72 102 L132 78 V132 H-6 Z" fill="#1f7a48"/>
+  <path d="M0 98 Q64 88 128 100 V128 H0 Z" fill="url(#lake)"/>
+  <path d="M6 102 L24 76 L42 102 Z" fill="#3c2212"/>
+  <rect x="12" y="96" width="24" height="14" fill="#d19654"/>
+  <rect x="12" y="96" width="24" height="4" fill="#e8bc82"/>
+  <rect x="20" y="100" width="7" height="10" fill="#4a2912"/>
+  <rect x="36" y="70" width="46" height="40" fill="#fbf8f1"/>
+  <path d="M42 72 Q59 46 76 72 Z" fill="#f3eee4"/>
+  <circle cx="59" cy="54" r="3.2" fill="#e6c84a"/>
+  <rect x="54" y="90" width="12" height="20" rx="2" fill="#14382e"/>
+  <circle cx="46" cy="86" r="4.2" fill="#14382e"/>
+  <circle cx="74" cy="86" r="4.2" fill="#14382e"/>
+  <rect x="78" y="40" width="14" height="70" fill="#fbf8f1" stroke="#d5ccbc" stroke-width="1.4"/>
+  <rect x="74" y="54" width="22" height="6" rx="3" fill="#ebe4d6"/>
+  <path d="M78 40 L85 26 L92 40 Z" fill="#e6dfd0"/>
+  <circle cx="86" cy="24" r="9" fill="#f5c518" mask="url(#ay)"/>
+  <rect x="80" y="112" width="10" height="12" fill="#fff" opacity=".3"/>
+  <rect x="44" y="114" width="30" height="7" fill="#fff" opacity=".22"/>
+</svg>

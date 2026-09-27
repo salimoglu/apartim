@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Anahtar">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b7f0dc"/>
+      <stop offset="100%" stop-color="#1f8a6e"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffe9a8"/>
+      <stop offset="45%" stop-color="#f5c518"/>
+      <stop offset="100%" stop-color="#e0940a"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#bg)"/>
+  <circle cx="64" cy="46" r="22" fill="url(#gold)"/>
+  <circle cx="64" cy="46" r="10" fill="#157a62"/>
+  <ellipse cx="56" cy="40" rx="6" ry="4" fill="#fff6d0" opacity=".7"/>
+  <rect x="56" y="66" width="16" height="40" rx="3" fill="url(#gold)"/>
+  <rect x="72" y="86" width="16" height="7" rx="2" fill="url(#gold)"/>
+  <rect x="72" y="98" width="12" height="7" rx="2" fill="url(#gold)"/>
+</svg>
