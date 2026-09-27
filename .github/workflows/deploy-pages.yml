@@ -6,7 +6,7 @@ name: Deploy GitHub Pages
 # Canlı:  https://salimoglu.github.io/apartim          ← main
 # Deneme: https://salimoglu.github.io/apartim/deneme/  ← preview (main deploy sırasında paketlenir)
 # GitHub Pages ortamı yalnızca main dalından deploy'a izin verir; preview push'u yayınlamaz.
-# Canlı v3.81. Deneme yayın tetik: otel okuma (preview v3.85).
+# Canlı v3.81. Deneme yayın tetik: takvim genişliği (preview v3.86).
 
 on:
   push:
