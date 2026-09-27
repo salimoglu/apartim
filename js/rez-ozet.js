@@ -152,9 +152,10 @@
 
   function odenenYontemAd(yontem) {
     const ham = String(yontem || "").toLowerCase();
-    const y = ham === "elden" || ham === "nakit" ? "kasa" : yontem;
-    return window.APARTIM.db?.ODEME_YONTEMLERI?.[y] ||
-      ODEME_YONTEM_KISA[y] || "Nakit";
+    const y = ham === "elden" || ham === "nakit" ? "kasa" : ham;
+    const ad = window.APARTIM.db?.odemeYontemiAd?.(y);
+    if (ad) return ad;
+    return ODEME_YONTEM_KISA[y] || ODEME_YONTEM_KISA[ham] || y || "Nakit";
   }
 
   function odenenHucreGoster(rez, info) {
@@ -1199,7 +1200,11 @@
       const y = info.yontem === "elden"
         ? "kasa"
         : (info.yontem || tahsilatVarsayilanYontem(rez));
-      sel.value = y;
+      if (window.APARTIM.db?.odemeYontemSelectDoldur) {
+        window.APARTIM.db.odemeYontemSelectDoldur(sel, y);
+      } else {
+        sel.value = y;
+      }
     }
     const notInp = document.getElementById("odeme-not");
     if (notInp) notInp.value = info.not || "";
@@ -1220,7 +1225,13 @@
     document.getElementById("odeme-tutar-tl").value = "";
     document.getElementById("odeme-tutar-usd").value = "";
     tahsilatAktarBayrakTemizle();
-    document.getElementById("odeme-yontem").value = tahsilatVarsayilanYontem(rez);
+    const yontemSel = document.getElementById("odeme-yontem");
+    const varsayilanYontem = tahsilatVarsayilanYontem(rez);
+    if (window.APARTIM.db?.odemeYontemSelectDoldur) {
+      window.APARTIM.db.odemeYontemSelectDoldur(yontemSel, varsayilanYontem);
+    } else if (yontemSel) {
+      yontemSel.value = varsayilanYontem;
+    }
     const notInp = document.getElementById("odeme-not");
     if (notInp) notInp.value = "";
     tahsilatCeviriciTemizle();

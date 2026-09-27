@@ -643,13 +643,17 @@
       "<tr><th " + th + ">Yöntem</th><th " + th + ">TL</th><th " + th + ">USD</th><th colspan=\"4\" " +
       th + "></th></tr>"
     );
-    Object.keys(yontemler).forEach((key) => {
+    const yontemAnahtarlari = Object.keys(yontemler);
+    Object.keys(r.tahsilatYontem || {}).forEach((key) => {
+      if (yontemAnahtarlari.indexOf(key) < 0) yontemAnahtarlari.push(key);
+    });
+    yontemAnahtarlari.forEach((key) => {
       const pb = r.tahsilatYontem[key] || { TL: 0, USD: 0, EUR: 0 };
       const tlY = (pb.TL || 0) +
         (window.APARTIM.para && pb.EUR ? window.APARTIM.para.tlKarsiligi(pb.EUR, "EUR") : 0);
       if (!tlY && !pb.USD) return;
       satirlar.push(
-        "<tr><td " + td + ">" + escHtml(yontemler[key]) + "</td>" +
+        "<tr><td " + td + ">" + escHtml(yontemler[key] || db.odemeYontemiAd?.(key) || key) + "</td>" +
         "<td " + td + ">" + escHtml(raporPbMetin(tlY, "TL")) + "</td>" +
         "<td " + td + ">" + escHtml(raporPbMetin(pb.USD, "USD")) + "</td>" +
         "<td colspan=\"4\" " + td + "></td></tr>"

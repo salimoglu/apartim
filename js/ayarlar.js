@@ -1,5 +1,5 @@
 /* =========================================================
-   APARTIM — Ayarlar (müşteri kaynakları, daire isimleri)
+   APARTIM — Ayarlar (müşteri kaynakları, daire isimleri, tahsilat kalemleri)
    ========================================================= */
 
 (function () {
@@ -7,6 +7,7 @@
 
   const modalKaynak = () => document.getElementById("modal-kaynaklar");
   const modalDaire = () => document.getElementById("modal-daireler");
+  const modalOdemeYontem = () => document.getElementById("modal-odeme-yontemleri");
 
   function uyari(id, msg) {
     const el = document.getElementById(id);
@@ -244,6 +245,116 @@
     }
   }
 
+  // ---- Tahsilat kalemleri (ad düzelt + ekle; id sabit) ----
+  function odemeYontemListeRender() {
+    const ul = document.getElementById("odeme-yontem-liste");
+    if (!ul) return;
+    const liste = window.APARTIM.db.odemeYontemleriListele();
+    ul.innerHTML = "";
+    liste.forEach((y, i) => {
+      const li = document.createElement("li");
+      li.className = "daire-ayar-item";
+      const no = String(y.sira || i + 1);
+      const aria = y.ad || "Kalem";
+      const sil = y.sistem
+        ? '<span class="odeme-yontem-sabit" title="Varsayılan"></span>'
+        : '<button type="button" class="daire-sil-btn" data-id="' + esc(y.id) +
+          '" title="Sil" aria-label="' + esc(aria) + ' sil">×</button>';
+      li.innerHTML =
+        '<span class="daire-ayar-kat" title="' + esc(aria) + '">' + esc(no) + "</span>" +
+        '<input type="text" class="field-input daire-ayar-ad odeme-yontem-ad" data-id="' + esc(y.id) + '" ' +
+        'value="' + esc(y.ad) + '" maxlength="32" aria-label="' + esc(aria) + ' adı" />' +
+        sil;
+      if (!y.sistem) {
+        li.querySelector(".daire-sil-btn")?.addEventListener("click", () => odemeYontemSil(y.id));
+      }
+      ul.appendChild(li);
+    });
+  }
+
+  function odemeYontemAc() {
+    uyari("odeme-yontem-uyari", "");
+    const inp = document.getElementById("odeme-yontem-yeni-ad");
+    if (inp) inp.value = "";
+    odemeYontemListeRender();
+    modalOdemeYontem()?.classList.remove("hidden");
+    modalOdemeYontem()?.querySelector(".odeme-yontem-ad")?.focus();
+  }
+
+  function odemeYontemKapat() {
+    modalOdemeYontem()?.classList.add("hidden");
+    uyari("odeme-yontem-uyari", "");
+    const inp = document.getElementById("odeme-yontem-yeni-ad");
+    if (inp) inp.value = "";
+  }
+
+  async function odemeYontemEkle() {
+    const inp = document.getElementById("odeme-yontem-yeni-ad");
+    const ad = inp?.value.trim();
+    if (!ad) {
+      uyari("odeme-yontem-uyari", "Yeni kalem adı yazın.");
+      return;
+    }
+    uyari("odeme-yontem-uyari", "");
+    try {
+      await window.APARTIM.db.odemeYontemiEkle(ad);
+      if (inp) inp.value = "";
+      odemeYontemListeRender();
+      window.APARTIM.kasa?.ciz?.();
+      window.APARTIM.toast("Tahsilat kalemi eklendi", "basari");
+      inp?.focus();
+    } catch (err) {
+      uyari("odeme-yontem-uyari", err.message || "Eklenemedi.");
+    }
+  }
+
+  async function odemeYontemSil(id) {
+    const kayit = window.APARTIM.db.odemeYontemiGetir(id);
+    const ad = kayit?.ad || "Bu kalem";
+    uyari("odeme-yontem-uyari", "");
+    if (!confirm("\"" + ad + "\" kalemini silmek istiyor musunuz?")) return;
+    try {
+      await window.APARTIM.db.odemeYontemiSil(id);
+      odemeYontemListeRender();
+      window.APARTIM.kasa?.ciz?.();
+      window.APARTIM.toast("Kalem silindi", "basari");
+    } catch (err) {
+      uyari("odeme-yontem-uyari", err.message || "Silinemedi.");
+    }
+  }
+
+  async function odemeYontemKaydet() {
+    const inputs = modalOdemeYontem()?.querySelectorAll(".odeme-yontem-ad");
+    if (!inputs || !inputs.length) return;
+    uyari("odeme-yontem-uyari", "");
+    const adlar = [];
+    try {
+      for (const inp of inputs) {
+        const id = inp.dataset.id;
+        const ad = inp.value.trim();
+        if (!ad) {
+          uyari("odeme-yontem-uyari", "Tüm kalemlerin adı dolu olmalı.");
+          return;
+        }
+        const ayni = adlar.find((x) => x.toLocaleLowerCase("tr") === ad.toLocaleLowerCase("tr"));
+        if (ayni) {
+          uyari("odeme-yontem-uyari", "Aynı isimde birden fazla kalem olamaz.");
+          return;
+        }
+        adlar.push(ad);
+        const mevcut = window.APARTIM.db.odemeYontemiGetir(id);
+        if (mevcut && mevcut.ad !== ad) {
+          await window.APARTIM.db.odemeYontemiGuncelle(id, { ad });
+        }
+      }
+      window.APARTIM.kasa?.ciz?.();
+      window.APARTIM.toast("Tahsilat adları kaydedildi", "basari");
+      odemeYontemKapat();
+    } catch (err) {
+      uyari("odeme-yontem-uyari", err.message || "Kaydedilemedi.");
+    }
+  }
+
   // ---- Döviz kurları ----
   const modalDoviz = () => document.getElementById("modal-doviz");
 
@@ -349,6 +460,21 @@
       }
     });
 
+    document.getElementById("ayar-odeme-yontemleri")?.addEventListener("click", () => {
+      document.getElementById("ayar-menu")?.classList.add("hidden");
+      odemeYontemAc();
+    });
+    document.getElementById("odeme-yontemleri-close")?.addEventListener("click", odemeYontemKapat);
+    document.getElementById("odeme-yontemleri-kapat")?.addEventListener("click", odemeYontemKapat);
+    document.getElementById("odeme-yontemleri-kaydet")?.addEventListener("click", odemeYontemKaydet);
+    document.getElementById("odeme-yontem-ekle-btn")?.addEventListener("click", odemeYontemEkle);
+    document.getElementById("odeme-yontem-yeni-ad")?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        odemeYontemEkle();
+      }
+    });
+
     document.getElementById("ayar-doviz")?.addEventListener("click", () => {
       document.getElementById("ayar-menu")?.classList.add("hidden");
       dovizAc();
@@ -366,7 +492,13 @@
     if (e.detail?.sebep === "daireler" && modalDaire() && !modalDaire().classList.contains("hidden")) {
       daireListeRender();
     }
+    if (e.detail?.sebep === "odeme-yontemleri" && modalOdemeYontem() && !modalOdemeYontem().classList.contains("hidden")) {
+      odemeYontemListeRender();
+    }
   });
 
-  window.APARTIM.ayarlar = { kaynakAc, kaynakKapat, daireAc, daireKapat, dovizAc, dovizKapat };
+  window.APARTIM.ayarlar = {
+    kaynakAc, kaynakKapat, daireAc, daireKapat, dovizAc, dovizKapat,
+    odemeYontemAc, odemeYontemKapat
+  };
 })();

@@ -133,6 +133,10 @@
               <span class="ayar-item-ikon" aria-hidden="true">&#127968;</span>
               Odalar
             </button>
+            <button type="button" class="ayar-item" id="ayar-odeme-yontemleri" role="menuitem">
+              <span class="ayar-item-ikon" aria-hidden="true">&#129534;</span>
+              Tahsilat kalemleri
+            </button>
             <button type="button" class="ayar-item" id="ayar-doviz" role="menuitem">
               <span class="ayar-item-ikon" aria-hidden="true">&#128176;</span>
               Döviz kurları
@@ -393,12 +397,12 @@
               <button type="button" class="kasa-pb-btn" data-pb="TL">TL</button>
               <button type="button" class="kasa-pb-btn" data-pb="USD">Dolar</button>
             </div>
-            <div class="kasa-kalem-nav" role="tablist" aria-label="Tahsilat kalemi">
+            <div class="kasa-kalem-nav" id="kasa-kalem-nav" role="tablist" aria-label="Tahsilat kalemi">
               <button type="button" class="kasa-kalem-btn active" data-kalem="tumu" aria-selected="true">Tümü</button>
               <button type="button" class="kasa-kalem-btn" data-kalem="kasa" aria-selected="false">Nakit</button>
               <button type="button" class="kasa-kalem-btn" data-kalem="pos" aria-selected="false">Pos</button>
               <button type="button" class="kasa-kalem-btn" data-kalem="booking" aria-selected="false">Booking</button>
-              <button type="button" class="kasa-kalem-btn" data-kalem="havale" aria-selected="false" title="Hesaba havale">Havale</button>
+              <button type="button" class="kasa-kalem-btn" data-kalem="havale" aria-selected="false">Havale</button>
               <button type="button" class="kasa-kalem-btn" data-kalem="diger" aria-selected="false">Diğer</button>
             </div>
             <div class="kasa-yon-nav" role="tablist" aria-label="Gelir gider">
@@ -606,7 +610,7 @@
               <option value="kasa">Nakit</option>
               <option value="pos">Pos</option>
               <option value="booking">Booking</option>
-              <option value="havale">Hesaba havale</option>
+              <option value="havale">Havale</option>
               <option value="diger">Diğer</option>
             </select>
           </div>
@@ -683,7 +687,7 @@
   </div>
 
   <!-- MODAL: ODALAR -->
-  <div id="modal-daireler" class="modal-overlay hidden">
+  <div id="modal-daireler" class="modal-overlay modal-liste-ayar hidden">
     <div class="modal-box modal-box-odalar">
       <div class="modal-header">
         <h2 class="modal-title">Odalar</h2>
@@ -703,6 +707,32 @@
       <div class="modal-footer">
         <button type="button" class="btn-secondary" id="daireler-kapat">Kapat</button>
         <button type="button" class="btn-primary" id="daireler-kaydet">Kaydet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: TAHSİLAT KALEMLERİ -->
+  <div id="modal-odeme-yontemleri" class="modal-overlay modal-liste-ayar hidden">
+    <div class="modal-box modal-box-odalar">
+      <div class="modal-header">
+        <h2 class="modal-title">Tahsilat kalemleri</h2>
+        <button type="button" class="modal-close" id="odeme-yontemleri-close">&#10005;</button>
+      </div>
+      <div class="modal-body modal-body-odalar">
+        <p class="modal-aciklama odeme-yontem-not">Adı değiştirmek kasa filtresini ve eski kayıtları bozmaz. Varsayılanlar silinemez; yeni kalem ekleyebilirsiniz.</p>
+        <ul class="daire-ayar-liste" id="odeme-yontem-liste"></ul>
+        <div class="daire-ekle-wrap">
+          <div class="daire-ekle-row">
+            <label class="daire-ayar-kat" for="odeme-yontem-yeni-ad">+</label>
+            <input type="text" id="odeme-yontem-yeni-ad" class="field-input" placeholder="Yeni kalem adı" maxlength="32" autocomplete="off" />
+            <button type="button" class="btn-primary daire-ekle-btn" id="odeme-yontem-ekle-btn">Ekle</button>
+          </div>
+          <div id="odeme-yontem-uyari" class="modal-uyari hidden"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="odeme-yontemleri-kapat">Kapat</button>
+        <button type="button" class="btn-primary" id="odeme-yontemleri-kaydet">Kaydet</button>
       </div>
     </div>
   </div>

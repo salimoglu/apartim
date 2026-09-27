@@ -2577,28 +2577,38 @@ body.modal-acik .modal-body {
   font-size: 13px;
   white-space: nowrap;
 }
-#modal-daireler .modal-uyari {
+.odeme-yontem-not {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.odeme-yontem-sabit {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+}
+.modal-liste-ayar .modal-uyari {
   margin: 6px 0 0;
   font-size: 12px;
 }
-#modal-daireler .modal-header {
+.modal-liste-ayar .modal-header {
   padding: 10px 14px;
 }
-#modal-daireler .modal-title {
+.modal-liste-ayar .modal-title {
   font-size: 16px;
 }
-#modal-daireler .modal-footer {
+.modal-liste-ayar .modal-footer {
   padding: 10px 14px;
 }
 
 /* Telefon + tablet — üstten açılan sheet */
 @media (max-width: 1024px) {
-  #modal-daireler.modal-overlay {
+  .modal-liste-ayar.modal-overlay {
     align-items: flex-start;
     justify-content: center;
     padding: max(0px, env(safe-area-inset-top)) 0 0;
   }
-  #modal-daireler .modal-box-odalar {
+  .modal-liste-ayar .modal-box-odalar {
     width: 100%;
     max-width: 100%;
     max-height: min(86dvh, 88vh);
@@ -2608,22 +2618,22 @@ body.modal-acik .modal-body {
     border-top: none;
     animation: slideDownOdalar 200ms ease;
   }
-  #modal-daireler .modal-body-odalar {
+  .modal-liste-ayar .modal-body-odalar {
     padding: 8px 12px;
   }
-  #modal-daireler .daire-ayar-ad,
-  #modal-daireler .daire-ekle-row .field-input {
+  .modal-liste-ayar .daire-ayar-ad,
+  .modal-liste-ayar .daire-ekle-row .field-input {
     font-size: 16px; /* iOS zoom engeli */
     height: 40px;
   }
-  #modal-daireler .daire-sil-btn,
-  #modal-daireler .daire-ekle-btn {
+  .modal-liste-ayar .daire-sil-btn,
+  .modal-liste-ayar .daire-ekle-btn {
     height: 40px;
   }
-  #modal-daireler .daire-sil-btn {
+  .modal-liste-ayar .daire-sil-btn {
     width: 40px;
   }
-  #modal-daireler .modal-footer {
+  .modal-liste-ayar .modal-footer {
     padding: 8px 12px calc(10px + env(safe-area-inset-bottom));
   }
 }
@@ -2636,52 +2646,52 @@ body.modal-acik .modal-body {
 /* Telefon yatay — daha alçak, geniş panel (yine üstte) */
 @media (orientation: landscape) and (max-height: 520px),
        (orientation: landscape) and (max-width: 960px) and (pointer: coarse) {
-  #modal-daireler.modal-overlay {
+  .modal-liste-ayar.modal-overlay {
     align-items: flex-start;
     padding: max(4px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) 6px max(8px, env(safe-area-inset-left));
   }
-  #modal-daireler .modal-box-odalar {
+  .modal-liste-ayar .modal-box-odalar {
     width: min(640px, 96vw);
     max-width: min(640px, 96vw);
     max-height: min(92dvh, 94vh);
     border-radius: 0 0 12px 12px;
     margin: 0 auto;
   }
-  #modal-daireler .modal-header {
+  .modal-liste-ayar .modal-header {
     padding: 6px 12px;
   }
-  #modal-daireler .modal-title {
+  .modal-liste-ayar .modal-title {
     font-size: 15px;
   }
-  #modal-daireler .modal-body-odalar {
+  .modal-liste-ayar .modal-body-odalar {
     padding: 6px 12px;
   }
-  #modal-daireler .daire-ayar-liste {
+  .modal-liste-ayar .daire-ayar-liste {
     gap: 4px;
   }
-  #modal-daireler .daire-ayar-ad,
-  #modal-daireler .daire-ekle-row .field-input {
+  .modal-liste-ayar .daire-ayar-ad,
+  .modal-liste-ayar .daire-ekle-row .field-input {
     font-size: 16px;
     height: 34px;
     padding: 4px 8px;
   }
-  #modal-daireler .daire-sil-btn,
-  #modal-daireler .daire-ekle-btn {
+  .modal-liste-ayar .daire-sil-btn,
+  .modal-liste-ayar .daire-ekle-btn {
     height: 34px;
   }
-  #modal-daireler .daire-sil-btn {
+  .modal-liste-ayar .daire-sil-btn {
     width: 34px;
     font-size: 18px;
   }
-  #modal-daireler .daire-ekle-wrap {
+  .modal-liste-ayar .daire-ekle-wrap {
     margin-top: 6px;
     padding-top: 6px;
   }
-  #modal-daireler .modal-footer {
+  .modal-liste-ayar .modal-footer {
     padding: 6px 12px;
   }
-  #modal-daireler .modal-footer .btn-primary,
-  #modal-daireler .modal-footer .btn-secondary {
+  .modal-liste-ayar .modal-footer .btn-primary,
+  .modal-liste-ayar .modal-footer .btn-secondary {
     padding: 7px 14px;
     font-size: 13px;
   }
@@ -4172,6 +4182,7 @@ html:not(.theme-light) .rez-kaynak-badge {
 .kasa-kalem-booking { color: #b4a6ff; }
 .kasa-kalem-havale { color: var(--uyari); }
 .kasa-kalem-diger { color: var(--metin-soluk); }
+.kasa-kalem-ozel { color: #7ec8e3; }
 html.theme-light .kasa-kalem-booking { color: #5b46c9; }
 .kasa-not {
   font-size: 11px;
@@ -4342,6 +4353,8 @@ html.theme-light .kasa-kalem-booking { color: #5b46c9; }
     flex: 1 1 100%;
     width: 100%;
     max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .kasa-oda-satir {
     overflow-x: visible;
@@ -4359,6 +4372,11 @@ html.theme-light .kasa-kalem-booking { color: #5b46c9; }
     padding: 5px 2px;
     font-size: 11px;
     text-align: center;
+  }
+  .kasa-kalem-btn {
+    flex: 1 0 auto;
+    min-width: max-content;
+    padding: 5px 10px;
   }
   .kasa-oda-btn {
     overflow: hidden;

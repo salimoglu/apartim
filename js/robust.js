@@ -89,7 +89,7 @@
   function veriNorm(veri) {
     const src = duzNesneMi(veri) ? veri : {};
     const al = (k) => (duzNesneMi(src[k]) ? src[k] : {});
-    return {
+    const out = {
       daireler: al("daireler"),
       rezervasyonlar: al("rezervasyonlar"),
       temizlikKayit: al("temizlikKayit"),
@@ -97,6 +97,9 @@
       kasaHarcama: al("kasaHarcama"),
       dovizKurlari: al("dovizKurlari")
     };
+    /* Eski yedeklerde yok: parmak izine boş alan ekleme */
+    if (duzNesneMi(src.odemeYontemleri)) out.odemeYontemleri = src.odemeYontemleri;
+    return out;
   }
 
   function derinKopya(v) {
@@ -315,6 +318,15 @@
         }
       }
       veri[a] = parca;
+    }
+    if (duzNesneMi(ham.veri.odemeYontemleri)) {
+      const parca = ham.veri.odemeYontemleri;
+      if (!anahtarTemizMi(parca, 8)) return { ok: false, hata: "Yedekte güvenli olmayan alan var." };
+      const anahtarlar = Object.keys(parca);
+      for (let j = 0; j < anahtarlar.length; j++) {
+        if (!fbAnahtar(anahtarlar[j])) return { ok: false, hata: "Geçersiz kayıt anahtarı." };
+      }
+      veri.odemeYontemleri = parca;
     }
     const beklenen = ham.algoritma === "fnv1a" ? "fnv1a" : "sha256";
     const uret = await parmakUret(veri, beklenen);

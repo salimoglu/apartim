@@ -1,7 +1,7 @@
 /* =========================================================
    APARTIM — Kasa modülü
    Tüm tahsilat kalemleri + manuel gelir/gider.
-   Kalem filtresi: Tümü, Nakit, Pos, Booking, Havale, Diğer.
+   Kalem filtresi: Tümü + tahsilat kalemleri (kod sabit, ad ayardan).
    Oda filtresi: birden fazla oda aynı anda seçilebilir.
    Harici: oda dışında eklenen gelir ve giderler.
    ========================================================= */
@@ -16,7 +16,6 @@
     havale: "Havale",
     diger: "Diğer"
   };
-  const KALEM_SIRA = ["tumu", "kasa", "pos", "booking", "havale", "diger"];
   const YONTEM_SIRA = ["kasa", "pos", "booking", "havale", "diger"];
 
   let aktifPb = "tumu";
@@ -122,15 +121,19 @@
     return ham;
   }
 
+  function yontemListesi() {
+    return window.APARTIM.db?.odemeYontemleriListele?.() || [];
+  }
+
   function kalemAd(yontem) {
     const y = kalemAnahtar(yontem);
-    if (KALEM_AD[y]) return KALEM_AD[y];
-    return window.APARTIM.db?.ODEME_YONTEMLERI?.[y] || "Nakit";
+    const ad = window.APARTIM.db?.odemeYontemiAd?.(y);
+    if (ad) return ad;
+    return KALEM_AD[y] || y || "Nakit";
   }
 
   function kalemTamAd(yontem) {
-    const y = kalemAnahtar(yontem);
-    return window.APARTIM.db?.ODEME_YONTEMLERI?.[y] || kalemAd(y);
+    return kalemAd(yontem);
   }
 
   function pbNavGuncelle() {
@@ -139,12 +142,35 @@
     });
   }
 
-  function kalemNavGuncelle() {
-    document.querySelectorAll(".kasa-kalem-btn").forEach((b) => {
-      const secili = b.dataset.kalem === aktifKalem;
-      b.classList.toggle("active", secili);
-      b.setAttribute("aria-selected", secili ? "true" : "false");
+  function kalemNavCiz() {
+    const nav = document.getElementById("kasa-kalem-nav");
+    if (!nav) return;
+    const liste = yontemListesi();
+    const gecerli = new Set(liste.map((y) => y.id));
+    if (aktifKalem !== "tumu" && !gecerli.has(aktifKalem) && !KALEM_AD[aktifKalem]) {
+      aktifKalem = "tumu";
+    }
+    const tumuSecili = aktifKalem === "tumu";
+    const butonlar = [
+      '<button type="button" class="kasa-kalem-btn' + (tumuSecili ? " active" : "") +
+        '" data-kalem="tumu" aria-selected="' + (tumuSecili ? "true" : "false") +
+        '">Tümü</button>'
+    ];
+    const kaynak = liste.length
+      ? liste
+      : YONTEM_SIRA.map((id) => ({ id, ad: KALEM_AD[id] || id }));
+    kaynak.forEach((y) => {
+      const secili = aktifKalem === y.id;
+      const ad = String(y.ad || y.id);
+      butonlar.push(
+        '<button type="button" class="kasa-kalem-btn' + (secili ? " active" : "") +
+          '" data-kalem="' + esc(y.id) + '" title="' + esc(ad) +
+          '" aria-selected="' + (secili ? "true" : "false") + '">' +
+          esc(ad) +
+        "</button>"
+      );
     });
+    nav.innerHTML = butonlar.join("");
   }
 
   function yonNavGuncelle() {
@@ -318,7 +344,8 @@
     const db = window.APARTIM.db;
     if (!db) return;
     pbNavGuncelle();
-    kalemNavGuncelle();
+    kalemNavCiz();
+    yontemSecicileriDoldur();
     yonNavGuncelle();
     odaNavCiz();
     tarihSinirla();
@@ -343,7 +370,10 @@
 
   function kalemSec(kalem) {
     const k = String(kalem || "tumu").toLowerCase();
-    aktifKalem = KALEM_SIRA.includes(k) ? k : "tumu";
+    const bilinen = k === "tumu" ||
+      yontemListesi().some((y) => y.id === k) ||
+      !!KALEM_AD[k];
+    aktifKalem = bilinen ? k : "tumu";
     ciz();
   }
 
@@ -416,6 +446,8 @@
   }
 
   function yontemNorm(yontem) {
+    const db = window.APARTIM.db;
+    if (db?.odemeYontemNorm) return db.odemeYontemNorm(yontem);
     const y = String(yontem || "kasa").toLowerCase();
     if (y === "elden" || y === "nakit") return "kasa";
     return YONTEM_SIRA.includes(y) ? y : "kasa";
@@ -424,8 +456,23 @@
   function yontemSeciciSenkron(el, yontem) {
     if (!el) return;
     const y = yontemNorm(yontem != null ? yontem : el.value);
-    el.value = y;
-    YONTEM_SIRA.forEach((k) => el.classList.toggle("kasa-kalem-" + k, k === y));
+    window.APARTIM.db?.odemeYontemSelectDoldur?.(el, y);
+    const sil = [];
+    el.classList.forEach((c) => {
+      if (c.indexOf("kasa-kalem-") === 0) sil.push(c);
+    });
+    sil.forEach((c) => el.classList.remove(c));
+    el.classList.add("kasa-kalem-" + (YONTEM_SIRA.indexOf(y) >= 0 ? y : "ozel"));
+  }
+
+  function yontemSecicileriDoldur() {
+    window.APARTIM.db?.odemeYontemSelectDoldur?.(document.getElementById("odeme-yontem"));
+    yontemSeciciSenkron(document.getElementById("kasa-harcama-yontem"));
+    const duzenle = document.getElementById("kasa-duzenle-yontem");
+    const modalAcik = duzenlenen &&
+      !document.getElementById("modal-kasa-duzenle")?.classList.contains("hidden");
+    if (modalAcik) yontemSeciciSenkron(duzenle);
+    else window.APARTIM.db?.odemeYontemSelectDoldur?.(duzenle);
   }
 
   function seciliYontem() {
@@ -674,8 +721,10 @@
     document.querySelectorAll(".kasa-pb-btn").forEach((b) => {
       b.addEventListener("click", () => pbSec(b.dataset.pb));
     });
-    document.querySelectorAll(".kasa-kalem-btn").forEach((b) => {
-      b.addEventListener("click", () => kalemSec(b.dataset.kalem));
+    document.getElementById("kasa-kalem-nav")?.addEventListener("click", (e) => {
+      const btn = e.target.closest?.(".kasa-kalem-btn");
+      if (!btn) return;
+      kalemSec(btn.dataset.kalem);
     });
     document.querySelectorAll(".kasa-yon-btn").forEach((b) => {
       b.addEventListener("click", () => yonSec(b.dataset.yon));
@@ -722,6 +771,19 @@
   }
 
   document.addEventListener("DOMContentLoaded", bagla);
+
+  document.addEventListener("apartim:veri-degisti", (e) => {
+    const sebep = e.detail?.sebep;
+    if (
+      sebep !== "odeme-yontemleri" &&
+      sebep !== "ilk-senkron" &&
+      sebep !== "yerel-yuklendi" &&
+      sebep !== "robust-geri-yukle"
+    ) return;
+    if (document.getElementById("tab-kasa")?.classList.contains("active")) return;
+    kalemNavCiz();
+    yontemSecicileriDoldur();
+  });
 
   window.APARTIM = window.APARTIM || {};
   window.APARTIM.kasa = { ciz, pbSec, kalemSec, yonSec, odaToggle };

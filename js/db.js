@@ -29,11 +29,23 @@
     { id: "oda-5", ad: "5. Oda", kat: 0, konum: "tek", gunlukUcret: 1000, sira: 5 }
   ];
 
+  /* id sabittir: kasa filtresi ve eski tahsilatlar bu koda bağlıdır. ad değişince id değişmez. */
+  const VARSAYILAN_ODEME_YONTEMLERI = [
+    { id: "kasa", ad: "Nakit", sira: 1, sistem: true },
+    { id: "pos", ad: "Pos", sira: 2, sistem: true },
+    { id: "booking", ad: "Booking", sira: 3, sistem: true },
+    { id: "havale", ad: "Havale", sira: 4, sistem: true },
+    { id: "diger", ad: "Diğer", sira: 5, sistem: true }
+  ];
+  const ODEME_YONTEM_VARSAYILAN = "kasa";
+  const ODEME_YONTEM_AYRIK = { tumu: true, elden: true, nakit: true };
+
   const durum = {
     daireler: {},      // { id: {ad, gunlukUcret, temizlik, ...} }
     rezervasyonlar: {},// { rezId: {...} }
     temizlikKayit: {}, // { kayitId: {...} }
     musteriKaynaklari: {}, // { id: { id, ad, simge, sira, sistem } }
+    odemeYontemleri: {}, // { id: { id, ad, sira, sistem } } — id kalıcı, ad düzenlenir
     kasaHarcama: {},   // { id: { id, tarih, not, tutar, pb, tip: gelir|gider, olusturulma } }
     dovizKurlari: { USD: 46.5, EUR: 50.5 },
     yuklendi: false
@@ -372,20 +384,35 @@
     return fiyatPbListesindenGosterim(pbs);
   }
 
-  const ODEME_YONTEMLERI = {
-    kasa: "Nakit",
-    pos: "Pos",
-    booking: "Booking",
-    havale: "Hesaba havale",
-    diger: "Diğer"
-  };
-  const ODEME_YONTEM_VARSAYILAN = "kasa";
+  function odemeYontemleriBellekteDoldur() {
+    if (Object.keys(durum.odemeYontemleri).length) return;
+    VARSAYILAN_ODEME_YONTEMLERI.forEach((t) => {
+      durum.odemeYontemleri[t.id] = Object.assign({}, t);
+    });
+  }
+
+  function odemeYontemIdGecerli(id) {
+    return /^[a-z][a-z0-9-]{0,40}$/.test(id) && !ODEME_YONTEM_AYRIK[id];
+  }
 
   function odemeYontemNorm(yontem) {
-    const y = String(yontem || "").toLowerCase();
+    const y = String(yontem || "").trim().toLowerCase();
     /* Eski kayıtlar: elden / görünen ad nakit → kasa */
+    if (!y) return ODEME_YONTEM_VARSAYILAN;
     if (y === "elden" || y === "nakit") return "kasa";
-    return ODEME_YONTEMLERI[y] ? y : ODEME_YONTEM_VARSAYILAN;
+    if (durum.odemeYontemleri[y]) return y;
+    if (VARSAYILAN_ODEME_YONTEMLERI.some((t) => t.id === y)) return y;
+    /* Katalog gecikse veya özel kalem sonra silinse bile kaydı nakite çevirme */
+    if (odemeYontemIdGecerli(y)) return y;
+    return ODEME_YONTEM_VARSAYILAN;
+  }
+
+  function odemeYontemleriNesne() {
+    const nesne = {};
+    odemeYontemleriListele().forEach((y) => {
+      nesne[y.id] = y.ad;
+    });
+    return nesne;
   }
 
   function odenenKayitDoluMu(kayit) {
@@ -946,6 +973,27 @@
     }
   }
 
+  function odemeYontemleriSeedEt() {
+    let degisti = false;
+    VARSAYILAN_ODEME_YONTEMLERI.forEach((t) => {
+      if (!durum.odemeYontemleri[t.id]) {
+        durum.odemeYontemleri[t.id] = Object.assign({}, t);
+        degisti = true;
+      } else {
+        const k = durum.odemeYontemleri[t.id];
+        if (!k.id) { k.id = t.id; degisti = true; }
+        if (k.ad == null || !String(k.ad).trim()) { k.ad = t.ad; degisti = true; }
+        if (k.sira == null) { k.sira = t.sira; degisti = true; }
+        if (k.sistem == null) { k.sistem = true; degisti = true; }
+      }
+    });
+    if (degisti) {
+      Object.values(durum.odemeYontemleri).forEach((k) => {
+        if (k && k.id) kaydet("odeme-yontemleri/" + k.id, k);
+      });
+    }
+  }
+
   function dairelerSeedEt() {
     let degisti = false;
     /* Varsayılan 5 odayı yoksa ekle; kullanıcı eklediği odaları silme */
@@ -1165,6 +1213,11 @@
           musteriKaynaklariSeedEt();
           veriDegistiBildir("musteri-kaynaklari");
         });
+        fbRef.child("odeme-yontemleri").on("value", (snap) => {
+          durum.odemeYontemleri = snap.val() || {};
+          odemeYontemleriSeedEt();
+          veriDegistiBildir("odeme-yontemleri");
+        });
         fbRef.child("doviz-kurlari").on("value", (snap) => {
           const v = snap.val();
           if (v) durum.dovizKurlari = dovizKurlariNorm(v);
@@ -1180,10 +1233,12 @@
       durum.rezervasyonlar = rezervasyonlariNormalize(v.rezervasyonlar || {});
       durum.temizlikKayit = v.temizlikKayit || {};
       durum.musteriKaynaklari = v.musteriKaynaklari || {};
+      durum.odemeYontemleri = v.odemeYontemleri || {};
       durum.kasaHarcama = v.kasaHarcama || {};
       if (v.dovizKurlari) durum.dovizKurlari = dovizKurlariNorm(v.dovizKurlari);
       dovizKurlariSenkron();
       musteriKaynaklariSeedEt();
+      odemeYontemleriSeedEt();
       dairelerSeedEt();
       durum.yuklendi = true;
       bildir("veri-degisti", { sebep: "yerel-yuklendi" });
@@ -1198,6 +1253,7 @@
       rezervasyonlar: durum.rezervasyonlar,
       temizlikKayit: durum.temizlikKayit,
       musteriKaynaklari: durum.musteriKaynaklari,
+      odemeYontemleri: durum.odemeYontemleri,
       kasaHarcama: durum.kasaHarcama,
       dovizKurlari: durum.dovizKurlari
     });
@@ -1268,6 +1324,7 @@
     if (tip === "rezervasyonlar") return durum.rezervasyonlar;
     if (tip === "temizlik-kayit") return durum.temizlikKayit;
     if (tip === "musteri-kaynaklari") return durum.musteriKaynaklari;
+    if (tip === "odeme-yontemleri") return durum.odemeYontemleri;
     if (tip === "kasa-harcama") return durum.kasaHarcama;
     return null;
   }
@@ -1657,6 +1714,152 @@
     return sil("musteri-kaynaklari/" + id);
   }
 
+  function odemeYontemleriListele() {
+    if (!Object.keys(durum.odemeYontemleri).length) odemeYontemleriBellekteDoldur();
+    return Object.values(durum.odemeYontemleri)
+      .filter((y) => y && y.id)
+      .sort((a, b) =>
+        (Number(a.sira) || 0) - (Number(b.sira) || 0) ||
+        String(a.ad || "").localeCompare(String(b.ad || ""), "tr")
+      );
+  }
+
+  function odemeYontemiGetir(id) {
+    const y = odemeYontemNorm(id);
+    return durum.odemeYontemleri[y] || null;
+  }
+
+  function odemeYontemiAd(id) {
+    const y = String(id || "").trim().toLowerCase();
+    const anahtar = y === "elden" || y === "nakit" ? "kasa" : y;
+    const kayit = durum.odemeYontemleri[anahtar];
+    if (kayit && String(kayit.ad || "").trim()) return String(kayit.ad).trim();
+    const vars = VARSAYILAN_ODEME_YONTEMLERI.find((t) => t.id === anahtar);
+    return vars ? vars.ad : "";
+  }
+
+  function odemeYontemAdTemizle(ad) {
+    const metin = String(ad || "").trim().replace(/\s+/g, " ");
+    if (!metin) throw new Error("Kalem adı boş olamaz.");
+    if (metin.length > 32) throw new Error("Kalem adı en fazla 32 karakter olabilir.");
+    const kucuk = metin.toLocaleLowerCase("tr");
+    if (kucuk === "tümü" || kucuk === "tumu") {
+      throw new Error("\"Tümü\" kasa filtresinde ayrılmıştır.");
+    }
+    return metin;
+  }
+
+  function odemeYontemAdCakisiyor(ad, haricId) {
+    const n = ad.toLocaleLowerCase("tr");
+    return odemeYontemleriListele().find((y) =>
+      y.id !== haricId && String(y.ad || "").toLocaleLowerCase("tr") === n
+    );
+  }
+
+  function odemeYontemIdUret(ad) {
+    let temel = slugId(ad).replace(/[^a-z0-9-]/g, "").replace(/^-+|-+$/g, "");
+    if (!temel || temel === "kaynak" || !/^[a-z]/.test(temel)) temel = "kalem";
+    temel = temel.slice(0, 24);
+    let id = temel;
+    let n = 2;
+    while (durum.odemeYontemleri[id] || !odemeYontemIdGecerli(id)) {
+      id = (temel + "-" + n).slice(0, 41);
+      n++;
+      if (n > 80) throw new Error("Kalem eklenemedi.");
+    }
+    return id;
+  }
+
+  function odemeYontemiEkle(ad) {
+    const metin = odemeYontemAdTemizle(ad);
+    if (odemeYontemAdCakisiyor(metin)) throw new Error("Bu isimde kalem zaten var.");
+    const id = odemeYontemIdUret(metin);
+    const sira = odemeYontemleriListele().reduce((m, y) => Math.max(m, Number(y.sira) || 0), 0) + 1;
+    const kayit = { id, ad: metin, sira, sistem: false };
+    durum.odemeYontemleri[id] = kayit;
+    return kaydet("odeme-yontemleri/" + id, kayit).then(() => kayit);
+  }
+
+  function odemeYontemiGuncelle(id, partial) {
+    const mevcut = durum.odemeYontemleri[id];
+    if (!mevcut) throw new Error("Kalem bulunamadı.");
+    const ad = odemeYontemAdTemizle(partial && partial.ad != null ? partial.ad : mevcut.ad);
+    if (odemeYontemAdCakisiyor(ad, id)) throw new Error("Bu isimde kalem zaten var.");
+    if (ad === mevcut.ad) return Promise.resolve(mevcut);
+    durum.odemeYontemleri[id] = Object.assign({}, mevcut, { ad });
+    return guncelle("odeme-yontemleri/" + id, { ad }).then(() => durum.odemeYontemleri[id]);
+  }
+
+  function odemeYontemiKullanimSayisi(id) {
+    let n = 0;
+    Object.values(durum.rezervasyonlar).forEach((rez) => {
+      if (!rez) return;
+      rezervasyonOdenenListe(rez).forEach((k) => {
+        if (odemeYontemNorm(k.yontem) === id) n++;
+      });
+    });
+    Object.values(durum.kasaHarcama).forEach((h) => {
+      if (h && odemeYontemNorm(h.yontem) === id) n++;
+    });
+    return n;
+  }
+
+  function odemeYontemiSil(id) {
+    const k = durum.odemeYontemleri[id];
+    if (!k) throw new Error("Kalem bulunamadı.");
+    if (k.sistem) throw new Error("Varsayılan kalemler silinemez. Adını değiştirebilirsiniz.");
+    const kullanan = odemeYontemiKullanimSayisi(id);
+    if (kullanan) {
+      throw new Error("Bu kalemde " + kullanan + " kayıt var; silinemez.");
+    }
+    delete durum.odemeYontemleri[id];
+    return sil("odeme-yontemleri/" + id);
+  }
+
+  function odemeYontemIdBul(etiket) {
+    const e = String(etiket || "").trim().toLocaleLowerCase("tr");
+    if (!e) return "";
+    const liste = odemeYontemleriListele();
+    const adla = liste.find((y) =>
+      String(y.ad || "").toLocaleLowerCase("tr") === e || y.id === e
+    );
+    if (adla) return adla.id;
+    const alias = {
+      nakit: "kasa",
+      elden: "kasa",
+      kasa: "kasa",
+      pos: "pos",
+      booking: "booking",
+      havale: "havale",
+      "hesaba havale": "havale",
+      diger: "diger",
+      "diğer": "diger"
+    };
+    return alias[e] || "";
+  }
+
+  function odemeYontemSelectDoldur(el, secili) {
+    if (!el) return;
+    const liste = odemeYontemleriListele();
+    const norm = odemeYontemNorm(secili != null ? secili : el.value);
+    const frag = document.createDocumentFragment();
+    liste.forEach((y) => {
+      const opt = document.createElement("option");
+      opt.value = y.id;
+      opt.textContent = y.ad;
+      frag.appendChild(opt);
+    });
+    if (norm && !liste.some((y) => y.id === norm)) {
+      const opt = document.createElement("option");
+      opt.value = norm;
+      opt.textContent = odemeYontemiAd(norm) || norm;
+      frag.appendChild(opt);
+    }
+    el.replaceChildren(frag);
+    const varMi = Array.from(el.options).some((o) => o.value === norm);
+    el.value = varMi ? norm : (liste[0]?.id || ODEME_YONTEM_VARSAYILAN);
+  }
+
   function rezervasyonKaynakDogrula(rez) {
     if (!rez.kaynakId) throw new Error("Müşteri kaynağı seçin.");
     if (!musteriKaynagiGetir(rez.kaynakId)) throw new Error("Geçersiz müşteri kaynağı.");
@@ -1801,6 +2004,7 @@
       rezervasyonlar: nesneTemizle(durum.rezervasyonlar) || {},
       temizlikKayit: nesneTemizle(durum.temizlikKayit) || {},
       musteriKaynaklari: nesneTemizle(durum.musteriKaynaklari) || {},
+      odemeYontemleri: nesneTemizle(durum.odemeYontemleri) || {},
       kasaHarcama: nesneTemizle(durum.kasaHarcama) || {},
       dovizKurlari: nesneTemizle(durum.dovizKurlari) || {}
     };
@@ -1815,11 +2019,15 @@
     if (!veri || typeof veri !== "object") {
       return Promise.reject(new Error("Yedek verisi boş."));
     }
+    const odemeGeldi = veri.odemeYontemleri &&
+      typeof veri.odemeYontemleri === "object" &&
+      !Array.isArray(veri.odemeYontemleri);
     const paket = {
       daireler: nesneTemizle(veri.daireler) || {},
       rezervasyonlar: rezervasyonlariNormalize(veri.rezervasyonlar || {}),
       temizlikKayit: nesneTemizle(veri.temizlikKayit) || {},
       musteriKaynaklari: nesneTemizle(veri.musteriKaynaklari) || {},
+      odemeYontemleri: odemeGeldi ? (nesneTemizle(veri.odemeYontemleri) || {}) : null,
       kasaHarcama: nesneTemizle(veri.kasaHarcama) || {},
       dovizKurlari: dovizKurlariNorm(veri.dovizKurlari || {})
     };
@@ -1835,6 +2043,11 @@
         "kasa-harcama": koleksiyonBos(paket.kasaHarcama) ? null : paket.kasaHarcama,
         "doviz-kurlari": nesneTemizle(paket.dovizKurlari)
       };
+      if (odemeGeldi) {
+        guncelleme["odeme-yontemleri"] = koleksiyonBos(paket.odemeYontemleri)
+          ? null
+          : paket.odemeYontemleri;
+      }
       return fbRef.update(guncelleme).catch((err) => {
         console.warn("Robust geri yükleme hatası:", err);
         window.APARTIM.toast?.("Geri yükleme sunucuya yazılamadı", "hata");
@@ -1845,9 +2058,11 @@
     durum.rezervasyonlar = paket.rezervasyonlar;
     durum.temizlikKayit = paket.temizlikKayit;
     durum.musteriKaynaklari = paket.musteriKaynaklari;
+    if (odemeGeldi) durum.odemeYontemleri = paket.odemeYontemleri;
     durum.kasaHarcama = paket.kasaHarcama;
     durum.dovizKurlari = paket.dovizKurlari;
     musteriKaynaklariSeedEt();
+    odemeYontemleriSeedEt();
     dairelerSeedEt();
     dovizKurlariSenkron();
     yereliKaydet();
@@ -1910,7 +2125,15 @@
     rezervasyonOdenenHucreKaydet,
     rezervasyonOdemeDonemToplam,
     odemeYontemNorm,
-    ODEME_YONTEMLERI,
+    get ODEME_YONTEMLERI() { return odemeYontemleriNesne(); },
+    odemeYontemleriListele,
+    odemeYontemiGetir,
+    odemeYontemiAd,
+    odemeYontemiEkle,
+    odemeYontemiGuncelle,
+    odemeYontemiSil,
+    odemeYontemIdBul,
+    odemeYontemSelectDoldur,
     rezervasyonOzeti,
     rezAyKesisimGelir,
     daireAylikOzet,

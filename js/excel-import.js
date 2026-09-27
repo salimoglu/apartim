@@ -115,16 +115,10 @@
       const s = hucreMetin(metin);
       if (!s || odemeBakiyeMi(s)) return null;
 
-      const yontemler = window.APARTIM.db?.ODEME_YONTEMLERI || {
-        kasa: "Nakit", pos: "Pos", booking: "Booking", havale: "Hesaba havale", diger: "Diğer"
-      };
       let yontem = "kasa";
       const ym = s.match(/\(([^)]+)\)\s*$/);
       if (ym) {
-        const etiket = ym[1].trim().toLocaleLowerCase("tr");
-        const bulunan = Object.keys(yontemler).find((k) =>
-          String(yontemler[k]).toLocaleLowerCase("tr") === etiket || k === etiket
-        );
+        const bulunan = window.APARTIM.db?.odemeYontemIdBul?.(ym[1].trim());
         if (bulunan) yontem = bulunan;
       }
 
