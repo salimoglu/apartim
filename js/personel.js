@@ -1,7 +1,7 @@
 /* =========================================================
    APARTIM — Personeller
-   Otel sahibi kullanıcı adı ve şifre oluşturur, görebileceği
-   modülleri seçer. Giriş bilgisini yalnızca otel sahibi değiştirir.
+   Otel sahibi liste üzerinden modül, şifre ve durdurmayı yönetir.
+   Personel yalnızca giriş yapar.
    ========================================================= */
 
 (function () {
@@ -9,13 +9,28 @@
 
   const AUTH_OLUSTUR = "apartim-personel-olustur";
   const AUTH_GUNCELLE = "apartim-personel-guncelle";
+  const KISA = {
+    rezervasyonlar: "Rezervasyon",
+    tahsilat: "Tahsilat",
+    odalar: "Odalar",
+    rapor: "Rapor",
+    kasa: "Kasa"
+  };
+  const IKON_ANAHTAR = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12.65 10A6 6 0 1 0 7 16h1v2h2v-2h2.65A6 6 0 0 0 12.65 10zM7 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>';
+  const IKON_KALEM = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
+  const IKON_DUR = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>';
+  const IKON_AC = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>';
 
   let otelId = "";
   let uyelerRef = null;
   let girisRef = null;
+  let duranRef = null;
   let uyeler = {};
   let girisler = {};
-  let seciliUid = "";
+  let duranlar = {};
+  let panelUid = "";
+  let panelTur = "";
+  let ekleAcik = false;
   let ekleniyor = false;
   let kaydediyor = false;
   let zorlaCiz = false;
@@ -32,12 +47,16 @@
   function dinlemeyiKaldir() {
     try { uyelerRef?.off(); } catch (e) {}
     try { girisRef?.off(); } catch (e) {}
+    try { duranRef?.off(); } catch (e) {}
     uyelerRef = null;
     girisRef = null;
+    duranRef = null;
     otelId = "";
     uyeler = {};
     girisler = {};
-    seciliUid = "";
+    duranlar = {};
+    panelUid = "";
+    panelTur = "";
   }
 
   function bagla(yeniOtelId) {
@@ -52,7 +71,6 @@
     uyelerRef = window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler");
     uyelerRef.on("value", (snap) => {
       uyeler = snap.val() || {};
-      if (seciliUid && !uyeler[seciliUid]) seciliUid = "";
       ciz();
     });
     girisRef = window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/giris");
@@ -61,6 +79,14 @@
       ciz();
     }, () => {
       girisler = {};
+      ciz();
+    });
+    duranRef = window.APARTIM.fbDb.ref("apartim/kullanicilar/" + otelId + "/personelDurum");
+    duranRef.on("value", (snap) => {
+      duranlar = snap.val() || {};
+      ciz();
+    }, () => {
+      duranlar = {};
       ciz();
     });
   }
@@ -88,23 +114,15 @@
     return n;
   }
 
-  function modulKutulari(hedef, secili) {
-    window.APARTIM.yetki.GOREBILIR.forEach((t) => {
-      const lbl = el("label", "yetki-satir");
-      const inp = document.createElement("input");
-      inp.type = "checkbox";
-      inp.dataset.modul = t.id;
-      inp.checked = !!(secili && secili[t.id]);
-      lbl.appendChild(inp);
-      lbl.appendChild(document.createTextNode(t.etiket));
-      hedef.appendChild(lbl);
-    });
+  function kisaEtiket(id) {
+    return KISA[id] || id;
   }
 
   function modulleriOku(kapsam) {
     const secim = {};
-    kapsam.querySelectorAll("input[type=checkbox][data-modul]").forEach((inp) => {
-      secim[inp.dataset.modul] = !!inp.checked;
+    kapsam.querySelectorAll("[data-modul]").forEach((inp) => {
+      if (inp.matches("input[type=checkbox]")) secim[inp.dataset.modul] = !!inp.checked;
+      else secim[inp.dataset.modul] = inp.getAttribute("aria-pressed") === "true";
     });
     return window.APARTIM.yetki.modullerdenYap(secim);
   }
@@ -121,6 +139,27 @@
     const kayit = girisler[uid];
     const s = kayit && typeof kayit.sifre === "string" ? kayit.sifre : "";
     return s.length >= 6 ? s : "";
+  }
+
+  function kaynak(uid) {
+    const aktif = uyeler[uid];
+    if (aktif && aktif.rol === "personel") return { uye: aktif, durdu: false };
+    if (duranlar[uid] && uyeler[uid]?.rol !== "sahip") return { uye: duranlar[uid], durdu: true };
+    return null;
+  }
+
+  function uyeKaydi(uye) {
+    const bayrak = window.APARTIM.yetki.modullerdenYap(uye && uye.gorebilir);
+    const ad = String((uye && (uye.ad || uye.kullaniciAdi)) || "Personel").trim().slice(0, 80) || "Personel";
+    const kayit = {
+      rol: "personel",
+      ad: ad,
+      gorebilir: bayrak.gorebilir,
+      yapabilir: bayrak.yapabilir
+    };
+    const kullanici = String((uye && uye.kullaniciAdi) || "").trim();
+    if (kullanici) kayit.kullaniciAdi = kullanici;
+    return kayit;
   }
 
   async function ikincilAuth(ad) {
@@ -175,20 +214,18 @@
       await window.APARTIM.fbDb.ref("apartim/uyelik/" + uid).set(otelId);
       form.querySelector("[data-alan=ad]").value = "";
       form.querySelector("[data-alan=sifre]").value = "";
+      ekleAcik = false;
       yenile = true;
       try {
         await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/giris/" + uid).set({ sifre: sifre });
-        toast(ad.gorunen + " eklendi. Şifreyi personele iletin. Kullanıcı adı ve şifreyi buradan değiştirebilirsiniz.", "basari");
+        toast(ad.gorunen + " eklendi. Şifreyi personele iletin.", "basari");
       } catch (e) {
         toast(ad.gorunen + " eklendi. Şifreyi not edin; sunucu saklayamadı. Sonra değiştirmek için mevcut şifreyi bir kez yazın.", "uyari");
       }
     } catch (err) {
       const metin = err && err.code ? adArac.hata(err) : dbHata(err, "Personel eklenemedi");
-      if (uid) {
-        toast("Hesap açıldı ama otele bağlanamadı: " + metin, "hata");
-      } else {
-        toast(metin, "hata");
-      }
+      if (uid) toast("Hesap açıldı ama otele bağlanamadı: " + metin, "hata");
+      else toast(metin, "hata");
     } finally {
       try { await auth2.signOut(); } catch (e) {}
       ekleniyor = false;
@@ -200,13 +237,33 @@
     }
   }
 
+  function cipEkle(hedef, secili, onTik) {
+    window.APARTIM.yetki.GOREBILIR.forEach((t) => {
+      const acik = !!(secili && secili[t.id]);
+      const b = el("button", "personel-cip" + (acik ? " personel-cip-acik" : ""), kisaEtiket(t.id));
+      b.type = "button";
+      b.dataset.modul = t.id;
+      b.setAttribute("aria-pressed", acik ? "true" : "false");
+      b.addEventListener("click", () => onTik(b, t.id));
+      hedef.appendChild(b);
+    });
+  }
+
   function ekleFormu(govde) {
-    const kutu = el("div", "personel-blok");
-    kutu.appendChild(el("div", "yetki-grup-baslik", "Yeni personel"));
+    const acBtn = el("button", "btn-primary personel-ekle-btn", ekleAcik ? "Vazgeç" : "Personel ekle");
+    acBtn.type = "button";
+    acBtn.addEventListener("click", () => {
+      ekleAcik = !ekleAcik;
+      zorlaCiz = true;
+      ciz();
+    });
+    govde.appendChild(acBtn);
+    if (!ekleAcik) return;
+    const kutu = el("div", "personel-kart personel-blok");
     kutu.appendChild(el(
       "p",
       "modal-aciklama",
-      "Kullanıcı adı ve şifreyi siz belirlersiniz. Personel yalnızca ana sayfadaki Personel kapısından girer; kendi şifresini değiştirmez."
+      "Kullanıcı adı ve şifreyi siz belirlersiniz. Personel yalnızca Personel kapısından girer."
     ));
     const ad = document.createElement("input");
     ad.type = "text";
@@ -224,12 +281,14 @@
     sifre.dataset.alan = "sifre";
     kutu.appendChild(ad);
     kutu.appendChild(sifre);
-    kutu.appendChild(el("div", "yetki-grup-baslik", "Görebileceği modüller"));
-    const kutular = el("div", "personel-moduller");
-    const varsayilan = { rezervasyonlar: true, tahsilat: true, odalar: true };
-    modulKutulari(kutular, varsayilan);
+    const kutular = el("div", "personel-cipler");
+    cipEkle(kutular, { rezervasyonlar: true, tahsilat: true, odalar: true }, (b) => {
+      const acik = b.getAttribute("aria-pressed") !== "true";
+      b.setAttribute("aria-pressed", acik ? "true" : "false");
+      b.classList.toggle("personel-cip-acik", acik);
+    });
     kutu.appendChild(kutular);
-    const ekle = el("button", "btn-primary", "Personel ekle");
+    const ekle = el("button", "btn-primary", "Ekle");
     ekle.type = "button";
     ekle.dataset.alan = "ekle";
     ekle.addEventListener("click", () => personelOlustur(kutu));
@@ -237,31 +296,26 @@
     govde.appendChild(kutu);
   }
 
-  function uyeSatirlari(govde) {
-    govde.appendChild(el("div", "yetki-grup-baslik", "Kayıtlı kişiler"));
-    const uidler = Object.keys(uyeler).sort((a, b) => {
-      const ra = uyeler[a]?.rol === "sahip" ? 0 : 1;
-      const rb = uyeler[b]?.rol === "sahip" ? 0 : 1;
-      if (ra !== rb) return ra - rb;
-      return String(uyeler[a]?.ad || "").localeCompare(String(uyeler[b]?.ad || ""), "tr");
-    });
-    if (!uidler.length) {
-      govde.appendChild(el("p", "modal-aciklama", "Henüz personel yok."));
-      return;
+  function ikonBtn(sinif, etiket, svg, onClick) {
+    const b = el("button", "personel-ikon " + sinif);
+    b.type = "button";
+    b.title = etiket;
+    b.setAttribute("aria-label", etiket);
+    b.innerHTML = svg;
+    b.addEventListener("click", onClick);
+    return b;
+  }
+
+  function panelAc(uid, tur) {
+    if (panelUid === uid && panelTur === tur) {
+      panelUid = "";
+      panelTur = "";
+    } else {
+      panelUid = uid;
+      panelTur = tur;
     }
-    uidler.forEach((uid) => {
-      const uye = uyeler[uid] || {};
-      const btn = el("button", "ayar-item personel-uye" + (uid === seciliUid ? " personel-uye-secili" : ""));
-      btn.type = "button";
-      const ad = uye.ad || uye.kullaniciAdi || uid;
-      const rol = uye.rol === "sahip" ? "Otel sahibi" : "Personel";
-      btn.textContent = ad + " — " + rol;
-      btn.addEventListener("click", () => {
-        seciliUid = uye.rol === "sahip" ? "" : uid;
-        ciz();
-      });
-      govde.appendChild(btn);
-    });
+    zorlaCiz = true;
+    ciz();
   }
 
   function sifreAlani(placeholder, alan, oto) {
@@ -274,54 +328,159 @@
     return inp;
   }
 
-  function uyeFormu(govde) {
-    const uye = seciliUid ? uyeler[seciliUid] : null;
-    if (!uye || uye.rol !== "personel") return;
-    const kutu = el("div", "personel-blok");
-    const ad = uye.ad || uye.kullaniciAdi || "Personel";
-    kutu.appendChild(el("div", "yetki-grup-baslik", ad));
-    kutu.appendChild(el("div", "yetki-grup-baslik", "Giriş"));
-    kutu.appendChild(el(
-      "p",
-      "modal-aciklama",
-      "Personel yalnızca girer. Kullanıcı adı ve şifreyi yalnızca siz değiştirirsiniz."
+  function kartlar(govde) {
+    const liste = el("div", "personel-liste");
+    const satirlar = [];
+    Object.keys(uyeler).forEach((uid) => {
+      const uye = uyeler[uid] || {};
+      if (uye.rol === "sahip" || uye.rol === "personel") satirlar.push({ uid: uid, uye: uye, durdu: false });
+    });
+    Object.keys(duranlar).forEach((uid) => {
+      if (uyeler[uid]) return;
+      satirlar.push({ uid: uid, uye: duranlar[uid] || {}, durdu: true });
+    });
+    satirlar.sort((a, b) => {
+      const ra = a.uye.rol === "sahip" ? 0 : 1;
+      const rb = b.uye.rol === "sahip" ? 0 : 1;
+      if (ra !== rb) return ra - rb;
+      return String(a.uye.ad || "").localeCompare(String(b.uye.ad || ""), "tr");
+    });
+    if (!satirlar.length) {
+      govde.appendChild(el("p", "modal-aciklama", "Henüz personel yok."));
+      return;
+    }
+    satirlar.forEach((satir) => liste.appendChild(kart(satir)));
+    govde.appendChild(liste);
+  }
+
+  function kart(satir) {
+    const uid = satir.uid;
+    const uye = satir.uye || {};
+    const sahip = uye.rol === "sahip";
+    const kutu = el("div", "personel-kart" + (satir.durdu ? " personel-kart-durdu" : ""));
+    const ust = el("div", "personel-kart-ust");
+    const kim = el("div", "personel-kim");
+    kim.appendChild(el("div", "personel-kart-ad", uye.ad || uye.kullaniciAdi || "Personel"));
+    if (uye.kullaniciAdi) kim.appendChild(el("div", "personel-kart-kullanici", "@" + uye.kullaniciAdi));
+    ust.appendChild(kim);
+    ust.appendChild(el(
+      "span",
+      "personel-rozet" + (sahip ? " personel-rozet-sahip" : ""),
+      sahip ? "Otel sahibi" : "Personel"
     ));
-    const adInp = document.createElement("input");
-    adInp.type = "text";
-    adInp.className = "field-input";
-    adInp.placeholder = "Kullanıcı adı";
-    adInp.autocomplete = "off";
-    adInp.autocapitalize = "off";
-    adInp.spellcheck = false;
-    adInp.dataset.alan = "giris-ad";
-    adInp.value = uye.kullaniciAdi || uye.ad || "";
-    kutu.appendChild(adInp);
-    if (!sakliSifre(seciliUid) || sifreSor[seciliUid]) {
+    if (!sahip) {
+      const islem = el("div", "personel-islemler");
+      islem.appendChild(ikonBtn("personel-ikon-anahtar", "Şifre", IKON_ANAHTAR, () => panelAc(uid, "sifre")));
+      islem.appendChild(ikonBtn("personel-ikon-kalem", "Kullanıcı adı", IKON_KALEM, () => panelAc(uid, "ad")));
+      islem.appendChild(ikonBtn(
+        "personel-ikon-dur" + (satir.durdu ? " personel-durdu" : ""),
+        satir.durdu ? "Girişi aç" : "Girişi durdur",
+        satir.durdu ? IKON_AC : IKON_DUR,
+        () => (satir.durdu ? girisiAc(uid) : girisiDurdur(uid))
+      ));
+      ust.appendChild(islem);
+    }
+    kutu.appendChild(ust);
+    if (!sahip) {
+      const cipler = el("div", "personel-cipler");
+      cipEkle(cipler, uye.gorebilir, (b, modulId) => {
+        if (satir.durdu) return;
+        modulCevir(uid, modulId, b);
+      });
+      kutu.appendChild(cipler);
+    }
+    if (!sahip && panelUid === uid && panelTur) kutu.appendChild(panel(uid, uye));
+    return kutu;
+  }
+
+  function panel(uid, uye) {
+    const kutu = el("div", "personel-panel");
+    if (panelTur === "ad") {
+      const adInp = document.createElement("input");
+      adInp.type = "text";
+      adInp.className = "field-input";
+      adInp.placeholder = "Kullanıcı adı";
+      adInp.autocomplete = "off";
+      adInp.autocapitalize = "off";
+      adInp.spellcheck = false;
+      adInp.dataset.alan = "giris-ad";
+      adInp.value = uye.kullaniciAdi || uye.ad || "";
+      kutu.appendChild(adInp);
+    }
+    if (!sakliSifre(uid) || sifreSor[uid]) {
       kutu.appendChild(sifreAlani("Mevcut şifre", "giris-mevcut", "current-password"));
     }
-    kutu.appendChild(sifreAlani("Yeni şifre (değişmeyecekse boş)", "giris-yeni", "new-password"));
-    kutu.appendChild(sifreAlani("Yeni şifre tekrar", "giris-tekrar", "new-password"));
-    const girisBtn = el("button", "btn-primary", "Giriş bilgilerini kaydet");
-    girisBtn.type = "button";
-    girisBtn.dataset.alan = "giris-kaydet";
-    girisBtn.addEventListener("click", () => girisGuncelle(kutu));
-    kutu.appendChild(girisBtn);
-
-    kutu.appendChild(el("div", "yetki-grup-baslik", "Görebileceği modüller"));
-    const kutular = el("div", "personel-moduller");
-    modulKutulari(kutular, uye.gorebilir);
-    kutu.appendChild(kutular);
-    const eylem = el("div", "personel-eylem");
-    const kaydet = el("button", "btn-primary", "Modülleri kaydet");
+    if (panelTur === "sifre") {
+      kutu.appendChild(sifreAlani("Yeni şifre", "giris-yeni", "new-password"));
+      kutu.appendChild(sifreAlani("Yeni şifre tekrar", "giris-tekrar", "new-password"));
+    }
+    const kaydet = el("button", "btn-primary", panelTur === "sifre" ? "Şifreyi kaydet" : "Kullanıcı adını kaydet");
     kaydet.type = "button";
-    kaydet.addEventListener("click", () => uyeKaydet(kutular));
-    const sil = el("button", "btn-danger", "Erişimi kaldır");
-    sil.type = "button";
-    sil.addEventListener("click", uyeSil);
-    eylem.appendChild(kaydet);
-    eylem.appendChild(sil);
-    kutu.appendChild(eylem);
-    govde.appendChild(kutu);
+    kaydet.dataset.alan = "giris-kaydet";
+    kaydet.addEventListener("click", () => girisGuncelle(kutu, uid));
+    kutu.appendChild(kaydet);
+    return kutu;
+  }
+
+  async function modulCevir(uid, modulId, btn) {
+    if (!sahipMi() || !otelId) return;
+    const bulunan = kaynak(uid);
+    if (!bulunan || bulunan.durdu) return;
+    const once = btn.getAttribute("aria-pressed") === "true";
+    const secim = {};
+    window.APARTIM.yetki.GOREBILIR.forEach((t) => {
+      secim[t.id] = !!(bulunan.uye.gorebilir && bulunan.uye.gorebilir[t.id]);
+    });
+    secim[modulId] = !once;
+    btn.setAttribute("aria-pressed", secim[modulId] ? "true" : "false");
+    btn.classList.toggle("personel-cip-acik", !!secim[modulId]);
+    const bayrak = window.APARTIM.yetki.modullerdenYap(secim);
+    try {
+      await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + uid).update({
+        gorebilir: bayrak.gorebilir,
+        yapabilir: bayrak.yapabilir
+      });
+    } catch (err) {
+      btn.setAttribute("aria-pressed", once ? "true" : "false");
+      btn.classList.toggle("personel-cip-acik", once);
+      toast(dbHata(err, "Modül kaydedilemedi"), "hata");
+    }
+  }
+
+  async function girisiDurdur(uid) {
+    if (!sahipMi() || !otelId) return;
+    const uye = uyeler[uid];
+    if (!uye || uye.rol !== "personel") return;
+    const ad = uye.ad || uye.kullaniciAdi || "Bu personel";
+    if (!window.confirm(ad + " durdurulsun mu? Girişi kapanır.")) return;
+    if (panelUid === uid) {
+      panelUid = "";
+      panelTur = "";
+    }
+    const kopya = uyeKaydi(uye);
+    kopya.askida = true;
+    try {
+      await window.APARTIM.fbDb.ref("apartim/kullanicilar/" + otelId + "/personelDurum/" + uid).set(kopya);
+      await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + uid).remove();
+      toast(ad + " durduruldu", "basari");
+    } catch (err) {
+      toast(dbHata(err, "Durdurulamadı"), "hata");
+    }
+  }
+
+  async function girisiAc(uid) {
+    if (!sahipMi() || !otelId) return;
+    const uye = duranlar[uid];
+    if (!uye) return;
+    const ad = uye.ad || uye.kullaniciAdi || "Bu personel";
+    if (!window.confirm(ad + " yeniden girsin mi?")) return;
+    try {
+      await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + uid).set(uyeKaydi(uye));
+      await window.APARTIM.fbDb.ref("apartim/kullanicilar/" + otelId + "/personelDurum/" + uid).remove();
+      toast(ad + " yeniden açıldı", "basari");
+    } catch (err) {
+      toast(dbHata(err, "Açılamadı"), "hata");
+    }
   }
 
   async function eskiEpostaIleGir(auth2, eskiEmail, yeniEmail, sifre) {
@@ -339,20 +498,22 @@
     }
   }
 
-  async function girisGuncelle(kutu) {
-    if (kaydediyor || !sahipMi() || !seciliUid || !otelId) return;
-    const uye = uyeler[seciliUid];
-    if (!uye || uye.rol !== "personel") return;
+  async function girisGuncelle(kutu, uid) {
+    if (kaydediyor || !sahipMi() || !uid || !otelId) return;
+    const bulunan = kaynak(uid);
+    if (!bulunan || bulunan.uye.rol === "sahip") return;
+    const uye = bulunan.uye;
     const adArac = window.APARTIM.kullaniciAdi;
     if (!adArac) {
       toast("Kullanıcı adı kontrolü hazır değil", "hata");
       return;
     }
-    const ad = adArac.dogrula(kutu.querySelector("[data-alan=giris-ad]")?.value);
+    const adInp = kutu.querySelector("[data-alan=giris-ad]");
+    const ad = adArac.dogrula(adInp ? adInp.value : (uye.kullaniciAdi || uye.ad || ""));
     if (!ad.ok) { toast(ad.mesaj, "hata"); return; }
     const yeni = String(kutu.querySelector("[data-alan=giris-yeni]")?.value || "");
     const tekrar = String(kutu.querySelector("[data-alan=giris-tekrar]")?.value || "");
-    const sakli = sakliSifre(seciliUid);
+    const sakli = sakliSifre(uid);
     const yazilan = String(kutu.querySelector("[data-alan=giris-mevcut]")?.value || "");
     const mevcut = yazilan || sakli;
     const eski = adArac.dogrula(uye.kullaniciAdi || uye.ad || "");
@@ -378,7 +539,6 @@
     const btn = kutu.querySelector("[data-alan=giris-kaydet]");
     if (btn) btn.disabled = true;
     const auth2 = await ikincilAuth(AUTH_GUNCELLE);
-    const uid = seciliUid;
     let yenile = false;
     try {
       const cred = await eskiEpostaIleGir(
@@ -390,17 +550,22 @@
       if (adDegisti) await cred.user.updateEmail(adArac.email(ad.anahtar));
       await cred.user.updateProfile({ displayName: ad.gorunen });
       if (sifreDegisti) await cred.user.updatePassword(yeni);
-      await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + uid).update({
+      const yol = bulunan.durdu
+        ? "apartim/kullanicilar/" + otelId + "/personelDurum/" + uid
+        : "apartim/oteller/" + otelId + "/uyeler/" + uid;
+      await window.APARTIM.fbDb.ref(yol).update({
         ad: ad.gorunen,
         kullaniciAdi: ad.gorunen
       });
       yenile = true;
       delete sifreSor[uid];
+      panelUid = "";
+      panelTur = "";
       try {
         await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/giris/" + uid).set({
           sifre: sifreDegisti ? yeni : mevcut
         });
-        toast("Giriş bilgileri kaydedildi", "basari");
+        toast(sifreDegisti && !adDegisti ? "Şifre kaydedildi" : "Giriş bilgileri kaydedildi", "basari");
       } catch (e) {
         toast("Giriş güncellendi. Sunucu şifreyi saklayamadı; bir sonraki değişiklikte mevcut şifreyi girin.", "uyari");
       }
@@ -430,41 +595,6 @@
     }
   }
 
-  async function uyeKaydet(kutu) {
-    if (!sahipMi() || !seciliUid || !otelId) return;
-    const uye = uyeler[seciliUid];
-    if (!uye || uye.rol !== "personel") return;
-    const bayrak = modulleriOku(kutu);
-    try {
-      await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + seciliUid).update({
-        gorebilir: bayrak.gorebilir,
-        yapabilir: bayrak.yapabilir
-      });
-      toast("Modüller kaydedildi", "basari");
-    } catch (err) {
-      toast(dbHata(err, "Modüller kaydedilemedi"), "hata");
-    }
-  }
-
-  async function uyeSil() {
-    if (!sahipMi() || !seciliUid || !otelId) return;
-    const uye = uyeler[seciliUid];
-    if (!uye || uye.rol !== "personel") return;
-    const ad = uye.ad || uye.kullaniciAdi || "Bu personel";
-    if (!window.confirm(ad + " artık otele giremesin mi?")) return;
-    const uid = seciliUid;
-    try {
-      try {
-        await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/giris/" + uid).remove();
-      } catch (e) {}
-      await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + uid).remove();
-      seciliUid = "";
-      toast("Erişim kaldırıldı", "basari");
-    } catch (err) {
-      toast(dbHata(err, "Erişim kaldırılamadı"), "hata");
-    }
-  }
-
   function ciz() {
     const govde = document.getElementById("personel-govde");
     if (!govde || modal()?.classList.contains("hidden")) return;
@@ -482,8 +612,7 @@
       return;
     }
     ekleFormu(govde);
-    uyeSatirlari(govde);
-    uyeFormu(govde);
+    kartlar(govde);
   }
 
   function init() {

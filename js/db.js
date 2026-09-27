@@ -1400,7 +1400,7 @@
         durum.rezervasyonlar = {};
         durum.kasaHarcama = {};
         window.APARTIM.yetki?.uygula?.(null, "otel");
-        window.APARTIM.yetki?.kapiGoster?.("red", "Bu otele erişiminiz kaldırılmış.");
+        window.APARTIM.yetki?.kapiGoster?.("red", "Girişiniz durduruldu. Otel sahibi Personeller ekranından açınca yeniden girebilirsiniz.");
         return;
       }
       const once = window.APARTIM.yetki?.ozet?.() || "";
@@ -1421,7 +1421,7 @@
     const uye = uyeSnap.val();
     if (!uye || (uye.rol !== "sahip" && uye.rol !== "personel")) {
       window.APARTIM.yetki?.uygula?.(null, "otel");
-      window.APARTIM.yetki?.kapiGoster?.("red", "Bu otele erişiminiz kaldırılmış.");
+      window.APARTIM.yetki?.kapiGoster?.("red", "Girişiniz durduruldu. Otel sahibi Personeller ekranından açınca yeniden girebilirsiniz.");
       return;
     }
     otelIdAktif = otelId;

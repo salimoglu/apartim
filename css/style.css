@@ -6207,7 +6207,7 @@ html.yetki-otel:not(.yetki-yaz-kasaYaz) #kasa-kayit-form {
   line-height: 1.4;
 }
 .yetki-eski-uyari.hidden { display: none; }
-.modal-box-personel { max-width: 520px; }
+.modal-box-personel { max-width: 640px; }
 .yetki-grup-baslik {
   margin: 14px 0 4px;
   font-size: 12px;
@@ -6222,26 +6222,92 @@ html.yetki-otel:not(.yetki-yaz-kasaYaz) #kasa-kayit-form {
   padding: 5px 0;
   font-size: 14px;
 }
-.personel-blok { margin-top: 8px; display: flex; flex-direction: column; gap: 8px; }
+.personel-liste { display: flex; flex-direction: column; gap: 10px; }
+.personel-ekle-btn { width: 100%; }
+.personel-blok { display: flex; flex-direction: column; gap: 8px; }
 .personel-blok .field-input { width: 100%; }
-.personel-moduller { display: flex; flex-direction: column; }
-.personel-eylem, .personel-kod-satir {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  margin-top: 10px;
-}
-.personel-uye-secili { background: var(--vurgu-soluk); }
-.personel-kod-metin {
+.personel-kart {
+  background: var(--kart);
+  border: 1px solid var(--kenar);
+  border-radius: 16px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  min-width: 120px;
-  font-family: ui-monospace, monospace;
+  gap: 8px;
 }
-.personel-kod-etiket {
-  font-family: "Nunito", sans-serif;
-  font-size: 12px;
+.personel-kart-durdu { opacity: 0.72; }
+.personel-kart-ust {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.personel-kim { flex: 1 1 140px; min-width: 0; }
+.personel-kart-ad {
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.personel-kart-kullanici {
   color: var(--metin-soluk);
+  font-size: 13px;
+  margin-top: 2px;
 }
-#personel-kalip { width: 100%; margin: 6px 0; }
+.personel-rozet {
+  flex: none;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 800;
+  background: var(--kart-2);
+  border: 1px solid var(--kenar);
+  color: var(--metin);
+}
+.personel-rozet-sahip { background: var(--vurgu-soluk); }
+.personel-islemler { display: flex; gap: 6px; flex: none; }
+.personel-ikon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1.5px solid #c9a24d;
+  background: transparent;
+  color: #a67c2d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+}
+.personel-ikon svg { display: block; }
+.personel-ikon-anahtar {
+  background: #f6d98a;
+  border-color: #e2b84a;
+  color: #6d4e12;
+}
+.personel-ikon-dur {
+  border-color: #e08b8b;
+  color: #c45656;
+}
+.personel-ikon-dur.personel-durdu {
+  background: #f8d4d4;
+}
+.personel-cipler { display: flex; flex-wrap: wrap; gap: 8px; }
+.personel-cip {
+  border-radius: 999px;
+  border: 1.5px solid var(--vurgu);
+  background: transparent;
+  color: var(--vurgu-2);
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+}
+.personel-cip-acik {
+  background: var(--vurgu-soluk);
+  border-color: var(--vurgu);
+  color: var(--vurgu-2);
+}
+.personel-kart-durdu .personel-cip { pointer-events: none; }
+.personel-panel { display: flex; flex-direction: column; gap: 8px; }
