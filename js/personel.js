@@ -1,19 +1,25 @@
 /* =========================================================
    APARTIM — Personeller
    Otel sahibi kullanıcı adı ve şifre oluşturur, görebileceği
-   modülleri seçer. Şifre sonra değiştirilmez.
+   modülleri seçer. Giriş bilgisini yalnızca otel sahibi değiştirir.
    ========================================================= */
 
 (function () {
   "use strict";
 
-  const AUTH_APP = "apartim-personel-olustur";
+  const AUTH_OLUSTUR = "apartim-personel-olustur";
+  const AUTH_GUNCELLE = "apartim-personel-guncelle";
 
   let otelId = "";
   let uyelerRef = null;
+  let girisRef = null;
   let uyeler = {};
+  let girisler = {};
   let seciliUid = "";
   let ekleniyor = false;
+  let kaydediyor = false;
+  let zorlaCiz = false;
+  const sifreSor = {};
 
   function toast(msg, tur) {
     window.APARTIM.toast?.(msg, tur || "bilgi");
@@ -25,9 +31,12 @@
 
   function dinlemeyiKaldir() {
     try { uyelerRef?.off(); } catch (e) {}
+    try { girisRef?.off(); } catch (e) {}
     uyelerRef = null;
+    girisRef = null;
     otelId = "";
     uyeler = {};
+    girisler = {};
     seciliUid = "";
   }
 
@@ -44,6 +53,14 @@
     uyelerRef.on("value", (snap) => {
       uyeler = snap.val() || {};
       if (seciliUid && !uyeler[seciliUid]) seciliUid = "";
+      ciz();
+    });
+    girisRef = window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/giris");
+    girisRef.on("value", (snap) => {
+      girisler = snap.val() || {};
+      ciz();
+    }, () => {
+      girisler = {};
       ciz();
     });
   }
@@ -100,14 +117,24 @@
     return (err && err.message) || yedek;
   }
 
-  function personelAuth() {
+  function sakliSifre(uid) {
+    const kayit = girisler[uid];
+    const s = kayit && typeof kayit.sifre === "string" ? kayit.sifre : "";
+    return s.length >= 6 ? s : "";
+  }
+
+  async function ikincilAuth(ad) {
     let app;
     try {
-      app = firebase.app(AUTH_APP);
+      app = firebase.app(ad);
     } catch (e) {
-      app = firebase.initializeApp(firebase.app().options, AUTH_APP);
+      app = firebase.initializeApp(firebase.app().options, ad);
     }
-    return firebase.auth(app);
+    const auth2 = firebase.auth(app);
+    try {
+      await auth2.setPersistence(firebase.auth.Auth.Persistence.NONE);
+    } catch (e) {}
+    return auth2;
   }
 
   async function personelOlustur(form) {
@@ -129,8 +156,9 @@
     ekleniyor = true;
     const btn = form.querySelector("[data-alan=ekle]");
     if (btn) btn.disabled = true;
-    const auth2 = personelAuth();
+    const auth2 = await ikincilAuth(AUTH_OLUSTUR);
     let uid = "";
+    let yenile = false;
     try {
       const cred = await auth2.createUserWithEmailAndPassword(adArac.email(ad.anahtar), sifre);
       uid = cred.user.uid;
@@ -147,9 +175,14 @@
       await window.APARTIM.fbDb.ref("apartim/uyelik/" + uid).set(otelId);
       form.querySelector("[data-alan=ad]").value = "";
       form.querySelector("[data-alan=sifre]").value = "";
-      toast(ad.gorunen + " eklendi. Şifreyi personele iletin; sonra buradan değiştirilemez.", "basari");
+      yenile = true;
+      try {
+        await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/giris/" + uid).set({ sifre: sifre });
+        toast(ad.gorunen + " eklendi. Şifreyi personele iletin. Kullanıcı adı ve şifreyi buradan değiştirebilirsiniz.", "basari");
+      } catch (e) {
+        toast(ad.gorunen + " eklendi. Şifreyi not edin; sunucu saklayamadı. Sonra değiştirmek için mevcut şifreyi bir kez yazın.", "uyari");
+      }
     } catch (err) {
-      try { await auth2.signOut(); } catch (e) {}
       const metin = err && err.code ? adArac.hata(err) : dbHata(err, "Personel eklenemedi");
       if (uid) {
         toast("Hesap açıldı ama otele bağlanamadı: " + metin, "hata");
@@ -157,8 +190,13 @@
         toast(metin, "hata");
       }
     } finally {
+      try { await auth2.signOut(); } catch (e) {}
       ekleniyor = false;
       if (btn) btn.disabled = false;
+      if (yenile) {
+        zorlaCiz = true;
+        ciz();
+      }
     }
   }
 
@@ -168,7 +206,7 @@
     kutu.appendChild(el(
       "p",
       "modal-aciklama",
-      "Kullanıcı adı ve şifreyi siz belirlersiniz. Personel, ana sayfadaki Personel kapısından bu bilgilerle girer. Gördüğü modülü kullanabilir."
+      "Kullanıcı adı ve şifreyi siz belirlersiniz. Personel yalnızca ana sayfadaki Personel kapısından girer; kendi şifresini değiştirmez."
     ));
     const ad = document.createElement("input");
     ad.type = "text";
@@ -226,21 +264,57 @@
     });
   }
 
+  function sifreAlani(placeholder, alan, oto) {
+    const inp = document.createElement("input");
+    inp.type = "password";
+    inp.className = "field-input";
+    inp.placeholder = placeholder;
+    inp.autocomplete = oto;
+    inp.dataset.alan = alan;
+    return inp;
+  }
+
   function uyeFormu(govde) {
     const uye = seciliUid ? uyeler[seciliUid] : null;
     if (!uye || uye.rol !== "personel") return;
     const kutu = el("div", "personel-blok");
     const ad = uye.ad || uye.kullaniciAdi || "Personel";
     kutu.appendChild(el("div", "yetki-grup-baslik", ad));
-    if (uye.kullaniciAdi) {
-      kutu.appendChild(el("p", "modal-aciklama", "Kullanıcı adı: " + uye.kullaniciAdi + ". Şifresini kendi ayarlarından değiştirir."));
+    kutu.appendChild(el("div", "yetki-grup-baslik", "Giriş"));
+    kutu.appendChild(el(
+      "p",
+      "modal-aciklama",
+      "Personel yalnızca girer. Kullanıcı adı ve şifreyi yalnızca siz değiştirirsiniz."
+    ));
+    const adInp = document.createElement("input");
+    adInp.type = "text";
+    adInp.className = "field-input";
+    adInp.placeholder = "Kullanıcı adı";
+    adInp.autocomplete = "off";
+    adInp.autocapitalize = "off";
+    adInp.spellcheck = false;
+    adInp.dataset.alan = "giris-ad";
+    adInp.value = uye.kullaniciAdi || uye.ad || "";
+    kutu.appendChild(adInp);
+    if (!sakliSifre(seciliUid) || sifreSor[seciliUid]) {
+      kutu.appendChild(sifreAlani("Mevcut şifre", "giris-mevcut", "current-password"));
     }
-    kutu.appendChild(el("p", "modal-aciklama", "Görebileceği modüller"));
-    modulKutulari(kutu, uye.gorebilir);
+    kutu.appendChild(sifreAlani("Yeni şifre (değişmeyecekse boş)", "giris-yeni", "new-password"));
+    kutu.appendChild(sifreAlani("Yeni şifre tekrar", "giris-tekrar", "new-password"));
+    const girisBtn = el("button", "btn-primary", "Giriş bilgilerini kaydet");
+    girisBtn.type = "button";
+    girisBtn.dataset.alan = "giris-kaydet";
+    girisBtn.addEventListener("click", () => girisGuncelle(kutu));
+    kutu.appendChild(girisBtn);
+
+    kutu.appendChild(el("div", "yetki-grup-baslik", "Görebileceği modüller"));
+    const kutular = el("div", "personel-moduller");
+    modulKutulari(kutular, uye.gorebilir);
+    kutu.appendChild(kutular);
     const eylem = el("div", "personel-eylem");
     const kaydet = el("button", "btn-primary", "Modülleri kaydet");
     kaydet.type = "button";
-    kaydet.addEventListener("click", () => uyeKaydet(kutu));
+    kaydet.addEventListener("click", () => uyeKaydet(kutular));
     const sil = el("button", "btn-danger", "Erişimi kaldır");
     sil.type = "button";
     sil.addEventListener("click", uyeSil);
@@ -248,6 +322,112 @@
     eylem.appendChild(sil);
     kutu.appendChild(eylem);
     govde.appendChild(kutu);
+  }
+
+  async function eskiEpostaIleGir(auth2, eskiEmail, yeniEmail, sifre) {
+    try {
+      return await auth2.signInWithEmailAndPassword(eskiEmail, sifre);
+    } catch (err) {
+      if (yeniEmail && yeniEmail !== eskiEmail) {
+        try {
+          return await auth2.signInWithEmailAndPassword(yeniEmail, sifre);
+        } catch (e2) {
+          throw err;
+        }
+      }
+      throw err;
+    }
+  }
+
+  async function girisGuncelle(kutu) {
+    if (kaydediyor || !sahipMi() || !seciliUid || !otelId) return;
+    const uye = uyeler[seciliUid];
+    if (!uye || uye.rol !== "personel") return;
+    const adArac = window.APARTIM.kullaniciAdi;
+    if (!adArac) {
+      toast("Kullanıcı adı kontrolü hazır değil", "hata");
+      return;
+    }
+    const ad = adArac.dogrula(kutu.querySelector("[data-alan=giris-ad]")?.value);
+    if (!ad.ok) { toast(ad.mesaj, "hata"); return; }
+    const yeni = String(kutu.querySelector("[data-alan=giris-yeni]")?.value || "");
+    const tekrar = String(kutu.querySelector("[data-alan=giris-tekrar]")?.value || "");
+    const sakli = sakliSifre(seciliUid);
+    const yazilan = String(kutu.querySelector("[data-alan=giris-mevcut]")?.value || "");
+    const mevcut = yazilan || sakli;
+    const eski = adArac.dogrula(uye.kullaniciAdi || uye.ad || "");
+    const adDegisti = !eski.ok || eski.anahtar !== ad.anahtar;
+    const sifreDegisti = yeni.length > 0;
+    if (!eski.ok) {
+      toast("Bu personelin kayıtlı kullanıcı adı okunamadı.", "hata");
+      return;
+    }
+    if (sifreDegisti) {
+      if (yeni.length < 6) { toast("Yeni şifre en az 6 karakter olmalı.", "hata"); return; }
+      if (yeni !== tekrar) { toast("Yeni şifreler eşleşmiyor.", "hata"); return; }
+    }
+    if (!adDegisti && !sifreDegisti) {
+      toast("Değişiklik yok.", "bilgi");
+      return;
+    }
+    if (mevcut.length < 6) {
+      toast("Mevcut şifreyi girin.", "hata");
+      return;
+    }
+    kaydediyor = true;
+    const btn = kutu.querySelector("[data-alan=giris-kaydet]");
+    if (btn) btn.disabled = true;
+    const auth2 = await ikincilAuth(AUTH_GUNCELLE);
+    const uid = seciliUid;
+    let yenile = false;
+    try {
+      const cred = await eskiEpostaIleGir(
+        auth2,
+        adArac.email(eski.anahtar),
+        adArac.email(ad.anahtar),
+        mevcut
+      );
+      if (adDegisti) await cred.user.updateEmail(adArac.email(ad.anahtar));
+      await cred.user.updateProfile({ displayName: ad.gorunen });
+      if (sifreDegisti) await cred.user.updatePassword(yeni);
+      await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + uid).update({
+        ad: ad.gorunen,
+        kullaniciAdi: ad.gorunen
+      });
+      yenile = true;
+      delete sifreSor[uid];
+      try {
+        await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/giris/" + uid).set({
+          sifre: sifreDegisti ? yeni : mevcut
+        });
+        toast("Giriş bilgileri kaydedildi", "basari");
+      } catch (e) {
+        toast("Giriş güncellendi. Sunucu şifreyi saklayamadı; bir sonraki değişiklikte mevcut şifreyi girin.", "uyari");
+      }
+    } catch (err) {
+      const kod = err && err.code ? err.code : "";
+      if (kod === "auth/wrong-password" || kod === "auth/invalid-credential" || kod === "auth/user-not-found" || kod === "auth/invalid-login-credentials") {
+        if (sakli && !yazilan) {
+          sifreSor[uid] = true;
+          yenile = true;
+          toast("Kayıtlı şifre eşleşmiyor. Mevcut şifreyi yazıp tekrar kaydedin.", "hata");
+        } else {
+          toast("Mevcut şifre eşleşmiyor.", "hata");
+        }
+      } else if (kod) {
+        toast(adArac.hata(err), "hata");
+      } else {
+        toast(dbHata(err, "Giriş bilgileri kaydedilemedi"), "hata");
+      }
+    } finally {
+      try { await auth2.signOut(); } catch (e) {}
+      kaydediyor = false;
+      if (btn) btn.disabled = false;
+      if (yenile) {
+        zorlaCiz = true;
+        ciz();
+      }
+    }
   }
 
   async function uyeKaydet(kutu) {
@@ -272,8 +452,12 @@
     if (!uye || uye.rol !== "personel") return;
     const ad = uye.ad || uye.kullaniciAdi || "Bu personel";
     if (!window.confirm(ad + " artık otele giremesin mi?")) return;
+    const uid = seciliUid;
     try {
-      await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + seciliUid).remove();
+      try {
+        await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/giris/" + uid).remove();
+      } catch (e) {}
+      await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + uid).remove();
       seciliUid = "";
       toast("Erişim kaldırıldı", "basari");
     } catch (err) {
@@ -285,7 +469,13 @@
     const govde = document.getElementById("personel-govde");
     if (!govde || modal()?.classList.contains("hidden")) return;
     const odak = document.activeElement;
-    if (odak && govde.contains(odak) && (odak.matches("input, select, textarea") || ekleniyor)) return;
+    if (
+      !zorlaCiz &&
+      odak &&
+      govde.contains(odak) &&
+      (odak.matches("input, select, textarea") || ekleniyor || kaydediyor)
+    ) return;
+    zorlaCiz = false;
     govde.replaceChildren();
     if (!sahipMi()) {
       govde.appendChild(el("p", "modal-aciklama", "Personeli yalnızca otel sahibi yönetir."));

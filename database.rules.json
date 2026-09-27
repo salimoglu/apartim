@@ -89,7 +89,7 @@
             ".read": "auth != null && root.child('apartim').child('oteller').child($otelId).child('uyeler').child(auth.uid).child('rol').val() === 'sahip'",
             "$uid": {
               ".read": "auth != null && (auth.uid === $uid || (auth != null && root.child('apartim').child('oteller').child($otelId).child('uyeler').child(auth.uid).child('rol').val() === 'sahip'))",
-              ".write": "auth != null && ((auth.uid === $uid && auth.uid === $otelId && !data.exists() && newData.child('rol').val() === 'sahip') || (root.child('apartim').child('oteller').child($otelId).child('uyeler').child(auth.uid).child('rol').val() === 'sahip' && !data.exists() && newData.child('rol').val() === 'personel') || (root.child('apartim').child('oteller').child($otelId).child('uyeler').child(auth.uid).child('rol').val() === 'sahip' && $uid !== auth.uid && data.child('rol').val() === 'personel' && (!newData.exists() || newData.child('rol').val() === 'personel')) || (auth.uid === $uid && data.exists() && newData.exists() && newData.child('rol').val() === data.child('rol').val() && newData.child('gorebilir').child('rezervasyonlar').val() === data.child('gorebilir').child('rezervasyonlar').val() && newData.child('gorebilir').child('tahsilat').val() === data.child('gorebilir').child('tahsilat').val() && newData.child('gorebilir').child('odalar').val() === data.child('gorebilir').child('odalar').val() && newData.child('gorebilir').child('rapor').val() === data.child('gorebilir').child('rapor').val() && newData.child('gorebilir').child('kasa').val() === data.child('gorebilir').child('kasa').val() && newData.child('yapabilir').child('rezervasyonYaz').val() === data.child('yapabilir').child('rezervasyonYaz').val() && newData.child('yapabilir').child('tahsilatYaz').val() === data.child('yapabilir').child('tahsilatYaz').val() && newData.child('yapabilir').child('odaDuzenle').val() === data.child('yapabilir').child('odaDuzenle').val() && newData.child('yapabilir').child('kasaYaz').val() === data.child('yapabilir').child('kasaYaz').val() && newData.child('yapabilir').child('kaynaklar').val() === data.child('yapabilir').child('kaynaklar').val() && newData.child('yapabilir').child('odemeKalemleri').val() === data.child('yapabilir').child('odemeKalemleri').val() && newData.child('yapabilir').child('doviz').val() === data.child('yapabilir').child('doviz').val()))",
+              ".write": "auth != null && ((auth.uid === $uid && auth.uid === $otelId && !data.exists() && newData.child('rol').val() === 'sahip') || (root.child('apartim').child('oteller').child($otelId).child('uyeler').child(auth.uid).child('rol').val() === 'sahip' && !data.exists() && newData.child('rol').val() === 'personel') || (root.child('apartim').child('oteller').child($otelId).child('uyeler').child(auth.uid).child('rol').val() === 'sahip' && $uid !== auth.uid && data.child('rol').val() === 'personel' && (!newData.exists() || newData.child('rol').val() === 'personel')))",
               ".validate": "newData.hasChildren(['rol','ad','gorebilir','yapabilir']) && newData.child('ad').isString() && newData.child('ad').val().length > 0 && newData.child('ad').val().length <= 80 && ((newData.child('rol').val() === 'personel') || (newData.child('rol').val() === 'sahip' && $uid === $otelId))",
               "rol": {
                 ".validate": "newData.val() === 'sahip' || newData.val() === 'personel'"
@@ -150,6 +150,18 @@
               },
               "kullaniciAdi": {
                 ".validate": "newData.isString() && newData.val().length >= 3 && newData.val().length <= 24"
+              },
+              "$other": {
+                ".validate": false
+              }
+            }
+          },
+          "giris": {
+            ".read": "auth != null && root.child('apartim').child('oteller').child($otelId).child('uyeler').child(auth.uid).child('rol').val() === 'sahip'",
+            "$uid": {
+              ".write": "auth != null && root.child('apartim').child('oteller').child($otelId).child('uyeler').child(auth.uid).child('rol').val() === 'sahip' && ((!newData.exists()) || (root.child('apartim').child('oteller').child($otelId).child('uyeler').child($uid).child('rol').val() === 'personel' && newData.hasChildren(['sifre'])))",
+              "sifre": {
+                ".validate": "newData.isString() && newData.val().length >= 6 && newData.val().length <= 80"
               },
               "$other": {
                 ".validate": false
