@@ -2,8 +2,8 @@
    JS/CSS: stale-while-revalidate (hızlı yenileme + arka planda güncelleme)
    HTML navigate: network-first (kısa zaman aşımı → cache)
    Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
-const CACHE_VERSION = "apartim-3-91";
-const ASSET_V = "3.91";
+const CACHE_VERSION = "apartim-3-92";
+const ASSET_V = "3.92";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -26,6 +26,7 @@ const CORE_ASSETS = [
   "./js/rezervasyon.js?v=" + ASSET_V,
   "./js/tahsilat.js?v=" + ASSET_V,
   "./js/rez-form-mobil.js?v=" + ASSET_V,
+  "./js/excel-kitap.js?v=" + ASSET_V,
   "./js/rez-ozet.js?v=" + ASSET_V,
   "./js/excel-import.js?v=" + ASSET_V,
   "./js/sezon-temizle.js?v=" + ASSET_V,

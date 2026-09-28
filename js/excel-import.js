@@ -1,6 +1,7 @@
 /* =========================================================
    APARTIM — Toplu Excel içe aktarma
-   Export (.xls HTML / aynı sütun düzeni) ile uyumlu.
+   Export ile uyumlu: Rezervasyon sayfası, Tarih + G/Kt/Fyt/Ödn/Ad/Not.
+   Eski .xls (HTML) ve yeni .xlsx (Rezervasyon sekmesi) okunur.
    ========================================================= */
 
 (function () {
@@ -248,10 +249,37 @@
     });
   }
 
-  function xlsxMatris(wb) {
-    const sheetName = wb.SheetNames[0];
-    const sheet = wb.Sheets[sheetName];
+  function rezervasyonSayfaAdi(wb) {
+    const adlar = wb.SheetNames || [];
+    const bulunan = adlar.find((n) => {
+      const a = normAd(n);
+      return a === "rezervasyon" || a === "rezervasyonlar" || a.indexOf("rezervasyon") === 0;
+    });
+    return bulunan || adlar[0];
+  }
+
+  function xlsxMatris(wb, sheetName) {
+    const ad = sheetName || (wb.SheetNames || [])[0];
+    const sheet = wb.Sheets[ad];
+    if (!sheet) throw new Error("Excel sayfası bulunamadı");
     const aoa = window.XLSX.utils.sheet_to_json(sheet, { header: 1, raw: false, defval: "" });
+    const merges = sheet["!merges"] || [];
+    let maxC = 0;
+    aoa.forEach((row) => { if (row && row.length > maxC) maxC = row.length; });
+    merges.forEach((m) => { if (m.e.c + 1 > maxC) maxC = m.e.c + 1; });
+    for (let r = 0; r < aoa.length; r++) {
+      if (!aoa[r]) aoa[r] = [];
+      while (aoa[r].length < maxC) aoa[r].push("");
+    }
+    merges.forEach((m) => {
+      const txt = hucreMetin((aoa[m.s.r] || [])[m.s.c]);
+      for (let r = m.s.r; r <= m.e.r; r++) {
+        if (!aoa[r]) aoa[r] = [];
+        for (let c = m.s.c; c <= m.e.c; c++) {
+          if (!hucreMetin(aoa[r][c])) aoa[r][c] = txt;
+        }
+      }
+    });
     return aoa.map((row) => (row || []).map(hucreMetin));
   }
 
@@ -269,7 +297,7 @@
 
     const XLSX = await sheetJsYukle();
     const wb = XLSX.read(buf, { type: "array", cellDates: false });
-    return xlsxMatris(wb);
+    return xlsxMatris(wb, rezervasyonSayfaAdi(wb));
   }
 
   function yapiBul(matris) {

@@ -2280,28 +2280,6 @@
     return String(rez.notlar || rez.not || "").trim();
   }
 
-  const XL = {
-    cizgi: "#6b7280",
-    tarihBg: "#1e2d3d",
-    tarihHaftaSonu: "#243446",
-    hucreYazi: "#111827",
-    ayAyiriciBg: "#1a2633",
-    ayAyiriciYazi: "#ffffff",
-    thKose: "padding:3px 6px;background:#1e2d3d;color:#ffffff;font-weight:800;font-size:10px;border:1px solid #6b7280;text-align:center;white-space:nowrap;",
-    thDaire: (bg) => "padding:3px 6px;background:" + bg + ";font-weight:800;font-size:10px;color:#111827;text-align:center;border:1px solid #6b7280;white-space:nowrap;",
-    thMini: (bg) => "padding:2px 3px;background:" + bg + ";font-size:9px;font-weight:700;color:#111827;border:1px solid #6b7280;text-align:center;",
-    tdTarih: (haftaSonu) => "padding:2px 4px;background:" + (haftaSonu ? "#243446" : "#1e2d3d") +
-      ";color:#ffffff;font-size:10px;border:1px solid #6b7280;vertical-align:middle;white-space:nowrap;",
-    tdHucre: (bg) => "padding:1px 3px;background:" + bg + ";color:#111827;font-size:10px;border:1px solid #6b7280;vertical-align:middle;text-align:center;white-space:nowrap;",
-    tdAyAyirici: "padding:5px 8px;background:#1a2633;color:#ffffff;font-weight:300;font-size:11px;letter-spacing:1px;text-align:center;border:1px solid #6b7280;",
-    tdNot: (bg) => "padding:2px 4px;background:" + bg + ";color:#374151;font-size:9px;border:1px solid #6b7280;vertical-align:middle;text-align:left;white-space:normal;min-width:80px;"
-  };
-
-  function xlHucre(metin, stil, colspan) {
-    const cs = colspan ? ' colspan="' + colspan + '"' : "";
-    return '<td' + cs + ' style="' + stil + '">' + esc(metin) + "</td>";
-  }
-
   /** Excel Kt sütunu: kategori adı (simge değil) — import ile aynı referans */
   function excelKategoriAd(rez) {
     const ad = kaynakBaslik(rez);
@@ -2380,59 +2358,463 @@
     return gelir + "  —  Sezon toplam ≈ " + fmt(Math.round(tlToplam)) + " ₺";
   }
 
-  function excelRaporHtml(y, daireler, gunler, harita) {
+  const XL_KENAR = "6B7280";
+
+  function xlArayuz(kitap) {
+    const ek = window.APARTIM.excelKitap;
+    const onbellek = Object.create(null);
+    function s(anahtar, opts) {
+      if (onbellek[anahtar] == null) onbellek[anahtar] = ek.stil(kitap, opts);
+      return onbellek[anahtar];
+    }
+    function h(v, stilId, span, asagi) {
+      return { v: v == null ? "" : String(v), s: stilId || 0, span: span || 1, asagi: asagi || 0 };
+    }
+    function hex(renk) {
+      return String(renk || "FFFFFF").replace("#", "").toUpperCase();
+    }
+    const st = {
+      banner: () => s("banner", { bg: "15202B", color: "FFFFFF", bold: true, size: 14, align: "left", border: XL_KENAR }),
+      alt: () => s("alt", { bg: "1E2D3D", color: "FFFFFF", bold: false, size: 11, align: "left", border: XL_KENAR }),
+      kose: () => s("kose", { bg: "1E2D3D", color: "FFFFFF", bold: true, size: 10, align: "center", border: XL_KENAR }),
+      ay: () => s("ay", { bg: "1A2633", color: "FFFFFF", bold: false, size: 11, align: "center", border: XL_KENAR }),
+      bolum: () => s("bolum", { bg: "1A2633", color: "FFFFFF", bold: true, size: 11, align: "left", border: XL_KENAR }),
+      th: () => s("th", { bg: "1E2D3D", color: "FFFFFF", bold: true, size: 10, align: "center", border: XL_KENAR }),
+      tarih: (hs) => s(hs ? "ths" : "thn", {
+        bg: hs ? "243446" : "1E2D3D", color: "FFFFFF", bold: true, size: 10, align: "center", border: XL_KENAR
+      }),
+      daireTh: (r) => s("dth-" + r, { bg: r, color: "111827", bold: true, size: 10, align: "center", border: XL_KENAR }),
+      daireMini: (r) => s("dmi-" + r, { bg: r, color: "111827", bold: true, size: 9, align: "center", border: XL_KENAR }),
+      daireTd: (r) => s("dtd-" + r, { bg: r, color: "111827", bold: false, size: 10, align: "center", border: XL_KENAR }),
+      daireNot: (r) => s("dno-" + r, { bg: r, color: "374151", bold: false, size: 9, align: "left", wrap: true, border: XL_KENAR }),
+      td: () => s("td", { bg: "FFFFFF", color: "111827", bold: false, size: 10, align: "center", border: XL_KENAR }),
+      tdSol: () => s("tdsol", { bg: "FFFFFF", color: "111827", bold: false, size: 10, align: "left", wrap: true, border: XL_KENAR }),
+      tamam: () => s("tamam", { bg: "D8F3DF", color: "245C3A", bold: false, size: 10, align: "center", border: XL_KENAR }),
+      tamamSol: () => s("tamamsol", { bg: "D8F3DF", color: "245C3A", bold: false, size: 10, align: "left", wrap: true, border: XL_KENAR }),
+      acik: () => s("acik", { bg: "FDE8EA", color: "7A4450", bold: false, size: 10, align: "center", border: XL_KENAR }),
+      acikSol: () => s("aciksol", { bg: "FDE8EA", color: "7A4450", bold: false, size: 10, align: "left", wrap: true, border: XL_KENAR }),
+      kirinti: () => s("kirinti", { bg: "FFF4D6", color: "8A4B08", bold: true, size: 10, align: "center", border: XL_KENAR }),
+      kirintiSol: () => s("kirintisol", { bg: "FFF4D6", color: "8A4B08", bold: false, size: 10, align: "left", wrap: true, border: XL_KENAR }),
+      toplam: () => s("toplam", { bg: "1E2D3D", color: "FFFFFF", bold: true, size: 10, align: "center", border: XL_KENAR }),
+      toplamSol: () => s("toplamsol", { bg: "1E2D3D", color: "FFFFFF", bold: true, size: 10, align: "left", border: XL_KENAR })
+    };
+    return { h, hex, st };
+  }
+
+  function xlSatir(hucreler, yukseklik, basSutun) {
+    return { hucreler, yukseklik: yukseklik || 16, basSutun: basSutun || 1 };
+  }
+
+  function excelTutarYaz(miktar, pb) {
+    const para = window.APARTIM.para;
+    const p = pb || "TL";
+    if (para?.formatTutar) return para.formatTutar(miktar, p);
+    return String(miktar || 0) + " " + p;
+  }
+
+  function excelPbMetin(tutar, pb) {
+    const n = Number(tutar) || 0;
+    if (!n) return "—";
+    return excelTutarYaz(Math.abs(n), pb);
+  }
+
+  function excelGelirMetin(gelirPB, eksi) {
+    const pb = gelirPB || {};
+    const parcalar = [];
+    const tlGoster = (pb.TL || 0) +
+      (window.APARTIM.para && pb.EUR ? window.APARTIM.para.tlKarsiligi(pb.EUR, "EUR") : 0);
+    const on = eksi ? "−" : "";
+    if (tlGoster) parcalar.push(on + excelPbMetin(Math.abs(tlGoster), "TL"));
+    if (pb.USD) parcalar.push(on + excelPbMetin(Math.abs(pb.USD), "USD"));
+    if (!parcalar.length) return (eksi ? "−" : "") + "0 ₺";
+    return parcalar.join(" · ");
+  }
+
+  function excelNetMetin(netPB) {
+    const pb = netPB || {};
+    const parcalar = [];
+    if (pb.TL) parcalar.push((pb.TL < 0 ? "−" : "") + excelPbMetin(Math.abs(pb.TL), "TL"));
+    if (pb.USD) parcalar.push((pb.USD < 0 ? "−" : "") + excelPbMetin(Math.abs(pb.USD), "USD"));
+    return parcalar.length ? parcalar.join(" · ") : "0 ₺";
+  }
+
+  function excelPbToplamTl(gelirPB) {
+    const para = window.APARTIM.para;
+    const pb = gelirPB || {};
+    if (!para) return (pb.TL || 0) + (pb.USD || 0) + (pb.EUR || 0);
+    return (pb.TL || 0) +
+      para.tlKarsiligi(pb.USD || 0, "USD") +
+      para.tlKarsiligi(pb.EUR || 0, "EUR");
+  }
+
+  function excelSayfaRezervasyon(kitap, y, daireler, gunler, harita) {
+    const ui = xlArayuz(kitap);
     const colSpan = 1 + daireler.length * XL_DAIRE_COL;
     const satirlar = [];
+    satirlar.push(xlSatir([
+      ui.h("APARTIM — Rezervasyon · Haziran – Eylül " + y, ui.st.banner(), colSpan)
+    ], 22));
+    satirlar.push(xlSatir([
+      ui.h(excelSezonOzetMetni(y), ui.st.alt(), colSpan)
+    ], 18));
 
-    satirlar.push(
-      '<tr><td colspan="' + colSpan + '" style="padding:8px 10px;background:#15202b;color:#ffffff;font-size:14px;font-weight:800;border:1px solid #6b7280;">' +
-        esc("APARTIM — Rezervasyon Özeti · Haziran – Eylül " + y) + "</td></tr>"
-    );
-    satirlar.push(
-      '<tr><td colspan="' + colSpan + '" style="padding:6px 10px;background:#1e2d3d;color:#ffffff;font-size:11px;border:1px solid #6b7280;">' +
-        esc(excelSezonOzetMetni(y)) + "</td></tr>"
-    );
-
-    let h1 = '<td rowspan="2" style="' + XL.thKose + '">Tarih</td>';
+    const bas1 = [ui.h("Tarih", ui.st.kose(), 1, 1)];
     daireler.forEach((d, i) => {
-      h1 += xlHucre(daireBaslik(d), XL.thDaire(daireRenk(d, i)), XL_DAIRE_COL);
+      bas1.push(ui.h(daireBaslik(d), ui.st.daireTh(ui.hex(daireRenk(d, i))), XL_DAIRE_COL));
     });
-    satirlar.push("<tr>" + h1 + "</tr>");
+    satirlar.push(xlSatir(bas1, 18));
 
-    let h2 = "";
+    const bas2 = [];
     daireler.forEach((d, i) => {
-      const renk = daireRenk(d, i);
+      const renk = ui.hex(daireRenk(d, i));
       ["G", "Kt", "Fyt", "Ödn", "Ad", "Not"].forEach((lbl) => {
-        h2 += xlHucre(lbl, XL.thMini(renk));
+        bas2.push(ui.h(lbl, ui.st.daireMini(renk)));
       });
     });
-    satirlar.push("<tr>" + h2 + "</tr>");
+    satirlar.push(xlSatir(bas2, 16, 2));
 
     let oncekiAy = -1;
     gunler.forEach(({ tarih, ay }) => {
       const gun = Number(tarih.slice(8, 10));
-      const haftaSonu = new Date(y, ay, gun).getDay();
-      const hs = haftaSonu === 0 || haftaSonu === 6;
-
+      const hs = new Date(y, ay, gun).getDay();
+      const haftaSonu = hs === 0 || hs === 6;
       if (ay !== oncekiAy) {
-        satirlar.push("<tr>" + xlHucre(AY_ADLARI[ay] + " " + y, XL.tdAyAyirici, colSpan) + "</tr>");
+        satirlar.push(xlSatir([ui.h(AY_ADLARI[ay] + " " + y, ui.st.ay(), colSpan)], 18));
         oncekiAy = ay;
       }
-
-      let satir = xlHucre(tarihGoster(tarih) + " " + gunAdi(tarih), XL.tdTarih(hs));
+      const hucreler = [ui.h(tarihGoster(tarih) + " " + gunAdi(tarih), ui.st.tarih(haftaSonu))];
       daireler.forEach((d, di) => {
-        const h = gunDurumuHarita(harita, d.id, tarih);
-        const renk = daireRenk(d, di);
-        const hucre = excelDaireHucreleri(h, tarih);
+        const renk = ui.hex(daireRenk(d, di));
+        const hucre = excelDaireHucreleri(gunDurumuHarita(harita, d.id, tarih), tarih);
         (hucre.hucreler || []).forEach((txt, ci) => {
-          const stil = ci === 5 ? XL.tdNot(renk) : XL.tdHucre(renk);
-          satir += xlHucre(txt, stil);
+          hucreler.push(ui.h(txt, ci === 5 ? ui.st.daireNot(renk) : ui.st.daireTd(renk)));
         });
       });
-      satirlar.push("<tr>" + satir + "</tr>");
+      satirlar.push(xlSatir(hucreler, 16));
     });
 
-    return satirlar.join("");
+    const kolonlar = [18];
+    daireler.forEach(() => kolonlar.push(6, 14, 12, 16, 18, 24));
+    window.APARTIM.excelKitap.sayfa(kitap, {
+      ad: "Rezervasyon",
+      satirlar,
+      kolonlar,
+      dondur: { satir: 4, sutun: 1 },
+      secili: true,
+      sekme: "1E2D3D"
+    });
+  }
+
+  function excelKirintiOzet(ozet) {
+    if (!ozet || !ozet.adet) return "";
+    const sira = { TL: 0, USD: 1, EUR: 2 };
+    const pbs = Object.keys(ozet.parca || {}).sort((a, b) => (sira[a] ?? 9) - (sira[b] ?? 9) || a.localeCompare(b));
+    const tutarlar = pbs.map((pb) => excelTutarYaz(ozet.parca[pb], pb));
+    return "Kırıntı " + ozet.adet + (tutarlar.length ? " · " + tutarlar.join(" + ") : "");
+  }
+
+  function excelGeceSayisi(rez) {
+    const db = window.APARTIM.db;
+    if (db?.geceTarihleri && rez?.giris && rez?.cikis) {
+      return db.geceTarihleri(rez.giris, rez.cikis).length;
+    }
+    return Number(rez?.toplamGece) || 0;
+  }
+
+  function excelSayfaTahsilat(kitap, y, daireler) {
+    const ui = xlArayuz(kitap);
+    const db = window.APARTIM.db;
+    const tah = window.APARTIM.tahsilat;
+    const { bas, bitHaric } = sezonBasBit(y);
+    const rezervasyonlar = Object.values(db.durum.rezervasyonlar || {});
+    const liste = tah?.odaListeleri
+      ? tah.odaListeleri(daireler, rezervasyonlar, bas, bitHaric, "tumu")
+      : { map: {}, tamam: 0, acik: 0 };
+    const kir = tah?.kirintiTopla?.(liste.map);
+    const col = 11;
+    const basliklar = ["Oda", "Giriş", "Çıkış", "Gece", "Kategori", "Misafir", "Toplam", "Ödenen", "Kalan", "Durum", "Not"];
+    let ozet = (liste.tamam || 0) + " tamam · " + (liste.acik || 0) + " açık";
+    const kirMetin = excelKirintiOzet(kir);
+    if (kirMetin) ozet += "  —  " + kirMetin;
+    if (!liste.tamam && !liste.acik) ozet = "Bu sezonda rezervasyon yok";
+
+    const satirlar = [
+      xlSatir([ui.h("APARTIM — Tahsilat · Haziran – Eylül " + y, ui.st.banner(), col)], 22),
+      xlSatir([ui.h(ozet, ui.st.alt(), col)], 18),
+      xlSatir(basliklar.map((lbl) => ui.h(lbl, ui.st.th())), 18)
+    ];
+
+    daireler.forEach((d, di) => {
+      const renk = ui.hex(daireRenk(d, di));
+      (liste.map?.[d.id] || []).forEach((rez) => {
+        const bakiye = db.rezervasyonBakiye?.(rez);
+        const pb = bakiye?.fiyatPb || db.rezervasyonGosterimPb?.(rez) || "TL";
+        const tamam = !!rez.tahsilatTamamlandi;
+        const kirinti = tah?.kirintiBilgi?.(rez);
+        const durum = tamam ? (kirinti ? "Kırıntı" : "Tamam") : "Açık";
+        const orta = kirinti ? ui.st.kirinti() : (tamam ? ui.st.tamam() : ui.st.acik());
+        const sol = kirinti ? ui.st.kirintiSol() : (tamam ? ui.st.tamamSol() : ui.st.acikSol());
+        const toplam = bakiye ? excelTutarYaz(bakiye.toplam, pb) : "—";
+        const odenen = bakiye ? excelTutarYaz(bakiye.odenen, pb) : "—";
+        const kalan = bakiye ? excelTutarYaz(bakiye.kalan, pb) : "—";
+        satirlar.push(xlSatir([
+          ui.h(daireBaslik(d), ui.st.daireTd(renk)),
+          ui.h(rez.giris ? tarihGoster(rez.giris) : "—", orta),
+          ui.h(rez.cikis ? tarihGoster(rez.cikis) : "—", orta),
+          ui.h(String(excelGeceSayisi(rez)), orta),
+          ui.h(excelKategoriAd(rez), orta),
+          ui.h(rez.misafirAdi || "—", sol),
+          ui.h(toplam, orta),
+          ui.h(odenen, orta),
+          ui.h(kalan, orta),
+          ui.h(durum, orta),
+          ui.h(rezNotMetni(rez), sol)
+        ], 16));
+      });
+    });
+
+    if (satirlar.length === 3) {
+      satirlar.push(xlSatir([ui.h("Bu sezonda rezervasyon yok", ui.st.tdSol(), col)], 18));
+    }
+
+    window.APARTIM.excelKitap.sayfa(kitap, {
+      ad: "Tahsilat",
+      satirlar,
+      kolonlar: [16, 14, 14, 8, 14, 22, 16, 16, 16, 12, 28],
+      dondur: { satir: 3 },
+      sekme: "245C3A"
+    });
+  }
+
+  function excelYontemSatirlari(r) {
+    const db = window.APARTIM.db;
+    const liste = db?.odemeYontemleriListele?.() || [];
+    const gorulen = new Set();
+    const satirlar = [];
+    const ekle = (key, ad) => {
+      if (!key || gorulen.has(key)) return;
+      gorulen.add(key);
+      const pb = (r.tahsilatYontem || {})[key] || { TL: 0, USD: 0, EUR: 0 };
+      const tlY = (pb.TL || 0) +
+        (window.APARTIM.para && pb.EUR ? window.APARTIM.para.tlKarsiligi(pb.EUR, "EUR") : 0);
+      if (!tlY && !pb.USD) return;
+      satirlar.push({ ad: ad || db?.odemeYontemiAd?.(key) || key, tl: tlY, usd: pb.USD || 0 });
+    };
+    liste.forEach((y) => ekle(y.id, y.ad));
+    Object.keys(r.tahsilatYontem || {}).forEach((key) => ekle(key, db?.odemeYontemiAd?.(key) || key));
+    return satirlar;
+  }
+
+  function excelSayfaRapor(kitap, y, daireler) {
+    const ui = xlArayuz(kitap);
+    const col = 7;
+    const app = window.APARTIM.app;
+    const sezon = app?.raporVerisi?.({ mod: "yil", yil: y });
+    const satirlar = [];
+    if (!sezon) {
+      satirlar.push(xlSatir([ui.h("APARTIM — Rapor · Haziran – Eylül " + y, ui.st.banner(), col)], 22));
+      satirlar.push(xlSatir([ui.h("Rapor verisi hazır değil", ui.st.alt(), col)], 18));
+      window.APARTIM.excelKitap.sayfa(kitap, {
+        ad: "Rapor", satirlar, kolonlar: [18, 12, 12, 18, 18, 18, 12], dondur: { satir: 2 }, sekme: "15202B"
+      });
+      return;
+    }
+
+    const netEksi = (sezon.netPB?.TL || 0) < 0 || (sezon.netPB?.USD || 0) < 0;
+    satirlar.push(xlSatir([
+      ui.h("APARTIM — Rapor · Haziran – Eylül " + y, ui.st.banner(), col)
+    ], 22));
+    satirlar.push(xlSatir([
+      ui.h(
+        "Gelir " + excelGelirMetin(sezon.gelirPB) +
+        "  —  Tahsilat " + excelGelirMetin(sezon.tahsilatPB) +
+        "  —  Net " + excelNetMetin(sezon.netPB),
+        ui.st.alt(),
+        col
+      )
+    ], 18));
+
+    function bolum(ad) {
+      satirlar.push(xlSatir([ui.h(ad, ui.st.bolum(), col)], 18));
+    }
+    function baslik(etiketler) {
+      satirlar.push(xlSatir(etiketler.map((lbl) => ui.h(lbl, ui.st.th())), 16));
+    }
+    function ozetSatir(ad, deger, eksi) {
+      const stil = eksi ? ui.st.acik() : ui.st.td();
+      const sol = eksi ? ui.st.acikSol() : ui.st.tdSol();
+      satirlar.push(xlSatir([ui.h(ad, sol), ui.h(deger, stil, col - 1)], 16));
+    }
+
+    bolum("Özet");
+    satirlar.push(xlSatir([
+      ui.h("Kalem", ui.st.th()),
+      ui.h("Değer", ui.st.th(), col - 1)
+    ], 16));
+    ozetSatir("Gelir (gece)", excelGelirMetin(sezon.gelirPB));
+    ozetSatir("Tahsilat", excelGelirMetin(sezon.tahsilatPB));
+    ozetSatir("Harcama (kasa)", excelGelirMetin(sezon.harcamaPB, true), true);
+    ozetSatir("Net (tahsilat − harcama)", excelNetMetin(sezon.netPB), netEksi);
+    ozetSatir("Toplam gece", String(sezon.toplamGece) + " gece");
+    ozetSatir("Doluluk", "%" + Math.round(sezon.doluluk || 0));
+    ozetSatir("Rezervasyon", String(sezon.rezSayisi || 0));
+
+    bolum("Tahsilat (ödeme yöntemi)");
+    satirlar.push(xlSatir([
+      ui.h("Yöntem", ui.st.th()),
+      ui.h("TL", ui.st.th()),
+      ui.h("USD", ui.st.th()),
+      ui.h("", ui.st.th(), 4)
+    ], 16));
+    const yontemler = excelYontemSatirlari(sezon);
+    if (!yontemler.length) {
+      satirlar.push(xlSatir([ui.h("Bu dönemde tahsilat yok", ui.st.tdSol(), col)], 16));
+    } else {
+      yontemler.forEach((yontem) => {
+        satirlar.push(xlSatir([
+          ui.h(yontem.ad, ui.st.tdSol()),
+          ui.h(excelPbMetin(yontem.tl, "TL"), ui.st.td()),
+          ui.h(excelPbMetin(yontem.usd, "USD"), ui.st.td()),
+          ui.h("", ui.st.td(), 4)
+        ], 16));
+      });
+    }
+
+    bolum("Daire özeti");
+    baslik(["Daire", "Rez", "Gece", "Gelir TL", "Gelir USD", "Toplam ≈ TL", "Doluluk"]);
+    daireler.forEach((d, di) => {
+      const o = sezon.daireOzet?.[d.id] || { gece: 0, rez: 0, gelirPB: { TL: 0, USD: 0, EUR: 0 } };
+      const doluluk = sezon.gunSayisi > 0 ? Math.round(o.gece * 100 / sezon.gunSayisi) : 0;
+      const tlD = (o.gelirPB.TL || 0) +
+        (window.APARTIM.para && o.gelirPB.EUR ? window.APARTIM.para.tlKarsiligi(o.gelirPB.EUR, "EUR") : 0);
+      const renk = ui.hex(daireRenk(d, di));
+      satirlar.push(xlSatir([
+        ui.h(daireBaslik(d), ui.st.daireTd(renk)),
+        ui.h(String(o.rez || 0), ui.st.daireTd(renk)),
+        ui.h(String(o.gece || 0), ui.st.daireTd(renk)),
+        ui.h(excelPbMetin(tlD, "TL"), ui.st.daireTd(renk)),
+        ui.h(excelPbMetin(o.gelirPB.USD, "USD"), ui.st.daireTd(renk)),
+        ui.h(excelTutarYaz(Math.round(excelPbToplamTl(o.gelirPB)), "TL"), ui.st.daireTd(renk)),
+        ui.h("%" + doluluk, ui.st.daireTd(renk))
+      ], 16));
+    });
+
+    bolum("Aylık kırılım");
+    baslik(["Ay", "Gelir", "Tahsilat", "Harcama", "Net", "Gece", "Doluluk"]);
+    for (let ay = SEZON_BAS_AY; ay <= SEZON_BIT_AY; ay++) {
+      const r = app.raporVerisi({ mod: "ay", yil: y, ay });
+      const eksi = (r.netPB?.TL || 0) < 0 || (r.netPB?.USD || 0) < 0;
+      const hucre = eksi ? ui.st.acik() : ui.st.td();
+      const sol = eksi ? ui.st.acikSol() : ui.st.tdSol();
+      satirlar.push(xlSatir([
+        ui.h(AY_ADLARI[ay] + " " + y, sol),
+        ui.h(excelGelirMetin(r.gelirPB), hucre),
+        ui.h(excelGelirMetin(r.tahsilatPB), hucre),
+        ui.h(excelGelirMetin(r.harcamaPB, true), hucre),
+        ui.h(excelNetMetin(r.netPB), hucre),
+        ui.h(String(r.toplamGece || 0), hucre),
+        ui.h("%" + Math.round(r.doluluk || 0), hucre)
+      ], 16));
+    }
+    satirlar.push(xlSatir([
+      ui.h("Sezon", ui.st.toplamSol()),
+      ui.h(excelGelirMetin(sezon.gelirPB), ui.st.toplam()),
+      ui.h(excelGelirMetin(sezon.tahsilatPB), ui.st.toplam()),
+      ui.h(excelGelirMetin(sezon.harcamaPB, true), ui.st.toplam()),
+      ui.h(excelNetMetin(sezon.netPB), ui.st.toplam()),
+      ui.h(String(sezon.toplamGece || 0), ui.st.toplam()),
+      ui.h("%" + Math.round(sezon.doluluk || 0), ui.st.toplam())
+    ], 18));
+
+    window.APARTIM.excelKitap.sayfa(kitap, {
+      ad: "Rapor",
+      satirlar,
+      kolonlar: [28, 22, 22, 22, 22, 16, 12],
+      dondur: { satir: 2 },
+      sekme: "15202B"
+    });
+  }
+
+  function excelGiderMi(h) {
+    return h?.tip === "gider" || h?.tip === "harcama";
+  }
+
+  function excelKalemAd(yontem) {
+    const ham = String(yontem || "kasa").toLowerCase();
+    const y = ham === "elden" || ham === "nakit" ? "kasa" : ham;
+    return window.APARTIM.db?.odemeYontemiAd?.(y) || y || "Nakit";
+  }
+
+  function excelKasaOzetMetin(liste) {
+    let gelirTl = 0, gelirUsd = 0, giderTl = 0, giderUsd = 0;
+    (liste || []).forEach((h) => {
+      const t = Number(h.tutar) || 0;
+      const gider = excelGiderMi(h);
+      if (h.pb === "USD") {
+        if (gider) giderUsd += t;
+        else gelirUsd += t;
+      } else if (gider) giderTl += t;
+      else gelirTl += t;
+    });
+    const netTl = gelirTl - giderTl;
+    const netUsd = gelirUsd - giderUsd;
+    const imza = (n, pb) => (n < 0 ? "−" : "") + excelTutarYaz(Math.abs(n), pb);
+    return "Gelir " + excelTutarYaz(gelirTl, "TL") + " · " + excelTutarYaz(gelirUsd, "USD") +
+      "  —  Gider " + excelTutarYaz(giderTl, "TL") + " · " + excelTutarYaz(giderUsd, "USD") +
+      "  —  Net " + imza(netTl, "TL") + " · " + imza(netUsd, "USD");
+  }
+
+  function excelSayfaKasa(kitap, y, daireler) {
+    const ui = xlArayuz(kitap);
+    const db = window.APARTIM.db;
+    const col = 7;
+    const liste = (db.kasaHareketListele?.("tumu") || [])
+      .filter((h) => String(h.tarih || "").slice(0, 4) === String(y))
+      .sort((a, b) => {
+        if (a.tarih !== b.tarih) return String(a.tarih).localeCompare(String(b.tarih));
+        return String(a.id).localeCompare(String(b.id));
+      });
+    const satirlar = [
+      xlSatir([ui.h("APARTIM — Kasa · " + y, ui.st.banner(), col)], 22),
+      xlSatir([ui.h(liste.length ? excelKasaOzetMetin(liste) : y + " yılında kasa kaydı yok", ui.st.alt(), col)], 18),
+      xlSatir(["Tarih", "Oda", "Müşteri", "Kalem", "Tür", "Not", "Miktar"].map((lbl) => ui.h(lbl, ui.st.th())), 18)
+    ];
+    let oncekiAy = -1;
+    liste.forEach((h) => {
+      const ay = Number(String(h.tarih || "").slice(5, 7)) - 1;
+      if (ay !== oncekiAy && ay >= 0) {
+        satirlar.push(xlSatir([ui.h(AY_ADLARI[ay] + " " + y, ui.st.ay(), col)], 18));
+        oncekiAy = ay;
+      }
+      const gider = excelGiderMi(h);
+      const orta = gider ? ui.st.acik() : ui.st.tamam();
+      const sol = gider ? ui.st.acikSol() : ui.st.tamamSol();
+      let oda = "Harici";
+      if (h.daireId) {
+        const d = daireler.find((x) => x.id === h.daireId);
+        oda = d ? daireBaslik(d) : (h.oda || "—");
+      }
+      const tutar = (gider ? "−" : "+") + excelTutarYaz(h.tutar, h.pb === "USD" ? "USD" : "TL");
+      satirlar.push(xlSatir([
+        ui.h(h.tarih ? tarihGoster(h.tarih) : "—", orta),
+        ui.h(oda, orta),
+        ui.h(h.musteri || "—", sol),
+        ui.h(excelKalemAd(h.yontem), orta),
+        ui.h(gider ? "Gider" : "Gelir", orta),
+        ui.h(h.not || "—", sol),
+        ui.h(tutar, orta)
+      ], 16));
+    });
+    if (!liste.length) {
+      satirlar.push(xlSatir([ui.h(y + " yılında kasa kaydı yok", ui.st.tdSol(), col)], 18));
+    }
+    window.APARTIM.excelKitap.sayfa(kitap, {
+      ad: "Kasa",
+      satirlar,
+      kolonlar: [14, 16, 22, 14, 10, 28, 16],
+      dondur: { satir: 3 },
+      sekme: "7A4450"
+    });
   }
 
   async function excelRaporIndir() {
@@ -2442,32 +2824,35 @@
       return;
     }
 
+    const ek = window.APARTIM.excelKitap;
+    if (!ek?.yeni || !ek.uint8) {
+      window.APARTIM.toast?.("Excel oluşturucu yüklenmedi", "hata");
+      return;
+    }
+
     try {
       const y = sezonYil();
       const daireler = dairelerOzetSirasi(db);
       const gunler = sezonGunleri(y);
       const { bas, bit } = sezonBasBit(y);
       const harita = gunHaritasiOlustur(db, daireler, bas, bit);
+      const kitap = ek.yeni();
+      excelSayfaRezervasyon(kitap, y, daireler, gunler, harita);
+      excelSayfaTahsilat(kitap, y, daireler);
+      excelSayfaRapor(kitap, y, daireler);
+      excelSayfaKasa(kitap, y, daireler);
 
-      const tabloGovde = excelRaporHtml(y, daireler, gunler, harita);
-      const html =
-        '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">' +
-        "<head><meta charset=\"UTF-8\"/><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"/>" +
-        "<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>" +
-        "<x:Name>Rezervasyon</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>" +
-        "</x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->" +
-        "<style>table{border-collapse:collapse;width:100%;}td,th{mso-number-format:\"\\@\";font-size:11px;padding:2px 4px;border:1px solid #ccc;}</style></head><body>" +
-        '<table border="0" cellspacing="0" cellpadding="0">' + tabloGovde + "</table></body></html>";
-
-      const dosyaAdi = "Apartim-Rezervasyon-" + y + "-Haziran-Eylul.xls";
-      const blob = new Blob(["\ufeff" + html], { type: "application/vnd.ms-excel;charset=utf-8" });
+      const dosyaAdi = "Apartim-" + y + "-Haziran-Eylul.xlsx";
+      const blob = ek.blob ? ek.blob(kitap) : new Blob([ek.uint8(kitap)], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      });
 
       if (window.APARTIM.dosyaIndir) {
         await window.APARTIM.dosyaIndir(blob, dosyaAdi, {
-          baslik: "Apartım rezervasyon raporu",
-          basariMesaj: "Excel raporu indirildi",
-          mobilPaylasMesaj: "Excel veya Numbers seçin — düzenleyebilirsiniz",
-          mobilIndirMesaj: "Excel dosyası indirildi — Dosyalar'dan açın"
+          baslik: "Apartım raporu",
+          basariMesaj: "Excel indirildi — sayfalar: Rezervasyon, Tahsilat, Rapor, Kasa",
+          mobilPaylasMesaj: "Excel veya Numbers seçin — dört sayfa alttaki sekmelerde",
+          mobilIndirMesaj: "Excel indirildi — alttaki sayfalar: Rezervasyon, Tahsilat, Rapor, Kasa"
         });
         return;
       }
@@ -2480,7 +2865,7 @@
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(url), 60000);
-      window.APARTIM.toast?.("Excel raporu indirildi", "basari");
+      window.APARTIM.toast?.("Excel indirildi — sayfalar: Rezervasyon, Tahsilat, Rapor, Kasa", "basari");
     } catch (err) {
       console.error("excelRaporIndir", err);
       window.APARTIM.toast?.("Rapor oluşturulamadı", "hata");

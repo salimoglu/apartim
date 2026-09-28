@@ -793,9 +793,26 @@
     }
   });
 
+  /** Seçili ekranı bozmadan dönem hesabı. mod: "ay" | "yil" */
+  function raporVerisi(opts) {
+    const o = opts || {};
+    const once = { mod: raporDurum.mod, yil: raporDurum.yil, ay: raporDurum.ay };
+    if (o.mod === "ay" || o.mod === "yil") raporDurum.mod = o.mod;
+    if (Number.isFinite(Number(o.yil))) raporDurum.yil = Number(o.yil);
+    if (Number.isFinite(Number(o.ay))) raporDurum.ay = Number(o.ay);
+    try {
+      return raporHesapla();
+    } finally {
+      raporDurum.mod = once.mod;
+      raporDurum.yil = once.yil;
+      raporDurum.ay = once.ay;
+    }
+  }
+
   window.APARTIM.app = {
     sekmeSec,
     raporCiz,
+    raporVerisi,
     raporExportIndir,
     yatayModMu,
     modalAcikGuncelle,
