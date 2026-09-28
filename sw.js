@@ -2,8 +2,8 @@
    JS/CSS: stale-while-revalidate (hızlı yenileme + arka planda güncelleme)
    HTML navigate: network-first (kısa zaman aşımı → cache)
    Sürüm: js/version.js APP ile senkron (2.99 → 3.0; minor 0–99) */
-const CACHE_VERSION = "apartim-3-81";
-const ASSET_V = "3.81";
+const CACHE_VERSION = "apartim-3-91";
+const ASSET_V = "3.91";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -15,6 +15,7 @@ const CORE_ASSETS = [
   "./js/pwa-install.js?v=" + ASSET_V,
   "./js/auth.js?v=" + ASSET_V,
   "./js/kimlik.js?v=" + ASSET_V,
+  "./js/yetki.js?v=" + ASSET_V,
   "./js/db.js?v=" + ASSET_V,
   "./js/robust.js?v=" + ASSET_V,
   "./js/gorunum.js?v=" + ASSET_V,
@@ -31,6 +32,7 @@ const CORE_ASSETS = [
   "./js/tema.js?v=" + ASSET_V,
   "./js/ayarlar.js?v=" + ASSET_V,
   "./js/kasa.js?v=" + ASSET_V,
+  "./js/personel.js?v=" + ASSET_V,
   "./js/app.js?v=" + ASSET_V,
   "./icons/icon-180.png",
   "./icons/icon-192.png",

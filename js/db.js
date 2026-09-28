@@ -261,6 +261,7 @@
   }
 
   function dovizKurlariKaydet(kurlar) {
+    yetkiYazmaKontrol("doviz");
     durum.dovizKurlari = dovizKurlariNorm(kurlar);
     dovizKurlariSenkron();
     if (window.APARTIM.firebaseAktif) {
@@ -951,6 +952,7 @@
   }
 
   function musteriKaynaklariSeedEt() {
+    if (!yetkiYazabilirMi("kaynaklar")) return;
     let degisti = false;
     VARSAYILAN_MUSTERI_KAYNAKLARI.forEach((t) => {
       if (!durum.musteriKaynaklari[t.id]) {
@@ -978,6 +980,7 @@
   }
 
   function odemeYontemleriSeedEt() {
+    if (!yetkiYazabilirMi("odemeKalemleri")) return;
     let degisti = false;
     VARSAYILAN_ODEME_YONTEMLERI.forEach((t) => {
       if (!durum.odemeYontemleri[t.id]) {
@@ -1025,6 +1028,7 @@
   }
 
   function dairelerSeedUygula() {
+    if (!yetkiYazabilirMi("odaDuzenle")) return;
     const mevcut = Object.values(durum.daireler).filter((d) => d && d.id);
     /* İlk kurulum: hiç oda yoksa varsayılan beşi ekle.
        Sonraki açılışlarda silinen oda-1…oda-5 geri yazılmaz. */
@@ -1067,10 +1071,19 @@
 
   // ---------- Firebase / yerel kaynak ----------
   let kullaniciUid = null;
-  let fbRef = null; // ana ref
+  let fbRef = null; // otel veya (eski) kullanıcı kökü
+  let profilRef = null;
+  let profilDinlenen = null;
+  let uyeRef = null;
+  let otelIdAktif = null;
+  let hazirNesil = 0;
+  const OTEL_VERI_YOLLARI = [
+    "daireler", "rezervasyonlar", "kasa-harcama", "temizlik-kayit",
+    "musteri-kaynaklari", "odeme-yontemleri", "doviz-kurlari", "robust"
+  ];
   const FB_COCUK_YOLLAR = [
     "daireler", "rezervasyonlar", "kasa-harcama",
-    "temizlik-kayit", "musteri-kaynaklari", "doviz-kurlari", "profil"
+    "temizlik-kayit", "musteri-kaynaklari", "odeme-yontemleri", "doviz-kurlari", "profil"
   ];
   let fbIdleIds = [];
   let fbTimeoutIds = [];
@@ -1092,18 +1105,37 @@
     }
   }
 
-  function firebaseDinlemeyiKaldir() {
+  function veriDinleyicileriniKopar() {
     fbZamanlayiciIptal();
-    profilAvatarDinlemeyiKaldir();
     if (!fbRef) return;
     FB_COCUK_YOLLAR.forEach((yol) => {
       try { fbRef.child(yol).off(); } catch (e) {}
     });
-    try { fbRef.off(); } catch (e) {}
+  }
+
+  function uyeDinlemeyiKaldir() {
+    if (!uyeRef) return;
+    try { uyeRef.off(); } catch (e) {}
+    uyeRef = null;
+  }
+
+  function firebaseDinlemeyiKaldir() {
+    fbZamanlayiciIptal();
+    profilAvatarDinlemeyiKaldir();
+    uyeDinlemeyiKaldir();
+    if (fbRef) {
+      FB_COCUK_YOLLAR.forEach((yol) => {
+        try { fbRef.child(yol).off(); } catch (e) {}
+      });
+      try { fbRef.off(); } catch (e) {}
+    }
     fbRef = null;
+    profilRef = null;
+    otelIdAktif = null;
   }
 
   function oturumuKapat() {
+    hazirNesil += 1;
     firebaseDinlemeyiKaldir();
     kullaniciUid = null;
     durum.yuklendi = false;
@@ -1116,15 +1148,22 @@
     durum.temizlikKayit = {};
     durum.musteriKaynaklari = {};
     durum.kasaHarcama = {};
+    window.APARTIM.yetki?.sifirla?.();
+    document.dispatchEvent(new CustomEvent("apartim:oturum-kapandi"));
   }
   let yerelAktif = !window.APARTIM.firebaseAktif;
   let profilAvatarListener = null;
 
+  function profilKok() {
+    return profilRef || fbRef;
+  }
+
   function profilAvatarDinlemeyiKaldir() {
-    if (profilAvatarListener && fbRef) {
-      fbRef.child("profil").off("value", profilAvatarListener);
-      profilAvatarListener = null;
+    if (profilAvatarListener && profilDinlenen) {
+      profilDinlenen.child("profil").off("value", profilAvatarListener);
     }
+    profilAvatarListener = null;
+    profilDinlenen = null;
   }
 
   function profilAvatarUygula(kullanici) {
@@ -1153,8 +1192,9 @@
       return;
     }
     const yerel = window.APARTIM.avatar?.depoOku?.(uid);
-    if (yerel && fbRef) {
-      fbRef.child("profil").update({ avatarId: yerel }).catch(() => {});
+    const kok = profilKok();
+    if (yerel && kok) {
+      kok.child("profil").update({ avatarId: yerel }).catch(() => {});
       return;
     }
     if (yerel && window.APARTIM.avatar?.depoSil) {
@@ -1164,12 +1204,14 @@
   }
 
   function profilAvatarFirebaseBagla() {
-    if (!window.APARTIM.firebaseAktif || !fbRef) return;
+    const kok = profilKok();
+    if (!window.APARTIM.firebaseAktif || !kok) return;
     profilAvatarDinlemeyiKaldir();
+    profilDinlenen = kok;
     profilAvatarListener = (snap) => {
       profilAvatarFirebaseUygula(snap.val() || {});
     };
-    fbRef.child("profil").on("value", profilAvatarListener);
+    kok.child("profil").on("value", profilAvatarListener);
   }
 
   function profilAvatarKaydet(avatarId) {
@@ -1182,8 +1224,9 @@
     } else {
       try { localStorage.setItem("apartim-avatar-" + uid, avatarId); } catch (e) {}
     }
-    if (window.APARTIM.firebaseAktif && fbRef) {
-      return fbRef.child("profil").update({ avatarId }).catch(() => {});
+    const kok = profilKok();
+    if (window.APARTIM.firebaseAktif && kok) {
+      return kok.child("profil").update({ avatarId }).catch(() => {});
     }
     return Promise.resolve();
   }
@@ -1197,7 +1240,252 @@
     }
   }
 
+  function izinReddi(err) {
+    const kod = String((err && err.code) || "");
+    const mesaj = String((err && err.message) || "");
+    return kod === "PERMISSION_DENIED" || /PERMISSION_DENIED|permission_denied/i.test(mesaj);
+  }
+
+  async function jetonBekle() {
+    const user = window.APARTIM.fbAuth && window.APARTIM.fbAuth.currentUser;
+    if (!user || typeof user.getIdToken !== "function") return;
+    try { await user.getIdToken(); } catch (e) {}
+  }
+
+  function bekle(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function uyelikOku(db, uid) {
+    const yol = db.ref("apartim/uyelik/" + uid);
+    await jetonBekle();
+    try {
+      return await yol.once("value");
+    } catch (err) {
+      if (!izinReddi(err)) throw err;
+      try { db.goOffline(); db.goOnline(); } catch (e) {}
+      await bekle(500);
+      await jetonBekle();
+      return await yol.once("value");
+    }
+  }
+
+  function dinleyiciHata(err) {
+    if (izinReddi(err)) return;
+    window.APARTIM.syncDurum("hata");
+  }
+
+  function rezOkunur() {
+    const y = window.APARTIM.yetki;
+    if (!y || y.model() !== "otel") return true;
+    return y.gorebilir("rezervasyonlar") || y.gorebilir("tahsilat") ||
+      y.gorebilir("rapor") || y.gorebilir("kasa");
+  }
+
+  function kasaOkunur() {
+    const y = window.APARTIM.yetki;
+    if (!y || y.model() !== "otel") return true;
+    return y.gorebilir("kasa");
+  }
+
+  function profilKimlikYaz(kullanici) {
+    const kok = profilKok();
+    if (!kok || !kullanici) return;
+    const profilPatch = {
+      ad: kullanici.ad || "",
+      kullaniciAdi: kullanici.kullaniciAdi || "",
+      eposta: kullanici.eposta || "",
+      son: firebase.database.ServerValue.TIMESTAMP
+    };
+    fbGecikmeli(() => {
+      profilKok()?.child("profil").update(profilPatch).catch(() => {});
+    }, 3000, 300);
+  }
+
+  function veriDinleyicileriniBagla() {
+    if (!fbRef) return;
+    fbRef.child("daireler").on("value", (snap) => {
+      if (daireSeedKilit) return;
+      durum.daireler = snap.val() || {};
+      dairelerSeedEt();
+      fbIlkDaireler = true;
+      fbYuklemeDurumuGuncelle();
+      veriDegistiBildir("daireler");
+      window.APARTIM.syncDurum("aktif");
+    }, dinleyiciHata);
+
+    if (rezOkunur()) {
+      fbRef.child("rezervasyonlar").on("value", (snap) => {
+        durum.rezervasyonlar = rezervasyonlariNormalize(snap.val() || {});
+        fbIlkRez = true;
+        fbYuklemeDurumuGuncelle();
+        veriDegistiBildir("rezervasyonlar");
+      }, dinleyiciHata);
+    } else {
+      durum.rezervasyonlar = {};
+      fbIlkRez = true;
+      fbYuklemeDurumuGuncelle();
+    }
+
+    if (kasaOkunur()) {
+      fbRef.child("kasa-harcama").on("value", (snap) => {
+        durum.kasaHarcama = snap.val() || {};
+        veriDegistiBildir("kasa-harcama");
+      }, dinleyiciHata);
+    } else {
+      durum.kasaHarcama = {};
+    }
+
+    const ikincilDinleyicileriBagla = () => {
+      if (!fbRef) return;
+      fbRef.child("temizlik-kayit").on("value", (snap) => {
+        durum.temizlikKayit = snap.val() || {};
+      }, dinleyiciHata);
+      fbRef.child("musteri-kaynaklari").on("value", (snap) => {
+        durum.musteriKaynaklari = snap.val() || {};
+        musteriKaynaklariSeedEt();
+        veriDegistiBildir("musteri-kaynaklari");
+      }, dinleyiciHata);
+      fbRef.child("odeme-yontemleri").on("value", (snap) => {
+        durum.odemeYontemleri = snap.val() || {};
+        odemeYontemleriSeedEt();
+        veriDegistiBildir("odeme-yontemleri");
+      }, dinleyiciHata);
+      fbRef.child("doviz-kurlari").on("value", (snap) => {
+        const v = snap.val();
+        if (v) durum.dovizKurlari = dovizKurlariNorm(v);
+        dovizKurlariSenkron();
+        veriDegistiBildir("doviz-kurlari");
+      }, dinleyiciHata);
+    };
+    fbGecikmeli(ikincilDinleyicileriBagla, 2500, 400);
+  }
+
+  function girisKapi() {
+    try { return String(sessionStorage.getItem("apartim-giris-kapi") || ""); }
+    catch (e) { return ""; }
+  }
+
+  async function otelOlusturVeyaTasi(uid, kullanici, eskiHazir) {
+    const db = window.APARTIM.fbDb;
+    const otelKok = "apartim/oteller/" + uid;
+    const uyeSnap = await db.ref(otelKok + "/uyeler/" + uid).once("value");
+    if (!uyeSnap.exists()) {
+      await db.ref(otelKok + "/uyeler/" + uid).set(window.APARTIM.yetki.sahipKaydi(kullanici));
+    }
+    let eski = eskiHazir;
+    if (!eski) {
+      const eskiSnap = await db.ref("apartim/kullanicilar/" + uid).once("value");
+      eski = eskiSnap.val() || {};
+    }
+    const guncelleme = {};
+    for (let i = 0; i < OTEL_VERI_YOLLARI.length; i++) {
+      const yol = OTEL_VERI_YOLLARI[i];
+      if (!eski || eski[yol] == null) continue;
+      const parca = await db.ref(otelKok + "/" + yol).once("value");
+      if (parca.val() == null) guncelleme[otelKok + "/" + yol] = eski[yol];
+    }
+    if (Object.keys(guncelleme).length) await db.ref().update(guncelleme);
+    await db.ref("apartim/uyelik/" + uid).set(uid);
+    return uid;
+  }
+
+  function uyeDinle(otelId, uid) {
+    uyeDinlemeyiKaldir();
+    uyeRef = window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + uid);
+    uyeRef.on("value", (snap) => {
+      const uye = snap.val();
+      if (!uye) {
+        veriDinleyicileriniKopar();
+        durum.rezervasyonlar = {};
+        durum.kasaHarcama = {};
+        window.APARTIM.yetki?.uygula?.(null, "otel");
+        window.APARTIM.yetki?.kapiGoster?.("red", "Girişiniz durduruldu. Otel sahibi Personeller ekranından açınca yeniden girebilirsiniz.");
+        return;
+      }
+      const once = window.APARTIM.yetki?.ozet?.() || "";
+      window.APARTIM.yetki?.uygula?.(uye, "otel");
+      const sonra = window.APARTIM.yetki?.ozet?.() || "";
+      if (once && once !== sonra) {
+        veriDinleyicileriniKopar();
+        veriDinleyicileriniBagla();
+        document.dispatchEvent(new CustomEvent("apartim:otel-hazir", { detail: { otelId } }));
+      }
+    });
+  }
+
+  async function otelAc(kullanici, otelId, nesil) {
+    if (nesil != null && nesil !== hazirNesil) return;
+    const uid = kullanici.uid;
+    const uyeSnap = await window.APARTIM.fbDb.ref("apartim/oteller/" + otelId + "/uyeler/" + uid).once("value");
+    const uye = uyeSnap.val();
+    if (!uye || (uye.rol !== "sahip" && uye.rol !== "personel")) {
+      window.APARTIM.yetki?.uygula?.(null, "otel");
+      window.APARTIM.yetki?.kapiGoster?.("red", "Girişiniz durduruldu. Otel sahibi Personeller ekranından açınca yeniden girebilirsiniz.");
+      return;
+    }
+    otelIdAktif = otelId;
+    window.APARTIM.yetki?.kapiGoster?.("gizli");
+    window.APARTIM.yetki?.uygula?.(uye, "otel");
+    profilRef = window.APARTIM.fbDb.ref("apartim/kullanicilar/" + uid);
+    fbRef = window.APARTIM.fbDb.ref("apartim/oteller/" + otelId);
+    profilAvatarFirebaseBagla();
+    profilKimlikYaz(kullanici);
+    veriDinleyicileriniBagla();
+    uyeDinle(otelId, uid);
+    document.dispatchEvent(new CustomEvent("apartim:otel-hazir", { detail: { otelId } }));
+  }
+
+  function pencereEskiKullanici(kullanici) {
+    window.APARTIM.yetki?.kapiGoster?.("gizli");
+    window.APARTIM.yetki?.uygula?.(null, "eski");
+    profilRef = null;
+    otelIdAktif = null;
+    fbRef = window.APARTIM.fbDb.ref("apartim/kullanicilar/" + kullanici.uid);
+    profilAvatarFirebaseBagla();
+    profilKimlikYaz(kullanici);
+    veriDinleyicileriniBagla();
+  }
+
+  async function otelHazirla(kullanici, nesil) {
+    const uid = kullanici.uid;
+    const db = window.APARTIM.fbDb;
+    let uyelikSnap;
+    try {
+      uyelikSnap = await uyelikOku(db, uid);
+    } catch (err) {
+      if (izinReddi(err)) {
+        if (nesil === hazirNesil) pencereEskiKullanici(kullanici);
+        return;
+      }
+      throw err;
+    }
+    let otelId = typeof uyelikSnap.val() === "string" ? uyelikSnap.val() : "";
+    if (!otelId) {
+      if (girisKapi() === "personel") {
+        if (nesil !== hazirNesil) return;
+        window.APARTIM.yetki?.uygula?.(null, "otel");
+        window.APARTIM.yetki?.kapiGoster?.(
+          "red",
+          "Bu kullanıcı adı bir personele ait değil. Otel sahibinin Personeller ekranından verdiği kullanıcı adı ve şifre ile Personel kapısından girin."
+        );
+        return;
+      }
+      let eski = null;
+      try {
+        const eskiSnap = await db.ref("apartim/kullanicilar/" + uid).once("value");
+        eski = eskiSnap.val();
+      } catch (err) {
+        if (!izinReddi(err)) throw err;
+      }
+      otelId = await otelOlusturVeyaTasi(uid, kullanici, eski);
+    }
+    if (nesil !== hazirNesil) return;
+    await otelAc(kullanici, otelId, nesil);
+  }
+
   function kullaniciHazir(kullanici) {
+    const nesil = ++hazirNesil;
     firebaseDinlemeyiKaldir();
     kullaniciUid = kullanici.uid;
     fbIlkSenkronBitti = false;
@@ -1207,68 +1495,20 @@
     clearTimeout(fbIlkSenkronTimer);
     profilAvatarYukle(kullanici);
     if (window.APARTIM.firebaseAktif) {
-      fbRef = window.APARTIM.fbDb.ref("apartim/kullanicilar/" + kullaniciUid);
-      profilAvatarFirebaseBagla();
-      const profilPatch = {
-        ad: kullanici.ad || "",
-        kullaniciAdi: kullanici.kullaniciAdi || "",
-        eposta: kullanici.eposta || "",
-        son: firebase.database.ServerValue.TIMESTAMP
-      };
-      const profilGuncelle = () => {
-        fbRef?.child("profil").update(profilPatch).catch(() => {});
-      };
-      fbGecikmeli(profilGuncelle, 3000, 300);
-
-      fbRef.child("daireler").on("value", (snap) => {
-        if (daireSeedKilit) return;
-        durum.daireler = snap.val() || {};
-        dairelerSeedEt();
-        fbIlkDaireler = true;
-        fbYuklemeDurumuGuncelle();
-        veriDegistiBildir("daireler");
-        window.APARTIM.syncDurum("aktif");
-      }, () => window.APARTIM.syncDurum("hata"));
-
-      fbRef.child("rezervasyonlar").on("value", (snap) => {
-        durum.rezervasyonlar = rezervasyonlariNormalize(snap.val() || {});
-        fbIlkRez = true;
-        fbYuklemeDurumuGuncelle();
-        veriDegistiBildir("rezervasyonlar");
+      window.APARTIM.yetki?.beklet?.();
+      otelHazirla(kullanici, nesil).catch((err) => {
+        console.warn("otelHazirla", err);
+        if (nesil !== hazirNesil) return;
+        if (!fbRef) pencereEskiKullanici(kullanici);
+        if (izinReddi(err)) {
+          window.APARTIM.toast?.("Personel ayrımı sunucuda henüz açık değil.", "uyari");
+          return;
+        }
+        window.APARTIM.toast?.("Otel verisi açılamadı", "hata");
       });
-
-      /* Kasa harcamaları ana veriyle birlikte — boş flaş olmasın */
-      fbRef.child("kasa-harcama").on("value", (snap) => {
-        durum.kasaHarcama = snap.val() || {};
-        veriDegistiBildir("kasa-harcama");
-      });
-
-      const ikincilDinleyicileriBagla = () => {
-        if (!fbRef) return;
-        /* Temizlik UI kaldırıldı — senkron sessiz (gereksiz tam çizim yok) */
-        fbRef.child("temizlik-kayit").on("value", (snap) => {
-          durum.temizlikKayit = snap.val() || {};
-        });
-        fbRef.child("musteri-kaynaklari").on("value", (snap) => {
-          durum.musteriKaynaklari = snap.val() || {};
-          musteriKaynaklariSeedEt();
-          veriDegistiBildir("musteri-kaynaklari");
-        });
-        fbRef.child("odeme-yontemleri").on("value", (snap) => {
-          durum.odemeYontemleri = snap.val() || {};
-          odemeYontemleriSeedEt();
-          veriDegistiBildir("odeme-yontemleri");
-        });
-        fbRef.child("doviz-kurlari").on("value", (snap) => {
-          const v = snap.val();
-          if (v) durum.dovizKurlari = dovizKurlariNorm(v);
-          dovizKurlariSenkron();
-          veriDegistiBildir("doviz-kurlari");
-        });
-      };
-      fbGecikmeli(ikincilDinleyicileriBagla, 2500, 400);
     } else {
-      profilAvatarYukle(kullanici);
+      window.APARTIM.yetki?.uygula?.(null, "yerel");
+      window.APARTIM.yetki?.kapiGoster?.("gizli");
       const v = window.APARTIM.yerelOku();
       durum.daireler = v.daireler || {};
       durum.rezervasyonlar = rezervasyonlariNormalize(v.rezervasyonlar || {});
@@ -1298,6 +1538,32 @@
       kasaHarcama: durum.kasaHarcama,
       dovizKurlari: durum.dovizKurlari
     });
+  }
+
+  function yetkiYazabilirMi(anahtar) {
+    const y = window.APARTIM.yetki;
+    if (!y || typeof y.yazabilir !== "function") return true;
+    return !!y.yazabilir(anahtar);
+  }
+
+  function yetkiIstegiReddet(anahtarlar) {
+    const liste = Array.isArray(anahtarlar) ? anahtarlar : [anahtarlar];
+    if (liste.some((k) => yetkiYazabilirMi(k))) return null;
+    const err = new Error("Bu işlem için yetkiniz yok");
+    window.APARTIM.toast?.(err.message, "hata");
+    return err;
+  }
+
+  function yetkiYazmaKontrol(anahtarlar) {
+    const err = yetkiIstegiReddet(anahtarlar);
+    if (err) throw err;
+  }
+
+  const TAHSILAT_ALANLARI = { odenenGunleri: 1, tahsilatTamamlandi: 1 };
+
+  function yalnizcaTahsilat(partial) {
+    const anahtarlar = Object.keys(partial || {});
+    return anahtarlar.length > 0 && anahtarlar.every((k) => TAHSILAT_ALANLARI[k]);
   }
 
   // path örnek: "daireler/ust", "rezervasyonlar/abc"
@@ -1408,6 +1674,7 @@
   }
 
   function kasaHarcamaEkle(veri) {
+    yetkiYazmaKontrol("kasaYaz");
     const id = veri?.id || yeniId();
     const eski = durum.kasaHarcama[id];
     const kayit = kasaHarcamaNorm(Object.assign({}, veri, {
@@ -1427,6 +1694,7 @@
   }
 
   function kasaHarcamaSil(id) {
+    yetkiYazmaKontrol("kasaYaz");
     if (!id || !durum.kasaHarcama[id]) return Promise.resolve();
     delete durum.kasaHarcama[id];
     return sil("kasa-harcama/" + id);
@@ -1434,6 +1702,7 @@
 
   /** Kasa listesinden gelir (tahsilat) satırını güncelle */
   function kasaGelirGuncelle(rezId, odemeId, eskiPb, form) {
+    yetkiYazmaKontrol(["tahsilatYaz", "rezervasyonYaz"]);
     const rez = durum.rezervasyonlar[rezId];
     if (!rez) return Promise.reject(new Error("Rezervasyon bulunamadı"));
     if (!odemeId) return Promise.reject(new Error("Ödeme kaydı yok"));
@@ -1652,6 +1921,7 @@
   }
   function daireGetir(id) { return durum.daireler[id] || null; }
   function daireGuncelle(id, partial) {
+    yetkiYazmaKontrol("odaDuzenle");
     durum.daireler[id] = Object.assign({}, durum.daireler[id] || {}, partial);
     return guncelle("daireler/" + id, partial);
   }
@@ -1675,6 +1945,7 @@
     return { id, sira: Math.max(maxSira, adet) + 1 };
   }
   function daireEkle(ad) {
+    yetkiYazmaKontrol("odaDuzenle");
     const metin = String(ad || "").trim();
     if (!metin) throw new Error("Oda adı boş olamaz.");
     if (metin.length > 40) throw new Error("Oda adı en fazla 40 karakter olabilir.");
@@ -1698,6 +1969,7 @@
     return kaydet("daireler/" + id, kayit).then(() => kayit);
   }
   function daireSil(id) {
+    yetkiYazmaKontrol("odaDuzenle");
     const d = durum.daireler[id];
     if (!d) throw new Error("Oda bulunamadı.");
     if (dairelerListele().length <= 1) {
@@ -1747,6 +2019,7 @@
     return metin;
   }
   function musteriKaynagiEkle(ad, simge) {
+    yetkiYazmaKontrol("kaynaklar");
     const metin = String(ad || "").trim();
     if (!metin) throw new Error("Kategori adı boş olamaz.");
     const simgeMetin = musteriKaynagiSimgeNorm(simge);
@@ -1766,6 +2039,7 @@
     return kaydet("musteri-kaynaklari/" + id, kayit).then(() => kayit);
   }
   function musteriKaynagiGuncelle(id, partial) {
+    yetkiYazmaKontrol("kaynaklar");
     const k = durum.musteriKaynaklari[id];
     if (!k) throw new Error("Kategori bulunamadı.");
     const ad = partial && partial.ad != null ? String(partial.ad).trim() : String(k.ad || "").trim();
@@ -1788,6 +2062,7 @@
     });
   }
   function musteriKaynagiSil(id) {
+    yetkiYazmaKontrol("kaynaklar");
     const k = durum.musteriKaynaklari[id];
     if (!k) throw new Error("Kategori bulunamadı.");
     if (k.sistem) throw new Error("Varsayılan kategoriler silinemez.");
@@ -1856,6 +2131,7 @@
   }
 
   function odemeYontemiEkle(ad) {
+    yetkiYazmaKontrol("odemeKalemleri");
     const metin = odemeYontemAdTemizle(ad);
     if (odemeYontemAdCakisiyor(metin)) throw new Error("Bu isimde kalem zaten var.");
     const id = odemeYontemIdUret(metin);
@@ -1866,6 +2142,7 @@
   }
 
   function odemeYontemiGuncelle(id, partial) {
+    yetkiYazmaKontrol("odemeKalemleri");
     const mevcut = durum.odemeYontemleri[id];
     if (!mevcut) throw new Error("Kalem bulunamadı.");
     const ad = odemeYontemAdTemizle(partial && partial.ad != null ? partial.ad : mevcut.ad);
@@ -1890,6 +2167,7 @@
   }
 
   function odemeYontemiSil(id) {
+    yetkiYazmaKontrol("odemeKalemleri");
     const k = durum.odemeYontemleri[id];
     if (!k) throw new Error("Kalem bulunamadı.");
     if (k.sistem) throw new Error("Varsayılan kalemler silinemez. Adını değiştirebilirsiniz.");
@@ -1951,6 +2229,7 @@
   }
 
   function rezervasyonEkle(rez) {
+    yetkiYazmaKontrol("rezervasyonYaz");
     rezervasyonKaynakDogrula(rez);
     const cakis = dairedeCakisanRez(rez.daireId, rez.giris, rez.cikis);
     if (cakis) {
@@ -1966,6 +2245,7 @@
     return kaydet("rezervasyonlar/" + id, tam).then(() => tam);
   }
   function rezervasyonGuncelle(id, partial) {
+    yetkiYazmaKontrol(yalnizcaTahsilat(partial) ? ["tahsilatYaz", "rezervasyonYaz"] : "rezervasyonYaz");
     const mevcut = durum.rezervasyonlar[id];
     if (!mevcut) throw new Error("Rezervasyon bulunamadı");
     const yeni = Object.assign({}, mevcut, partial);
@@ -2002,6 +2282,7 @@
     return kaydet("rezervasyonlar/" + id, hazir).then(() => hazir);
   }
   function rezervasyonSil(id) {
+    yetkiYazmaKontrol("rezervasyonYaz");
     delete durum.rezervasyonlar[id];
     return sil("rezervasyonlar/" + id);
   }
@@ -2101,6 +2382,11 @@
 
   /** Tüm kullanıcı verisini yedeğin içeriğiyle değiştirir. Firebase update atomiktir. */
   function anlikVeriUygula(veri) {
+    if (window.APARTIM.yetki && !window.APARTIM.yetki.sahipMi()) {
+      const err = new Error("Yedek yüklemek yalnızca otel sahibine açıktır");
+      window.APARTIM.toast?.(err.message, "hata");
+      return Promise.reject(err);
+    }
     if (!veri || typeof veri !== "object") {
       return Promise.reject(new Error("Yedek verisi boş."));
     }
@@ -2133,7 +2419,13 @@
           ? null
           : paket.odemeYontemleri;
       }
-      return fbRef.update(guncelleme).catch((err) => {
+      const yaz = otelIdAktif
+        ? window.APARTIM.fbDb.ref().update(Object.keys(guncelleme).reduce((acc, anahtar) => {
+          acc["apartim/oteller/" + otelIdAktif + "/" + anahtar] = guncelleme[anahtar];
+          return acc;
+        }, {}))
+        : fbRef.update(guncelleme);
+      return yaz.catch((err) => {
         console.warn("Robust geri yükleme hatası:", err);
         window.APARTIM.toast?.("Geri yükleme sunucuya yazılamadı", "hata");
         throw err;
@@ -2156,6 +2448,7 @@
   }
 
   function robustBulutHazir() {
+    if (window.APARTIM.yetki && !window.APARTIM.yetki.sahipMi()) return false;
     return !!(window.APARTIM.firebaseAktif && fbRef);
   }
 
@@ -2239,6 +2532,7 @@
     dairedeCakisanRez,
     daireDurumuBugun,
     oturumuKapat,
+    otelIdGetir: () => otelIdAktif,
     kasaHarcamaListele,
     kasaHarcamaEkle,
     kasaHarcamaGuncelle,

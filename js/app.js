@@ -105,13 +105,25 @@
   }
 
   // ---- Sekme yönetimi ----
+  function icerikGenisligi(ad) {
+    const kutu = document.querySelector(".content");
+    if (!kutu) return;
+    kutu.classList.toggle("content-rez-genis", ad === "rezervasyonlar");
+    kutu.classList.toggle("content-tahsilat-genis", ad === "tahsilat");
+    kutu.classList.toggle("content-bina-genis", ad === "bina");
+  }
+
   function sekmeSec(ad) {
+    const yetki = window.APARTIM.yetki;
+    if (yetki && ad && !yetki.sekmeAcikMi(ad)) {
+      const ilk = yetki.ilkSekme();
+      if (!ilk || ilk === ad) return;
+      ad = ilk;
+    }
     if (ad !== "rezervasyonlar") {
       window.APARTIM.rezOzet?.tamEkranKapat?.();
     }
-    document.querySelector(".content")?.classList.toggle("content-rez-genis", ad === "rezervasyonlar");
-    document.querySelector(".content")?.classList.toggle("content-tahsilat-genis", ad === "tahsilat");
-    document.querySelector(".content")?.classList.toggle("content-bina-genis", ad === "bina");
+    icerikGenisligi(ad);
     document.body.classList.toggle("sekme-rezervasyonlar", ad === "rezervasyonlar");
     document.documentElement.classList.toggle("sekme-rezervasyonlar", ad === "rezervasyonlar");
     document.querySelectorAll(".tab-btn").forEach((b) =>
@@ -179,7 +191,7 @@
 
     document.getElementById("topbar-home")?.addEventListener("click", () => {
       window.APARTIM.daire?.kapat();
-      sekmeSec("rezervasyonlar");
+      sekmeSec(window.APARTIM.yetki?.ilkSekme?.() || "rezervasyonlar");
     });
 
     // PWA — pwa-install.js banner ve yükleme akışını yönetir
@@ -205,9 +217,21 @@
   function ilkSekmeAc() {
     if (ilkSekmeAcildi) return;
     ilkSekmeAcildi = true;
-    sekmeSec("rezervasyonlar");
+    const ilk = window.APARTIM.yetki?.ilkSekme?.();
+    if (ilk) sekmeSec(ilk);
   }
   document.addEventListener("apartim:auth-hazir", ilkSekmeAc);
+  document.addEventListener("apartim:yetki-degisti", () => {
+    const yetki = window.APARTIM.yetki;
+    if (!yetki) return;
+    const aktif = document.querySelector(".tab-btn.active");
+    if (aktif && yetki.sekmeAcikMi(aktif.dataset.tab)) {
+      icerikGenisligi(aktif.dataset.tab);
+      return;
+    }
+    const ilk = yetki.ilkSekme();
+    if (ilk) sekmeSec(ilk);
+  });
 
   document.addEventListener("apartim:veri-degisti", () => {
     const aktifRapor = document.getElementById("tab-rapor")?.classList.contains("active");
