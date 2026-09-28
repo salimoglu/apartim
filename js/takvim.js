@@ -239,7 +239,10 @@
           takvimDetayKapat();
         }
       });
+      /* Kutu tıklamayı dışarıya taşımasın; × bu kutunun içinde olduğu için
+         kapat düğmesinde durdurma — yoksa X kartı kapatamaz. */
       pop.querySelector(".takvim-detay-kutu").addEventListener("click", (e) => {
+        if (e.target.closest(".takvim-detay-kapat")) return;
         e.stopPropagation();
       });
       document.addEventListener("keydown", (e) => {
