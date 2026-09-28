@@ -5999,6 +5999,8 @@ html.theme-light .rez-ozet-form-takvim-ust .rez-ozet-gun-baslik.rez-ozet-bugun-s
   padding: 0 !important;
   vertical-align: top;
   box-sizing: border-box;
+  /* Kalan tutar satırı uzatınca kısa günlerin altı beyaz kalmasın; kenarlık gri kalsın. */
+  background-clip: padding-box;
 }
 .rez-ozet-form-takvim-ust td.rez-ozet-bugun-sutun {
   box-shadow: inset 3px 0 0 var(--vurgu);

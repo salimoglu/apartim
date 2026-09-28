@@ -1640,6 +1640,9 @@
     });
     ic.appendChild(body);
     td.appendChild(ic);
+    /* İç tablo kısa kalırsa görünen şerit, alttaki ad hücresinin rengi olsun. */
+    const sonHucre = body.lastElementChild && body.lastElementChild.querySelector("td");
+    td.style.background = (sonHucre && sonHucre.style.background) || renk;
     return td;
   }
 
@@ -1651,9 +1654,10 @@
     th.className = "rez-ozet-oda-yapiskan";
     th.textContent = daireBaslik(d);
     th.title = daireBaslik(d);
-    th.style.background = daireRenk(d, di);
-    tr.appendChild(th);
     const renk = daireRenk(d, di);
+    th.style.background = renk;
+    tr.style.background = renk;
+    tr.appendChild(th);
     gunler.forEach(({ tarih }) => {
       const dow = new Date(tarih + "T12:00:00").getDay();
       const h = gunDurumuHarita(harita, d.id, tarih);
